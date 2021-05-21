@@ -9,11 +9,11 @@ scrape_configs:
   honor_timestamps: true
   scrape_interval: 30s
   scrape_timeout: 30s
-  metrics_path: /books
+  metrics_path: /
   scheme: http
   static_configs:
   - targets:
-    - localhost:19997
+    - host.docker.internal:19997
     labels:
       instance: monitoring
 - job_name: slurm_sinfo
