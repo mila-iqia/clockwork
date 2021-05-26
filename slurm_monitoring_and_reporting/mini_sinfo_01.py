@@ -12,6 +12,8 @@ import os
 import time
 import json
 import re
+from datetime import datetime
+from collections import defaultdict
 
 import numpy as np
 from prometheus_client import start_http_server
@@ -19,6 +21,10 @@ from prometheus_client import Enum, Summary, Gauge
 
 # https://docs.paramiko.org/en/stable/api/client.html
 from paramiko import SSHClient, AutoAddPolicy
+
+import slurm_monitoring_and_reporting
+from slurm_monitoring_and_reporting.common import (filter_unrelated_jobs, )
+from slurm_monitoring_and_reporting.state_managers import (NodeStatesManager, ReservationStatesManager, JobStatesManager)
 
 
 import argparse
@@ -53,16 +59,30 @@ DD_cluster_desc = {
         "cmd" : 'source ${HOME}/Documents/code/venv38/bin/activate; python3 ${HOME}/bin/sinfo_scraper.py ',
         "hostname": "login.server.mila.quebec",
         "username": "alaingui",
-        "port": 2222 }
+        "port": 2222,
+        # Mila-specific values.
+        # These should be read from a configuration file instead of from the source code.
+        # We should figure out also what are the equivalent values for beluga and other clusters.
+        "slurm_login_nodes": [ "login-1", "login-2", "login-3", "login-4"],
+        "slurm_partitions": [   "unkillable","short-unkillable","main","main-grace",
+                                "long","long-grace","cpu_jobs","cpu_jobs_low","cpu_jobs_low-grace"]}
 }
+
+
+# Filters
+# slurm_ignore_partitions=["gcpDebug", "cloud_tpux1Cloud", "gcpDevCPUCloud", "gcpMicroMemCPUCloud", "gcpMiniMemCPUCloud", "gcpComputeCPUCloud", "gcpGeneralCPUCloud", "gcpMemoryCPUCloud", "gcpV100x1Cloud", "gcpV100Xx1Cloud", "gcpV100x2Cloud", "gcpV100x4Cloud", "gcpK80x1Cloud", "gcpK80Xx1Cloud", "gcpK80x2Cloud", "gcpK80x4Cloud"]
+
+
 
 
 class SinfoManager:
 
-    def __init__(self, cluster_name, endpoint_prefix):
+    def __init__(self, cluster_name, endpoint_prefix, mock_data_dir=None):
 
         self.cluster_name = cluster_name
         self.endpoint_prefix = endpoint_prefix
+        # this can be used for testing without bothering the production machines
+        self.mock_data_dir = mock_data_dir
 
         # alternatively will be fetched from the config file
         self.D_cluster_desc = DD_cluster_desc[cluster_name]
@@ -70,9 +90,12 @@ class SinfoManager:
         self.ssh_client = None
         self.node_states_manager = NodeStatesManager(cluster_name, endpoint_prefix)
         self.reservation_states_manager = ReservationStatesManager(cluster_name, endpoint_prefix)
-        self.D_job_states_manager = JobStatesManager(cluster_name, endpoint_prefix)
+        self.job_states_manager = JobStatesManager(cluster_name, endpoint_prefix, self.D_cluster_desc)
 
     def open_connection(self):
+        if self.mock_data_dir is not None:
+            # skip doing anything
+            return
         clds = self.D_cluster_desc
         self.ssh_client = SSHClient()
         self.ssh_client.set_missing_host_key_policy(AutoAddPolicy())
@@ -86,6 +109,9 @@ class SinfoManager:
         when it comes to Compute Canada clusters.
         We'd rather use 5 minutes intervals and close the connections each time.
         """
+        if self.mock_data_dir is not None:
+            # skip doing anything
+            return        
         self.ssh_client.close()
 
     def fetch_data(self):
@@ -124,10 +150,12 @@ class SinfoManager:
                 # which should be informative in its own right.
                 quit()
 
+        # Remove non-bengio non-mila jobs.
+        psl_jobs = filter_unrelated_jobs(psl_jobs)
         # No matter where the data came from, now we want to process it.
         self.node_states_manager.update(psl_nodes)
         self.reservation_states_manager.update(psl_reservations)
-        self.node_states_manager.update(psl_jobs)
+        self.job_states_manager.update(psl_jobs)
 
 """
 These "state managers" are a way to encapsulate the processing done
@@ -137,65 +165,29 @@ discuss them independently of each other.
 """
 
 
-class NodeStatesManager:
-    
-    # Slurm States
-    slurm_node_states = [ "allocated", "completing", "idle", "maint", "mixed", "perfctrs", "power_up", "reserved" ]
-    slurm_useless_states = [ "reboot", "down", "drained", "draining", "fail", "failing", "future", "power_down", "unknown" ]
-    # Not built-in state
-    slurm_useless_states.append('not_responding')
-
-    def __init__(self, cluster_name, endpoint_prefix):
-
-        assert cluster_name in ["mila", "beluga", "graham", "cedar", "dummy"]
-        self.cluster_name = cluster_name
-        self.endpoint_prefix = endpoint_prefix
-        #prom_node_states = Enum('slurm_node_states', 'States of nodes', states=NodeStates.slurm_node_states, labelnames=['name'])
-
-    def update(self, psl_nodes: dict):
-        """
-        Update all your counters and gauges based on the latest readout
-        given by argument `psl_nodes`.
-        """
-        pass
-
-class ReservationStatesManager:
-    def __init__(self, cluster_name, endpoint_prefix):
-        assert cluster_name in ["mila", "beluga", "graham", "cedar", "dummy"]
-        self.cluster_name = cluster_name
-        self.endpoint_prefix = endpoint_prefix
-
-    def update(self, psl_reservations: dict):
-        """
-        Update all your counters and gauges based on the latest readout
-        given by argument `psl_reservations`.
-        """
-        pass
-
-class JobStatesManager:
-    def __init__(self, cluster_name, endpoint_prefix):
-        assert cluster_name in ["mila", "beluga", "graham", "cedar", "dummy"]
-        self.cluster_name = cluster_name
-
-    def update(self, psl_jobs: dict):
-        """
-        Update all your counters and gauges based on the latest readout
-        given by argument `psl_jobs`.
-        """
-        pass
-
-
-
-
-
 def run():
     port = args.port
     # prom_metrics = {'request_latency_seconds': Summary('request_latency_seconds', 'Description of summary')}
 
+    sima = SinfoManager(args.cluster_name, args.endpoint_prefix, args.mock_data_dir)
+
     start_http_server(port)
     while True:
-        process_request(prom_metrics)
+        sima.open_connection()
+        sima.fetch_data()
+        sima.close_connection()
         time.sleep(args.refresh_interval)
 
 if __name__ == "__main__":
     run()
+
+"""
+export PYTHONPATH=${PYTHONPATH}:${HOME}/Documents/code/slurm_monitoring_and_reporting
+
+python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 30 \
+    --mock_data_dir ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/mila_cluster
+python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17002 --cluster_name beluga --endpoint_prefix "beluga_" --refresh_interval 30 \
+    --mock_data_dir ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/beluga
+
+
+"""
