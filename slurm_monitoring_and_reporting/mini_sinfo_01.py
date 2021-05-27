@@ -53,7 +53,21 @@ DD_cluster_desc = {
         "cmd" : 'module load python/3.8.2; python3 ${HOME}/bin/sinfo_scraper.py ',
         "hostname": "beluga.computecanada.ca",
         "username": "alaingui",
-        "port": 22 },
+        "port": 22,
+        # TODO : Find these values.
+        "slurm_login_nodes": [ ],
+        "slurm_partitions": ['c-gput4', 'gpubase_bygpu_b3', 'gpubase_bygpu_b2',
+            'cpubase_bycore_b4', 'cpularge_bycore_b5', 'cpubase_bycore_b3',
+            'cpularge_bynode_b4', 'cpularge_bycore_b3', 'gpubase_interac',
+            'c-slarge', 'cpubackfill', 'gpubase_bygpu_b1', 'gpubase_bynode_b4',
+            'cpubase_interac', 'gpubackfill', 'cpubase_bynode_b1', 'cpularge_bynode_b1',
+            'cpularge_bycore_b4', 'cpularge_interac', 'cpularge_bycore_b2',
+            'cpularge_bynode_b3', 'c-dragen', 'cpubase_bycore_b2', 'gpubase_bynode_b5',
+            'cpubase_bynode_b5', 'cpularge_bynode_b2', 'cpularge_bycore_b1', 'gpubase_bynode_b3',
+            'cpubase_bycore_b5', 'gpubase_bynode_b1', 'cpubase_bynode_b2', 'cpularge_bynode_b5',
+            'gpubase_bynode_b2', 'cpubase_bynode_b4', 'cpubase_bynode_b3', 'gpubase_bygpu_b4',
+            'cpubase_bycore_b1', 'gpubase_bygpu_b5'],
+         },
     "mila":
         {"name": "mila",
         "cmd" : 'source ${HOME}/Documents/code/venv38/bin/activate; python3 ${HOME}/bin/sinfo_scraper.py ',
@@ -181,8 +195,10 @@ def run():
 if __name__ == "__main__":
     run()
 
+
 """
 export PYTHONPATH=${PYTHONPATH}:${HOME}/Documents/code/slurm_monitoring_and_reporting
+source ${HOME}/Documents/code/venv38/bin/activate
 
 python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 30 \
     --mock_data_dir ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/mila_cluster

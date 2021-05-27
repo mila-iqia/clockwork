@@ -16,7 +16,7 @@ scrape_configs:
     - host.docker.internal:19997
     labels:
       instance: monitoring
-- job_name: slurm_sinfo
+- job_name: mila_slurm_sinfo
   honor_timestamps: true
   scrape_interval: 30s
   scrape_timeout: 30s
@@ -24,6 +24,19 @@ scrape_configs:
   scheme: http
   static_configs:
   - targets:
-    - localhost:19998
+    - host.docker.internal:17001
     labels:
       instance: monitoring
+      cluster_name: mila
+- job_name: beluga_slurm_sinfo
+  honor_timestamps: true
+  scrape_interval: 30s
+  scrape_timeout: 30s
+  metrics_path: /metrics
+  scheme: http
+  static_configs:
+  - targets:
+    - host.docker.internal:17002
+    labels:
+      instance: monitoring
+      cluster_name: beluga
