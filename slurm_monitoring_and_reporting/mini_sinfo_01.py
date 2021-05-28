@@ -1,5 +1,24 @@
 """
-Rewrite mini_sinfo_00.py but have it be responsible for only one cluster.
+Rewrite mini_sinfo_00.py but have it be responsible for only one cluster,
+to be selected using the script arguments.
+
+One of the unexpected things about this script is that it is
+both active and passive when it comes to what it does with
+the data after scraping it with pyslurm.
+
+- The Prometheus endpoint side of things is just a web server
+that waits from the Prometheus server to query it. It keeps its
+data up to date and patiently waits to be queried at regular intervals.
+- The ElasticSearch side of things will make bulk updates to a
+elasticsearch server every time that it reads from information
+from pyslurm.
+
+The two kinds of updates might coincidentally end up being just
+as frequent, but it helps to keep the dichotomy in mind
+when reading the code from state_managers.py.
+
+
+
 
 Everything that comes out of this endpoint will have a prefix given
 by --endpoint_prefix, which defaults to `cluster_name` followed by an underscore.
@@ -18,6 +37,8 @@ from collections import defaultdict
 import numpy as np
 from prometheus_client import start_http_server
 from prometheus_client import Enum, Summary, Gauge
+
+from elasticsearch import Elasticsearch
 
 # https://docs.paramiko.org/en/stable/api/client.html
 from paramiko import SSHClient, AutoAddPolicy
@@ -82,6 +103,28 @@ DD_cluster_desc = {
                                 "long","long-grace","cpu_jobs","cpu_jobs_low","cpu_jobs_low-grace"]}
 }
 
+# The names for `es_jobs_index` and `es_nodes_index` will go into elasticsearch.
+# Since we don't really understand how to make the best use of elasticsearch,
+# we might need to rethink some things.
+#
+# For the time being, we'll use the same keys for each cluster,
+# and we'll add the extra field "cluster_name" to all the data
+# injected into elasticsearch. This will require updating Grafana
+# so that it doesn't get confused about older entries that don't have
+# a value for "cluster_name".
+#
+# This is in line with the idea of using different Prometheus endpoints
+# that expose data labeled the same, and then referring to
+#     job="mila_slurm_sinfo"
+# when we produce plots.
+
+D_elasticsearch_config = {
+    "host": "http://deepgroove.local",
+    "port": 9200,
+    "jobs_index": "slurm_jobs",
+    "nodes_index": "slurm_nodes",
+    "timeout": '30s',
+}
 
 # Filters
 # slurm_ignore_partitions=["gcpDebug", "cloud_tpux1Cloud", "gcpDevCPUCloud", "gcpMicroMemCPUCloud", "gcpMiniMemCPUCloud", "gcpComputeCPUCloud", "gcpGeneralCPUCloud", "gcpMemoryCPUCloud", "gcpV100x1Cloud", "gcpV100Xx1Cloud", "gcpV100x2Cloud", "gcpV100x4Cloud", "gcpK80x1Cloud", "gcpK80Xx1Cloud", "gcpK80x2Cloud", "gcpK80x4Cloud"]
@@ -91,20 +134,52 @@ DD_cluster_desc = {
 
 class SinfoManager:
 
-    def __init__(self, cluster_name, endpoint_prefix, mock_data_dir=None):
+    def __init__(self, cluster_name, endpoint_prefix, mock_data_dir=None, want_elasticsearch=True):
 
         self.cluster_name = cluster_name
         self.endpoint_prefix = endpoint_prefix
         # this can be used for testing without bothering the production machines
         self.mock_data_dir = mock_data_dir
 
-        # alternatively will be fetched from the config file
+        # alternatively will be fetched from a config file
         self.D_cluster_desc = DD_cluster_desc[cluster_name]
 
+        # alternatively will be fetched from a config file
+        self.D_elasticsearch_config = D_elasticsearch_config
+        
+        if want_elasticsearch:
+            # Connect to ES. Note that there's a way to do this
+            # with multiple servers for ElasticSearch instead of
+            # assuming that we'll have only one (which is our case).
+            self.elasticsearch_client = Elasticsearch(
+                D_elasticsearch_config['host'],
+                port=D_elasticsearch_config['port'])
+
+            # Guillaume says : The next line from Quentin is cargo-cult for me.
+            #                  We get problems if we don't do it, but I don't understand
+            #                  why elastic search requires that.
+            self.elasticsearch_client.indices.create(
+                index=D_elasticsearch_config['jobs_index'], ignore=400)
+            if False:
+                doc = {
+                    'author': 'kimchy',
+                    'text': 'Elasticsearch: cool. bonsai cool.',
+                    'timestamp': datetime.now(),
+                }
+                res = self.elasticsearch_client.index(index="test-index", id=1, body=doc)
+                print(res['result'])
+                res = self.elasticsearch_client.get(index="test-index", id=1)
+                print(res['_source'])
+                quit()
+        else:
+            self.elasticsearch_client = None
+
+        # TODO : Add the required elasticsearch stuff to the other managers.
         self.ssh_client = None
         self.node_states_manager = NodeStatesManager(cluster_name, endpoint_prefix)
         self.reservation_states_manager = ReservationStatesManager(cluster_name, endpoint_prefix)
-        self.job_states_manager = JobStatesManager(cluster_name, endpoint_prefix, self.D_cluster_desc)
+        self.job_states_manager = JobStatesManager( cluster_name, endpoint_prefix, self.D_cluster_desc,
+                                                    self.D_elasticsearch_config, self.elasticsearch_client)
 
     def open_connection(self):
         if self.mock_data_dir is not None:
@@ -200,10 +275,14 @@ if __name__ == "__main__":
 export PYTHONPATH=${PYTHONPATH}:${HOME}/Documents/code/slurm_monitoring_and_reporting
 source ${HOME}/Documents/code/venv38/bin/activate
 
+# from a mock source
 python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 30 \
     --mock_data_dir ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/mila_cluster
 python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17002 --cluster_name beluga --endpoint_prefix "beluga_" --refresh_interval 30 \
     --mock_data_dir ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/beluga
 
+# or the same thing but getting the information for real
+python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 30 \
+python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17002 --cluster_name beluga --endpoint_prefix "beluga_" --refresh_interval 30 \
 
 """

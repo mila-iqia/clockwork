@@ -48,7 +48,7 @@ def main():
     valid_accounts = set(
         [a for a in accounts if re.match(r".*bengio.*", a)] + ["mila"]
     )
-    results['job'] = dict((k, v) for (k, v) in results['job'] if v['account'] in valid_accounts)
+    results['job'] = dict((k, v) for (k, v) in results['job'].items() if v['account'] in valid_accounts)
 
     # At this point, `results` contains the values that we want to return.
     # This does not mean that have done all the massaging of the data that we want to do.
