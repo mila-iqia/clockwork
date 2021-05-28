@@ -6,6 +6,7 @@ import json
 import re
 from datetime import datetime
 from collections import defaultdict
+from elasticsearch import Elasticsearch
 
 from prometheus_client import Enum, Summary, Gauge
 
@@ -63,7 +64,16 @@ class JobStatesManager:
         "running" : 10  # Green
     }
 
-    def __init__(self, cluster_name:str, endpoint_prefix: str, D_cluster_desc: dict):
+    # Jobs have certain fields that contain dates.
+    # For each of those fields, we'll add an extra one that's easier to display.
+    # It will have the same key followed by the "_str" suffix.
+    # We are not overwriting the original value.
+    job_date_fields = [ 'submit_time', 'start_time', 'end_time', 'eligible_time']
+
+
+    def __init__(self,
+        cluster_name:str, endpoint_prefix: str, D_cluster_desc: dict,
+        D_elasticsearch_config: dict, elasticsearch_client:Elasticsearch=None):
     
         assert cluster_name in ["mila", "beluga", "graham", "cedar", "dummy"]
         self.cluster_name = cluster_name
@@ -77,6 +87,9 @@ class JobStatesManager:
         self.job_state_counter = Gauge(endpoint_prefix + 'slurm_job_states', cluster_name + ' Slurm Job States', labelnames=['name'])
         self.login_node_counter = Gauge(endpoint_prefix + 'slurm_login_nodes', cluster_name + ' Slurm Login Nodes', labelnames=['name'])
         self.partition_counter = Gauge(endpoint_prefix + 'slurm_partitions', cluster_name + ' Slurm Partitions', labelnames=['name'])
+
+        self.D_elasticsearch_config = D_elasticsearch_config
+        self.elasticsearch_client = elasticsearch_client
 
         self.clear_prometheus_metrics()
 
@@ -93,6 +106,10 @@ class JobStatesManager:
         """
         self.clear_prometheus_metrics()
 
+        # accumulate over elements of psl_jobs
+        # and bulk commit to elasticsearch after
+        es_jobs_body = []
+
         utc_now = datetime.utcnow()
         for (job_id, job_data) in psl_jobs.items():
             job_state = job_data["job_state"].lower()
@@ -101,21 +118,23 @@ class JobStatesManager:
             # to make it more informative. These things
             # end up in ElasticSearch but they are not
             # found in the Prometheus metrics.
-            #
-            # At the current time, we have not connected
-            # any ElasticSearch component to this script.
-            # TODO : Integrate ElasticSearch in here.
 
             # Infer the actual account of the person, instead
             # of having all jobs belong to "mila".
             job_data['mila_user_account'] = extract_mila_user_account_from_job_data(job_data)
+            # Very useful for later when we untangle the sources in the plots.
+            job_data['cluster_name'] = self.cluster_name
 
-
-            # gyom : unsure why this is necessary
+            # Guillaume says : I'm unsure why Quentin does this.
             #if job_state not in self.slurm_job_states:
             #    self.slurm_job_states.append(job_state)
         
+            # Quentin wrote that Grafana wanted UTC.
             job_data['timestamp'] = utc_now
+            # Create display time for convenience.
+            for key in self.job_date_fields:
+                job_data[key + '_str'] = datetime.fromtimestamp(job_data[key]).strftime('%Y-%m-%d %H:%M:%S')
+
             # Boolean for state, only for Grafana colors.
             # See comment in header of JobStatesManager class.
             if job_state in self.slurm_job_states_color.keys():
@@ -136,5 +155,20 @@ class JobStatesManager:
                 # interacts with prometheus
                 self.partition_counter.labels(name=job_data['partition']).inc()
 
-            # TODO : Put the ElasticSearch thing here.
+            # ElasticSearch thing here.
+            # The current understanding that we have about how ElasticSearch
+            # bulk updates work is that it's normal to have a sequence of
+            # two types of entries interweaved:
+            #     one meta, one content, one meta, one content.
 
+            # add ElasticSearch action for each job
+            es_jobs_body.append({'index': {'_id': int(job_id)}})
+            # full body
+            es_jobs_body.append(job_data)
+
+        print(f"Want to bulk commit {len(es_jobs_body)} values to ElasticSearch.")
+        # Send bulk update for ElasticSearch.
+        self.elasticsearch_client.bulk(
+            index=self.D_elasticsearch_config['jobs_index'],
+            body=es_jobs_body, timeout=self.D_elasticsearch_config['timeout'])
+        print("Done with commit to ElasticSearch.")
