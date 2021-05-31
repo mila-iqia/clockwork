@@ -1,6 +1,30 @@
+"""
+This file contains a lot of the messy functions with hardcoded values or decisions in them.
+
+extract_mila_user_account_from_job_data :
+    Based on all the job_data, it's not clear who the actual user is.
+    This is a bunch of rules to look at work_dir and other fields to
+    make an educated guess based on the knowledge of the clusters.
+
+filter_unrelated_jobs :
+    Strip away every non-Mila related job from other clusters.
+    This requires hardcoding the name "bengio".
+
+messy_ugly_analyze_node_state:
+    An undocumented and questionable function that reverse-engineers
+    the node states listed by slurm.
+
+messy_ugly_analyze_gpu_gres:
+    An undocumented and questionable function that reverse-engineers
+    the information on GPU allocation listed by slurm.
+
+"""
+
+
 
 from collections import defaultdict
 import re
+
 
 def extract_mila_user_account_from_job_data(job_data):
     """
@@ -77,6 +101,15 @@ def extract_mila_user_account_from_job_data(job_data):
     # "command": "/home/gf591137/projects/def-koualk/gf591137/typeI.sh",
     # "work_dir": "/home/gf591137",
 
+    # Some of the rules might lead to the user being guessed at "mila",
+    # which is wrong in all cases. For example, this can happen for
+    #     'work_dir': '/home/mila/s/schwarzm/Github/transfer-ssl-rl'
+    # and it's clearly not a good thing.
+    # We will just remove those manually at this point.
+    # Better to have "unknown" if nothing else could have been guessed
+    # than to have "mila" pop up as user.
+    potential_guesses = [e for e in potential_guesses if e != "mila"]
+
     # If we have a single guess, then declare it to be that.
     # Otherwise, vote.
     E = set(potential_guesses)
@@ -109,3 +142,104 @@ def filter_unrelated_jobs(psl_jobs):
         [a for a in accounts if re.match(r".*bengio.*", a)] + ["mila"]
     )
     return dict((k, v) for (k, v) in psl_jobs.items() if v['account'] in valid_accounts)
+
+
+
+
+def messy_ugly_analyze_node_state(node_state:str):
+    """
+    Used exclusively by NodeStatesManager.
+    Factored out because it's ugly and full of arbitrary
+    decisions based on patterns not explicitly stated.
+
+    This complicated mess comes from "sinfo.py" and we need to be
+    able to factor it out in order to reason about it.
+    
+    This function seriously needs documentation, motivation,
+    and unit tests. Otherwise it's unacceptable.
+
+    This is about reverse-engineering the string from slurm.
+    """
+
+    # Split if node has 2 states
+    if '+' in node_state:
+        multi = False
+        node_state = node_state.split("+")
+        # Keep only 1 state DOWN>DRAIN>REST
+        # UGLY: TODO better
+        for _s in node_state:
+            if _s.startswith('DOWN'):
+                multi = "DOWN"
+                break
+            elif _s.startswith('DRAIN'):
+                # DRAIN assumes DRAINED
+                multi = "DRAINED"
+        if not multi:
+            multi = node_state[0]
+        # Save
+        node_state = multi
+
+    # Count not responding nodes separatly
+    if node_state.endswith('*'):
+        node_state = node_state[:-1]
+    # TODO: count reboots ?
+    if node_state.endswith((('#', '@'))):
+        node_state = node_state[:-1]
+
+    node_state = node_state.lower()
+    return node_state
+
+
+def messy_ugly_analyze_gpu_gres(node_gres, node_gres_used):
+    """
+    You have something like the following, and you want to make it intelligible.
+
+        "gres": [
+            "gpu:rtx8000:8(S:0-1)"
+        ],
+        "gres_drain": "N/A",
+        "gres_used": [
+            "gpu:rtx8000:8(IDX:0-7)",
+            "tpu:0"
+        ],
+
+    What do you do?
+
+    This function takes the two specific fields as argument because
+    we don't want to pass the whole `node_data` and obfuscate
+    the fact that the analysis is done only with those two fields.
+
+    It returns a dict of the form
+    {
+        "k80":  {"total": 4, "alloc":3},
+        "m40":  {"total": 2, "alloc":2},
+    }
+
+    TODO :  This function was ripped from "sinfo.py" without much more analysis.
+            It would be good to write unit tests and explain what the expectations are.
+            This would be a distraction now because we can start by assuming that it
+            does the job fine (it certainly used to do it fine with "sinfo.py")
+            and later we can investigate if things aren't working.
+
+            Hopefully the obvious name of this function should attract attention
+            to it and signal the need to understand/document it better.
+    """
+    ##############################################
+    # GPUs
+
+    # Build this variable as the output of this function.
+    node_gpus = {}
+    # Loop on Gres
+    for g_tot in node_gres:
+        g_tot = g_tot.split(':',2)
+        if len(g_tot) == 3:
+            node_gpus.setdefault(g_tot[1], {})['total'] = int(g_tot[2].split('(')[0])
+    # Loop on Gres used
+    for g_used in node_gres_used:
+        g_used = g_used.split(':',2)
+        # Exclude MPS for now
+        if len(g_used) == 3:
+            # Remove IDX index
+            node_gpus.setdefault(g_used[1], {})['alloc'] = int(g_used[2].split('(')[0])
+        
+    return node_gpus

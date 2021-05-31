@@ -30,14 +30,55 @@ Note that this is NOT the documentation for the code in "sinfo_scraper.py".
 
 """
 
+from collections import defaultdict
 import pyslurm
 import json
 import re
+import time
+
+
+def add_node_list_simplified(psl_reservations:dict):
+    """
+    dicts returned by `pyslurm.reservation().get()`
+    will have an entry
+        "node_list": "blg[4109,4701,5201,5303,5305,5308-5309,5501,5608-5609,5702,5803-5804,5806]"
+    This is obviously not something that we'd like to parse ourselves
+    since pyslurm already has a way to decode this.
+
+    We'd just like to convert it into a list of node names
+    to have compatibility with `pyslurm.node().get()`.
+
+    Since we're going to use pyslurm for this, it makes
+    sense to do it in the scraper script (i.e. here)
+    because the Prometheus endpoint might not be running
+    on a machine where pyslurm is installed (nor should it
+    be required).
+
+    The side-effect of this function will be simply to
+    add a field "node_list_simplified" that will contain
+    the values
+        "node_list_simplified": ["blg4109","blg4701","blg5201","blg5303","blg5305","blg5308","blg5309","blg5501","blg5608","blg5609","blg5702","blg5803","blg5804","blg5806]
+    """
+    for resv_desc in psl_reservations.values():
+        hl = pyslurm.hostlist()  # we need to involve pyslurm in this process
+        hl.create(resv_desc['node_list'])
+        # modify in place
+        resv_desc["node_list_simplified"] = [e.decode('UTF-8') for e in hl.get_list()]
+
+
+
 
 def main():
     results = { 'node': pyslurm.node().get(),
                 'reservation': pyslurm.reservation().get(),
                 'job': pyslurm.job().get()}
+
+    add_node_list_simplified(results['reservation'])
+
+    # We decided to avoid doing this approach, but let's keep the code around
+    # for just a little while.
+    # results['node_name_to_resv_names'] = get_node_name_to_resv_names(results['reservation'])
+
 
     # Then we want to filter out many of the accounts from Compute Canada
     # that are not related to Mila.
@@ -61,3 +102,68 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    """
+    rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/sinfo_scraper.py mila-login:bin
+
+    rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/sinfo_scraper.py beluga:bin
+    """
+
+
+
+###############################################################
+# The path not taken.
+#   This code works fine, but there's a better way to do things
+#   cleanly. Let's keep it around just in case we need it.
+#   Probably safe to delete it after 2021-05-31 plus two months.
+###############################################################
+
+def get_node_name_to_resv_names(psl_reservations:dict):
+    """
+    dicts returned by `pyslurm.reservation().get()`
+    will have an entry
+        "node_list": "blg[4109,4701,5201,5303,5305,5308-5309,5501,5608-5609,5702,5803-5804,5806]"
+    This is obviously not something that we'd like to parse ourselves
+    since pyslurm already has a way to decode this.
+
+    We'd just like to convert it into a list of node names
+    to have compatibility with `pyslurm.node().get()`.
+
+    Since we're going to use pyslurm for this, it makes
+    sense to do it in the scraper script (i.e. here)
+    because the Prometheus endpoint might not be running
+    on a machine where pyslurm is installed (nor should it
+    be required).
+
+    The output of this function is a dict that maps
+    from node_name to resv_names. That is, it's something like
+    {
+        "blg4109": ["cq26-wr_gpu"],
+        "blg4701": ["cq26-wr_gpu"],
+        ...
+    }
+    It seemed appropriate to map to lists because we weren't sure
+    if a given node could be part of two reservations.
+
+    The logic in this function comes partly from the
+    "sinfo.py" script in the `get_reservations()` function.
+    """
+
+    unix_now = time.time()
+
+    node_name_to_resv_names = defaultdict(list)
+
+    for (resv_name, resv_desc) in psl_reservations.items():
+        # `resv_name` is the answer, and now we must find the question that maps to it
+        if resv_desc['start_time'] <= unix_now <= resv_desc['end_time'] :
+
+            # get hostlist
+            hl = pyslurm.hostlist()
+            hl.create(resv_desc['node_list'])
+    
+            # they're bytefields that need decoding
+            for node_name_bytes in hl.get_list():
+                node_name = node_name_bytes.decode('UTF-8')
+                node_name_to_resv_names[node_name].append(resv_name)
+
+    return node_name_to_resv_names
