@@ -88,7 +88,8 @@ DD_cluster_desc = {
             'cpubase_bycore_b5', 'gpubase_bynode_b1', 'cpubase_bynode_b2', 'cpularge_bynode_b5',
             'gpubase_bynode_b2', 'cpubase_bynode_b4', 'cpubase_bynode_b3', 'gpubase_bygpu_b4',
             'cpubase_bycore_b1', 'gpubase_bygpu_b5'],
-         },
+        "slurm_ignore_partitions": []
+        },
     "mila":
         {"name": "mila",
         "cmd" : 'source ${HOME}/Documents/code/venv38/bin/activate; python3 ${HOME}/bin/sinfo_scraper.py ',
@@ -100,7 +101,13 @@ DD_cluster_desc = {
         # We should figure out also what are the equivalent values for beluga and other clusters.
         "slurm_login_nodes": [ "login-1", "login-2", "login-3", "login-4"],
         "slurm_partitions": [   "unkillable","short-unkillable","main","main-grace",
-                                "long","long-grace","cpu_jobs","cpu_jobs_low","cpu_jobs_low-grace"]}
+                                "long","long-grace","cpu_jobs","cpu_jobs_low","cpu_jobs_low-grace"],
+        "slurm_ignore_partitions":
+            ["gcpDebug", "cloud_tpux1Cloud", "gcpDevCPUCloud", "gcpMicroMemCPUCloud",
+             "gcpMiniMemCPUCloud", "gcpComputeCPUCloud", "gcpGeneralCPUCloud", "gcpMemoryCPUCloud",
+             "gcpV100x1Cloud", "gcpV100Xx1Cloud", "gcpV100x2Cloud", "gcpV100x4Cloud", "gcpK80x1Cloud",
+             "gcpK80Xx1Cloud", "gcpK80x2Cloud", "gcpK80x4Cloud"]
+        }
 }
 
 # The names for `es_jobs_index` and `es_nodes_index` will go into elasticsearch.
@@ -177,7 +184,7 @@ class SinfoManager:
         # TODO : Add the required elasticsearch stuff to the other managers.
         self.ssh_client = None
         self.node_states_manager = NodeStatesManager(cluster_name, endpoint_prefix)
-        self.reservation_states_manager = ReservationStatesManager(cluster_name, endpoint_prefix)
+        # self.reservation_states_manager = ReservationStatesManager(cluster_name, endpoint_prefix)
         self.job_states_manager = JobStatesManager( cluster_name, endpoint_prefix, self.D_cluster_desc,
                                                     self.D_elasticsearch_config, self.elasticsearch_client)
 
@@ -222,9 +229,15 @@ class SinfoManager:
             # Read the information for real from pyslurm on a remote machine.
 
             ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(self.D_cluster_desc["cmd"])
+
+            response_str = " ".join(ssh_stdout.readlines())
+            if len(response_str) == 0:
+                print("Got an empty response from server. Skipping.")
+                return
+
             # print(ssh_stdout.readlines())
             try:
-                E = json.loads(" ".join(ssh_stdout.readlines()))
+                E = json.loads(response_str)
                 psl_nodes, psl_reservations, psl_jobs = (E['node'], E['reservation'], E['job'])
             except Exception as inst:
                 print(type(inst))    # the exception instance
@@ -242,8 +255,8 @@ class SinfoManager:
         # Remove non-bengio non-mila jobs.
         psl_jobs = filter_unrelated_jobs(psl_jobs)
         # No matter where the data came from, now we want to process it.
-        self.node_states_manager.update(psl_nodes)
-        self.reservation_states_manager.update(psl_reservations)
+        self.node_states_manager.update(psl_reservations, psl_nodes)
+        # self.reservation_states_manager.update(psl_reservations)
         self.job_states_manager.update(psl_jobs)
 
 """
