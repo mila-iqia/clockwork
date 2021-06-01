@@ -186,6 +186,12 @@ def messy_ugly_analyze_node_state(node_state:str):
     if node_state.endswith((('#', '@'))):
         node_state = node_state[:-1]
 
+    # Guillaume says : I added this on 2021-07-01
+    # when beluga hit me with a "mixed$" that this
+    # function wasn't handling well.
+    if node_state.endswith('$'):
+        node_state = node_state[:-1]
+
     node_state = node_state.lower()
     return node_state
 
