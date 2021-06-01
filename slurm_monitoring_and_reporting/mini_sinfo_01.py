@@ -45,7 +45,7 @@ from paramiko import SSHClient, AutoAddPolicy
 
 import slurm_monitoring_and_reporting
 from slurm_monitoring_and_reporting.common import (filter_unrelated_jobs, )
-from slurm_monitoring_and_reporting.state_managers import (NodeStatesManager, ReservationStatesManager, JobStatesManager)
+from slurm_monitoring_and_reporting.state_managers import (NodeStatesManager, JobStatesManager)
 
 
 import argparse
@@ -133,11 +133,6 @@ D_elasticsearch_config = {
     "timeout": '30s',
 }
 
-# Filters
-# slurm_ignore_partitions=["gcpDebug", "cloud_tpux1Cloud", "gcpDevCPUCloud", "gcpMicroMemCPUCloud", "gcpMiniMemCPUCloud", "gcpComputeCPUCloud", "gcpGeneralCPUCloud", "gcpMemoryCPUCloud", "gcpV100x1Cloud", "gcpV100Xx1Cloud", "gcpV100x2Cloud", "gcpV100x4Cloud", "gcpK80x1Cloud", "gcpK80Xx1Cloud", "gcpK80x2Cloud", "gcpK80x4Cloud"]
-
-
-
 
 class SinfoManager:
 
@@ -162,29 +157,21 @@ class SinfoManager:
                 D_elasticsearch_config['host'],
                 port=D_elasticsearch_config['port'])
 
-            # Guillaume says : The next line from Quentin is cargo-cult for me.
-            #                  We get problems if we don't do it, but I don't understand
-            #                  why elastic search requires that.
+            # Guillaume says : My understanding of this line is that
+            # when the index is not created we can't do anything, but
+            # when it's already there we need to ignore an error code 400
+            # that would signal this to us.
             self.elasticsearch_client.indices.create(
                 index=D_elasticsearch_config['jobs_index'], ignore=400)
-            if False:
-                doc = {
-                    'author': 'kimchy',
-                    'text': 'Elasticsearch: cool. bonsai cool.',
-                    'timestamp': datetime.now(),
-                }
-                res = self.elasticsearch_client.index(index="test-index", id=1, body=doc)
-                print(res['result'])
-                res = self.elasticsearch_client.get(index="test-index", id=1)
-                print(res['_source'])
-                quit()
+            self.elasticsearch_client.indices.create(
+                index=D_elasticsearch_config['nodes_index'], ignore=400)
+
         else:
             self.elasticsearch_client = None
 
-        # TODO : Add the required elasticsearch stuff to the other managers.
         self.ssh_client = None
-        self.node_states_manager = NodeStatesManager(cluster_name, endpoint_prefix)
-        # self.reservation_states_manager = ReservationStatesManager(cluster_name, endpoint_prefix)
+        self.node_states_manager = NodeStatesManager(cluster_name, endpoint_prefix, self.D_cluster_desc,
+                                                    self.D_elasticsearch_config, self.elasticsearch_client)
         self.job_states_manager = JobStatesManager( cluster_name, endpoint_prefix, self.D_cluster_desc,
                                                     self.D_elasticsearch_config, self.elasticsearch_client)
 

@@ -34,14 +34,22 @@ class NodeStatesManager:
     # All states
     slurm_node_states = slurm_usable_node_states + slurm_useless_node_states
 
+
     # States for CPU/GPU.
-    # TODO : I think that there are more states than that in slurm.
-    #        However, there is a projection done by `common.messy_ugly_analyze_node_state`
-    #        unto those 4 states.
-    #        Since `messy_ugly_analyze_node_state` is put into question,
-    #        it makes sense to rethink this `slurm_pu_states` constant here.
-    #        Do we really want only 4 states?
-    slurm_pu_states=[ "alloc", "idle", "drain", 'total' ]
+    slurm_pu_states=[ "alloc", "idle", "drain", "total" ]
+    # Note that "total" and "alloc" are values that are reported by slurm,
+    # and the other two values are things that we make up, infer, or decide
+    # to label.
+    # Anything left out between the "alloc" and the "total" is deemed to be
+    # either usable (so it's "idle") or to be in a bad state (i.e. "drain").
+    #
+    # The use of the word "drain" is potentially misleading.
+    # This is a conversation that should be had over design documents.
+    # It leads someone to think that we're reporting a slurm "drain" state,
+    # but actually we're just electing that word to mean that the resource
+    # can't be used at the moment.
+    # This is part of the discussion around `common.messy_ugly_analyze_node_state`.
+
 
     # See comment about `slurm_job_states_color` also being
     # at the wrong place in the pipeline.
@@ -63,32 +71,42 @@ class NodeStatesManager:
 
         # any node that belongs to this will be filtered out
         self.slurm_ignore_partitions = set(D_cluster_desc['slurm_ignore_partitions'])
+        
+        # We purposefully avoid storing a self copy of `D_cluster_desc`
+        # to make explicit the ways in which it is being used (i.e. not much).
 
         self.D_elasticsearch_config = D_elasticsearch_config
         self.elasticsearch_client = elasticsearch_client
 
 
         # CPU/GPU state counters
+
+        # There are 4x2 counters,
+        #     slurm_cpus_alloc, slurm_cpus_idle, slurm_cpus_drain, slurm_cpus_total
+        #     slurm_gpus_alloc, slurm_gpus_idle, slurm_gpus_drain, slurm_gpus_total
+        # but those counters will internally keep other totals due to the fact that
+        # the labelnames include the reservation (usually "None") and types of gpu,
+        # meaning that we get a separate counter for each of
+        #     reservation="None", type="k80"
+        #     reservation="None", type="m40"
+        #     reservation="None", type="rtx8000"
+        # and so on.
         self.cpu_state_counters = {}
         self.gpu_state_counters = {}
         for pu_state in NodeStatesManager.slurm_pu_states:
             self.cpu_state_counters[pu_state] = Gauge('slurm_cpus_' + pu_state, pu_state + ' CPUs', labelnames=[ 'reservation' ])
             self.gpu_state_counters[pu_state] = Gauge('slurm_gpus_' + pu_state, pu_state + ' GPUs', labelnames=[ 'type', 'reservation' ])
 
+        # This creates a separate individual metric for hundreds of nodes to track their state.
         self.prom_node_states = Enum('slurm_node_states', 'States of nodes', states=NodeStatesManager.slurm_node_states, labelnames=['name'])
 
         self.clear_prometheus_metrics()
 
     def clear_prometheus_metrics(self):
-        # reset the gauges
-        #     prom_node_states
-        #     cpu_state_counters
-        #     gpu_state_counters
-        #
-        #self.job_state_counter._metrics.clear()
-        #self.login_node_counter._metrics.clear()
-        #self.partition_counter._metrics.clear()
-        pass
+        # reset the gauges for prom_node_states, cpu_state_counters, gpu_state_counters
+        self.prom_node_states._metrics.clear()
+        for counter in list(self.cpu_state_counters.values()) + list(self.gpu_state_counters.values()):
+            counter._metrics.clear()
 
     def update(self, psl_reservations: dict, psl_nodes: dict):
         """
@@ -109,6 +127,14 @@ class NodeStatesManager:
         # Warning: We have the hidden assumption that a given node
         # can only be in one reservation at a time. This seems true enough,
         # and even when it isn't, it sounds like a reasonable approxiation.
+        #
+        # Moreover, note that these values could be cached instead of being
+        # recomputed each time, but then we'd lose the time verification.
+        # The cost of recomputing this each time should be minor, especially
+        # since this is a function that's never going to be called more than
+        # once every minute.
+        # We already have to traverse all the nodes each time `update` is called
+        # so that shouldn't be a problem, algorithmically-speaking.
         unix_now = time.time()
         node_name_to_resv_name = {}
         for (resv_name, resv_desc) in psl_reservations.items():
@@ -118,33 +144,45 @@ class NodeStatesManager:
                     for node_name in resv_desc['node_list_simplified']:
                         node_name_to_resv_name[node_name] = resv_name
 
-
-
-        # accumulate over elements of psl_nodes
-        # and bulk commit to elasticsearch after
+        # Accumulate over elements of psl_nodes
+        # and bulk commit to Elastic Search at the end of `update`.
         es_nodes_body = []
         
         self.clear_prometheus_metrics()
 
         utc_now = datetime.utcnow()
         for (node_name, node_data) in psl_nodes.items():
-            #node_state = node_data["job_state"].lower()        
             
+            # Copied from "sinfo.py" assuming that we'd have good reasons
+            # to want to ignore certain partitions.
+            # Right now these ignored partitions seem to be related 
+            # to cloud computing partitions set up at Mila temporarily.
             for p in node_data['partitions']:
                 if p in self.slurm_ignore_partitions:
                     continue
 
-            
-
+            # Most of the times, "reservation" is "None", meaning
+            # that the node is accessible to all Mila students
+            # instead of being reserved for MLART, for example.
             node_data["reservation"] = node_name_to_resv_name.get(node_name, self.default_reservation_when_missing)
 
+            # Since we're going to be messing up with the 'state',
+            # it's a good idea to store whatever the original value was.
+            # This might allow us to dig better to debug cluster issues,
+            # or simply to make better opinions about what kind of judicious
+            # processing we want to do in `messy_ugly_analyze_node_state`.
+            node_data['state_original_unprocessed'] = node_data['state']
             node_data['state'] = messy_ugly_analyze_node_state(node_data['state'])
 
 
             # Grafana wants UTC
             node_data['timestamp'] = utc_now
 
-            # Boolean for state, only for Grafana colors
+            # Boolean for state, only for Grafana colors.
+            # TODO : See if this is actually being used in Grafana
+            #        or if it was just a vestigial field in "sinfo.py".
+            #        Get rid of it if possible, because it's happening at
+            #        the wrong level of the pipeline.
             if node_data['state'] in self.slurm_node_states_color:
                 node_data['grafana_helpers'] = {
                         'job_state_color': self.slurm_node_states_color[node_data['state']]
@@ -153,18 +191,13 @@ class NodeStatesManager:
             if node_data.get('reason_time', None) is not None:
                 node_data['reason_time_str'] = datetime.fromtimestamp(node_data['reason_time']).astimezone().strftime('%Y-%m-%dT%H:%M:%S %Z')
 
-            # Add Elastic Search action for each node.
-            es_nodes_body.append({'index': {'_id': node_data['node_name']}})            
-            es_nodes_body.append(node_data)
-
-            # Save in dict. Note that all the many possible node states are counted.
-            # This is not a projection down to 4 node states.
+            # Save in dict. Note that all the many (~18) possible node states are tallied.
+            # This is not a projection down to 4 states like for the cpus/gpus.
             self.prom_node_states.labels(name=node_name).state(node_data['state'])
 
 
             ##############################################
             # CPUs
-            # Keep track of idle CPUs
 
             # An example of node_data fields would be {"cpus": 80, "alloc_cpus": 32, "err_cpus": 0}.
             # In that case, we'd want to add the field "idle_cpus" with count 80-32=48.
@@ -189,12 +222,15 @@ class NodeStatesManager:
                 self.cpu_state_counters['drain'].labels(reservation=node_data["reservation"]).inc(node_data['idle_cpus'])
 
 
+            ##############################################
+            # GPUs
+
             # If the 'gres' field exists, and provided it's a list with at least one element.
             if node_data.get('gres', []):
                 node_data['gpus'] = messy_ugly_analyze_gpu_gres(node_data['gres'], node_data['gres_used'])
                 
                 # Loop on sanitized gpus and set counters
-                for gpu_name, gpu_counts in node_data['gpus']:
+                for gpu_name, gpu_counts in node_data['gpus'].items():
                     # gpu_name described the name of a product from nvidia (ex : "rtx8000", "m40", "k80")
                     # gpu_counts is a dict with keys ['total', 'alloc']
 
@@ -204,33 +240,26 @@ class NodeStatesManager:
                     # TODO : The comment from previous line was copied as it was in "sinfo.py".
                     #        We're not sure how good of an idea that was.
                     #        This is yet another of those situations where it's worth a discussion with the group.
-                    if node_data['state'] not in NodeStatesManager.slurm_useless_states and node_data['idle_cpus']>1:
+                    if node_data['state'] not in NodeStatesManager.slurm_useless_node_states and node_data['idle_cpus']>1:
                         self.gpu_state_counters['idle'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['total'] - gpu_counts['alloc'])
                     else:
                         self.gpu_state_counters['drain'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['total'] - gpu_counts['alloc'])
 
+            # Add Elastic Search action for each node.
+            # We put the `es_nodes_body` construction here because
+            # of the node_data['gpus'] that gets added in the above
+            # code block.
+            es_nodes_body.append({'index': {'_id': node_name}})
+            es_nodes_body.append(node_data)
+
+        # Send bulk update
+        if 'nodes_index' in self.D_elasticsearch_config and self.elasticsearch_client is not None:
+            print(f"Want to bulk commit {len(es_nodes_body)//2} node_data values to ElasticSearch.")
+            self.elasticsearch_client.bulk(
+                index=self.D_elasticsearch_config['nodes_index'],
+                body=es_nodes_body, timeout=self.D_elasticsearch_config['timeout'])
 
 
-
-
-# class ReservationStatesManager:
-#     def __init__(self, cluster_name, endpoint_prefix, D_cluster_desc: dict,
-#         D_elasticsearch_config: dict, elasticsearch_client:Elasticsearch=None):
-#         assert cluster_name in ["mila", "beluga", "graham", "cedar", "dummy"]
-#         self.cluster_name = cluster_name
-#         self.endpoint_prefix = endpoint_prefix
-
-#         # D_cluster_desc
-
-#         self.D_elasticsearch_config = D_elasticsearch_config
-#         self.elasticsearch_client = elasticsearch_client
-
-#     def update(self, psl_reservations: dict):
-#         """
-#         Update all your counters and gauges based on the latest readout
-#         given by argument `psl_reservations`.
-#         """
-#         pass
 
 class JobStatesManager:
 
@@ -251,7 +280,7 @@ class JobStatesManager:
     # For each of those fields, we'll add an extra one that's easier to display.
     # It will have the same key followed by the "_str" suffix.
     # We are not overwriting the original value.
-    job_date_fields = [ 'submit_time', 'start_time', 'end_time', 'eligible_time']
+    job_date_fields = [ 'submit_time', 'start_time', 'end_time', 'eligible_time' ]
 
 
     def __init__(self,
@@ -352,11 +381,12 @@ class JobStatesManager:
             # full body
             es_jobs_body.append(job_data)
 
-        print(f"Want to bulk commit {len(es_jobs_body)} values to ElasticSearch.")
-        # Send bulk update for ElasticSearch.
-        self.elasticsearch_client.bulk(
-            index=self.D_elasticsearch_config['jobs_index'],
-            body=es_jobs_body, timeout=self.D_elasticsearch_config['timeout'])
-        print("Done with commit to ElasticSearch.")
+        if 'jobs_index' in self.D_elasticsearch_config and self.elasticsearch_client is not None:
+            print(f"Want to bulk commit {len(es_jobs_body) // 2} job_data values to ElasticSearch.")
+            # Send bulk update for ElasticSearch.
+            self.elasticsearch_client.bulk(
+                index=self.D_elasticsearch_config['jobs_index'],
+                body=es_jobs_body, timeout=self.D_elasticsearch_config['timeout'])
+            # print("Done with commit to ElasticSearch.")
 
         # TODO : Add a mongodb component as well?
