@@ -4,6 +4,20 @@ Simple metrics to monitor slurm and produce reports.
 
 ## thoughts from adapting Quentin's code
 
+### an opportunity to revisit decisions
+
+Some decisions such as the representation for timestamps were made
+in the original "sinfo.py" script. We can either implement exactly
+the same interface, or we can improve in some places.
+Improvements should be discussed with the team in general
+to avoid being just arbitrary modifications, and the downside
+is that certain historical graphs in Prometheus are going to be lost.
+
+If we change the name of quantities, then the plots using those
+quantities are no longer to be valid. This was probably not
+the main goal for using Prometheus in the first place anyways,
+so it should be fair game.
+
 ### elastic search is not being used for it's main feature : searching text
 
 Elastic Search is being used a key-value database where updates
@@ -105,3 +119,24 @@ I have no idea how justified this decision is. I just copied over the comment, b
 thinking about it some more.
 
 "# Test state: if node is available/mixed and a least 1 cpu is avail, gres are idle otherwise drain"
+
+## nice profiling
+
+When documenting this tool, it would be nice to have a nice profiling view.
+
+## web interface
+
+For the web interface, let's have a version that's not heavy javascript.
+We can have the nice javascript-enhanced page, but also the plain one.
+
+## total allocation on Compute Canada
+
+It would be a good idea to have some kind of threshold shown in plots
+that indicates the total gpu*years allocation that we have on certain clusters.
+That would give us a certain idea of what to expect. Despite the fact
+that the total number of gpus is listed, this isn't really the total
+that we should expect to be using year round.
+
+Those values could be pull from an endpoint that just serves constants.
+The number of students could also be added to that endpoint.
+
