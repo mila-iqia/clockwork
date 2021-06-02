@@ -7,6 +7,7 @@ import re
 from datetime import datetime
 from collections import defaultdict
 from elasticsearch import Elasticsearch
+from pymongo import UpdateOne
 
 from prometheus_client import Enum, Summary, Gauge
 
@@ -63,7 +64,8 @@ class NodeStatesManager:
 
 
     def __init__(self, cluster_name, endpoint_prefix, D_cluster_desc: dict,
-        D_elasticsearch_config: dict, elasticsearch_client:Elasticsearch=None):
+        D_elasticsearch_config: dict, elasticsearch_client:Elasticsearch=None,
+        D_mongodb_config:dict={}, mongo_client=None):
 
         assert cluster_name in ["mila", "beluga", "graham", "cedar", "dummy"]
         self.cluster_name = cluster_name
@@ -78,6 +80,8 @@ class NodeStatesManager:
         self.D_elasticsearch_config = D_elasticsearch_config
         self.elasticsearch_client = elasticsearch_client
 
+        self.D_mongodb_config = D_mongodb_config
+        self.mongo_client = mongo_client
 
         # CPU/GPU state counters
 
@@ -146,13 +150,25 @@ class NodeStatesManager:
 
         # Accumulate over elements of psl_nodes
         # and bulk commit to Elastic Search at the end of `update`.
+        # TODO : You know, this whole thing is not necessary.
+        #        We're iterating through `(node_name, node_data) in psl_nodes.items()`
+        #        and we're updating the `node_data` by writing into it.
+        #        The big Elastic Search update at the end, as well as the mongodb bulk_write update,
+        #        can easily be constructed from iterating through `psl_nodes.items()` again.
+        #        Let's test it with mongodb and then update the Elastic Search part.
+        #        Feels like Dracula (1931) with the Spanish version being strictly better shots.
         es_nodes_body = []
-        
+
         self.clear_prometheus_metrics()
 
         utc_now = datetime.utcnow()
         for (node_name, node_data) in psl_nodes.items():
-            
+
+            # Write the cluster_name in node_data.
+            # It's going to be useful for many things but one of the uses is that
+            # it will provide unique ids for mongodb in the form of (node_name, cluster_name).
+            node_data["cluster_name"] = self.cluster_name
+
             # Copied from "sinfo.py" assuming that we'd have good reasons
             # to want to ignore certain partitions.
             # Right now these ignored partitions seem to be related 
@@ -252,13 +268,30 @@ class NodeStatesManager:
             es_nodes_body.append({'index': {'_id': node_name}})
             es_nodes_body.append(node_data)
 
-        # Send bulk update
+        # Send bulk update for Elastic Search
         if 'nodes_index' in self.D_elasticsearch_config and self.elasticsearch_client is not None:
             print(f"Want to bulk commit {len(es_nodes_body)//2} node_data values to ElasticSearch.")
             self.elasticsearch_client.bulk(
                 index=self.D_elasticsearch_config['nodes_index'],
                 body=es_nodes_body, timeout=self.D_elasticsearch_config['timeout'])
 
+        if 'nodes_collection' in self.D_mongodb_config and self.mongo_client is not None:
+            timestamp_start = time.time()
+            L_updates_to_do = [
+                UpdateOne(
+                    # rule to match if already present in collection
+                    {'name': node_data['name'], 'cluster_name': node_data['cluster_name']},
+                    # the data that we write in the collection
+                    {'$set': node_data},
+                    # create if missing, update if present
+                    upsert=True)
+                for node_data in psl_nodes.values() ]
+            # this is a one-liner, but we're breaking it into multiple steps to highlight the structure
+            database = self.mongo_client[self.D_mongodb_config['database']]
+            nodes_collection = database[self.D_mongodb_config['nodes_collection']]
+            nodes_collection.bulk_write(L_updates_to_do) #  <- the actual work
+            mongo_update_duration = time.time() - timestamp_start
+            print(f"Bulk write for {len(L_updates_to_do)} node_data entries in mongodb took {mongo_update_duration} seconds.")
 
 
 class JobStatesManager:
@@ -285,7 +318,8 @@ class JobStatesManager:
 
     def __init__(self,
         cluster_name:str, endpoint_prefix: str, D_cluster_desc: dict,
-        D_elasticsearch_config: dict, elasticsearch_client:Elasticsearch=None):
+        D_elasticsearch_config:dict={}, elasticsearch_client:Elasticsearch=None,
+        D_mongodb_config:dict={}, mongo_client=None):
     
         assert cluster_name in ["mila", "beluga", "graham", "cedar", "dummy"]
         self.cluster_name = cluster_name
@@ -302,6 +336,9 @@ class JobStatesManager:
 
         self.D_elasticsearch_config = D_elasticsearch_config
         self.elasticsearch_client = elasticsearch_client
+
+        self.D_mongodb_config = D_mongodb_config
+        self.mongo_client = mongo_client
 
         self.clear_prometheus_metrics()
 
@@ -326,6 +363,10 @@ class JobStatesManager:
         for (job_id, job_data) in psl_jobs.items():
             job_state = job_data["job_state"].lower()
 
+            # print(f"type(job_id) : {type(job_id)}")
+            # print(f'type(job_data["job_id"]) : {type(job_data["job_id"])}')
+            # quit()
+
             # Some fields will be added to `job_state`
             # to make it more informative. These things
             # end up in ElasticSearch but they are not
@@ -334,7 +375,9 @@ class JobStatesManager:
             # Infer the actual account of the person, instead
             # of having all jobs belong to "mila".
             job_data['mila_user_account'] = extract_mila_user_account_from_job_data(job_data)
+
             # Very useful for later when we untangle the sources in the plots.
+            # Will also serve to have a unique id for entries in mongodb.
             job_data['cluster_name'] = self.cluster_name
 
             # Guillaume says : I'm unsure why Quentin does this.
@@ -376,7 +419,11 @@ class JobStatesManager:
             # two types of entries interweaved:
             #     one meta, one content, one meta, one content.
 
-            # add ElasticSearch action for each job
+            # Add ElasticSearch action for each job.
+            # ES was setup for int(job_id) so we'll continue that,
+            # but for mongodb we won't do that. Too much messing around
+            # makes the code harder to predict. Pyslurm gives us text,
+            # so we'll use text for the job_id in mongodb (not Elastic Search).
             es_jobs_body.append({'index': {'_id': int(job_id)}})
             # full body
             es_jobs_body.append(job_data)
@@ -389,4 +436,27 @@ class JobStatesManager:
                 body=es_jobs_body, timeout=self.D_elasticsearch_config['timeout'])
             # print("Done with commit to ElasticSearch.")
 
-        # TODO : Add a mongodb component as well?
+        if 'jobs_collection' in self.D_mongodb_config and self.mongo_client is not None:
+            timestamp_start = time.time()
+            L_updates_to_do = [
+                UpdateOne(
+                    # Rule to match if already present in collection.
+                    # Refrain from using keys job_id from psl_jobs because
+                    # they might be str whereas the entries in the database are int.
+                    # This is a source of headaches, but at least with this approach
+                    # we'll get the upserts working properly.
+                    {'job_id': job_data['job_id'], 'cluster_name': job_data['cluster_name']},
+                    # the data that we write in the collection
+                    {'$set': job_data},
+                    # create if missing, update if present
+                    upsert=True)
+                    for job_data in psl_jobs.values() ]
+
+            # this is a one-liner, but we're breaking it into multiple steps to highlight the structure
+            database = self.mongo_client[self.D_mongodb_config['database']]
+            jobs_collection = database[self.D_mongodb_config['jobs_collection']]
+            result = jobs_collection.bulk_write(L_updates_to_do) #  <- the actual work
+            # TODO : investigate why the updates aren't performed, and new entries are created instead
+            # print(result.bulk_api_result)
+            mongo_update_duration = time.time() - timestamp_start
+            print(f"Bulk write for {len(L_updates_to_do)} job_data entries in mongodb took {mongo_update_duration} seconds.")

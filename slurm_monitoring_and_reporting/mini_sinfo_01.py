@@ -46,7 +46,7 @@ from paramiko import SSHClient, AutoAddPolicy
 import slurm_monitoring_and_reporting
 from slurm_monitoring_and_reporting.common import (filter_unrelated_jobs, )
 from slurm_monitoring_and_reporting.state_managers import (NodeStatesManager, JobStatesManager)
-
+from slurm_monitoring_and_reporting.mongo_client import get_mongo_client
 
 import argparse
 parser = argparse.ArgumentParser(description='Prometheus endpoint that exposes information from pyslurm.')
@@ -133,10 +133,20 @@ D_elasticsearch_config = {
     "timeout": '30s',
 }
 
+D_mongodb_config = {
+    "hostname": "deepgroove.local",
+    "port": 27017,
+    "username": "mongoadmin",
+    "password": "secret_password_okay",
+    # the database is "slurm", and it contains two collections "jobs" and "nodes"
+    "database": "slurm",
+    "jobs_collection": "jobs",
+    "nodes_collection": "nodes"
+}
 
 class SinfoManager:
 
-    def __init__(self, cluster_name, endpoint_prefix, mock_data_dir=None, want_elasticsearch=True):
+    def __init__(self, cluster_name, endpoint_prefix, mock_data_dir=None, want_elasticsearch=True, want_mongodb=True):
 
         self.cluster_name = cluster_name
         self.endpoint_prefix = endpoint_prefix
@@ -146,34 +156,51 @@ class SinfoManager:
         # alternatively will be fetched from a config file
         self.D_cluster_desc = DD_cluster_desc[cluster_name]
 
-        # alternatively will be fetched from a config file
-        self.D_elasticsearch_config = D_elasticsearch_config
-        
+
         if want_elasticsearch:
+            # alternatively will be fetched from a config file
+            self.D_elasticsearch_config = D_elasticsearch_config
+
             # Connect to ES. Note that there's a way to do this
             # with multiple servers for ElasticSearch instead of
             # assuming that we'll have only one (which is our case).
             self.elasticsearch_client = Elasticsearch(
-                D_elasticsearch_config['host'],
-                port=D_elasticsearch_config['port'])
+                self.D_elasticsearch_config['host'],
+                port=self.D_elasticsearch_config['port'])
 
             # Guillaume says : My understanding of this line is that
             # when the index is not created we can't do anything, but
             # when it's already there we need to ignore an error code 400
             # that would signal this to us.
             self.elasticsearch_client.indices.create(
-                index=D_elasticsearch_config['jobs_index'], ignore=400)
+                index=self.D_elasticsearch_config['jobs_index'], ignore=400)
             self.elasticsearch_client.indices.create(
-                index=D_elasticsearch_config['nodes_index'], ignore=400)
-
+                index=self.D_elasticsearch_config['nodes_index'], ignore=400)
         else:
             self.elasticsearch_client = None
 
+        if want_mongodb:
+            # alternatively will be fetched from a config file
+            self.D_mongodb_config = D_mongodb_config
+
+            self.mongo_client = get_mongo_client(self.D_mongodb_config)
+            
+            # Run a little sanity check. Better to fail now than later
+            # if the database isn't set up. Helps with diagnosing problems.
+            L = self.mongo_client[self.D_mongodb_config['database']].list_collection_names()
+            assert self.D_mongodb_config['jobs_collection'] in L,  f"Testing mongodb connection. Missing collection {self.D_mongodb_config['jobs_collection']}."
+            assert self.D_mongodb_config['nodes_collection'] in L, f"Testing mongodb connection. Missing collection {self.D_mongodb_config['nodes_collection']}."
+
+        else:
+            self.mongo_client = None
+
         self.ssh_client = None
         self.node_states_manager = NodeStatesManager(cluster_name, endpoint_prefix, self.D_cluster_desc,
-                                                    self.D_elasticsearch_config, self.elasticsearch_client)
+                                                    self.D_elasticsearch_config, self.elasticsearch_client,
+                                                    self.D_mongodb_config, self.mongo_client)
         self.job_states_manager = JobStatesManager( cluster_name, endpoint_prefix, self.D_cluster_desc,
-                                                    self.D_elasticsearch_config, self.elasticsearch_client)
+                                                    self.D_elasticsearch_config, self.elasticsearch_client,
+                                                    self.D_mongodb_config, self.mongo_client)
 
     def open_connection(self):
         if self.mock_data_dir is not None:
@@ -258,7 +285,9 @@ def run():
     port = args.port
     # prom_metrics = {'request_latency_seconds': Summary('request_latency_seconds', 'Description of summary')}
 
-    sima = SinfoManager(args.cluster_name, args.endpoint_prefix, args.mock_data_dir)
+    sima = SinfoManager(
+        args.cluster_name, args.endpoint_prefix, args.mock_data_dir,
+        want_elasticsearch=True, want_mongodb=True)
 
     start_http_server(port)
     while True:

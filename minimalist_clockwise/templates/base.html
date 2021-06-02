@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"  media="screen,projection"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pygment_trac.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- That wonderful typewriter font. -->
+    <link href="https://fonts.googleapis.com/css?family=Amiri&display=swap" rel="stylesheet">
+    <style type="text/css" media="screen, print">
+        @font-face {
+          font-family: "Ailerons";
+          src: url("{{ url_for('static', filename='fonts/Ailerons-Regular.otf') }}");
+        }
+        @font-face {
+          font-family: "Anurati";
+          src: url("{{ url_for('static', filename='fonts/Anurati-Regular.otf') }}");
+        }
+        @font-face {
+          font-family: "Neuton";
+          src: url("{{ url_for('static', filename='fonts/Neuton-Light.ttf') }}");
+        }
+      </style>
+
+    <title>A Clockwork Cluster : {% block title %}{% endblock %}</title>
+    {% endblock %}
+</head>
+<body>
+    <!-- <div id="content"> -->
+    {% block content %}{% endblock %}
+    <!-- </div> -->
+    <!--
+    <div id="footer">
+        {% block footer %}
+        &copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.
+        {% endblock %}
+    </div>
+    -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/materialize.min.js') }}"></script>
+</body>
+</html>

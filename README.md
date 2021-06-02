@@ -37,6 +37,21 @@ its contents, unlike Elastic Search.
 We don't need a ReservationManager and a NodeManager.
 Everything from `pyslurm.reservation().get()` is used only for `pyslurm.node().get()`.
 
+### weird type mismatch
+
+This is the source for a lot of misery.
+It's stupid because it leads to problems with matching
+entries in mongodb. You can't match against job_id an int
+with entries in the database if their job_id is a string.
+
+```
+for (job_id, job_data) in psl_jobs.items():
+
+    # type(job_id) : <class 'str'>
+    # type(job_data["job_id"]) : <class 'int'>
+```
+
+
 ## follow up on these things
 
 ### slurm_job_states_color and slurm_node_states_color
@@ -140,3 +155,30 @@ that we should expect to be using year round.
 Those values could be pull from an endpoint that just serves constants.
 The number of students could also be added to that endpoint.
 
+## grafana plots with TFLOPS
+
+We could also print the FP32 TFLOPS from the various clusters.
+
+## Monitor profiling of `sinfo` with Prometheus
+
+We might want to record metrics pertaining to `sinfo` itself into Prometheus.
+For example, recording how much time is taken to commit to mongodb would
+be a relevant statistic. It's not all that important, though, because
+in practice it took 0.1s to bulk write 300 entries when we measured it running
+with the local setup in Docker containers.
+
+## mila_user_account
+
+We haven't been totally dilligent when it comes to following which account is what.
+We jumped quickly on the idea of "mila_user_account" to contrast with the "account"
+field that is semi-useless for us in pyslurm (besides filtering out non-Mila users on Compute Canada).
+
+There's a problem, however, when we think about the fact that we don't necessarily
+have a match between CC accounts and Mila accounts.
+For example, my username for CC is "alaingui", my username for the Mila cluster is "alaingui",
+but my email is guillaume.alain@mila.quebec (as it should be!).
+This isn't impossible to manage, but right now, for this project here,
+we are not really capturing that reality.
+
+This is a consequence of not having a database that we can easily access
+that would provide us with a map or who's who.
