@@ -51,8 +51,35 @@ def extract_mila_user_account_from_job_data(job_data):
     # "std_in": "/dev/null",
     # "std_out": "/home/mila/d/dehganar/randomsearch_906962.log",
     for k in ['command', 'std_err', 'std_in', 'std_out', 'work_dir']:
-        if m := re.match(r"/home/mila/[a-zA-Z0-9]+/([^/]+?)/.*", f(job_data, k)):
+        if m := re.match(r"/home/mila/[\.a-zA-Z0-9]{1}/([^/]+?)/.*", f(job_data, k)):
             potential_guesses.append(m.group(1))
+
+    # "work_dir": "/home/mila/k/kaustubh.mani"
+    if m := re.match(r"/home/mila/[a-zA-Z0-9]{1}/([^/]+)$", f(job_data, "work_dir")):
+        potential_guesses.append(m.group(1))
+
+
+    # !! This person has a dot in their username!?
+    # "command": "/network/tmp1/kaustubh.mani/git/bts/pytorch/job_script.sh 0.0001"
+    for k in ['command', 'work_dir']:
+        if m := re.match(r"/network/tmp\d/([^/]+?)/.*", f(job_data, k)):
+            potential_guesses.append(m.group(1))
+
+    # 'work_dir': '/network/tmp1/subakany'
+    for k in ['command', 'work_dir']:
+        if m := re.match(r"/network/tmp\d/([^/]+)$", f(job_data, k)):
+            potential_guesses.append(m.group(1))
+
+
+    # No idea what to do with that one. Is it a project?
+    # 'work_dir': '/network/data2/tech-transfer/fansitca/chloe_project/neurips/casande'
+    # 'work_dir': '/network/data2/tech-transfer/rishab_goel/chloe_backup'
+    if m := re.match(r"/network/data\d/tech-transfer/([^/]+?)/.*", f(job_data, "work_dir")):
+        potential_guesses.append(m.group(1))
+    # Let's pretend that we want to match "/network/data2/tech-transfer/rishab_goel" as well.
+    if m := re.match(r"/network/data\d/tech-transfer/([^/]+)$", f(job_data, "work_dir")):
+        potential_guesses.append(m.group(1))
+
 
     ### beluga ###
     
@@ -67,7 +94,6 @@ def extract_mila_user_account_from_job_data(job_data):
 
 
     # "std_err": "/lustre03/project/6008004/yanlin/nextTadCaller/downsample/slurm-19741310.out",
-    # "std_in": "/dev/null",
     # "std_out": "/lustre03/project/6008004/yanlin/nextTadCaller/downsample/slurm-19741310.out",
     # "work_dir": "/lustre03/project/6008004/yanlin/nextTadCaller/downsample",
     for k in ['std_err', 'std_in', 'std_out', 'work_dir']:
@@ -79,7 +105,6 @@ def extract_mila_user_account_from_job_data(job_data):
 
     # "command": "/home/pratogab/
     # "std_err": "/home/pratogab/ood_scaling_new/logs/proto_eval_coco_densenet121_data_ratio_100_percent_bird_5way_5shot.out",
-    # "std_in": "/dev/null",
     # "std_out": "/home/pratogab/ood_scaling_new/logs/proto_eval_coco_densenet121_data_ratio_100_percent_bird_5way_5shot.out",
     # "work_dir": "/home/pratogab/ood_scaling_new",
     for k in ['command', 'std_err', 'std_in', 'std_out', 'work_dir']:
@@ -87,11 +112,23 @@ def extract_mila_user_account_from_job_data(job_data):
             potential_guesses.append(m.group(1))
 
     # "std_err": "/lustre04/scratch/fkaadou/Ag_Ca2N_MoS2/separate_layers/Ag_Ca2N/PES_scan/short_diag/scan11/slurm-19785495.out",
-    # "std_in": "/dev/null",
     # "std_out": "/lustre04/scratch/fkaadou/Ag_Ca2N_MoS2/separate_layers/Ag_Ca2N/PES_scan/short_diag/scan11/slurm-19785495.out",
+    # "command": "/lustre04/scratch/haipwu/code/self-sup-att-rl/scripts/train_single"
     for k in ['command', 'std_err', 'std_in', 'std_out', 'work_dir']:
-        if m := re.match(r"/lustre\d+/scratch/\d+/([^/]+?)/.*", f(job_data, k)):
+        if m := re.match(r"/lustre\d+/scratch/([^/]+?)/.*", f(job_data, k)):
             potential_guesses.append(m.group(1))
+
+
+
+    # "work_dir": "/home/hattie"
+    # 'work_dir': "/home/meade"
+    if m := re.match(r"/home/([^/]+)$", f(job_data, "work_dir")):
+        potential_guesses.append(m.group(1))
+
+    # 'work_dir': '/lustre04/scratch/hattie/GSNR'
+    # 'work_dir': '/lustre04/scratch/liusheng/3D_SSL/src'
+    if m := re.match(r"/lustre\d+/scratch/([^/]+?)/.*", f(job_data, "work_dir")):
+        potential_guesses.append(m.group(1))
 
     # Let's ignore that one because it's not even from us.
     # "account": "def-bhatnaga_cpu",

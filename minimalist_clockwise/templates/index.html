@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}">
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col s1">
+            <!-- spacing on the left -->
+        </div>
+        <div class="col s4">
+            <h3>rss mongo</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s1">
+            <!-- spacing on the left -->
+        </div>
+        <div class="col s9" id="changeme">
+
+            <!-- this index.html page isn't being used right now -->
+            
+        </div>
+    </div>
+{% endblock %}

@@ -1,13 +1,12 @@
 # docker for prometheus-grafana-elasticsearch
 
-2021-05-27 still untested, but will be tested today
-
 | service | url | comment |
 |---------|-----|---------|
 | prometheus | http://deepgroove.local:9090 | web admin |
 | grafana | http://deepgroove.local:3000 | web plots |
 | elastic search | http://deepgroove.local:9200 | REST? |
 | elastic search | http://deepgroove.local:9300 | open port in docker, but connections refused with web browser |
+| mongodb | http://deepgroove.local:27017 | |
 
 ## docker commands
 
@@ -33,11 +32,22 @@ docker run -d --name elasticsearch00 --net PrEsGr \
 	-p 9200:9200 -p 9300:9300 \
 	-e "discovery.type=single-node" \
 	elasticsearch:7.12.1
+
+# mongodb
+docker run -d --name mongodb00 --net PrEsGr \
+	-p 27017:27017 \
+    -e MONGO_INITDB_ROOT_USERNAME=mongoadmin \
+    -e MONGO_INITDB_ROOT_PASSWORD=secret_password_okay \
+    mongo
 ```
 
 ## additional steps
 
 Log into Grafana as admin/admin and skip changing password. Use `deepgroove.local:9090` as data source for Grafana.
+
+Create database "slurm" with collections "jobs" and "nodes" in mongodb.
+You can connect with Compass using the connection string
+`mongodb://mongoadmin:secret_password_okay@deepgroove.local:27017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&ssl_cert_reqs=CERT_NONE&ssl=false`.
 
 ## some explanations
 
