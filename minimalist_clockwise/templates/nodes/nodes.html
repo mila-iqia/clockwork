@@ -20,7 +20,7 @@
             <!-- spacing on the left -->
         </div>
         <div class="col s4">
-            <h3>single job {{job_id}}</h3>
+            <h3>nodes</h3>
         </div>
     </div>
     <div class="row">
@@ -33,18 +33,17 @@
             
             <table>
                 <tr>
-                    <th>key</th>
-                    <th>value</th>
+                    <th>cluster_name</th>
+                    <th>node name</th>
+                    <th>node gres</th>
+                    <th>node state</th>
                 </tr>
-                {% for (k, v) in LP_single_job %}
+                {% for e in LD_nodes %}
                 <tr>
-                    <td>{{k}}</td>
-                    {% if k in ['batch_host'] %}
-                    <!-- -->
-                    <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
-                    {% else %}
-                    <td>{{v}}</td>
-                    {% endif %}
+                    <td>{{e['cluster_name']}}</td>
+                    <td><a href="/nodes/single_node/{{e['name']}}"> {{e['name']}} </a></td>
+                    <td>{{e['gres']}}</td>
+                    <td>{{e['state']}}</td>
                 </tr>
                 {% endfor %}
             </table>

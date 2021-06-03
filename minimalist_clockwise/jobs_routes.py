@@ -27,58 +27,43 @@ from flask import g
 from flask import Blueprint
 flask_api = Blueprint('jobs_flask_api', __name__)
 
-# We'll have to do something about that setup to avoid hardcoding these values here.
-D_mongo_config = {"hostname":"deepgroove.local", "port":27017, "username":"mongoadmin", "password":"secret_password_okay"}
+from jobs_routes_helper import (strip_artificial_fields_from_job, get_job_state_totals, get_jobs)
 
-def strip_artificial_fields_from_job(D_job):
-    # Returns a copy. Does not mutate the original.
-    fields_to_remove = ["_id", "grafana_helpers"]
-    return dict( (k, v) for (k, v) in D_job.items() if k not in fields_to_remove)
 
 
 @flask_api.route('/')
 def route_index():
-    mc = get_mongo_client(D_mongo_config)
-    mc_db = mc['slurm']
-    L_entries = list(mc_db["jobs"].find())
-    # let's not always process them in the same order
-    #L_entries = list(sorted(L, key=lambda e: e['title']))
+    return redirect("list/")
+
+@flask_api.route('/list/', defaults={'mila_user_account': None})
+@flask_api.route('/list/<mila_user_account>')
+def route_list(mila_user_account:str):
+
+    if mila_user_account is None:
+        L_entries = get_jobs()
+    else:
+        m = re.match(r"^[a-zA-Z\.\d\-]+$", mila_user_account)
+        if not m:
+            return render_template("error.html", error_msg="mila_user_account specific contains invalid characters")
+        L_entries = get_jobs({'mila_user_account': mila_user_account})
 
     return render_template("jobs/jobs.html",
                             L_entries=L_entries)
 
-@flask_api.route('/<mila_user_account>')
-def route_arg_mila_user_account(mila_user_account:str):
+@flask_api.route('/state_totals/', defaults={'mila_user_account': None})
+@flask_api.route('/state_totals/<mila_user_account>')
+def route_state_totals(mila_user_account):
 
-    m = re.match(r"^[a-zA-Z\.\d\-]+$", mila_user_account)
-    if not m:
-        return render_template("error.html", error_msg="mila_user_account specific contains invalid characters")
-
-    mc = get_mongo_client(D_mongo_config)
-    mc_db = mc['slurm']
-    L_entries = list(mc_db["jobs"].find({'mila_user_account': mila_user_account}))
-    # let's not always process them in the same order
-    #L_entries = list(sorted(L, key=lambda e: e['title']))
-
-    return render_template("jobs/jobs.html",
-                            L_entries=L_entries)
-
-# Not super useful by itself.
-@flask_api.route('/job_state_totals/<mila_user_account>')
-def route_job_state_totals_mila_user_account(mila_user_account):
-
-    m = re.match(r"^[a-zA-Z\.\d\-]+$", mila_user_account)
-    if not m:
-        return render_template("error.html", error_msg="mila_user_account specific contains invalid characters")
-
-    mc = get_mongo_client(D_mongo_config)
-    mc_db = mc['slurm']
-    L_entries = list(mc_db["jobs"].find({'mila_user_account': mila_user_account}))
+    if mila_user_account is None:
+        L_entries = get_jobs()
+    else:
+        m = re.match(r"^[a-zA-Z\.\d\-]+$", mila_user_account)
+        if not m:
+            return render_template("error.html", error_msg="mila_user_account specific contains invalid characters")
+        L_entries = get_jobs({'mila_user_account': mila_user_account})
 
     # TODO : Filter for recent jobs (except for the pending ones).
-
     DD_counts = get_job_state_totals(L_entries)
-    pprint(DD_counts)
 
     # sort by the one that has the most RUNNING jobs first
     LPD_job_state_totals = sorted(DD_counts.items(), key=lambda e: -e[1]["RUNNING"])
@@ -87,47 +72,17 @@ def route_job_state_totals_mila_user_account(mila_user_account):
                             LPD_job_state_totals=LPD_job_state_totals)
 
 
-@flask_api.route('/job_state_totals')
-def route_job_state_totals():
-    mc = get_mongo_client(D_mongo_config)
-    mc_db = mc['slurm']
-    L_entries = list(mc_db["jobs"].find())
-
-    # TODO : Filter for recent jobs (except for the pending ones).
-
-    DD_counts = get_job_state_totals(L_entries)
-    pprint(DD_counts)
-
-    # sort by the one that has the most RUNNING jobs first
-    LPD_job_state_totals = sorted(DD_counts.items(), key=lambda e: -e[1]["RUNNING"])
+# @flask_api.route('/job_state_totals')
+# def route_job_state_totals():
     
-    return render_template("jobs/job_state_totals.html",
-                            LPD_job_state_totals=LPD_job_state_totals)
-
-def get_job_state_totals(L_entries,
-    mapping={
-        "PENDING": "PENDING",
-        "RUNNING": "RUNNING",
-        "COMPLETING": "RUNNING",
-        "COMPLETED": "COMPLETED",
-        "OUT_OF_MEMORY": "ERROR",
-        "TIMEOUT": "ERROR",
-        "FAILED": "ERROR",
-        "CANCELLED": "ERROR"}
-    ):
-    """
-    This function doesn't make much sense if you don't filter anything ahead of time.
-    Otherwise you'll get values for jobs that have been over for very long.
-    """
-
-    # create a table with one entry for each entry    
-    mila_user_accounts = set(e["mila_user_account"] for e in L_entries)
-    DD_counts = dict((mila_user_account, {"PENDING":0, "RUNNING":0, "COMPLETED":0, "ERROR":0}) for mila_user_account in mila_user_accounts)
-    for e in L_entries:
-        DD_counts[e["mila_user_account"]][mapping[e["job_state"]]] += 1
-
-    return DD_counts
-
+#     L_entries = get_jobs()
+#     # TODO : Filter for recent jobs (except for the pending ones).
+#     DD_counts = get_job_state_totals(L_entries)
+   
+#     # sort by the one that has the most RUNNING jobs first
+#     LPD_job_state_totals = sorted(DD_counts.items(), key=lambda e: -e[1]["RUNNING"])
+#     return render_template("jobs/job_state_totals.html",
+#                             LPD_job_state_totals=LPD_job_state_totals)
 
 @flask_api.route('/single_job/<job_id>')
 def route_single_job_p_job_id(job_id):
@@ -136,9 +91,7 @@ def route_single_job_p_job_id(job_id):
     if not m:
         return render_template("error.html", error_msg="job_id contains invalid characters")
 
-    mc = get_mongo_client(D_mongo_config)
-    mc_db = mc['slurm']
-    L_entries = list(mc_db["jobs"].find({'job_id': int(job_id)}))
+    L_entries = get_jobs({'job_id': int(job_id)})
 
     if len(L_entries) == 0:
         return render_template("error.html", error_msg=f"Found no job with job_id {job_id}.")

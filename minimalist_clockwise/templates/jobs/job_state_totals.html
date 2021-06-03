@@ -41,7 +41,7 @@
                 </tr>
                 {% for (mila_user_account, D) in LPD_job_state_totals %}
                 <tr>
-                    <td><a href="/jobs/{{mila_user_account}}"> {{mila_user_account}} </a></td>
+                    <td><a href="/jobs/list/{{mila_user_account}}"> {{mila_user_account}} </a></td>
                     <td>{{D['PENDING']}}</td>
                     <td>{{D['RUNNING']}}</td>
                     <td>{{D['ERROR']}}</td>

@@ -20,7 +20,7 @@
             <!-- spacing on the left -->
         </div>
         <div class="col s4">
-            <h3>single job {{job_id}}</h3>
+            <h3>single node {{node_name}}</h3>
         </div>
     </div>
     <div class="row">
@@ -29,18 +29,19 @@
         </div>
         <div class="col s9" id="changeme">
 
-            <!-- <h1>{{channel_title}}</h1> -->
+            <h3>properties of this node</h3>
             
             <table>
                 <tr>
                     <th>key</th>
                     <th>value</th>
                 </tr>
-                {% for (k, v) in LP_single_job %}
+                {% for (k, v) in LP_node %}
                 <tr>
+                    <!-- this is just the idea of having a hyperlink when we can have one,
+                         even if it leads to this very page (and is somewhat pointless in that sense) -->
                     <td>{{k}}</td>
-                    {% if k in ['batch_host'] %}
-                    <!-- -->
+                    {% if k in ['name', 'node_addr', 'node_hostname'] %}
                     <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
                     {% else %}
                     <td>{{v}}</td>
@@ -48,6 +49,22 @@
                 </tr>
                 {% endfor %}
             </table>
+
+            <h3>jobs on this node in "RUNNING" state</h3>
+
+            <table>
+                <tr>
+                    <th>job_id</th>
+                    <th>mila_user_account</th>
+                </tr>
+                {% for D_job in LD_jobs %}
+                <tr>
+                    <td><a href="/jobs/single_job/{{D_job['job_id']}}"> {{D_job['job_id']}} </a></td>
+                    <td><a href="/jobs/list/{{D_job['mila_user_account']}}"> {{D_job['mila_user_account']}} </a></td>
+                </tr>
+                {% endfor %}
+            </table>
+
         </div>
     </div>
 {% endblock %}
