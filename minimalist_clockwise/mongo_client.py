@@ -1,6 +1,11 @@
 from pymongo import MongoClient
 
-def get_mongo_client(config:dict=None):
+
+# We'll have to do something about that setup to avoid hardcoding these values here.
+D_mongo_config = {"hostname":"deepgroove.local", "port":27017, "username":"mongoadmin", "password":"secret_password_okay"}
+
+
+def get_mongo_client(config:dict=D_mongo_config):
     """
     The first time calling this, you need to pass the proper config,
     but later on it's going to be filled in properly.

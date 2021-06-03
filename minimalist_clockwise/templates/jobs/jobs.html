@@ -36,13 +36,13 @@
                     <th>cluster_name</th>
                     <th>mila_user_account</th>
                     <th>job_id</th>
-                    <th>job name</th>
+                    <th>job name (truncated)</th>
                     <th>job_state</th>
                 </tr>
                 {% for e in L_entries %}
                 <tr>
                     <td>{{e['cluster_name']}}</td>
-                    <td><a href="/jobs/{{e['mila_user_account']}}"> {{e['mila_user_account']}} </a></td>
+                    <td><a href="/jobs/list/{{e['mila_user_account']}}"> {{e['mila_user_account']}} </a></td>
                     <td><a href="/jobs/single_job/{{e['job_id']}}"> {{e['job_id']}} </a></td>
                     <td>{{e['name'][:32]}}</td> <!-- truncate after 32 chars -->
                     <td>{{e['job_state']}}</td>
