@@ -20,7 +20,7 @@
             <!-- spacing on the left -->
         </div>
         <div class="col s4">
-            <h3>single job {{job_id}}</h3>
+            <h3>rss mongo</h3>
         </div>
     </div>
     <div class="row">
@@ -29,25 +29,8 @@
         </div>
         <div class="col s9" id="changeme">
 
-            <!-- <h1>{{channel_title}}</h1> -->
+            <!-- this index.html page isn't being used right now -->
             
-            <table>
-                <tr>
-                    <th>key</th>
-                    <th>value</th>
-                </tr>
-                {% for (k, v) in LP_single_job %}
-                <tr>
-                    <td>{{k}}</td>
-                    {% if k in ['batch_host'] and v != None %}
-                    <!-- -->
-                    <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
-                    {% else %}
-                    <td>{{v}}</td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </table>
         </div>
     </div>
 {% endblock %}
