@@ -1,4 +1,97 @@
 
+.cc_subheader_banner {
+    background-color:thistle;
+}
+
+.cc_toggle_zone_row {
+    /* margin: auto; */
+}
+
+.cc_cluster_toggle_grafana_link {
+    display:inline-block;
+}
+.cc_cluster_toggle_grafana_link a img {
+    height:15px;
+}
+
+.cc_cluster_toggle_name {
+    display:inline-block;
+    /*
+    margin-left: 10px;
+    margin-right: 10px;
+    */
+}
+
+.cc_cluster_toggle_subzone {
+    /* display:inline-block; */
+    float: right;
+}
+
+.cc_toggle_zone_column {
+    display:inline-block;
+}
+
+
+/* The toggle switches at the top of jobs listing.
+   You can find the properties in static/css/materialize.css
+   when looking for #84c7c1 and #26a69a.
+
+   Inspired from
+       https://stackoverflow.com/questions/50376587/making-two-materialize-switches-of-different-colors
+*/
+
+/*
+.switch.cc_cluster_toggle_subzone label .lever {
+    background-color: #9d7997;
+ }
+*/
+
+/*
+.switch.cc_cluster_toggle_subzone label input[type=checkbox] {
+    background-color: thistle;
+}
+*/
+
+/* for text? */
+/*.switch.cc_cluster_toggle_subzone {
+   color: black;
+}
+*/
+
+/*
+    https://color-hex.org/color/d8bfd8
+    darker shades of "thistle"
+    #978597
+    #564C56
+
+*/
+
+
+.switch.cc_cluster_toggle_subzone label input[type=checkbox]:checked+.lever {
+    background-color: #564C56;
+ }
+ .switch.cc_cluster_toggle_subzone label input[type=checkbox]:checked+.lever:after {
+    background-color: #564C56;
+ }
+
+ /* some gold color : rgb(187, 175, 106) */
+
+ /* looking at materialize.css */
+ [type="radio"]:checked + span:after,
+ [type="radio"].with-gap:checked + span:before,
+ [type="radio"].with-gap:checked + span:after {
+   border: 2px solid #564C56;
+ }
+ 
+ [type="radio"]:checked + span:after,
+ [type="radio"].with-gap:checked + span:after {
+   background-color: #564C56;
+ }
+
+
+
+
+
 .filterOnOff {
     min-height: 30px;
     border-radius: 7px;

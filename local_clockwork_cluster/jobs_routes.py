@@ -91,17 +91,17 @@ def route_single_job_p_job_id(job_id):
     if not m:
         return render_template("error.html", error_msg="job_id contains invalid characters")
 
-    L_entries = get_jobs({'job_id': int(job_id)})
+    LD_jobs = get_jobs({'job_id': int(job_id)})
 
-    if len(L_entries) == 0:
+    if len(LD_jobs) == 0:
         return render_template("error.html", error_msg=f"Found no job with job_id {job_id}.")
-    if len(L_entries) > 1:
-        return render_template("error.html", error_msg=f"Found {len(L_entries)} jobs with job_id {job_id}. Not sure what to do about these cases.")
+    if len(LD_jobs) > 1:
+        return render_template("error.html", error_msg=f"Found {len(LD_jobs)} jobs with job_id {job_id}. Not sure what to do about these cases.")
 
-    D_job = strip_artificial_fields_from_job(L_entries[0])
+    D_job = strip_artificial_fields_from_job(LD_jobs[0])
 
     # let's sort alphabetically by keys
     LP_single_job = list(sorted(D_job.items(), key=lambda e: e[0]))
-    return render_template("jobs/single_job.html",
+    return render_template("single_job.html",
                             LP_single_job=LP_single_job,
                             job_id=job_id)
