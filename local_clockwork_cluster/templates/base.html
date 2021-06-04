@@ -3,7 +3,7 @@
 <head>
     {% block head %}
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"  media="screen,projection"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwork_cluster.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pygment_trac.css') }}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -35,6 +35,24 @@
       </div>
       <div class="col s5">
         <img src="{{ url_for('static', filename='images/clockwork_cluster_0.5x.png')}}" width='50%'>
+      </div>
+
+      <div class="col s3">
+        <!-- spacing -->
+      </div>
+      <div class="col s2">
+        <div style="display:inline-block;">
+          [link Mila docs]
+        </div>
+        <div style="display:inline-block;">
+          [link Mila dashboard]
+        </div>
+        <div style="display:inline-block;">
+          [link settings]
+        </div>
+        <div style="display:inline-block;">
+          [link about ~this]
+        </div>
       </div>
     </div>
 

@@ -182,3 +182,16 @@ we are not really capturing that reality.
 
 This is a consequence of not having a database that we can easily access
 that would provide us with a map or who's who.
+
+## mila tools for augmenting information reported by slurm
+
+We could have a python module that allows the users to give information about
+the Wandb experiment ID or other things that are know at runtime.
+```
+mila_tools.set_link_to_wandb_experiment("84723987")
+```
+Even when running on clusters from Compute Canada that don't have access
+to the internet, we could still propagate certain messages through Arbutus.
+
+We can probably use some option in slurm to add comments to jobs,
+but the point here is that we don't necessarily need to go through that route.

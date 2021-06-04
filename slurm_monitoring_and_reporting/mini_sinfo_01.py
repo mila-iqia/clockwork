@@ -41,7 +41,7 @@ from prometheus_client import Enum, Summary, Gauge
 from elasticsearch import Elasticsearch
 
 # https://docs.paramiko.org/en/stable/api/client.html
-from paramiko import SSHClient, AutoAddPolicy
+from paramiko import SSHClient, AutoAddPolicy, ssh_exception
 
 import slurm_monitoring_and_reporting
 from slurm_monitoring_and_reporting.common import (filter_unrelated_jobs, )
@@ -203,6 +203,11 @@ class SinfoManager:
                                                     self.D_mongodb_config, self.mongo_client)
 
     def open_connection(self):
+        """
+        If successful, this will connect to the remote server and
+        the value of self.ssh_client will be usable.
+        Otherwise, this will set self.ssh_client=None or it will quit().
+        """
         if self.mock_data_dir is not None:
             # skip doing anything
             return
@@ -210,7 +215,27 @@ class SinfoManager:
         self.ssh_client = SSHClient()
         self.ssh_client.set_missing_host_key_policy(AutoAddPolicy())
         self.ssh_client.load_system_host_keys()
-        self.ssh_client.connect(clds["hostname"], username=clds["username"], port=clds["port"])
+
+        # The call to .connect was seen to raise an exception now and then.
+        #     raise AuthenticationException("Authentication timeout.")
+        #     paramiko.ssh_exception.AuthenticationException: Authentication timeout.
+        # When it happens, we sleep for 5 minutes in the parent loop.
+        # If we get an unknown exception, then we might as well quit()
+        # look at it manually, and decide whether we want to add another exception
+        # from which we can/should recover.
+        try:        
+            self.ssh_client.connect(clds["hostname"], username=clds["username"], port=clds["port"])
+        except ssh_exception.AuthenticationException as inst:
+            print(type(inst))
+            print(inst)
+            # set the ssh_client to None as a way to communicate
+            # to the parent that we got into trouble
+            self.ssh_client = None
+        except Exception as inst:
+            print(type(inst))
+            print(inst)
+            quit()
+
 
     def close_connection(self):
         """
@@ -221,7 +246,12 @@ class SinfoManager:
         """
         if self.mock_data_dir is not None:
             # skip doing anything
-            return        
+            return
+        if self.ssh_client is None:
+            # For some reason, we didn't get a client.
+            # This happens when the connection fails to be established.
+            return
+
         self.ssh_client.close()
 
     def fetch_data(self):
@@ -241,6 +271,11 @@ class SinfoManager:
                 psl_jobs = json.load(f)
         else:
             # Read the information for real from pyslurm on a remote machine.
+
+            if self.ssh_client is None:
+                # For some reason, we didn't get a client.
+                # This happens when the connection fails to be established.
+                return
 
             ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(self.D_cluster_desc["cmd"])
 

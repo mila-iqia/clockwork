@@ -15,6 +15,198 @@
 
 {% endblock %}
 {% block content %}
+    <div class="cc_subheader_banner">
+        <div class="row">
+            <div class="col s2">
+                <!-- spacing on the left -->
+            </div>
+            <div class="col s3">
+                <h4>jobs on clusters</h4>
+            </div>
+
+            <!-- dates -->
+
+            <div class="col s2">
+                <form action="#">
+                    <div class="cc_toggle_zone_row">
+                        <label>
+                            <input name="group1" type="radio" checked />
+                            <span>one hour</span>
+                        </label>
+                    </div>
+                    <div class="cc_toggle_zone_row">
+                        <label>
+                            <input name="group1" type="radio" />
+                            <span>one day</span>
+                        </label>
+                    </div>
+                    <div class="cc_toggle_zone_row">
+                        <label>
+                            <input name="group1" type="radio" />
+                            <span>one week</span>
+                        </label>
+                    </div>
+                    <div class="cc_toggle_zone_row">
+                        <label>
+                            <input name="group1" type="radio" disabled="disabled"/>
+                            <span>dinosaurs</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+
+            <!-- toggling clusters -->
+            <div class="col s2">
+                <!-- toggle mila -->
+                <div class="cc_toggle_zone_row">
+
+                    <i class="tiny material-icons">assignment</i>
+
+                    <div class="cc_cluster_toggle_grafana_link">
+                        <a href="https://dashboard.server.mila.quebec/"> <!-- TODO : insert link to actual plot -->
+                            <img src="{{ url_for('static', filename='images/grafana_logo.png') }}" />
+                        </a>
+                    </div>
+                    <div class="cc_cluster_toggle_name">mila</div>
+                    <div class="switch cc_cluster_toggle_subzone">
+                        <label>
+                        <!-- Hide -->
+                        <input type="checkbox" checked>
+                        <span class="lever"></span>
+                        <!-- Show -->
+                        </label>
+                    </div>
+                </div>
+                <!-- toggle beluga -->
+                <div class="cc_toggle_zone_row">
+
+                    <i class="tiny material-icons">assignment</i>
+
+                    <div class="cc_cluster_toggle_grafana_link">
+                        <a href="https://dashboard.server.mila.quebec/"> <!-- TODO : insert link to actual plot -->
+                            <img src="{{ url_for('static', filename='images/grafana_logo.png') }}"/>
+                        </a>
+                    </div>
+                    <div class="cc_cluster_toggle_name">beluga</div>
+                    <div class="switch cc_cluster_toggle_subzone">
+                        <label>
+                        <!-- Hide -->
+                        <input type="checkbox" checked>
+                        <span class="lever"></span>
+                        <!-- Show -->
+                        </label>
+                    </div>
+                </div>
+                <!-- toggle cedar -->
+                <div class="cc_toggle_zone_row">
+
+                    <i class="tiny material-icons">assignment</i>
+
+                    <div class="cc_cluster_toggle_grafana_link">
+                        <a href="https://dashboard.server.mila.quebec/"> <!-- TODO : insert link to actual plot -->
+                            <img src="{{ url_for('static', filename='images/grafana_logo.png') }}"/>
+                        </a>
+                    </div>
+                    <div class="cc_cluster_toggle_name">cedar</div>
+                    <div class="switch cc_cluster_toggle_subzone">
+                        <label>
+                        <!-- Hide -->
+                        <input type="checkbox" checked>
+                        <span class="lever"></span>
+                        <!-- Show -->
+                        </label>
+                    </div>
+                </div>
+                <!-- toggle graham -->
+                <div class="cc_toggle_zone_row">
+
+                    <i class="tiny material-icons">assignment</i>
+
+                    <div class="cc_cluster_toggle_grafana_link">
+                        <a href="https://dashboard.server.mila.quebec/"> <!-- TODO : insert link to actual plot -->
+                            <img src="{{ url_for('static', filename='images/grafana_logo.png') }}"/>
+                        </a>
+                    </div>
+                    <div class="cc_cluster_toggle_name">graham</div>
+                    <div class="switch cc_cluster_toggle_subzone">
+                        <label>
+                        <!-- Hide -->
+                        <input type="checkbox" checked>
+                        <span class="lever"></span>
+                        <!-- Show -->
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+
+            <!-- toggling status -->
+            <div class="col s2">
+                <!-- toggle mila -->
+                <div class="cc_toggle_zone_row">
+                    <div class="cc_cluster_toggle_name">running</div>
+                    <div class="switch cc_cluster_toggle_subzone">
+                        <label>
+                        Hide
+                        <input type="checkbox" checked>
+                        <span class="lever"></span>
+                        Show
+                        </label>
+                    </div>
+                </div>
+                <!-- toggle beluga -->
+                <div class="cc_toggle_zone_row">
+                    <div class="cc_cluster_toggle_name">pending</div>
+                    <div class="switch cc_cluster_toggle_subzone">
+                        <label>
+                        Hide
+                        <input type="checkbox" checked>
+                        <span class="lever"></span>
+                        Show
+                        </label>
+                    </div>
+                </div>
+                <!-- toggle cedar -->
+                <div class="cc_toggle_zone_row">
+                    <div class="cc_cluster_toggle_name">completed</div>
+                    <div class="switch cc_cluster_toggle_subzone">
+                        <label>
+                        Hide
+                        <input type="checkbox" checked>
+                        <span class="lever"></span>
+                        Show
+                        </label>
+                    </div>
+                </div>
+                <!-- toggle graham -->
+                <div class="cc_toggle_zone_row">
+                    <div class="cc_cluster_toggle_name">any errors</div>
+                    <div class="switch cc_cluster_toggle_subzone">
+                        <label>
+                        Hide
+                        <input type="checkbox" checked>
+                        <span class="lever"></span>
+                        Show
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!-- The row with the toggle switches for the jobs listing. -->
+        <div class="row">
+            <div class="col s1">
+                <!-- spacing on the left -->
+            </div>
+            <div class="col s3">
+                toggle : all users - me 
+            </div>
+            <div class="col s3">
+                radio picker : date 
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col s1">
             <!-- spacing on the left -->
