@@ -195,3 +195,15 @@ to the internet, we could still propagate certain messages through Arbutus.
 
 We can probably use some option in slurm to add comments to jobs,
 but the point here is that we don't necessarily need to go through that route.
+
+## add_node_list_simplified on the wrong data structure!
+
+We think we're calling `add_node_list_simplified(psl_reservations:dict)` on the wrong thing.
+It should be done on jobs; not on reservations.
+
+Besides, the jobs should analyze their `sched_nodes` field, like in job_id 19090543 from beluga:
+```
+"sched_nodes" : "blg[4703,4707,4803,4808,5102,5104,5106,5109,5202,5204,5302,5304,5306-5307,5405-5406,5702-5707,5709,5801-5809]"
+```
+
+This should be displayed on the web site, instead of the node that manages the job, which is the case right now.

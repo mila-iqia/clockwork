@@ -77,17 +77,16 @@ DD_cluster_desc = {
         "port": 22,
         # TODO : Find these values.
         "slurm_login_nodes": [ ],
-        "slurm_partitions": ['c-gput4', 'gpubase_bygpu_b3', 'gpubase_bygpu_b2',
-            'cpubase_bycore_b4', 'cpularge_bycore_b5', 'cpubase_bycore_b3',
-            'cpularge_bynode_b4', 'cpularge_bycore_b3', 'gpubase_interac',
-            'c-slarge', 'cpubackfill', 'gpubase_bygpu_b1', 'gpubase_bynode_b4',
-            'cpubase_interac', 'gpubackfill', 'cpubase_bynode_b1', 'cpularge_bynode_b1',
-            'cpularge_bycore_b4', 'cpularge_interac', 'cpularge_bycore_b2',
-            'cpularge_bynode_b3', 'c-dragen', 'cpubase_bycore_b2', 'gpubase_bynode_b5',
-            'cpubase_bynode_b5', 'cpularge_bynode_b2', 'cpularge_bycore_b1', 'gpubase_bynode_b3',
-            'cpubase_bycore_b5', 'gpubase_bynode_b1', 'cpubase_bynode_b2', 'cpularge_bynode_b5',
-            'gpubase_bynode_b2', 'cpubase_bynode_b4', 'cpubase_bynode_b3', 'gpubase_bygpu_b4',
-            'cpubase_bycore_b1', 'gpubase_bygpu_b5'],
+        "slurm_partitions": [
+            'cpularge_bycore_b4', 'cpubase_bycore_b2', 'gpubackfill', 'cpubase_bycore_b4',
+            'cpularge_bynode_b3', 'cpubase_bycore_b1', 'cpularge_bynode_b2', 'cpularge_bycore_b1',
+            'gpubase_bygpu_b2', 'gpubase_bygpu_b3', 'cpularge_interac', 'cpubase_bynode_b5',
+            'cpularge_bynode_b5', 'cpularge_bynode_b4', 'gpubase_bynode_b1', 'cpularge_bycore_b2',
+            'c-gput4', 'cpubase_bynode_b1', 'gpubase_bygpu_b4', 'cpubase_bynode_b2', 'cpubase_bynode_b3',
+            'cpularge_bynode_b1', 'gpubase_bynode_b4', 'gpubase_bynode_b5', 'c-slarge', 'gpubase_bygpu_b5',
+            'cpubase_bycore_b5', 'cpularge_bycore_b3', 'gpubase_bynode_b3', 'gpubase_bynode_b2',
+            'cpubase_bycore_b3', 'cpubackfill', 'gpubase_interac', 'cpubase_bynode_b4', 'cpularge_bycore_b5',
+            'gpubase_bygpu_b1', 'c-dragen', 'cpubase_interac'],
         "slurm_ignore_partitions": []
         },
     "mila":
@@ -100,14 +99,34 @@ DD_cluster_desc = {
         # These should be read from a configuration file instead of from the source code.
         # We should figure out also what are the equivalent values for beluga and other clusters.
         "slurm_login_nodes": [ "login-1", "login-2", "login-3", "login-4"],
-        "slurm_partitions": [   "unkillable","short-unkillable","main","main-grace",
-                                "long","long-grace","cpu_jobs","cpu_jobs_low","cpu_jobs_low-grace"],
+        "slurm_partitions": ['debug', 'long', 'cpu_jobs_low-grace', 'unkillable', 'short-unkillable', 'main', 'long-grace', 'cpu_jobs_low', 'cpu_jobs', 'main-grace'],
         "slurm_ignore_partitions":
             ["gcpDebug", "cloud_tpux1Cloud", "gcpDevCPUCloud", "gcpMicroMemCPUCloud",
              "gcpMiniMemCPUCloud", "gcpComputeCPUCloud", "gcpGeneralCPUCloud", "gcpMemoryCPUCloud",
              "gcpV100x1Cloud", "gcpV100Xx1Cloud", "gcpV100x2Cloud", "gcpV100x4Cloud", "gcpK80x1Cloud",
              "gcpK80Xx1Cloud", "gcpK80x2Cloud", "gcpK80x4Cloud"]
-        }
+        },
+    "graham":
+        {"name": "graham",
+        "cmd" : 'module load python/3.6.10; python3 ${HOME}/bin/sinfo_scraper.py ',
+        "hostname": "graham.computecanada.ca",
+        "username": "alaingui",
+        "port": 22,
+        # TODO : Find these values.
+        "slurm_login_nodes": [ ],
+        "slurm_partitions": [
+            'cpularge_bycore_b4', 'cpubase_bycore_b2', 'cpularge_bynode_b6', 'cpularge_bynode_b3',
+            'cpubase_bycore_b4', 'gpubackfill', 'cpubase_bycore_b1', 'cpularge_bynode_b2',
+            'cpularge_bycore_b1', 'c-gwtaylor', 'gpubase_bygpu_b2', 'cpularge_interac',
+            'gpubase_bygpu_b3', 'cpubase_bynode_b5', 'cpularge_bynode_b5', 'cpubase_bynode_b6',
+            'cpularge_bynode_b4', 'gpubase_bynode_b1', 'cpularge_bycore_b2', 'cpubase_bynode_b1',
+            'gpubase_bygpu_b4', 'cpubase_bynode_b3', 'cpubase_bynode_b2', 'cpularge_bynode_b1',
+            'cpularge_bycore_b6', 'gpubase_bynode_b4', 'gpubase_bynode_b5', 'cpubase_bycore_b5',
+            'gpubase_bygpu_b5', 'cpularge_bycore_b3', 'c-rubel', 'gpubase_bynode_b3', 'gpubase_bynode_b2',
+            'cpubase_bycore_b3', 'cpubackfill', 'gpubase_bygpu_b6', 'cpubase_bynode_b4', 'cpubase_bycore_b6',
+            'cpularge_bycore_b5', 'gpubase_bynode_b6', 'gpubase_bygpu_b1', 'gpubase_interac', 'cpubase_interac'],
+        "slurm_ignore_partitions": []
+        },
 }
 
 # The names for `es_jobs_index` and `es_nodes_index` will go into elasticsearch.
@@ -346,7 +365,12 @@ python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17002 --cluster_n
     --mock_data_dir ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/beluga
 
 # or the same thing but getting the information for real
-python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 30 \
-python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17002 --cluster_name beluga --endpoint_prefix "beluga_" --refresh_interval 30 \
+python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 300
+python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17002 --cluster_name beluga --endpoint_prefix "beluga_" --refresh_interval 300
+python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17003 --cluster_name graham --endpoint_prefix "graham_" --refresh_interval 300
 
+# copying the script
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/sinfo_scraper.py mila-login:bin
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/sinfo_scraper.py beluga:bin
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/sinfo_scraper.py graham:bin
 """
