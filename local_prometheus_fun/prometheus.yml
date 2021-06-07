@@ -40,3 +40,15 @@ scrape_configs:
     labels:
       instance: monitoring
       cluster_name: beluga
+- job_name: graham_slurm_sinfo
+  honor_timestamps: true
+  scrape_interval: 30s
+  scrape_timeout: 30s
+  metrics_path: /metrics
+  scheme: http
+  static_configs:
+  - targets:
+    - host.docker.internal:17003
+    labels:
+      instance: monitoring
+      cluster_name: graham
