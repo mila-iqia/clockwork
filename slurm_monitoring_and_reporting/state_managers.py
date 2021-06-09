@@ -12,7 +12,7 @@ from pymongo import UpdateOne
 from prometheus_client import Enum, Summary, Gauge
 
 import slurm_monitoring_and_reporting
-from slurm_monitoring_and_reporting.common import (extract_mila_user_account_from_job_data, messy_ugly_analyze_node_state, messy_ugly_analyze_gpu_gres)
+from slurm_monitoring_and_reporting.common import (extract_username_from_job_data, messy_ugly_analyze_node_state, messy_ugly_analyze_gpu_gres)
 
 
 class NodeStatesManager:
@@ -372,9 +372,28 @@ class JobStatesManager:
             # end up in ElasticSearch but they are not
             # found in the Prometheus metrics.
 
-            # Infer the actual account of the person, instead
-            # of having all jobs belong to "mila".
-            job_data['mila_user_account'] = extract_mila_user_account_from_job_data(job_data)
+            # Infer the actual account of the person based on the job info.
+            # See the documentation for more explanations about the three kinds
+            # of usernames that we anticipate we'll have to manage.
+            # 'cc_account_username', 'mila_cluster_username', 'mila_email_username'
+            #
+            if 'cc_account_username' in job_data and job_data['cc_account_username'] is not None:
+                # This means that this was already supplied to us from the scraper.
+                job_data['mila_cluster_username'] = "unknown"
+                # job_data['cc_account_username'] already identified
+                job_data['mila_email_username'] = "unknown"
+            elif self.cluster_name == "mila":
+                # We attempt to extract the username in the same way in both cases,
+                # but we just place it at a different location.
+                job_data['mila_cluster_username'] = extract_username_from_job_data(job_data)
+                job_data['cc_account_username'] = "unknown"
+                job_data['mila_email_username'] = "unknown"
+            else:
+                job_data['mila_cluster_username'] = "unknown"
+                job_data['cc_account_username'] = extract_username_from_job_data(job_data)
+                job_data['mila_email_username'] = "unknown"
+
+
 
             # Very useful for later when we untangle the sources in the plots.
             # Will also serve to have a unique id for entries in mongodb.
@@ -388,7 +407,22 @@ class JobStatesManager:
             job_data['timestamp'] = utc_now
             # Create display time for convenience.
             for key in self.job_date_fields:
-                job_data[key + '_str'] = datetime.fromtimestamp(job_data[key]).astimezone().strftime('%Y-%m-%dT%H:%M:%S %Z')
+                #        When those dates are not available, pyslurm writes `0` instead.
+                #        This creates nonsensical dates when we convert them here into '%Y-%m-%dT%H:%M:%S %Z'.
+                #        It's probably better to just have those be `None` instead.
+                #
+                #        Note that .astimezone() is always called on a computer that runs
+                #        in the same timezone as Mila. When we remotely call the scraper
+                #        on some cluster, we do it from a machine in the same timezone as Mila
+                #        to this is where the timezone gets set. In any case, we add %Z to the
+                #        strings so we could always recover from mistakes (and we store the original
+                #        timestamps as well).
+                if ((key in job_data) and
+                    (job_data[key] is not None) and
+                    (job_data[key] != 0)):
+                    job_data[key + '_str'] = datetime.fromtimestamp(job_data[key]).astimezone().strftime('%Y-%m-%dT%H:%M:%S %Z')
+                else:
+                    job_data[key + '_str'] = None
                 # Maybe add a UTC version here too?
 
             # Boolean for state, only for Grafana colors.

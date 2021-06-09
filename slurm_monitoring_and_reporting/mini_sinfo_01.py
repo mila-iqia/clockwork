@@ -127,6 +127,18 @@ DD_cluster_desc = {
             'cpularge_bycore_b5', 'gpubase_bynode_b6', 'gpubase_bygpu_b1', 'gpubase_interac', 'cpubase_interac'],
         "slurm_ignore_partitions": []
         },
+    "cedar": 
+        {"name": "cedar",
+        "cmd" : 'module load python/3.6.10; python3 ${HOME}/bin/manual_flimsy_sinfo_scraper.py ',
+        "hostname": "cedar.computecanada.ca",
+        "username": "alaingui",
+        "port": 22,
+        # TODO : Find these values.
+        "slurm_login_nodes": [ ],
+        "slurm_partitions": [],
+        "slurm_ignore_partitions": []
+        },
+
 }
 
 # The names for `es_jobs_index` and `es_nodes_index` will go into elasticsearch.
