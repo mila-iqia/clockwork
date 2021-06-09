@@ -26,7 +26,7 @@ from collections import defaultdict
 import re
 
 
-def extract_mila_user_account_from_job_data(job_data):
+def extract_username_from_job_data(job_data):
     """
     The exact user is not automatically included in the job_data.
     We need to infer it based on other fields.

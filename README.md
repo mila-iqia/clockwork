@@ -1,6 +1,28 @@
 # slurm_monitoring_and_reporting
 Simple metrics to monitor slurm and produce reports.
 
+## some design decisions
+
+### about usernames and identities
+
+It's easy to assume that people are going to have the same ID in those
+three places :
+    - username@mila.quebec
+    - username on the Mila cluster
+    - username on the Computer Canada clusters
+This is obviously going to be wrong, so we might as well make an effort
+to disentangle the three concepts.
+
+We're going to go with
+    - mila_email_username
+    - mila_cluster_username
+    - cc_account_username
+and see where this leads us.
+
+Hopefully, this is not going to complicate things when we list the jobs
+with mongodb. It supports the OR operator.
+https://docs.mongodb.com/manual/reference/operator/query/or/
+
 
 ## thoughts from adapting Quentin's code
 

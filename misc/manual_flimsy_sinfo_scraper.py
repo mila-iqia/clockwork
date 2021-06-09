@@ -1,11 +1,62 @@
+"""
+Because pyslurm does not run on `cedar`, we need to have some kind of substitute.
+We use this script instead, with a silly name that indicate its hacky/temporary nature.
+
+It tries to provide the kind of information that pyslurm.job().get() provides,
+but that's it. No attempt at `pyslurm.node().get()`.
+"""
 
 from pprint import pprint
 import re
 import subprocess
 import json
 
+import datetime
+import time
+
+
+def date_sanity_check():
+    """
+    Yes, this should probably be removed from the final version.
+    """
+    dt = datetime.datetime.now()
+    # datetime is naive
+    assert dt.tzinfo is None
+
+    dt = dt.astimezone()
+    assert dt.tzinfo is not None
+
+    # this should be very very close
+    assert -1 < dt.timestamp() - time.time() < 1
+
+    # datetime.fromtimestamp(dt.timestamp())
+    # datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+
+
+def localtime_to_unix_timestamp(date_string:str):
+    """
+    We need to convert time expressed in local time string as "2021-05-08T15:37:35"
+    into unix time that's not dependent on time zone.
+    This is needed because the Cedar cluster is in Vancouver
+    and we don't want a tangle of badly-synced timestamps.
+
+    date_string = "2021-05-08T15:37:35"
+    """
+
+    # date is naive
+    date_naive = datetime.datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
+    # add the time zone from the system
+    date_aware = date_naive.astimezone()
+
+    return date_aware.timestamp()
+
 
 def translate_into_pyslurm_format(D_results):
+    """
+    Because we are not getting the same rich information as we get through pyslurm,
+    we have to do some manual translation. We are not going to try to integrate
+    everything, but rather only the fields that have their obvious equivalents.
+    """
 
     D_job = {}
 
@@ -19,8 +70,8 @@ def translate_into_pyslurm_format(D_results):
     # unsure about this mapping
     D_job['user_id'] = int(D_results['UID'])
 
-    # maybe call it "username" ?
-    D_job['mila_account_user'] = D_results['User']
+    # Unsure what to call this.
+    D_job['cc_account_username'] = D_results['User']
 
     D_job['job_state'] = D_results['State']
     D_job['partition'] = D_results['Partition']
@@ -51,6 +102,22 @@ def translate_into_pyslurm_format(D_results):
     You will do the conversion on the server side anyways, so this
     should be fine.
     """
+
+    #### Submit ####
+    D_job['submit_time'] = int(localtime_to_unix_timestamp(D_results['Submit']))
+    #### Start ####
+    if D_results['Start'] is None or D_results['Start'] == "Unknown":
+        D_job['start_time'] = None
+    else:
+        D_job['start_time'] = int(localtime_to_unix_timestamp(D_results['Start']))
+    #### End ####
+    if D_results['End'] is None or D_results['End'] == "Unknown":
+        D_job['end_time'] = None
+    else:
+        D_job['end_time'] = int(localtime_to_unix_timestamp(D_results['End']))
+    #### Eligible ####
+    D_job['eligible_time'] = int(localtime_to_unix_timestamp(D_results['Eligible']))
+    ####
 
     # No idea what this does, but the mapping seems natural.
     D_job['assoc_id'] = int(D_results['AssocID'])
@@ -202,9 +269,6 @@ def main():
     cmd = f"sacct --allusers --accounts {accounts} --format {format} --delimiter '{delimiter}' --parsable"
     # print(cmd)
 
-
-    # pprint(analyze_stdout_line(get_desired_sacct_fields(), get_sample_response_00()))
-    # pprint(analyze_stdout_line(get_desired_sacct_fields(), get_sample_response_01()))
 
     L_lines = [e for e in subprocess.check_output(cmd, shell=True, encoding='utf8').split("\n") if len(e)>0]
  
