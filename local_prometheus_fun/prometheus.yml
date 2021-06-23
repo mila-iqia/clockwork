@@ -52,3 +52,15 @@ scrape_configs:
     labels:
       instance: monitoring
       cluster_name: graham
+- job_name: cedar_slurm_sinfo
+  honor_timestamps: true
+  scrape_interval: 30s
+  scrape_timeout: 30s
+  metrics_path: /metrics
+  scheme: http
+  static_configs:
+  - targets:
+    - host.docker.internal:17004
+    labels:
+      instance: monitoring
+      cluster_name: cedar

@@ -97,3 +97,19 @@ Got 1 Hits:
 2021-05-28T00:30:20.451468 kimchy: Elasticsearch: cool. bonsai cool.
 
 ```
+
+## after power outage
+
+You can do this once the containers have been created (as previously described).
+
+Note that since we're in the development/prototyping stage, we are logging
+all our data inside the containers, which means that we should probably not
+wipe the containers and recreate them. Later on, we might want to take
+a different approach and store the data in volume mounts.
+
+```
+docker start prometheus00
+docker start grafana00
+docker start elasticsearch00
+docker start mongodb00
+```
