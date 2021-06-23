@@ -251,15 +251,19 @@ class NodeStatesManager:
                     # gpu_counts is a dict with keys ['total', 'alloc']
 
                     self.gpu_state_counters['total'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['total'])
-                    self.gpu_state_counters['alloc'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['alloc'])
-                    # Test state: if node is available/mixed and a least 1 cpu is avail, gres are idle otherwise drain
-                    # TODO : The comment from previous line was copied as it was in "sinfo.py".
-                    #        We're not sure how good of an idea that was.
-                    #        This is yet another of those situations where it's worth a discussion with the group.
-                    if node_data['state'] not in NodeStatesManager.slurm_useless_node_states and node_data['idle_cpus']>1:
-                        self.gpu_state_counters['idle'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['total'] - gpu_counts['alloc'])
-                    else:
-                        self.gpu_state_counters['drain'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['total'] - gpu_counts['alloc'])
+
+                    # We need to test if the key is present because it isn't present when we use the not-pyslurm script on "cedar".
+                    # This should be solved when we run pyslurm everywhere.
+                    if 'alloc' in gpu_counts:
+                        self.gpu_state_counters['alloc'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['alloc'])
+                        # Test state: if node is available/mixed and a least 1 cpu is avail, gres are idle otherwise drain
+                        # TODO : The comment from previous line was copied as it was in "sinfo.py".
+                        #        We're not sure how good of an idea that was.
+                        #        This is yet another of those situations where it's worth a discussion with the group.
+                        if node_data['state'] not in NodeStatesManager.slurm_useless_node_states and node_data['idle_cpus']>1:
+                            self.gpu_state_counters['idle'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['total'] - gpu_counts['alloc'])
+                        else:
+                            self.gpu_state_counters['drain'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['total'] - gpu_counts['alloc'])
 
             # Add Elastic Search action for each node.
             # We put the `es_nodes_body` construction here because
@@ -458,9 +462,28 @@ class JobStatesManager:
             # but for mongodb we won't do that. Too much messing around
             # makes the code harder to predict. Pyslurm gives us text,
             # so we'll use text for the job_id in mongodb (not Elastic Search).
-            es_jobs_body.append({'index': {'_id': int(job_id)}})
-            # full body
-            es_jobs_body.append(job_data)
+            #
+            # One of the other difficulties here is that manual_flimsy_sinfo_scraper.py
+            # is getting job_id values like "3114204_9", "3114204_9.extern", "3114204_9.batch"
+            # or "5720367.interactive".
+            # This is temporary, though, but we have to make a decision about it.
+            # For now we'll skip the ".extern" and ".batch" from elasticsearch.
+            # TODO : Decide if you should skip it entirely instead and not insert it in mongodb.
+            #        In that case you could add this verification at the beginning
+            #        of this parent `for (job_id, job_data) in ...`.
+            if ".extern" in job_id or ".batch" in job_id:
+                pass
+            elif m:= re.match("(\d+)\.interactive", job_id):
+                es_jobs_body.append({'index': {'_id': int(m.group(1))}})
+                es_jobs_body.append(job_data)
+            elif m:= re.match("(\d+)_\d+", job_id):
+                es_jobs_body.append({'index': {'_id': int(m.group(1))}})
+                es_jobs_body.append(job_data)                
+            else:
+                # The normal thing that happens with data from legit pyslurm.
+                es_jobs_body.append({'index': {'_id': int(job_id)}})
+                # full body
+                es_jobs_body.append(job_data)
 
         if 'jobs_index' in self.D_elasticsearch_config and self.elasticsearch_client is not None:
             print(f"Want to bulk commit {len(es_jobs_body) // 2} job_data values to ElasticSearch.")

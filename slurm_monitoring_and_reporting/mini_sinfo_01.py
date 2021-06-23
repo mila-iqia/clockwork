@@ -129,7 +129,7 @@ DD_cluster_desc = {
         },
     "cedar": 
         {"name": "cedar",
-        "cmd" : 'module load python/3.6.10; python3 ${HOME}/bin/manual_flimsy_sinfo_scraper.py ',
+        "cmd" : 'module load python/3.6.10; python3 ${HOME}/bin/manual_flimsy_sinfo_scraper.py',
         "hostname": "cedar.computecanada.ca",
         "username": "alaingui",
         "port": 22,
@@ -380,9 +380,11 @@ python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17002 --cluster_n
 python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 300
 python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17002 --cluster_name beluga --endpoint_prefix "beluga_" --refresh_interval 300
 python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17003 --cluster_name graham --endpoint_prefix "graham_" --refresh_interval 300
+python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17004 --cluster_name cedar --endpoint_prefix "cedar_" --refresh_interval 600
 
 # copying the script
-rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/sinfo_scraper.py mila-login:bin
-rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/sinfo_scraper.py beluga:bin
-rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/sinfo_scraper.py graham:bin
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/sinfo_scraper.py mila-login:bin
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/sinfo_scraper.py beluga:bin
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/sinfo_scraper.py graham:bin
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/manual_flimsy_sinfo_scraper.py cedar:bin
 """
