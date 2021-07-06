@@ -1,19 +1,61 @@
 
+/*
+    Two main functions :
+        // async call, fetches data from server
+        launch_refresh_all_data()  
+
+        // uses global variables, does not fetch data
+        refresh_display(display_filter)  
+*/
+
+
 
 //const refresh_endpoint = "/api/0/list_jobs"
-const refresh_endpoint = "/jobs/api/list"  // needs to be more principled, but let's design that better later
+const refresh_endpoint = "/jobs/api/list"  // hardcoded into job_routes.py
 
 const id_of_table_to_populate = "table_98429387" // hardcoded into jobs.html also
 
-/*
-    Two main functions (async calls) :
-        launch_refresh_all_data
-*/
+/*  The point of having those two global variables
+    is that you can call externally call `refresh_display(display_filter)`.
+    It's not nice to deal with global variables, but the alternative
+    is that we export more of the arbitrary stuff to the outside.
+ */
 
-function launch_refresh_all_data() {
+var latest_response_contents;
+var latest_filtered_response_contents;
+
+
+
+function launch_refresh_all_data(query_filter, display_filter) {
     /*
         We just clicked on "refresh", or maybe we have freshly loaded
         the page and need to create the table for the first time.
+
+        // things that affect the data fetched
+        query_filter = {
+            "user": "all", // or specific user
+            "time": 3600, // int, for number of seconds to go backwards
+        }
+
+        // things that we toggle in the interface
+        display_filter = {
+            "cluster_name": {
+                "mila": true,
+                "beluga": true,
+                "cedar": true,
+                "graham": true
+            },
+            "job_state": {
+                "PENDING": true,
+                "RUNNING": true,
+                "COMPLETING": true,
+                "COMPLETED": true,
+                "OUT_OF_MEMORY": true,
+                "TIMEOUT": true,
+                "FAILED": true,
+                "CANCELLED": true
+            }
+        }
 
         Keep in mind that any REST API call made here is done
         under the identity of the authenticated user so we don't need
@@ -23,6 +65,12 @@ function launch_refresh_all_data() {
     let url = refresh_endpoint;
     const request = new Request(url,
         {   method: 'POST',
+            body: JSON.stringify({
+                    "query_filter" : query_filter,
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }        
         });
     fetch(request)
     .then(response => {
@@ -33,19 +81,26 @@ function launch_refresh_all_data() {
         }
     })
     .then(response_contents => {
-        vacate_table(); // idempotent if not table is present
-        populate_table(response_contents)
+        latest_response_contents = response_contents;
+        refresh_display(display_filter);
     }).catch(error => {
         console.error(error);
     });
 };
 
+function refresh_display(display_filter) {
+    latest_filtered_response_contents = apply_filter(latest_response_contents, display_filter);
+    vacate_table(); // idempotent if not table is present
+    populate_table(latest_filtered_response_contents);
+}
+
+
 
 /*
     Helpers:
-        
         vacate_table()
         populate_table(response_contents)
+        apply_filter(response_contents, display_filter)
 */
 
 
@@ -63,12 +118,27 @@ function vacate_table() {
     //    https://stackoverflow.com/questions/24775725/loop-through-childnodes
     
     let table = document.getElementById(id_of_table_to_populate);
-    removeAllChildNodes(table);
+
+    /*  Everyone says that this can cause problems with parsing the DOM again,
+        but given how many removals we need to do, it seems like it's cheap
+        comparatively to removing every one of the 1000 rows.
+
+        They also say that it can leak memory if there are handlers in the elements
+        removed, but I don't think we've put anything in particular there.
+        We might need to do some profiling later, and revisit this.
+    */
+    table.innerHTML = "";
+    //removeAllChildNodes(table);
     /*
     [].forEach.call(table.children, function(child) {
         table.removeChild(child);
     });
     */
+}
+
+function apply_filter(response_contents, display_filter) {
+    // TODO : implement this
+    return response_contents;
 }
 
 
