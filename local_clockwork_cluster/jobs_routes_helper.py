@@ -11,6 +11,17 @@ def get_jobs(find_filter:dict={}):
     mc_db = mc['slurm']
     return list(mc_db["jobs"].find(find_filter))
 
+def infer_best_guess_for_username(D_job):
+    # TODO : We should perform some kind of mapping to Mila accounts or something.
+    #        At the current time we're missing certain things to allow this to be done properly.
+    # let's condense the three possible accounts into just one value
+    for k in ['cc_account_username', 'mila_cluster_username', 'mila_email_username']:
+        if k in D_job and D_job[k] != 'unknown':
+            D_job['best_guess_for_username'] = D_job[k]
+            return D_job
+    # failed to find something better than that
+    D_job['best_guess_for_username'] = 'unknown'
+    return D_job
 
 def strip_artificial_fields_from_job(D_job):
     # Returns a copy. Does not mutate the original.

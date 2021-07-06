@@ -3,15 +3,37 @@
     background-color:thistle;
 }
 
+.cc_toggle_zone_column {
+    /* margin: auto; */
+    margin:10px;
+    /* padding appears to have no effect on these elements
+    padding-top: 10px;
+    padding-bottom: 20px;
+    */
+
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: #564C56;
+    border-style: solid;
+}
+
 .cc_toggle_zone_row {
     /* margin: auto; */
+    margin:2px;
 }
 
 .cc_cluster_toggle_grafana_link {
     display:inline-block;
 }
 .cc_cluster_toggle_grafana_link a img {
-    height:15px;
+    height:12px;
+}
+
+.cc_cluster_toggle_documentation_link {
+    display:inline-block;
+}
+.cc_cluster_toggle_documentation_link a img {
+    height:12px;
 }
 
 .cc_cluster_toggle_name {

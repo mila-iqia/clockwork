@@ -27,7 +27,7 @@ from flask import g
 from flask import Blueprint
 flask_api = Blueprint('jobs_flask_api', __name__)
 
-from jobs_routes_helper import (strip_artificial_fields_from_job, get_job_state_totals, get_jobs)
+from jobs_routes_helper import (strip_artificial_fields_from_job, get_job_state_totals, get_jobs, infer_best_guess_for_username)
 
 
 
@@ -35,20 +35,27 @@ from jobs_routes_helper import (strip_artificial_fields_from_job, get_job_state_
 def route_index():
     return redirect("list/")
 
+
 @flask_api.route('/list/', defaults={'mila_user_account': None})
 @flask_api.route('/list/<mila_user_account>')
 def route_list(mila_user_account:str):
 
+    # filter out everything before the past 12 hours
+    find_filter = {'submit_time': {'$gt': int(time.time() - 3600*12)}}
+
     if mila_user_account is None:
-        L_entries = get_jobs()
+        LD_jobs = get_jobs(find_filter=find_filter)
     else:
         m = re.match(r"^[a-zA-Z\.\d\-]+$", mila_user_account)
         if not m:
             return render_template("error.html", error_msg="mila_user_account specific contains invalid characters")
-        L_entries = get_jobs({'mila_user_account': mila_user_account})
+        LD_jobs = get_jobs(find_filter=dict( list(find_filter.items()) + list({'mila_user_account': mila_user_account}.items()) ))
+
+    LD_jobs = [infer_best_guess_for_username(D_job) for D_job in LD_jobs]
 
     return render_template("jobs.html",
-                            L_entries=L_entries)
+                            LD_jobs=LD_jobs)
+
 
 @flask_api.route('/state_totals/', defaults={'mila_user_account': None})
 @flask_api.route('/state_totals/<mila_user_account>')
@@ -99,9 +106,36 @@ def route_single_job_p_job_id(job_id):
         return render_template("error.html", error_msg=f"Found {len(LD_jobs)} jobs with job_id {job_id}. Not sure what to do about these cases.")
 
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
+    D_job = infer_best_guess_for_username(D_job)
 
     # let's sort alphabetically by keys
     LP_single_job = list(sorted(D_job.items(), key=lambda e: e[0]))
     return render_template("single_job.html",
                             LP_single_job=LP_single_job,
                             job_id=job_id)
+
+
+@flask_api.route('/api/list', methods=['POST'])
+def route_api_list():
+    """
+    TODO : read the body of the request to have information about user, time, cluster, etc.
+
+    Right now this is a bare minimum setup because we're working on jobs.html and clockwork.js
+    at the same time.
+
+    TODO : Think some more about the endpoints. Right now this is a good place
+           for this endpoint, but some factoring should be done.
+    """
+
+    # filter out everything before the past 12 hours
+    find_filter = {'submit_time': {'$gt': int(time.time() - 3600*12)}}
+
+    LD_jobs = get_jobs(find_filter=find_filter)
+    LD_jobs = [infer_best_guess_for_username(D_job) for D_job in LD_jobs]
+
+    for D_job in LD_jobs:
+        if "_id" in D_job:
+            del D_job["_id"]
+
+    # no need to jasonify it ourselves
+    return jsonify(LD_jobs)
