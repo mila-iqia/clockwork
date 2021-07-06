@@ -8,7 +8,7 @@ export FLASK_APP=main_http_server.py
 
 # local connections only
 python3 -m flask run  
-# local connections only
+# outside
 python3 -m flask run --host=0.0.0.0
 
 """

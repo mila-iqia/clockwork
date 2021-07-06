@@ -163,6 +163,7 @@ def translate_sacct_format_into_pyslurm_format(D_results):
         D_job['nodes'] = D_results['NodeList']
 
     # Note that there might be other fields that we're leaving out at the moment.
+    D_job['name'] = ""
 
     return D_job
 

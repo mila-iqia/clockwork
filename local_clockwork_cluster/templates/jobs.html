@@ -5,7 +5,7 @@
     <style type="text/css">
         {{extra_css}}
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jobs.js') }}"></script>
     <script>
         {% autoescape false %}
         {{extra_js}}
@@ -17,7 +17,7 @@
 {% block content %}
     <div class="cc_subheader_banner">
         <div class="row">
-            <div class="col s2">
+            <div class="col s1">
                 <!-- spacing on the left -->
             </div>
             <div class="col s3">
@@ -25,42 +25,72 @@
             </div>
 
             <!-- dates -->
-
-            <div class="col s2">
+            <div class="col s1 cc_toggle_zone_column">
                 <form action="#">
+                    <div class="cc_toggle_zone_row" style="margin-left:20px">
+                        <span>time</span>
+                    </div>
                     <div class="cc_toggle_zone_row">
                         <label>
                             <input name="group1" type="radio" checked />
-                            <span>one hour</span>
+                            <span>1 hour</span>
                         </label>
                     </div>
                     <div class="cc_toggle_zone_row">
                         <label>
                             <input name="group1" type="radio" />
-                            <span>one day</span>
+                            <span>1 day</span>
                         </label>
                     </div>
                     <div class="cc_toggle_zone_row">
                         <label>
                             <input name="group1" type="radio" />
-                            <span>one week</span>
+                            <span>1 week</span>
                         </label>
                     </div>
+                </form>
+            </div>
+
+            <!-- users -->
+            <div class="col s1 cc_toggle_zone_column">
+                <form action="#">
+                    <div class="cc_toggle_zone_row" style="margin-left:20px">
+                        <span>users</span>
+                    </div>
+                    <div class="cc_toggle_zone_row">
+                        <label>
+                            <input name="group3" type="radio" />
+                            <span>all</span>
+                        </label>
+                    </div>
+                    <div class="cc_toggle_zone_row">
+                        <label>
+                            <input name="group3" type="radio" checked/>
+                            <span>only me</span>
+                        </label>
+                    </div>                    
+                    <!--
                     <div class="cc_toggle_zone_row">
                         <label>
                             <input name="group1" type="radio" disabled="disabled"/>
                             <span>dinosaurs</span>
                         </label>
                     </div>
+                    -->
                 </form>
             </div>
 
             <!-- toggling clusters -->
-            <div class="col s2">
+            <div class="col s2 cc_toggle_zone_column">
                 <!-- toggle mila -->
                 <div class="cc_toggle_zone_row">
 
-                    <i class="tiny material-icons">assignment</i>
+                    <div class="cc_cluster_toggle_documentation_link">
+                        <!-- <i class="tiny material-icons">assignment</i> -->
+                        <a href="https://docs.mila.quebec">
+                            <img src="{{ url_for('static', filename='images/outline_book_black_48dp.png') }}" />
+                        </a>
+                    </div>
 
                     <div class="cc_cluster_toggle_grafana_link">
                         <a href="https://dashboard.server.mila.quebec/"> <!-- TODO : insert link to actual plot -->
@@ -80,7 +110,12 @@
                 <!-- toggle beluga -->
                 <div class="cc_toggle_zone_row">
 
-                    <i class="tiny material-icons">assignment</i>
+                    <div class="cc_cluster_toggle_documentation_link">
+                        <!-- <i class="tiny material-icons">assignment</i> -->
+                        <a href="https://docs.computecanada.ca/wiki/Beluga">
+                            <img src="{{ url_for('static', filename='images/outline_book_black_48dp.png') }}" />
+                        </a>
+                    </div>
 
                     <div class="cc_cluster_toggle_grafana_link">
                         <a href="https://dashboard.server.mila.quebec/"> <!-- TODO : insert link to actual plot -->
@@ -100,7 +135,12 @@
                 <!-- toggle cedar -->
                 <div class="cc_toggle_zone_row">
 
-                    <i class="tiny material-icons">assignment</i>
+                    <div class="cc_cluster_toggle_documentation_link">
+                        <!-- <i class="tiny material-icons">assignment</i> -->
+                        <a href="https://docs.computecanada.ca/wiki/Cedar">
+                            <img src="{{ url_for('static', filename='images/outline_book_black_48dp.png') }}" />
+                        </a>
+                    </div>
 
                     <div class="cc_cluster_toggle_grafana_link">
                         <a href="https://dashboard.server.mila.quebec/"> <!-- TODO : insert link to actual plot -->
@@ -120,13 +160,19 @@
                 <!-- toggle graham -->
                 <div class="cc_toggle_zone_row">
 
-                    <i class="tiny material-icons">assignment</i>
+                    <div class="cc_cluster_toggle_documentation_link">
+                        <!-- <i class="tiny material-icons">assignment</i> -->
+                        <a href="https://docs.computecanada.ca/wiki/Graham">
+                            <img src="{{ url_for('static', filename='images/outline_book_black_48dp.png') }}" />
+                        </a>
+                    </div>
 
                     <div class="cc_cluster_toggle_grafana_link">
                         <a href="https://dashboard.server.mila.quebec/"> <!-- TODO : insert link to actual plot -->
                             <img src="{{ url_for('static', filename='images/grafana_logo.png') }}"/>
                         </a>
                     </div>
+
                     <div class="cc_cluster_toggle_name">graham</div>
                     <div class="switch cc_cluster_toggle_subzone">
                         <label>
@@ -141,7 +187,7 @@
             
 
             <!-- toggling status -->
-            <div class="col s2">
+            <div class="col s2 cc_toggle_zone_column">
                 <!-- toggle mila -->
                 <div class="cc_toggle_zone_row">
                     <div class="cc_cluster_toggle_name">running</div>
@@ -194,18 +240,7 @@
 
 
         </div>
-        <!-- The row with the toggle switches for the jobs listing. -->
-        <div class="row">
-            <div class="col s1">
-                <!-- spacing on the left -->
-            </div>
-            <div class="col s3">
-                toggle : all users - me 
-            </div>
-            <div class="col s3">
-                radio picker : date 
-            </div>
-        </div>
+
     </div>
     <div class="row">
         <div class="col s1">
@@ -215,20 +250,22 @@
 
             <!-- <h1>{{channel_title}}</h1> -->
             
-            <table>
-                <tr>
-                    <th>cluster_name</th>
-                    <th>mila_user_account</th>
-                    <th>job_id</th>
-                    <th>job name (truncated)</th>
-                    <th>job_state</th>
-                </tr>
-                {% for e in L_entries %}
+            <table class="striped" id="table_98429387">
+                <thead>
+                    <tr>
+                        <th>cluster_name</th>
+                        <th>username (best guess)</th>
+                        <th>job_id</th>
+                        <th>job name (truncated)</th>
+                        <th>job_state</th>
+                    </tr>
+                </thead>
+                {% for e in LD_jobs %}
                 <tr>
                     <td>{{e['cluster_name']}}</td>
-                    <td><a href="/jobs/list/{{e['mila_user_account']}}"> {{e['mila_user_account']}} </a></td>
+                    <td><a href="/jobs/list/{{e['best_guess_for_username']}}"> {{e['best_guess_for_username']}} </a></td>
                     <td><a href="/jobs/single_job/{{e['job_id']}}"> {{e['job_id']}} </a></td>
-                    <td>{{e['name'][:32]}}</td> <!-- truncate after 32 chars -->
+                    <td>{{e.get('name', "")[:32]}}</td>
                     <td>{{e['job_state']}}</td>
                 </tr>
                 {% endfor %}

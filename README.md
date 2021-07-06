@@ -76,6 +76,15 @@ for (job_id, job_data) in psl_jobs.items():
 
 ## follow up on these things
 
+### build database of correspondences with users
+
+To find out about the associations between accounts, you can do something like this:
+
+```
+[alaingui@beluga5 Documents]$ getent passwd roberge
+roberge:*:3047168:3047168:Francois Roberge:/home/roberge:/bin/bash
+```
+
 ### slurm_job_states_color and slurm_node_states_color
 
 If nobody is using job_data['job_state_code'] in Grafana, then we should probably get rid of it.
@@ -229,3 +238,17 @@ Besides, the jobs should analyze their `sched_nodes` field, like in job_id 19090
 ```
 
 This should be displayed on the web site, instead of the node that manages the job, which is the case right now.
+
+### the grafana black and white logo comes from this
+
+```
+convert grafana_logo.png -set colorspace Gray -separate -average grafana_logo_black_and_white_01.png
+convert grafana_logo.png -fx '(r+g+b)/3' -colorspace Gray grafana_logo_black_and_white_02.png
+convert grafana_logo.png -fx 'r' -colorspace Gray grafana_logo_black_and_white_03.png
+convert grafana_logo.png -fx '(r+g)/2' -colorspace Gray grafana_logo_black_and_white_03.png
+# this one looks the best
+convert grafana_logo.png -fx '1.0-(r+g)/2' -colorspace Gray grafana_logo_black_and_white_04.png
+
+cp grafana_logo_black_and_white_04.png grafana_logo.png 
+```
+
