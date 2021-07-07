@@ -98,7 +98,7 @@
                 - read the values of the toggle switches
                 - set the value for display_filter
             */
-            
+
             read_display_filter()
 
             console.log(display_filter);
@@ -352,24 +352,7 @@
             <!-- <h1>{{channel_title}}</h1> -->
             
             <table class="striped" id="table_98429387">
-                <thead>
-                    <tr>
-                        <th>cluster_name</th>
-                        <th>username (best guess)</th>
-                        <th>job_id</th>
-                        <th>job name (truncated)</th>
-                        <th>job_state</th>
-                    </tr>
-                </thead>
-                {% for e in LD_jobs %}
-                <tr>
-                    <td>{{e['cluster_name']}}</td>
-                    <td><a href="/jobs/list/{{e['best_guess_for_username']}}"> {{e['best_guess_for_username']}} </a></td>
-                    <td><a href="/jobs/single_job/{{e['job_id']}}"> {{e['job_id']}} </a></td>
-                    <td>{{e.get('name', "")[:32]}}</td>
-                    <td>{{e['job_state']}}</td>
-                </tr>
-                {% endfor %}
+                <!-- This table starts empty and is populated automatically when the DOM is ready. -->
             </table>
         </div>
     </div>

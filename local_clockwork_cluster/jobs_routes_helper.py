@@ -3,13 +3,64 @@ This file contains a lot of arbitrary decisions that could change in the future.
 
 """
 
+import time
 from mongo_client import get_mongo_client
 
 
-def get_jobs(find_filter:dict={}):
+def get_mongodb_filter_from_query_filter(query_filter):
+    """
+    This is the logic that goes from the minimalistic description
+    of what we want, coming from the web front, to produce
+    the specific dict that we send to mongodb in order to retrieve
+    exactly what we want.
+
+    `query_filter` looks like
+        {'time': 3600, 'user': 'all'}
+    
+    Please refer to the document "about_queries.md" to read more about
+    the reasoning behing this function. It requires a document just by itself.
+    """
+
+    
+
+    if 'user' in query_filter and query_filter['user'] not in ["all", "*", ""]:
+        user = query_filter['user']
+
+        mongodb_filter_for_user = {
+            '$or': [{'mila_cluster_username': user}, 
+                    {'cc_account_username': user}, 
+                    {'mila_email_username': user}, 
+                    {'mila_user_account': user}]
+            }
+    else:
+        mongodb_filter_for_user = {}
+
+    
+    if 'time' in query_filter:
+        mongodb_filter_for_time = {
+            '$or' : [   {'end_time': {'$gt': int(time.time() - query_filter['time'])}},
+                        {'end_time': 0}]
+            }
+    else:
+        mongodb_filter_for_time = {}
+
+
+    # Let's add a AND clause only if needed.
+    # If any of the two dict are empty, just
+    # return the other one.
+    # If neither are empty, then use that AND clause.
+    if not mongodb_filter_for_user:
+        return mongodb_filter_for_time
+    elif not mongodb_filter_for_time:
+        return mongodb_filter_for_user
+    else:
+        return {'$and': [mongodb_filter_for_user, mongodb_filter_for_time]}
+
+
+def get_jobs(mongodb_filter:dict={}):
     mc = get_mongo_client()
     mc_db = mc['slurm']
-    return list(mc_db["jobs"].find(find_filter))
+    return list(mc_db["jobs"].find(mongodb_filter))
 
 def infer_best_guess_for_username(D_job):
     # TODO : We should perform some kind of mapping to Mila accounts or something.

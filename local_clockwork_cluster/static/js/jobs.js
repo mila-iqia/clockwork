@@ -68,9 +68,9 @@ function launch_refresh_all_data(query_filter, display_filter) {
             body: JSON.stringify({
                     "query_filter" : query_filter,
                 }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }        
+            headers: {
+                'Content-Type': 'application/json'
+            }        
         });
     fetch(request)
     .then(response => {
@@ -143,7 +143,7 @@ function apply_filter(response_contents, display_filter) {
             when D_job["cluster_name"] is "mila"
             is display_filter["cluster_name"]["mila"] true ?
         We do it for "cluster_name" and "job_state".
-        
+
         Note that "job_state" is one of 8 possible strings in UPPERCASE,
         and not the projection down to 4 states that we use for toggle switches.
     */
