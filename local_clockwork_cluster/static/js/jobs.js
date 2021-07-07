@@ -180,10 +180,12 @@ function populate_table(response_contents) {
     let tr = document.createElement('tr');
     let th;
     th = document.createElement('th'); th.innerHTML = "cluster_name"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "username (best guess)"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "user"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "job_id"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "job name (truncated)"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "job_state"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "start time"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "end time"; tr.appendChild(th);
     thead.appendChild(tr);
     table.appendChild(thead);
 
@@ -194,10 +196,32 @@ function populate_table(response_contents) {
         let tr = document.createElement('tr');
         let td;
         td = document.createElement('td'); td.innerHTML = D_job["cluster_name"]; tr.appendChild(td);
-        td = document.createElement('td'); td.innerHTML = D_job["best_guess_for_username"]; tr.appendChild(td); // TODO : add href
-        td = document.createElement('td'); td.innerHTML = D_job["job_id"]; tr.appendChild(td); // TODO : add href
-        td = document.createElement('td'); td.innerHTML = D_job["name"].substring(0, 32); tr.appendChild(td);  // truncated after 32 characters (you can change this magic number if you want)
+        td = document.createElement('td'); td.innerHTML = D_job["best_guess_for_username"]; tr.appendChild(td); // TODO : add href for meaningful people pertaining to single user ?
+        td = document.createElement('td'); td.innerHTML = (
+            "<a href=\"" + "/jobs/single_job/" + D_job["job_id"] + "\">" + D_job["job_id"] + "</a>"); tr.appendChild(td);
+        //td = document.createElement('td'); td.innerHTML = D_job["job_id"]; tr.appendChild(td);
+        td = document.createElement('td'); td.innerHTML = D_job["name"].substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
         td = document.createElement('td'); td.innerHTML = D_job["job_state"]; tr.appendChild(td);
+
+        // start time
+        td = document.createElement('td');
+        if (D_job["start_time"] == 0) {
+            td.innerHTML = "";
+        } else {
+            td.innerHTML = D_job["start_time_str"]; 
+        }
+        tr.appendChild(td);
+
+        // end time
+        td = document.createElement('td');
+        if (D_job["end_time"] == 0) {
+            td.innerHTML = "";
+        } else {
+            td.innerHTML = D_job["end_time_str"]; 
+        }
+        tr.appendChild(td);
+
+
         tbody.appendChild(tr);
 
     });

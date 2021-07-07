@@ -110,6 +110,15 @@
    background-color: #564C56;
  }
 
+ /* This is for the text in the "time" and "user" columns,
+    but not the "hide/show" in the toggle switches for clusters and states.
+    We want the former to be darker, and the latter to be less visible.
+*/
+ div.cc_toggle_zone_row label span {
+    /*color:#2d292d;*/
+    color:#564C56;
+ }
+
 
 
 

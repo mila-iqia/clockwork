@@ -81,10 +81,12 @@ def route_single_job_p_job_id(job_id):
 @flask_api.route('/api/list', methods=['POST'])
 def route_api_list():
     """
-    TODO : read the body of the request to have information about user, time, cluster, etc.
+    This is the endpoint that serves jobs.html making requests.
+    It provides all the information.
 
-    Right now this is a bare minimum setup because we're working on jobs.html and clockwork.js
-    at the same time.
+    TODO : Add the authentication code in here. This consists of
+           the route wrapper. We have done this in some other project,
+           so it'll be a question of porting that code to this project.
 
     TODO : Think some more about the endpoints. Right now this is a good place
            for this endpoint, but some factoring should be done.
@@ -93,10 +95,10 @@ def route_api_list():
     try:
         body = request.get_json()
     except:
-        return "Failed to retrieve json data in request."
+        return "Failed to retrieve json data in request.", 200
 
     if 'query_filter' not in body:
-        return "Missing field 'query_filter' in request body."
+        return "Missing field 'query_filter' in request body.", 200
 
     query_filter = body['query_filter']
     # `query_filter` looks like this
@@ -111,7 +113,7 @@ def route_api_list():
         try:
             query_filter['time'] = int(query_filter['time'])
         except:
-            return f"Field 'time' cannot be cast as a valid integer: {query_filter['time']}."
+            return f"Field 'time' cannot be cast as a valid integer: {query_filter['time']}.", 200
 
     mongodb_filter = get_mongodb_filter_from_query_filter(query_filter)
     # filter out everything before the past 12 hours
