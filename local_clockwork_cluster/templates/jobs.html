@@ -17,13 +17,9 @@
 
         var query_filter = {};
         var display_filter = {};
-        function server_refresh() {
-            /* This fetches from the server.
-            
-                - read the values of the toggle switches
-                - set the value for query_filter
-             */
 
+        function read_query_filter() {
+            // sets value of `query_filter`
             if ( document.getElementById("time_option_1_hour").checked ) {
                 query_filter["time"] = 3600;
             }
@@ -44,9 +40,55 @@
             else if ( document.getElementById("user_option_other").checked ) {
                 query_filter["user"] = document.getElementById("user_option_other_textarea").value;
             }
-            console.log(query_filter)
-            console.log(display_filter)
+        }
 
+        function read_display_filter() {
+            // sets value of `display_filter`
+            display_filter["cluster_name"] = {
+                "mila": document.getElementById("cluster_toggle_lever_mila").checked,
+                "beluga": document.getElementById("cluster_toggle_lever_beluga").checked,
+                "cedar": document.getElementById("cluster_toggle_lever_cedar").checked,
+                "graham": document.getElementById("cluster_toggle_lever_graham").checked
+            }
+
+            // Grouping the states into 4 bins to simplify the interface and usability.
+
+            status_running = document.getElementById("status_toggle_lever_running").checked
+            status_pending = document.getElementById("status_toggle_lever_pending").checked
+            status_completed = document.getElementById("status_toggle_lever_completed").checked
+            status_any_errors = document.getElementById("status_toggle_lever_any_errors").checked
+
+            display_filter["job_state"] = {
+                "COMPLETED": status_completed,
+                // let's say that "COMPLETING" is still like "RUNNING"
+                "RUNNING": status_running,
+                "COMPLETING": status_running,
+                //
+                "PENDING": status_pending,
+                // catchall category about everything where the job didn't run properly
+                "FAILED": status_any_errors,
+                "OUT_OF_MEMORY": status_any_errors,
+                "TIMEOUT": status_any_errors,
+                "FAILED": status_any_errors,
+                "CANCELLED": status_any_errors
+            }
+
+        }
+
+        function server_refresh() {
+            /* This fetches from the server.
+            
+                - read the values of the toggle switches
+                - set the value for query_filter
+             */
+
+            read_query_filter()
+            read_display_filter()
+
+            console.log(query_filter);
+            console.log(display_filter);
+
+            // note that `launch_refresh_all_data` comes from "jobs.ps"
             launch_refresh_all_data(query_filter, display_filter);
             console.log("server_refresh() called");
         }
@@ -56,6 +98,12 @@
                 - read the values of the toggle switches
                 - set the value for display_filter
             */
+            
+            read_display_filter()
+
+            console.log(display_filter);
+            // note that `refresh_display` comes from "jobs.ps"
+            refresh_display(display_filter);
             console.log("table_display_refresh() called");
         }
     </script>
@@ -154,7 +202,7 @@
                     <div class="switch cc_cluster_toggle_subzone">
                         <label>
                         <!-- Hide -->
-                        <input type="checkbox" onclick="table_display_refresh()" checked>
+                        <input id="cluster_toggle_lever_mila" type="checkbox" onclick="table_display_refresh()" checked>
                         <span class="lever"></span>
                         <!-- Show -->
                         </label>
@@ -179,7 +227,7 @@
                     <div class="switch cc_cluster_toggle_subzone">
                         <label>
                         <!-- Hide -->
-                        <input type="checkbox" onclick="table_display_refresh()" checked>
+                        <input id="cluster_toggle_lever_beluga" type="checkbox" onclick="table_display_refresh()" checked>
                         <span class="lever"></span>
                         <!-- Show -->
                         </label>
@@ -204,7 +252,7 @@
                     <div class="switch cc_cluster_toggle_subzone">
                         <label>
                         <!-- Hide -->
-                        <input type="checkbox" onclick="table_display_refresh()" checked>
+                        <input id="cluster_toggle_lever_cedar" type="checkbox" onclick="table_display_refresh()" checked>
                         <span class="lever"></span>
                         <!-- Show -->
                         </label>
@@ -230,7 +278,7 @@
                     <div class="switch cc_cluster_toggle_subzone">
                         <label>
                         <!-- Hide -->
-                        <input type="checkbox" onclick="table_display_refresh()" checked>
+                        <input id="cluster_toggle_lever_graham" type="checkbox" onclick="table_display_refresh()" checked>
                         <span class="lever"></span>
                         <!-- Show -->
                         </label>
@@ -241,49 +289,49 @@
 
             <!-- toggling status -->
             <div class="col s2 cc_toggle_zone_column">
-                <!-- toggle mila -->
-                <div class="cc_toggle_zone_row">
-                    <div class="cc_cluster_toggle_name">running</div>
-                    <div class="switch cc_cluster_toggle_subzone">
-                        <label>
-                        Hide
-                        <input type="checkbox" onclick="table_display_refresh()" checked>
-                        <span class="lever"></span>
-                        Show
-                        </label>
-                    </div>
-                </div>
-                <!-- toggle beluga -->
-                <div class="cc_toggle_zone_row">
-                    <div class="cc_cluster_toggle_name">pending</div>
-                    <div class="switch cc_cluster_toggle_subzone">
-                        <label>
-                        Hide
-                        <input type="checkbox" onclick="table_display_refresh()" checked>
-                        <span class="lever"></span>
-                        Show
-                        </label>
-                    </div>
-                </div>
-                <!-- toggle cedar -->
+                <!-- toggle completed -->
                 <div class="cc_toggle_zone_row">
                     <div class="cc_cluster_toggle_name">completed</div>
                     <div class="switch cc_cluster_toggle_subzone">
                         <label>
                         Hide
-                        <input type="checkbox" onclick="table_display_refresh()" checked>
+                        <input id="status_toggle_lever_completed" type="checkbox" onclick="table_display_refresh()" checked>
                         <span class="lever"></span>
                         Show
                         </label>
                     </div>
                 </div>
-                <!-- toggle graham -->
+                <!-- toggle running -->
+                <div class="cc_toggle_zone_row">
+                    <div class="cc_cluster_toggle_name">running</div>
+                    <div class="switch cc_cluster_toggle_subzone">
+                        <label>
+                        Hide
+                        <input id="status_toggle_lever_running" type="checkbox" onclick="table_display_refresh()" checked>
+                        <span class="lever"></span>
+                        Show
+                        </label>
+                    </div>
+                </div>
+                <!-- toggle pending -->
+                <div class="cc_toggle_zone_row">
+                    <div class="cc_cluster_toggle_name">pending</div>
+                    <div class="switch cc_cluster_toggle_subzone">
+                        <label>
+                        Hide
+                        <input id="status_toggle_lever_pending" type="checkbox" onclick="table_display_refresh()" checked>
+                        <span class="lever"></span>
+                        Show
+                        </label>
+                    </div>
+                </div>
+                <!-- toggle any errors -->
                 <div class="cc_toggle_zone_row">
                     <div class="cc_cluster_toggle_name">any errors</div>
                     <div class="switch cc_cluster_toggle_subzone">
                         <label>
                         Hide
-                        <input type="checkbox" onclick="table_display_refresh()" checked>
+                        <input id="status_toggle_lever_any_errors" type="checkbox" onclick="table_display_refresh()" checked>
                         <span class="lever"></span>
                         Show
                         </label>

@@ -137,8 +137,21 @@ function vacate_table() {
 }
 
 function apply_filter(response_contents, display_filter) {
-    // TODO : implement this
-    return response_contents;
+
+    /*  Since `display_filter` has two dicts that contain (str, bool),
+        this makes it very easy to check if, for example,
+            when D_job["cluster_name"] is "mila"
+            is display_filter["cluster_name"]["mila"] true ?
+        We do it for "cluster_name" and "job_state".
+        
+        Note that "job_state" is one of 8 possible strings in UPPERCASE,
+        and not the projection down to 4 states that we use for toggle switches.
+    */
+
+    return response_contents.filter( D_job => {
+        return display_filter["cluster_name"][D_job["cluster_name"]] && display_filter["job_state"][D_job["job_state"]]
+    });
+    //return response_contents;
 }
 
 
@@ -153,11 +166,11 @@ function populate_table(response_contents) {
                 ...
             }
 
-                <td>{{e['cluster_name']}}</td>
-                    <td><a href="/jobs/list/{{e['best_guess_for_username']}}"> {{e['best_guess_for_username']}} </a></td>
-                    <td><a href="/jobs/single_job/{{e['job_id']}}"> {{e['job_id']}} </a></td>
-                    <td>{{e.get('name', "")[:32]}}</td> <!-- truncate after 32 chars -->
-                    <td>{{e['job_state']}}</td>
+            <td>{{e['cluster_name']}}</td>
+            <td><a href="/jobs/list/{{e['best_guess_for_username']}}"> {{e['best_guess_for_username']}} </a></td>
+            <td><a href="/jobs/single_job/{{e['job_id']}}"> {{e['job_id']}} </a></td>
+            <td>{{e.get('name', "")[:32]}}</td> <!-- truncate after 32 chars -->
+            <td>{{e['job_state']}}</td>
     */
 
     let table = document.getElementById(id_of_table_to_populate);
