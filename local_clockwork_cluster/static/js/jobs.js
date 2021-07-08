@@ -179,10 +179,10 @@ function populate_table(response_contents) {
     let thead = document.createElement('thead');
     let tr = document.createElement('tr');
     let th;
-    th = document.createElement('th'); th.innerHTML = "cluster_name"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "cluster"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "user"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "job_id"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "job name (truncated)"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "job name [:20]"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "job_state"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "start time"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "end time"; tr.appendChild(th);
@@ -208,7 +208,8 @@ function populate_table(response_contents) {
         if (D_job["start_time"] == 0) {
             td.innerHTML = "";
         } else {
-            td.innerHTML = D_job["start_time_str"]; 
+            // convert "2021-07-06T22:19:46 EDT" into "2021-07-06  22:19:46" for readability
+            td.innerHTML = D_job["start_time_str"].substring(0, 10) + "&nbsp;&nbsp;" + D_job["start_time_str"].substring(11, 19);
         }
         tr.appendChild(td);
 
@@ -217,7 +218,8 @@ function populate_table(response_contents) {
         if (D_job["end_time"] == 0) {
             td.innerHTML = "";
         } else {
-            td.innerHTML = D_job["end_time_str"]; 
+            // convert "2021-07-06T22:19:46 EDT" into "2021-07-06  22:19:46" for readability
+            td.innerHTML = D_job["end_time_str"].substring(0, 10) + "&nbsp;&nbsp;" + D_job["end_time_str"].substring(11, 19);
         }
         tr.appendChild(td);
 
