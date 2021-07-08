@@ -200,7 +200,7 @@ function populate_table(response_contents) {
         td = document.createElement('td'); td.innerHTML = (
             "<a href=\"" + "/jobs/single_job/" + D_job["job_id"] + "\">" + D_job["job_id"] + "</a>"); tr.appendChild(td);
         //td = document.createElement('td'); td.innerHTML = D_job["job_id"]; tr.appendChild(td);
-        td = document.createElement('td'); td.innerHTML = D_job["name"].substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
+        td = document.createElement('td'); td.innerHTML = (D_job["name"] ? D_job["name"] : "").substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
         td = document.createElement('td'); td.innerHTML = D_job["job_state"]; tr.appendChild(td);
 
         // start time

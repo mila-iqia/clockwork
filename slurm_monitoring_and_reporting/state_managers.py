@@ -473,19 +473,22 @@ class JobStatesManager:
             #        of this parent `for (job_id, job_data) in ...`.
             if ".extern" in job_id or ".batch" in job_id:
                 pass
-            elif m:= re.match("(\d+)\.interactive", job_id):
+            elif m:= re.match("^(\d+)\.interactive", job_id):
                 es_jobs_body.append({'index': {'_id': int(m.group(1))}})
                 es_jobs_body.append(job_data)
-            elif m:= re.match("(\d+)_\d+", job_id):
+            elif m:= re.match("^(\d+)_.*", job_id):
+                # This was originally made to be (\d+)_\d+,
+                # but one time we had job_id being "6380334_[0-11%4]",
+                # so we updated the regex.
                 es_jobs_body.append({'index': {'_id': int(m.group(1))}})
-                es_jobs_body.append(job_data)                
+                es_jobs_body.append(job_data)
             else:
                 # The normal thing that happens with data from legit pyslurm.
                 es_jobs_body.append({'index': {'_id': int(job_id)}})
                 # full body
                 es_jobs_body.append(job_data)
 
-        if 'jobs_index' in self.D_elasticsearch_config and self.elasticsearch_client is not None:
+        if 'jobs_index' in self.D_elasticsearch_config and self.elasticsearch_client is not None and es_jobs_body:
             print(f"Want to bulk commit {len(es_jobs_body) // 2} job_data values to ElasticSearch.")
             # Send bulk update for ElasticSearch.
             self.elasticsearch_client.bulk(
@@ -493,7 +496,7 @@ class JobStatesManager:
                 body=es_jobs_body, timeout=self.D_elasticsearch_config['timeout'])
             # print("Done with commit to ElasticSearch.")
 
-        if 'jobs_collection' in self.D_mongodb_config and self.mongo_client is not None:
+        if 'jobs_collection' in self.D_mongodb_config and self.mongo_client is not None and psl_jobs:
             timestamp_start = time.time()
             L_updates_to_do = [
                 UpdateOne(
