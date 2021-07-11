@@ -1,2 +1,0 @@
-Account|UID|JobID|JobName|State|Start|End|
-rrg-bengioy-ad_gpu|3102706|48682493|dpr_train_dense_encoder_biencoder_nq_small|PENDING|Unknown|Unknown|
