@@ -1,0 +1,30 @@
+# Google cloud needs app.yaml, but this file contains secrets
+# so we're not going to track it with git.
+#
+# Instead we are tracking app_without_secrets.yaml
+# and ask the developers to clone it to app.yaml.
+
+runtime: python39
+
+handlers:
+  # This configures Google App Engine to serve the files in the app's static
+  # directory.
+- url: /static
+  static_dir: static
+
+  # This handler routes all requests not caught above to your main app. It is
+  # required when static routes are defined, but can be omitted (along with
+  # the entire handlers section) when there are no static files defined.
+- url: /.*
+  script: auto
+
+# Commit the version of this file that has no information here,
+# but when you upload it to google cloud, you need to add it.
+env_variables:
+  GOOGLE_CLIENT_ID: ""
+  GOOGLE_CLIENT_SECRET: ""
+
+  MONGODB_HOST: ""
+  MONGODB_USERNAME: ""
+  MONGODB_PASSWORD: ""
+  MILA_API_SPECIAL_DATABASE_UPDATE_KEY : ""
