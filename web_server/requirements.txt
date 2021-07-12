@@ -1,0 +1,8 @@
+requests
+Flask
+oauthlib
+pyOpenSSL
+Flask-Login
+pymongo
+dnspython
+numpy
