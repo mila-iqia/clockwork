@@ -4,7 +4,7 @@ This file contains a lot of arbitrary decisions that could change in the future.
 """
 
 import time
-from mongo_client import get_mongo_client
+from web_server.db import get_db
 
 
 def get_mongodb_filter_from_query_filter(query_filter):
@@ -58,7 +58,7 @@ def get_mongodb_filter_from_query_filter(query_filter):
 
 
 def get_jobs(mongodb_filter:dict={}):
-    mc = get_mongo_client()
+    mc = get_db()
     mc_db = mc['slurm']
     return list(mc_db["jobs"].find(mongodb_filter))
 

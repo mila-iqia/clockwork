@@ -13,21 +13,35 @@ python3 -m flask run --host=0.0.0.0
 
 """
 
+import os
 from flask import Flask, redirect, render_template
 # import nodes_routes
-import jobs_routes
+from web_server import jobs_routes
 
 
-app = Flask(__name__)
+def create_app(extra_config:dict):
+    app = Flask(__name__)
+    app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
-# app.register_blueprint(nodes_routes.flask_api, url_prefix="/nodes")
-app.register_blueprint(jobs_routes.flask_api, url_prefix="/jobs")
+    for (k, v) in extra_config.items():
+        app.config[k] = v
 
-@app.route("/")
-def hello():
-    # return render_template("index.html")
-    return redirect("jobs/")
-    # return "Hello World!"
+    # app.register_blueprint(nodes_routes.flask_api, url_prefix="/nodes")
+    app.register_blueprint(jobs_routes.flask_api, url_prefix="/jobs")
+
+    @app.route("/")
+    def index():
+        # return render_template("index.html")
+        return redirect("jobs/")
+
+    # TODO : Maybe you can add the /login stuff from Google OAuth
+    #        just like a blueprint being registered?
+    #        It would be the first time I did this.
+    # app.register_blueprint(login_routes.login_routes, url_prefix="/login")
+
+    return app
+
 
 if __name__ == "__main__":
+    app = create_app()
     app.run()

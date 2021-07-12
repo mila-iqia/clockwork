@@ -8,4 +8,10 @@ This seems like a good source of inspiration:
 
 import pytest
 
-from main_http_server import create_app
+def test_create(client, user, app):
+    
+    print(client)
+    print(user)
+
+    with app.app_context():
+        assert 2 == 2

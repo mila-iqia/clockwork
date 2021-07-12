@@ -1,9 +1,25 @@
 from pymongo import MongoClient
 
+# TODO : You probably have to rewrite this code with `g` instead.
+
+# TODO : Read from environment variables
+#       MONGODB_HOST: ""
+#       MONGODB_USERNAME: ""
+#       MONGODB_PASSWORD: ""
+
 
 # We'll have to do something about that setup to avoid hardcoding these values here.
 D_mongo_config = {"hostname":"deepgroove.local", "port":27017, "username":"mongoadmin", "password":"secret_password_okay"}
 
+
+# Note that web users are not going to connect to the database.
+# There will be connections made to retrieve information that pertains
+# to them, but those connections are completely hidden from them,
+# and they certainly aren't happening with individual username/password
+# for each user.
+#
+# The database does contain the CWC API keys that play the role of
+# authentication later on, but this is a completely different topic.
 
 def get_mongo_client(config:dict=D_mongo_config):
     """
