@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 
-from db import get_mongo_client
+from web_server.db import get_db
 
 class User(UserMixin):
     """
@@ -9,57 +9,57 @@ class User(UserMixin):
     a `None` if it fails to find the user.
     """
 
-    def __init__(self, id_, name, email, profile_pic, status="enabled", biblioplex_api_key=None):
-        self.id = id_
+    def __init__(self, id, name, email, profile_pic, status="enabled", clockwork_api_key=None):
+        self.id = id
         self.name = name
         self.email = email
         self.profile_pic = profile_pic
         self.status = status
-        self.biblioplex_api_key = biblioplex_api_key
+        self.clockwork_api_key = clockwork_api_key
 
     @staticmethod
-    def get(user_id:str):
+    def get(id:str):
 
-        mc = get_mongo_client()['biblioplex']
+        mc = get_db()['clockwork']
 
-        L = list(mc['users'].find({'id': user_id}))
+        L = list(mc['users'].find({'id': id}))
         assert len(L) in [0, 1], (
-            "Found %d users with id %s. This can't be." % (len(L), user_id))
+            "Found %d users with id %s. This can't be." % (len(L), id))
 
         if len(L) == 0:
             return None
         else:
             e = L[0]
             user = User(
-                id_=user_id,
+                id=id,
                 name=e['name'],
                 email=e['email'],
                 profile_pic=e['profile_pic'],
                 status=e['status'],
-                biblioplex_api_key=e['biblioplex_api_key'])
+                clockwork_api_key=e['clockwork_api_key'])
             print("Retrieved entry for user with email %s." % e['email'])
             return user
 
     @staticmethod
-    def create(id_, name, email, profile_pic, status="enabled", biblioplex_api_key=None):
+    def create(id, name, email, profile_pic, status="enabled", clockwork_api_key=None):
         
         assert status in ['enabled', 'disabled']
-        if biblioplex_api_key is None or len(biblioplex_api_key) == 0:
-            biblioplex_api_key = get_new_biblioplex_api_key()
+        if clockwork_api_key is None or len(clockwork_api_key) == 0:
+            clockwork_api_key = get_new_clockwork_api_key()
 
-        mc = get_mongo_client()['biblioplex']
-        e = {'id': id_,
+        mc = get_db()['clockwork']
+        e = {'id': id,
             'name': name,
             'email': email,
             'profile_pic': profile_pic,
             'status': status,
-            'biblioplex_api_key': biblioplex_api_key
+            'clockwork_api_key': clockwork_api_key
         }
-        mc['users'].update_one({'id': id_}, {"$set": e}, upsert=True)
+        mc['users'].update_one({'id': id}, {"$set": e}, upsert=True)
         # No need to do a "commit" operation or something like that.
         print("Created entry for user with email %s." % e['email'])
 
-def get_new_biblioplex_api_key(nbr_of_hex_characters = 32):
+def get_new_clockwork_api_key(nbr_of_hex_characters = 32):
     """
     Creates a string with 32 hex characters one after the other.
     """

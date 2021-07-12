@@ -6,8 +6,6 @@ import requests
 import time
 from collections import defaultdict
 
-from mongo_client import get_mongo_client
-
 
 # Use of "Markup" described there to avoid Flask escaping it when passing to a template.
 # https://stackoverflow.com/questions/3206344/passing-html-to-template-using-flask-jinja2
@@ -27,7 +25,8 @@ from flask import g
 from flask import Blueprint
 flask_api = Blueprint('jobs_flask_api', __name__)
 
-from jobs_routes_helper import (
+# from web_server import jobs_routes_helper
+from web_server.jobs_routes_helper import (
     strip_artificial_fields_from_job,
     get_job_state_totals,
     get_mongodb_filter_from_query_filter,
