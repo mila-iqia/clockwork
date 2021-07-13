@@ -11,7 +11,7 @@ def get_db():
     again.
     """
     if "db" not in g:
-        g.db = MongoClient(current_app.config["CLOCKWORK_MONGODB_DATABASE"])
+        g.db = MongoClient(current_app.config["MONGODB_CONNECTION_STRING"])
 
     return g.db
 
@@ -41,6 +41,10 @@ def init_db():
     """Clear existing data and create new tables."""
     db = get_db()
 
+    # clear out everything, in case there's stuff leftover from a previous run
+    for collection in ["jobs", "nodes", "users"]:
+        db[current_app.config["MONGODB_DATABASE_NAME"]][collection].delete_many({})
+
     # TODO : We probably have some minor things to do here
     #        to setup some basic information in the database.
 
@@ -48,10 +52,10 @@ def init_db():
     #     db.executescript(f.read().decode("utf8"))
 
 
-#@with_appcontext
-#def init_db_command():
-#    """Clear existing data and create new tables."""
-#    init_db()
+@with_appcontext
+def init_db_command():
+    """Clear existing data and create new tables."""
+    init_db()
 
 
 def init_app(app):
@@ -59,4 +63,4 @@ def init_app(app):
     the application factory.
     """
     app.teardown_appcontext(close_db)
-    # app.cli.add_command(init_db_command)
+    app.cli.add_command(init_db_command)
