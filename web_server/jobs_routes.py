@@ -93,10 +93,16 @@ def route_api_list():
 
     try:
         body = request.get_json()
-    except:
-        return "Failed to retrieve json data in request.", 200
+    except Exception as inst:
+        return (f"Failed to retrieve json data in request.\n"
+                f"type(inst) is {type(inst)}\n"
+                f"{inst}\n"), 200
 
-    if 'query_filter' not in body:
+    if body is None:
+        return "request.get_json() returns None.", 200
+    elif not isinstance(body, dict):
+        return "request.get_json() did not return a dict.", 200
+    elif 'query_filter' not in body:
         return "Missing field 'query_filter' in request body.", 200
 
     query_filter = body['query_filter']

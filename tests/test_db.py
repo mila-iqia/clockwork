@@ -7,7 +7,8 @@ from web_server.db import get_db, init_db
 def test_insert_and_retrieve(app):
     with app.app_context():
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
-        job_id = 4872438
+
+        job_id = 4872438  # just a meaningless random number
         # delete any remaining elements from a previous test first
         mc["jobs"].delete_many({"job_id": job_id})
 
