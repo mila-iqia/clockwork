@@ -15,8 +15,12 @@ python3 -m flask run --host=0.0.0.0
 
 import os
 from flask import Flask, redirect, render_template
+from flask_login import (
+    LoginManager
+)
 # import nodes_routes
 from web_server import jobs_routes
+from web_server.user import User
 
 
 def create_app(extra_config:dict):
@@ -28,6 +32,26 @@ def create_app(extra_config:dict):
 
     # app.register_blueprint(nodes_routes.flask_api, url_prefix="/nodes")
     app.register_blueprint(jobs_routes.flask_api, url_prefix="/jobs")
+
+    # User session management setup
+    # https://flask-login.readthedocs.io/en/latest
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        return "You must be logged in to access this content.", 403
+
+    # Flask-Login helper to retrieve a user from our db
+    @login_manager.user_loader
+    def load_user(user_id):
+        # TODO : Implement more functionality.
+        #        Check if user is part of @mila.quebec (among other things).
+        #        Check that we didn't disable the user.
+        #        Earlier in the demo phase, check that it's one of the allowed users.
+        #        All these concerns might end up being implemented elsewhere. We'll see.
+        return User.get(user_id)
+
 
     @app.route("/")
     def index():
@@ -43,5 +67,21 @@ def create_app(extra_config:dict):
 
 
 if __name__ == "__main__":
-    app = create_app()
+    """
+    By default, we require only environment variable "MONGODB_CONNECTION_STRING"
+    to know how to connect to the mongodb database.
+    
+    We would only disable logins manually when trying out certain
+    things locally, like doing development on the HTML/JS, and we
+    wanted to avoid authenticating with Google every time we relaunch.
+
+    We should pick some kind of convention by which, when we disable
+    the login, we set the user to be "mario" or something like that.
+    """
+    app = create_app(
+        extra_config={  "TESTING": False,
+                        "LOGIN_DISABLED": os.environ.get("LOGIN_DISABLED", "False") in ["True", "true", "1"],
+                        "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
+                        "MONGODB_DATABASE_NAME": os.environ.get("MONGODB_DATABASE_NAME", "clockwork")
+        })
     app.run()

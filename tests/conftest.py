@@ -27,12 +27,14 @@ def app():
     """Create and configure a new app instance for each test."""
     # create the app with common test config
     app = create_app(extra_config={ "TESTING": True,
+                                    "LOGIN_DISABLED": True,
                                     "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
                                     "MONGODB_DATABASE_NAME": os.environ.get("MONGODB_DATABASE_NAME", "clockwork")})
 
-    # If we understand things correctly, the LoginManager module
-    # will check for the presence of "TESTING", and we don't need to
-    # also set "LOGIN_DISABLED" in the config.
+    # We thought that the LoginManager module would check for the
+    # presence of "TESTING" and we wouldn't need to also set
+    # "LOGIN_DISABLED" in the config, but it turns out that we
+    # need to do it.
 
     # create the database and load test data
     with app.app_context():

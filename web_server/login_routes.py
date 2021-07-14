@@ -6,7 +6,18 @@ TODO : Whatever you did with /logout, now you'll be doing with /login/logout
        if you set up your routes like that.
 """
 
+import os
 
+from oauthlib.oauth2 import WebApplicationClient
+import requests
+
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
 
 # Configuration
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
@@ -20,12 +31,21 @@ GOOGLE_DISCOVERY_URL = (
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
 # this is what allows the factorization into many files.
 from flask import Blueprint
-login_routes = Blueprint('login_routes', __name__)
+flask_api = Blueprint('login_routes', __name__)
+
+
+def get_google_provider_cfg():
+    return requests.get(GOOGLE_DISCOVERY_URL).json()
+
+# TODO : Does this go here? Is it just needed in one function only?
+# OAuth2 client setup
+client = WebApplicationClient(GOOGLE_CLIENT_ID)
+#############################################
 
 
 
-@app.route("/login")
-def login():
+@flask_api.route("/")
+def login_routes_index():
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -40,8 +60,8 @@ def login():
     return redirect(request_uri)
 
 
-@app.route("/login/callback")
-def callback():
+@flask_api.route("/callback")
+def login_routes_callback():
     # Get authorization code Google sent back to you
     code = request.args.get("code")
 
@@ -109,13 +129,9 @@ def callback():
     return redirect(url_for("index"))
 
 
-@app.route("/logout")
+@flask_api.route("/logout")
 @login_required
-def logout():
+def login_routes_logout():
     logout_user()
     return redirect(url_for("index"))
-
-
-def get_google_provider_cfg():
-    return requests.get(GOOGLE_DISCOVERY_URL).json()
 
