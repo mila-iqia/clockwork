@@ -18,6 +18,10 @@ from werkzeug.wsgi import FileWrapper
 # https://flask.palletsprojects.com/en/1.1.x/appcontext/
 from flask import g
 
+from flask_login import (
+    current_user,
+    login_required,
+)
 
 # As described on
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
@@ -36,6 +40,7 @@ from web_server.jobs_routes_helper import (
 
 
 @flask_api.route('/')
+@login_required
 def route_index():
     return redirect("list")
 
@@ -43,6 +48,7 @@ def route_index():
 # @flask_api.route('/list/', defaults={'mila_user_account': None})
 # @flask_api.route('/list/<mila_user_account>')
 @flask_api.route('/list')
+@login_required
 def route_list():
     """
     This is the main route that's going to be used.
@@ -54,6 +60,7 @@ def route_list():
 
 
 @flask_api.route('/single_job/<job_id>')
+@login_required
 def route_single_job_p_job_id(job_id):
 
     m = re.match(r"^[\d]+$", job_id)
@@ -86,6 +93,9 @@ def route_api_list():
     TODO : Add the authentication code in here. This consists of
            the route wrapper. We have done this in some other project,
            so it'll be a question of porting that code to this project.
+           Do we really trust that a .get_json() won't cause problems
+           with maliciously-formatted json? I imagine so, but it's worth
+           some investigation. At least it's not the default python "json" library.
 
     TODO : Think some more about the endpoints. Right now this is a good place
            for this endpoint, but some factoring should be done.
