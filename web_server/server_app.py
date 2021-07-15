@@ -19,8 +19,8 @@ from flask_login import (
     LoginManager
 )
 # import nodes_routes
-from web_server import jobs_routes
-from web_server.user import User
+import jobs_routes
+from user import User
 
 
 def create_app(extra_config:dict):
@@ -55,8 +55,9 @@ def create_app(extra_config:dict):
 
     @app.route("/")
     def index():
-        # return render_template("index.html")
-        return redirect("jobs/")
+        # TODO : Bring this back to "jobs/" after this sanity check is over.
+        return render_template("index.html")
+        # return redirect("jobs/")
 
     # TODO : Maybe you can add the /login stuff from Google OAuth
     #        just like a blueprint being registered?
@@ -64,24 +65,3 @@ def create_app(extra_config:dict):
     # app.register_blueprint(login_routes.login_routes, url_prefix="/login")
 
     return app
-
-
-if __name__ == "__main__":
-    """
-    By default, we require only environment variable "MONGODB_CONNECTION_STRING"
-    to know how to connect to the mongodb database.
-    
-    We would only disable logins manually when trying out certain
-    things locally, like doing development on the HTML/JS, and we
-    wanted to avoid authenticating with Google every time we relaunch.
-
-    We should pick some kind of convention by which, when we disable
-    the login, we set the user to be "mario" or something like that.
-    """
-    app = create_app(
-        extra_config={  "TESTING": False,
-                        "LOGIN_DISABLED": os.environ.get("LOGIN_DISABLED", "False") in ["True", "true", "1"],
-                        "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
-                        "MONGODB_DATABASE_NAME": os.environ.get("MONGODB_DATABASE_NAME", "clockwork")
-        })
-    app.run()

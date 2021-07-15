@@ -8,10 +8,10 @@ from flask.globals import current_app
 
 import pytest
 
-import web_server
-from web_server.main_http_server import create_app
-from web_server.db import get_db, init_db
-from web_server.user import User
+
+from server_app import create_app
+from db import get_db, init_db
+from user import User
 
 assert "MONGODB_CONNECTION_STRING" in os.environ, (
     "Error. Cannot proceed when missing the value of MONGODB_CONNECTION_STRING from environment.\n"
