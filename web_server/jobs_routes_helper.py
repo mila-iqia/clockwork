@@ -4,7 +4,9 @@ This file contains a lot of arbitrary decisions that could change in the future.
 """
 
 import time
-from web_server.db import get_db
+
+from flask.globals import current_app
+from db import get_db
 
 
 def get_mongodb_filter_from_query_filter(query_filter):
@@ -20,8 +22,6 @@ def get_mongodb_filter_from_query_filter(query_filter):
     Please refer to the document "about_queries.md" to read more about
     the reasoning behing this function. It requires a document just by itself.
     """
-
-    
 
     if 'user' in query_filter and query_filter['user'] not in ["all", "*", ""]:
         user = query_filter['user']
@@ -58,9 +58,9 @@ def get_mongodb_filter_from_query_filter(query_filter):
 
 
 def get_jobs(mongodb_filter:dict={}):
-    mc = get_db()
-    mc_db = mc['slurm']
-    return list(mc_db["jobs"].find(mongodb_filter))
+    mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+    return list(mc["jobs"].find(mongodb_filter))
+
 
 def infer_best_guess_for_username(D_job):
     # TODO : We should perform some kind of mapping to Mila accounts or something.

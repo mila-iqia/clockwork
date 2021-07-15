@@ -2,7 +2,11 @@
 
 ## How to deply to Google Cloud
 
+Create `app.yaml` from `missing_secrets_app.yaml`.
+Put the missing secrets in there, pertaining to Atlas Mongodb and OAuth.
+
 ```bash
+gcloud app deploy gcloud_app.yaml
 ```
 
 ## How to run locally (no authentication)

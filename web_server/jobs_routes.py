@@ -30,14 +30,12 @@ from flask import Blueprint
 flask_api = Blueprint('jobs_flask_api', __name__)
 
 # from web_server import jobs_routes_helper
-from web_server.jobs_routes_helper import (
+from jobs_routes_helper import (
     strip_artificial_fields_from_job,
     get_job_state_totals,
     get_mongodb_filter_from_query_filter,
     get_jobs,
     infer_best_guess_for_username)
-
-
 
 @flask_api.route('/')
 @login_required

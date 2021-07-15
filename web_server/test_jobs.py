@@ -66,8 +66,8 @@ def test_api_list_four_valid_usernames(client, username):
     # make sure that every job returned has that username somewhere
     for D_job in LD_jobs:
         assert username in [
-            D_job["mila_cluster_username"], D_job["mila_user_account"],
-            D_job["mila_email_username"], D_job["cc_account_username"]]
+            D_job.get("mila_cluster_username", None), D_job.get("mila_user_account",   None),
+            D_job.get("mila_email_username",   None), D_job.get("cc_account_username", None)]
 
 
 @pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
