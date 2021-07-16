@@ -26,3 +26,9 @@ When provisionning the database, you'll need to have the nested structure:
     clockwork (collection)  -- users (collection)
                             -- jobs  (collection)
                             -- nodes (collection)
+
+---
+
+We need a better-principled system for logging. Right now it's a bunch of print
+statements used mostly for tracking the state of the program for debugging.
+This is not all that useful in the context of a production app.
