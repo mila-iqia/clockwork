@@ -26,6 +26,15 @@ def close_db(e=None):
         db.close()
 
 
+
+# def get_mc():
+#     """
+#     Since we are going to use this shortcut many many times,
+#     we might as well provide it here.
+#     """
+#     return get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+
+
 # Note that all the `init_db` and `init_app` code were
 # taken from a tutorial about pytest in which they really
 # want to clear the database at the beginning.

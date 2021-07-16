@@ -6,6 +6,11 @@ import os
 import json
 from flask.globals import current_app
 
+from flask_login import (
+    login_user,
+    logout_user
+)
+
 import pytest
 
 
@@ -72,14 +77,21 @@ def user(app):
 
         user_desc = {"id": "135798713318272451447",
                     "name": "test",
-                    "email": "test@example.com",
+                    "email": "test@mila.quebec",
                     "profile_pic": ""}
-        user = User(**user_desc)
-        # Doesn't exist? Add to database
-        if not User.get(user_desc["id"]):
-            User.create(**user_desc)
-        
+        user = User.get(user_desc["id"])
+        # Doesn't exist? Add to database.
+        if not user:
+            User.add_to_database(**user_desc)
+            user = User.get(user_desc["id"])
+
+        # login_user(user)  # error : working outside of context
         return user
+
+    # Why not something like this?
+    # login_user(user)
+    # yield user
+    # logout_user(user)
 
 
 

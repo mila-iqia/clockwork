@@ -16,10 +16,12 @@ python3 -m flask run --host=0.0.0.0
 import os
 from flask import Flask, redirect, render_template
 from flask_login import (
+    current_user,
     LoginManager
 )
 # import nodes_routes
 import jobs_routes
+import login_routes
 from user import User
 
 
@@ -33,6 +35,11 @@ def create_app(extra_config:dict):
     # app.register_blueprint(nodes_routes.flask_api, url_prefix="/nodes")
     app.register_blueprint(jobs_routes.flask_api, url_prefix="/jobs")
 
+    # TODO : Maybe you can add the /login stuff from Google OAuth
+    #        just like a blueprint being registered?
+    #        It would be the first time I did this.
+    app.register_blueprint(login_routes.flask_api, url_prefix="/login")
+
     # User session management setup
     # https://flask-login.readthedocs.io/en/latest
     login_manager = LoginManager()
@@ -45,23 +52,25 @@ def create_app(extra_config:dict):
     # Flask-Login helper to retrieve a user from our db
     @login_manager.user_loader
     def load_user(user_id):
-        # TODO : Implement more functionality.
-        #        Check if user is part of @mila.quebec (among other things).
-        #        Check that we didn't disable the user.
-        #        Earlier in the demo phase, check that it's one of the allowed users.
-        #        All these concerns might end up being implemented elsewhere. We'll see.
-        return User.get(user_id)
+        # gyom : I don't know when this is called, though...
+        user = User.get(user_id)
+        # When `user` is None, we return None and that's what `load_user` wants.
+
+        # TODO : need to login_user again or something? current_user.
+        print(f"In @login_manager.user_loader def load_user(user_id), we have that user.is_authenticated is {user.is_authenticated}. Also, `user is None` is {user is None}.")
+        return user
 
 
     @app.route("/")
     def index():
-        # TODO : Bring this back to "jobs/" after this sanity check is over.
-        return render_template("index.html")
-        # return redirect("jobs/")
+        if current_user.is_authenticated:
+            print("in route for '/'; redirecting to jobs/")
+            return redirect("jobs/")
+        else:
+            print("in route for '/'; render_template('index_outside.html')")
+            return render_template("index_outside.html")
+            # return redirect("jobs/")
 
-    # TODO : Maybe you can add the /login stuff from Google OAuth
-    #        just like a blueprint being registered?
-    #        It would be the first time I did this.
-    # app.register_blueprint(login_routes.login_routes, url_prefix="/login")
+
 
     return app

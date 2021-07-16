@@ -1,23 +1,32 @@
 """
-TODO : This file contains copy/pasted code to signify our intentions.
-       Plenty of dependencies are missing, or things are not being used correctly.
 
 TODO : Whatever you did with /logout, now you'll be doing with /login/logout
        if you set up your routes like that.
+
+TODO : For the whole REST API thing, you should think about what's written here:
+        https://flask-login.readthedocs.io/en/latest/
+        Custom Login using Request Loader
+
 """
 
+from logging import error
 import os
+import json
+
+from flask import Flask, redirect, render_template, request, url_for
 
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 
 from flask_login import (
-    LoginManager,
     current_user,
     login_required,
     login_user,
     logout_user,
 )
+
+from user import User
+
 
 # Configuration
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
@@ -54,8 +63,8 @@ def login_routes_index():
     # scopes that let you retrieve user's profile from Google
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
-        scope=["openid", "email", "profile"],
+        redirect_uri=request.base_url + "callback",
+        scope=["openid", "email", "profile"],  # 2021-07-15 we removed "openid" from list because we set up OAuth without asking for "openid"
     )
     return redirect(request_uri)
 
@@ -103,35 +112,42 @@ def login_routes_callback():
         picture = userinfo_response.json()["picture"]
         users_name = userinfo_response.json()["given_name"]
     else:
-        return "User email not available or not verified by Google.", 400
+        return render_template("error.html", error_msg="User email not available or not verified by Google.")
+    
+    user = User.get(unique_id)
+    # The first time around, if user is None, it's either
+    # because of a corrupted database (should not happen, worth investigating),
+    # or because it simply was never created.
+    if user is None:
+        success, error_msg = User.add_to_database(unique_id, users_name, users_email, picture)
+        if not success:
+            return render_template("error.html", error_msg=f"Failed to add a user to the database. {error_msg}")
+        else:
+            # We successfully added the user to the database,
+            # so we should be able to retrieve it now.
+            user = User.get(unique_id)
+            if user is None:
+                # If we still have a `None`, then it means that we really have an error.
+                # Again, if we had a database corruption, then this should have been
+                # detected earlier, but let's test anyway.
+                return render_template("error.html", error_msg="We tried to create an account for {users_email} but it failed.")
 
-    # There are already mechanisms in place to that login
-    # is restricted to users within the organization only.
-    # It yields 
-    #     Error 403: org_internal
-    #     This client is restricted to users within its organization.
-    # However, we might as well keep this check here also,
-    # in case we ever reconfigure the authentication and get it wrong.
-    if not users_email.endswith('@mila.quebec'):
-        return "Will only create accounts for people with @mila.quebec accounts.", 400
+    # At this point in the code, the user cannot possibly be `None`.
 
-    # Create a user in our db with the information provided
-    # by Google
-    user = User(
-        id_=unique_id, name=users_name, email=users_email, profile_pic=picture
-    )
+    if user.status != "enabled":
+        return render_template("error.html", error_msg="The user retrieved does not have its status as 'enabled'.")
+        # return f"The user retrieved does not have its status as 'enabled'.", 400
 
-    # Doesn't exist? Add to database
-    if not User.get(unique_id):
-        User.create(unique_id, users_name, users_email, picture)
     login_user(user)
+    print(  f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated}")
     # Send user back to homepage
-    return redirect(url_for("index"))
+    return redirect("/")
 
 
 @flask_api.route("/logout")
 @login_required
 def login_routes_logout():
     logout_user()
-    return redirect(url_for("index"))
+    redirect("/")
+    # return redirect(url_for("index"))
 
