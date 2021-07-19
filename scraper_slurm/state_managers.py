@@ -476,6 +476,10 @@ class JobStatesManager:
             elif m:= re.match("^(\d+)\.interactive", job_id):
                 es_jobs_body.append({'index': {'_id': int(m.group(1))}})
                 es_jobs_body.append(job_data)
+            elif m:= re.match("^(\d+)\.\d+", job_id):
+                # e.g. '7943791.0'
+                es_jobs_body.append({'index': {'_id': int(m.group(1))}})
+                es_jobs_body.append(job_data)
             elif m:= re.match("^(\d+)_.*", job_id):
                 # This was originally made to be (\d+)_\d+,
                 # but one time we had job_id being "6380334_[0-11%4]",

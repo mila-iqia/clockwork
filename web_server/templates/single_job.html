@@ -33,22 +33,26 @@
 
             <!-- <h1>{{channel_title}}</h1> -->
             
-            <table>
-                <tr>
-                    <th>key</th>
-                    <th>value</th>
-                </tr>
-                {% for (k, v) in LP_single_job %}
-                <tr>
-                    <td>{{k}}</td>
-                    {% if k in ['batch_host'] and v != None %}
-                    <!-- -->
-                    <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
-                    {% else %}
-                    <td>{{v}}</td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th>key</th>
+                        <th>value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for (k, v) in LP_single_job %}
+                    <tr>
+                        <td>{{k}}</td>
+                        {% if k in ['batch_host'] and v != None %}
+                        <!-- TODO : Implement this link because it doesn't work now. -->
+                        <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
+                        {% else %}
+                        <td>{{v}}</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>

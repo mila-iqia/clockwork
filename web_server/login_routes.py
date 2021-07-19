@@ -141,13 +141,42 @@ def route_callback():
     login_user(user)
     print(f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated}")
     # Send user back to homepage
-    return redirect("/")
+    # return redirect("/")
+    return redirect(url_for("index"))
 
 
 @flask_api.route("/logout")
 @login_required
 def route_logout():
     logout_user()
-    redirect("/")
-    # return redirect(url_for("index"))
+    # redirect("/")
+    return redirect(url_for("index"))
+
+
+"""
+When logins are disabled, we add the route /login/fake_user in order to be able
+to login easily to test out functionality locally (i.e. running on "deepgroove").
+
+Since the "LOGIN_DISABLED" environment variable is already being used,
+we might as well use it. Poking this URL logs the session as "fake_user@mila.quebec".
+"""
+
+if os.environ.get("LOGIN_DISABLED", "False") in ["True", "true", "1"]:
+    @flask_api.route("/fake_user")
+    def route_fake_user():
+        # This unique ID could be anything, and it's also not something private.
+        # Unless we deploy the app on Google Cloud with "LOGIN_DISABLED", or unless
+        # we leak the clockwork_api_key for that user (and forget to test that "LOGIN_DISABLED"
+        # in the REST API endpoints), this will not be a security issue.
+        #
+        # That being said, we will probably want to remove that user from the database
+        # when we deploy to production, just to avoid depending on a flag being set.
+        unique_id = "791083399710128078765"
+        user = User.get(unique_id)
+        if user is None:
+            User.add_to_database(unique_id, "Fake User", "fake_user@mila.quebec", "")
+        user = User.get(unique_id)
+        assert user is not None, "Failed to create a fake user with route /login/fake_user."
+        login_user(user)
+        return redirect(url_for("index"))
 
