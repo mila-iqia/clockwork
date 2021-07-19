@@ -119,6 +119,13 @@
     color:#564C56;
  }
 
+div.cc_header_right_col {
+    display:inline-block;
+    padding-top:10px;
+}
+div.cc_header_right_col div {
+    padding:5px;
+}
 
 
 

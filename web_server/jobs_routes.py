@@ -54,7 +54,9 @@ def route_list():
     # We can work some other time at adding the back the username argument.
     # This could be set as the default value in the option box in jobs.html.
     # Let's leave it out for now.
-    return render_template("jobs.html")
+
+    mila_email_username = current_user.email.split("@")[0]
+    return render_template("jobs.html", mila_email_username=mila_email_username)
 
 
 @flask_api.route('/single_job/<job_id>')
@@ -77,9 +79,12 @@ def route_single_job_p_job_id(job_id):
 
     # let's sort alphabetically by keys
     LP_single_job = list(sorted(D_job.items(), key=lambda e: e[0]))
+
+    mila_email_username = current_user.email.split("@")[0]
     return render_template("single_job.html",
                             LP_single_job=LP_single_job,
-                            job_id=job_id)
+                            job_id=job_id,
+                            mila_email_username=mila_email_username)
 
 
 @flask_api.route('/api/list', methods=['POST'])

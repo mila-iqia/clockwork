@@ -139,7 +139,7 @@ def login_routes_callback():
         # return f"The user retrieved does not have its status as 'enabled'.", 400
 
     login_user(user)
-    print(  f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated}")
+    print(f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated}")
     # Send user back to homepage
     return redirect("/")
 

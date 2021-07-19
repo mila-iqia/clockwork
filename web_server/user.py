@@ -1,6 +1,8 @@
 from flask.globals import current_app
 from flask_login import UserMixin
 
+import numpy as np  # used to generate random `clockwork_api_key` for users
+
 import sys, traceback  # debugging
 
 from db import get_db
@@ -23,6 +25,15 @@ class User(UserMixin):
         self.profile_pic = profile_pic
         self.status = status
         self.clockwork_api_key = clockwork_api_key
+
+    # If we don't set those two values ourselves, we are going
+    # to have users being asked to login every time they click
+    # on a link or refresh the pages.
+    def is_authenticated(self):
+        return True
+    def is_active(self):
+        return self.status == "enabled"
+
 
     @staticmethod
     def get(id:str):
@@ -121,7 +132,6 @@ def get_new_clockwork_api_key(nbr_of_hex_characters = 32):
     """
     Creates a string with 32 hex characters one after the other.
     """
-    import numpy as np
     return "".join(
             '%0.2x' % np.random.randint(low=0, high=256)
             for _ in range(nbr_of_hex_characters // 2))
