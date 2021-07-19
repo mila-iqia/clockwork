@@ -37,21 +37,52 @@
         <img src="{{ url_for('static', filename='images/clockwork_cluster_0.5x.png')}}" width='50%'>
       </div>
 
-      <div class="col s3">
+      <div class="col s2">
         <!-- spacing -->
       </div>
-      <div class="col s2">
-        <div style="display:inline-block;">
-          [link Mila docs]
+      <div class="col s3">
+        <div class="cc_header_right_col">
+          <div>
+            <a href="https://docs.mila.quebec">Mila docs</a>
+          </div>
+          <div>
+            <a href="https://dashboard.server.mila.quebec">Mila dashboard</a>
+          </div>
         </div>
-        <div style="display:inline-block;">
-          [link Mila dashboard]
+        <div class="cc_header_right_col">
+          <div>
+            <!-- TODO : add a conditional here in the template -->
+            {% if mila_email_username: %}
+              Logged as : {{mila_email_username}}
+            {% else %}
+              Not logged in.
+            {% endif %}
+          </div>
+          <div>
+            <a href="/settings">my settings</a>
+            <!-- This would be fine, but it doesn't look good.
+            <a href="/settings">
+              <i class="material-icons">settings</i>
+            </a>
+            -->
+          </div>
+          <div>
+            <a href="/login/logout">logout</a>
+            <!-- This would be fine, but it doesn't look good.
+              <a class="waves-effect waves-light btn-small grey darken-1" href="/login/logout">
+              logout
+              <i class="material-icons right">exit_to_app</i>
+              </a>
+            -->
+          </div>
         </div>
-        <div style="display:inline-block;">
-          [link settings]
-        </div>
-        <div style="display:inline-block;">
-          [link about ~this]
+        <div class="cc_header_right_col">
+          <div>
+            [link about ~this]
+          </div>
+          <div>
+            [link for github code]
+          </div>
         </div>
       </div>
     </div>

@@ -45,11 +45,12 @@ def app():
     with app.app_context():
         init_db()
         db = get_db()
-        populate_fake_data(db[current_app.config["MONGODB_DATABASE_NAME"]])
+        cleanup_function = populate_fake_data(db[current_app.config["MONGODB_DATABASE_NAME"]])
 
     yield app
 
     # You can close file descriptors here and do other cleanup.
+    cleanup_function()
 
 
 @pytest.fixture
@@ -106,12 +107,16 @@ def populate_fake_data(db_insertion_point, json_file=None):
     It's hard to find the right word for this, because mongodb would
     call it a "database", but in the context of this flask app we refer
     to the database connection as the "db".
+
+    This function returns its own cleanup function that will remove
+    all the entries that it has inserted. You can call it to undo
+    the side-effects, and hopefully there won't be any conflict with
+    real values of job_id and those fake ones.
     """
 
     if json_file is None:
         json_file = os.path.join(   os.path.dirname(os.path.abspath(__file__)),
                                     "fake_data.json")
-
     assert os.path.exists(json_file), (
         f"Failed to find the fake data file to populate the database for testing: {json_file}."
     )
@@ -122,6 +127,26 @@ def populate_fake_data(db_insertion_point, json_file=None):
         if k in E:
             for e in E[k]:
                 db_insertion_point[k].insert_one(e)
+
+    def cleanup_function():
+        """
+        Each of those kinds of data is identified in a unique way,
+        and we can use that identifier to clean up.
+
+        For example, when clearing out jobs, we can look at the "job_id"
+        of the entries that we inserted.
+
+        The point is that we can run a test against the production mongodb on Atlas
+        and not affect the real data. If we cleared the tables completely,
+        then we'd be affecting the real data in a bad way.
+        """
+        for (k, id_field) in [("users", "id"), ("jobs", "job_id"), ("nodes", "name")]:
+            if k in E:
+                for e in E[k]:
+                    db_insertion_point[k].delete_many({id_field: e[id_field]})
+
+    return cleanup_function
+
 
 
 # How do we do something like that, but using Google OAuth instead?
