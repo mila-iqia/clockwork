@@ -34,7 +34,9 @@
         <!-- spacing on the left -->
       </div>
       <div class="col s5">
-        <img src="{{ url_for('static', filename='images/clockwork_cluster_0.5x.png')}}" width='50%'>
+        <a href="{{url_for('index')}}">
+          <img src="{{ url_for('static', filename='images/clockwork_cluster_0.5x.png')}}" width='50%'>
+        </a>
       </div>
 
       <div class="col s2">
@@ -67,7 +69,7 @@
             -->
           </div>
           <div>
-            <a href="/login/logout">logout</a>
+            <a href="{{url_for('login.route_logout')}}">logout</a>
             <!-- This would be fine, but it doesn't look good.
               <a class="waves-effect waves-light btn-small grey darken-1" href="/login/logout">
               logout
