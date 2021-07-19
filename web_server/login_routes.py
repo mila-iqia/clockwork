@@ -40,7 +40,7 @@ GOOGLE_DISCOVERY_URL = (
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
 # this is what allows the factorization into many files.
 from flask import Blueprint
-flask_api = Blueprint('login_routes', __name__)
+flask_api = Blueprint('login', __name__)
 
 
 def get_google_provider_cfg():
@@ -54,7 +54,7 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 
 @flask_api.route("/")
-def login_routes_index():
+def route_index():
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -70,7 +70,7 @@ def login_routes_index():
 
 
 @flask_api.route("/callback")
-def login_routes_callback():
+def route_callback():
     # Get authorization code Google sent back to you
     code = request.args.get("code")
 
@@ -146,7 +146,7 @@ def login_routes_callback():
 
 @flask_api.route("/logout")
 @login_required
-def login_routes_logout():
+def route_logout():
     logout_user()
     redirect("/")
     # return redirect(url_for("index"))
