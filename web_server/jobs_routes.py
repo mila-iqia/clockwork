@@ -27,7 +27,7 @@ from flask_login import (
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
 # this is what allows the factorization into many files.
 from flask import Blueprint
-flask_api = Blueprint('jobs_flask_api', __name__)
+flask_api = Blueprint('jobs', __name__)
 
 # from web_server import jobs_routes_helper
 from jobs_routes_helper import (
@@ -39,7 +39,7 @@ from jobs_routes_helper import (
 
 @flask_api.route('/')
 @login_required
-def route_index():
+def route_jobs_index():
     return redirect("list")
 
 
@@ -47,7 +47,7 @@ def route_index():
 # @flask_api.route('/list/<mila_user_account>')
 @flask_api.route('/list')
 @login_required
-def route_list():
+def route_jobs_list():
     """
     This is the main route that's going to be used.
     """
@@ -61,7 +61,7 @@ def route_list():
 
 @flask_api.route('/single_job/<job_id>')
 @login_required
-def route_single_job_p_job_id(job_id):
+def route_jobs_single_job_p_job_id(job_id):
 
     m = re.match(r"^[\d]+$", job_id)
     if not m:
@@ -88,7 +88,7 @@ def route_single_job_p_job_id(job_id):
 
 
 @flask_api.route('/api/list', methods=['POST'])
-def route_api_list():
+def route_jobs_api_list():
     """
     This is the endpoint that serves jobs.html making requests.
     It provides all the information.

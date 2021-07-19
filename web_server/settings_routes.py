@@ -20,7 +20,7 @@ from flask_login import (
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
 # this is what allows the factorization into many files.
 from flask import Blueprint
-flask_api = Blueprint('settings_flask_api', __name__)
+flask_api = Blueprint('settings', __name__)
 
 
 @flask_api.route('/')
