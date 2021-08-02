@@ -43,10 +43,10 @@ from elasticsearch import Elasticsearch
 # https://docs.paramiko.org/en/stable/api/client.html
 from paramiko import SSHClient, AutoAddPolicy, ssh_exception
 
-import slurm_monitoring_and_reporting
-from slurm_monitoring_and_reporting.common import (filter_unrelated_jobs, )
-from slurm_monitoring_and_reporting.state_managers import (NodeStatesManager, JobStatesManager)
-from slurm_monitoring_and_reporting.mongo_client import get_mongo_client
+import slurm_monitor
+from slurm_monitor.common import (filter_unrelated_jobs, )
+from slurm_monitor.state_managers import (NodeStatesManager, JobStatesManager)
+from slurm_monitor.mongo_client import get_mongo_client
 
 import argparse
 parser = argparse.ArgumentParser(description='Prometheus endpoint that exposes information from pyslurm.')
@@ -71,7 +71,7 @@ if args.endpoint_prefix is None:
 DD_cluster_desc = {
     "beluga":
         {"name": "beluga",
-        "cmd" : 'module load python/3.8.2; python3 ${HOME}/bin/sinfo_scraper.py ',
+        "cmd" : 'module load python/3.8.2; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ',
         "hostname": "beluga.computecanada.ca",
         "username": "alaingui",
         "port": 22,
@@ -91,7 +91,7 @@ DD_cluster_desc = {
         },
     "mila":
         {"name": "mila",
-        "cmd" : 'source ${HOME}/Documents/code/venv38/bin/activate; python3 ${HOME}/bin/sinfo_scraper.py ',
+        "cmd" : 'source ${HOME}/Documents/code/venv38/bin/activate; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ',
         "hostname": "login.server.mila.quebec",
         "username": "alaingui",
         "port": 2222,
@@ -108,7 +108,7 @@ DD_cluster_desc = {
         },
     "graham":
         {"name": "graham",
-        "cmd" : 'module load python/3.6.10; python3 ${HOME}/bin/sinfo_scraper.py ',
+        "cmd" : 'module load python/3.6.10; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ',
         "hostname": "graham.computecanada.ca",
         "username": "alaingui",
         "port": 22,
@@ -129,7 +129,7 @@ DD_cluster_desc = {
         },
     "cedar": 
         {"name": "cedar",
-        "cmd" : 'module load python/3.6.10; python3 ${HOME}/bin/manual_flimsy_sinfo_scraper.py',
+        "cmd" : 'module load python/3.6.10; python3 ${HOME}/bin/on_site_sinfo_and_sacct_scraper.py',
         "hostname": "cedar.computecanada.ca",
         "username": "alaingui",
         "port": 22,
@@ -371,20 +371,20 @@ export PYTHONPATH=${PYTHONPATH}:${HOME}/Documents/code/slurm_monitoring_and_repo
 source ${HOME}/Documents/code/venv38/bin/activate
 
 # from a mock source
-python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 30 \
+python3 -m slurm_monitor.main --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 30 \
     --mock_data_dir ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/mila_cluster
-python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17002 --cluster_name beluga --endpoint_prefix "beluga_" --refresh_interval 30 \
+python3 -m slurm_monitor.main --port 17002 --cluster_name beluga --endpoint_prefix "beluga_" --refresh_interval 30 \
     --mock_data_dir ${HOME}/Documents/code/slurm_monitoring_and_reporting/misc/beluga
 
 # or the same thing but getting the information for real
-python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 300
-python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17002 --cluster_name beluga --endpoint_prefix "beluga_" --refresh_interval 300
-python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17003 --cluster_name graham --endpoint_prefix "graham_" --refresh_interval 300
-python3 -m slurm_monitoring_and_reporting.mini_sinfo_01 --port 17004 --cluster_name cedar --endpoint_prefix "cedar_" --refresh_interval 600
+python3 -m slurm_monitor.main --port 17001 --cluster_name mila --endpoint_prefix "mila_" --refresh_interval 300
+python3 -m slurm_monitor.main --port 17002 --cluster_name beluga --endpoint_prefix "beluga_" --refresh_interval 300
+python3 -m slurm_monitor.main --port 17003 --cluster_name graham --endpoint_prefix "graham_" --refresh_interval 300
+python3 -m slurm_monitor.main --port 17004 --cluster_name cedar --endpoint_prefix "cedar_" --refresh_interval 600
 
 # copying the script
-rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/sinfo_scraper.py mila-login:bin
-rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/sinfo_scraper.py beluga:bin
-rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/sinfo_scraper.py graham:bin
-rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/manual_flimsy_sinfo_scraper.py cedar:bin
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/on_site_pyslurm_scraper.py mila-login:bin
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/on_site_pyslurm_scraper.py beluga:bin
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/on_site_pyslurm_scraper.py graham:bin
+rsync -av ${HOME}/Documents/code/slurm_monitoring_and_reporting/slurm_monitoring_and_reporting/on_site_sinfo_and_sacct_scraper.py cedar:bin
 """
