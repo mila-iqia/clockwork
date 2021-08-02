@@ -1,0 +1,5 @@
+paramiko
+prometheus-client
+elasticsearch
+pymongo
+numpy

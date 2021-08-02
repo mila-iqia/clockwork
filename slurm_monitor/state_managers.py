@@ -11,8 +11,8 @@ from pymongo import UpdateOne
 
 from prometheus_client import Enum, Summary, Gauge
 
-import slurm_monitoring_and_reporting
-from slurm_monitoring_and_reporting.common import (extract_username_from_job_data, messy_ugly_analyze_node_state, messy_ugly_analyze_gpu_gres)
+import slurm_monitor
+from slurm_monitor.common import (extract_username_from_job_data, messy_ugly_analyze_node_state, messy_ugly_analyze_gpu_gres)
 
 
 class NodeStatesManager:

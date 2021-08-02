@@ -1,0 +1,84 @@
+version: "3.7"
+
+# You need to set the environment variables UID and GID
+# for this recipe to work.
+
+services:
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    # Note that we are not persisting the data outside of the container.
+    # This is not a great long-term solution for Prometheus,
+    # but it's perfect for testing the Clockwork code.
+
+  grafana:
+    image: grafana/grafana:latest-ubuntu
+    ports:
+      - 3000:3000
+    user: "${UID}:${GID}"
+    volumes:
+      - ./grafana_unprotected.ini:/etc/grafana/grafana.ini
+    # Note that we are not persisting the data outside of the container.
+    # This is not a great long-term solution for Grafana because
+    # it doesn't save any of our nice graphs, but it's fine for
+    # testing the Clockwork code.
+
+  elasticsearch:
+    image: elasticsearch:7.12.1
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+        discovery.type:single-node
+    # Note that we are not persisting the data outside of the container.
+    # This is not a great long-term solution for ElasticSearch because
+    # but it's fine for testing the Clockwork code.
+
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+
+# TODO : Maybe find way to specify the ssh public/private keys as mount.
+#        This is something you should develop in isolation before trying
+#        to wrap it into a Docker Compose recipe.
+
+# TODO : Create an executable file in the scraper that does
+#        - install dependencies
+#        - make sure the current code is found
+#        if testing mode:
+#          - run the cluster monitor with fake data forever
+#        otherwise:
+#          - ssh copy over the executable on the cluster
+#          - run the cluster monitor forever
+
+  web_server:
+    image: python:3.9-alpine
+    ports:
+      # Any exterior port works, but let's pick 5600 to make it more unique
+      # and avoid some potential conflicts with other Flask servers on the host.
+      # At the same time, let's keep 5000 for services running inside the
+      # container to make it more predictible.
+      - 5600:5000
+    working_dir: /clockwork
+    volumes:
+      - ../web_server:/clockwork/web_server
+    command: sh /clockwork/entrypoint_inside_container.sh
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+
+  # scraper_mila:
+  #   image: python3.7 # find correct  
+  #   volumes:
+  #     - ${SCRAPER_SSH_RSA_PUBLIC_KEY_PATH}:/root/.ssh/id_rsa.pub
+  #     - ${SCRAPER_SSH_RSA_PRIVATE_KEY_PATH}:/root/.ssh/id_rsa
+  #   command: sh -c "yarn install && yarn run dev"
