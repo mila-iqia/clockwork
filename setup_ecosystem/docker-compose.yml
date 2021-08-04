@@ -7,7 +7,7 @@ services:
   prometheus:
     image: prom/prometheus
     ports:
-      - 9090:9090
+      - 19090:9090
     extra_hosts:
       - host.docker.internal:host-gateway
     volumes:
@@ -19,7 +19,7 @@ services:
   grafana:
     image: grafana/grafana:latest-ubuntu
     ports:
-      - 3000:3000
+      - 13000:3000
     user: "${UID}:${GID}"
     volumes:
       - ./grafana_unprotected.ini:/etc/grafana/grafana.ini
@@ -31,10 +31,10 @@ services:
   elasticsearch:
     image: elasticsearch:7.12.1
     ports:
-      - 9200:9200
-      - 9300:9300
+      - 19200:9200
+      - 19300:9300
     environment:
-        discovery.type:single-node
+      discovery.type: single-node
     # Note that we are not persisting the data outside of the container.
     # This is not a great long-term solution for ElasticSearch because
     # but it's fine for testing the Clockwork code.
@@ -42,7 +42,7 @@ services:
   mongodb:
     image: mongo
     ports:
-      - 27017:27017
+      - 37017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -60,25 +60,23 @@ services:
 #          - ssh copy over the executable on the cluster
 #          - run the cluster monitor forever
 
-  web_server:
-    image: python:3.9-alpine
+  clockwork_web:
+    image: python:3.9-buster
     ports:
-      # Any exterior port works, but let's pick 5600 to make it more unique
+      # Any exterior port works, but let's pick 15000 to make it more unique
       # and avoid some potential conflicts with other Flask servers on the host.
       # At the same time, let's keep 5000 for services running inside the
       # container to make it more predictible.
-      - 5600:5000
+      - 15000:5000
     working_dir: /clockwork
     volumes:
       - ../web_server:/clockwork/web_server
-    command: sh /clockwork/entrypoint_inside_container.sh
+      - ./entrypoint_inside_clockwork_web_container.sh:/clockwork/entrypoint_inside_clockwork_web_container.sh
+    command: bash /clockwork/entrypoint_inside_clockwork_web_container.sh
+    # command: bash -c "sleep 43897423"
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      CLOCKWORK_TASK: ${CLOCKWORK_TASK}
 
-  # scraper_mila:
-  #   image: python3.7 # find correct  
-  #   volumes:
-  #     - ${SCRAPER_SSH_RSA_PUBLIC_KEY_PATH}:/root/.ssh/id_rsa.pub
-  #     - ${SCRAPER_SSH_RSA_PRIVATE_KEY_PATH}:/root/.ssh/id_rsa
-  #   command: sh -c "yarn install && yarn run dev"
+# TODO : This    CLOCKWORK_TASK: ${CLOCKWORK_TASK}    will go elsewhere as well.
