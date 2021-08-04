@@ -6,3 +6,5 @@ Flask-Login
 pymongo
 dnspython
 numpy
+
+pytest
