@@ -1,4 +1,6 @@
 
+# TODO : This file has been abandoned for a while. Don't expect this to make sense.
+
 from mongo_client import get_mongo_client
 
 def get_nodes(find_filter:dict={}):

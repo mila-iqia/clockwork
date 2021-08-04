@@ -10,7 +10,7 @@ That leads here, to this file, which is just a barebone launcher.
 """
 
 import os
-from server_app import create_app
+from .server_app import create_app
 
 """
 By default, we require only environment variable "MONGODB_CONNECTION_STRING"

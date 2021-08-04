@@ -13,10 +13,10 @@ from flask_login import (
 
 import pytest
 
-
-from server_app import create_app
-from db import get_db, init_db
-from user import User
+import clockwork_web
+from clockwork_web.server_app import create_app
+from clockwork_web.db import get_db, init_db
+from clockwork_web.user import User
 
 assert "MONGODB_CONNECTION_STRING" in os.environ, (
     "Error. Cannot proceed when missing the value of MONGODB_CONNECTION_STRING from environment.\n"

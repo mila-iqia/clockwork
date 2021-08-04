@@ -30,7 +30,7 @@ from flask import Blueprint
 flask_api = Blueprint('jobs', __name__)
 
 # from web_server import jobs_routes_helper
-from jobs_routes_helper import (
+from .jobs_routes_helper import (
     strip_artificial_fields_from_job,
     get_job_state_totals,
     get_mongodb_filter_from_query_filter,

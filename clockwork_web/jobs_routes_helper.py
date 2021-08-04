@@ -6,7 +6,7 @@ This file contains a lot of arbitrary decisions that could change in the future.
 import time
 
 from flask.globals import current_app
-from db import get_db
+from .db import get_db
 
 
 def get_mongodb_filter_from_query_filter(query_filter):
