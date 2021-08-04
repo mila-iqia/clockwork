@@ -3,9 +3,9 @@ from flask_login import UserMixin
 
 import numpy as np  # used to generate random `clockwork_api_key` for users
 
-import sys, traceback  # debugging
+# import sys, traceback  # debugging
 
-from db import get_db
+from .db import get_db
 
 class User(UserMixin):
     """
@@ -33,7 +33,6 @@ class User(UserMixin):
         return True
     def is_active(self):
         return self.status == "enabled"
-
 
     @staticmethod
     def get(id:str):

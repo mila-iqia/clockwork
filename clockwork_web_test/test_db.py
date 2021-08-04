@@ -2,7 +2,7 @@
 from flask import current_app
 
 import pytest
-from db import get_db, init_db
+from clockwork_web.db import get_db, init_db
 
 def test_insert_and_retrieve(app):
     with app.app_context():

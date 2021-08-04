@@ -70,7 +70,8 @@ services:
       - 15000:5000
     working_dir: /clockwork
     volumes:
-      - ../web_server:/clockwork/web_server
+      - ../clockwork_web:/clockwork/clockwork_web
+      - ../clockwork_web_test:/clockwork/clockwork_web_test
       - ./entrypoint_inside_clockwork_web_container.sh:/clockwork/entrypoint_inside_clockwork_web_container.sh
     command: bash /clockwork/entrypoint_inside_clockwork_web_container.sh
     # command: bash -c "sleep 43897423"

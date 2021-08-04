@@ -25,7 +25,7 @@ from flask_login import (
     logout_user,
 )
 
-from user import User
+from .user import User
 
 
 # Configuration

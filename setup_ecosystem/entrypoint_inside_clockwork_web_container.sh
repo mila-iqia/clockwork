@@ -1,25 +1,32 @@
 #!/bin/sh
 
-# TL;DR: This is run from Docker compose. You don't run this manually.
+# Warning: This is run from within Docker compose. You don't run this manually.
+#          It does not itself launch the container.
 
 
-# This script is made to be launched from within a Docker container,
-# presumably one without all the libraries installed or the paths configured.
-# It does not itself launch the container.
+# You are going to run with the current filesystem layout inside the Docker container:
 #
-# For example, it should be running from "/clockwork/entrypoint_inside_clockwork_web_container.sh".
+#   /clockwork/entrypoint_inside_clockwork_web_container.sh
+#   /clockwork/clockwork_web
+#   /clockwork/clockwork_web_test
+#
 
+export CLOCKWORK_ROOT="/clockwork"
 
-# Not necessary because we'll be running from that directory.
-# export PYTHONPATH=${PYTHONPATH}:"/clockwork"
+export PYTHONPATH=${PYTHONPATH}:${CLOCKWORK_ROOT}
+cd ${CLOCKWORK_ROOT}
 
-cd /clockwork/web_server
 python3 -m pip install --upgrade pip
-python3 -m pip install -r requirements.txt
+
+python3 -m pip install -r ${CLOCKWORK_ROOT}/clockwork_web/requirements.txt
+# do that for any other packages that we'll have in there
+# python3 -m pip install -r ${CLOCKWORK_ROOT}/clockwork_web/requirements.txt
 
 export FLASK_RUN_PORT=5000
 export FLASK_DEBUG=1
-export FLASK_APP=main.py
+
+export FLASK_APP=clockwork_web.main:app
+# export FLASK_APP=main.py
 
 # Note that, with the way that things are set up, when
 # you end up here with Docker Compose, you should have
@@ -43,7 +50,7 @@ if [ ${CLOCKWORK_TASK} = "clockwork_run_web_unit_tests" ]; then
     # This is sufficient to disable the @login_required,
     # but also to enable the /login/fake_user route.
     export LOGIN_DISABLED=True
-    cd /clockwork/web_server
+    cd ${CLOCKWORK_ROOT}/clockwork_web_test
     pytest
 elif [ ${CLOCKWORK_TASK} = "clockwork_run_web_development" ]; then
     # This is sufficient to disable the @login_required,

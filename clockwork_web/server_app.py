@@ -2,7 +2,7 @@
 
 export FLASK_RUN_PORT=5555
 export FLASK_DEBUG=1
-export FLASK_APP=main_http_server.py
+export FLASK_APP=main.py
 
 # if I didn't use `python3` directly, flask would use the wrong python interpreter
 
@@ -19,11 +19,11 @@ from flask_login import (
     current_user,
     LoginManager
 )
-# import nodes_routes
-import jobs_routes
-import settings_routes
-import login_routes
-from user import User
+# import .nodes_routes
+from .jobs_routes import flask_api as jobs_routes_flask_api
+from .settings_routes import flask_api as settings_routes_flask_api
+from .login_routes import flask_api as login_routes_flask_api
+from .user import User
 
 
 def create_app(extra_config:dict):
@@ -34,13 +34,13 @@ def create_app(extra_config:dict):
         app.config[k] = v
 
     # app.register_blueprint(nodes_routes.flask_api, url_prefix="/nodes")
-    app.register_blueprint(jobs_routes.flask_api, url_prefix="/jobs")
-    app.register_blueprint(settings_routes.flask_api, url_prefix="/settings")
+    app.register_blueprint(jobs_routes_flask_api, url_prefix="/jobs")
+    app.register_blueprint(settings_routes_flask_api, url_prefix="/settings")
 
     # TODO : Maybe you can add the /login stuff from Google OAuth
     #        just like a blueprint being registered?
     #        It would be the first time I did this.
-    app.register_blueprint(login_routes.flask_api, url_prefix="/login")
+    app.register_blueprint(login_routes_flask_api, url_prefix="/login")
 
     # User session management setup
     # https://flask-login.readthedocs.io/en/latest
