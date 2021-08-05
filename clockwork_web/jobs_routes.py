@@ -80,7 +80,13 @@ def route_single_job_p_job_id(job_id):
     # let's sort alphabetically by keys
     LP_single_job = list(sorted(D_job.items(), key=lambda e: e[0]))
 
-    mila_email_username = current_user.email.split("@")[0]
+    # When running tests against routes protected by login (under normal circumstances),
+    # `current_user` is not specified, so retrieving the email would lead to errors.
+    if hasattr(current_user, "email"):
+        mila_email_username = current_user.email.split("@")[0]
+    else:
+        mila_email_username = None
+
     return render_template("single_job.html",
                             LP_single_job=LP_single_job,
                             job_id=job_id,

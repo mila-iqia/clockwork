@@ -5,6 +5,11 @@ import pytest
 from clockwork_web.db import get_db, init_db
 
 def test_insert_and_retrieve(app):
+    """
+    This tests the connection to the database,
+    but not the functionality of the web server.
+    """
+
     with app.app_context():
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
 

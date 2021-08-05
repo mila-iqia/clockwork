@@ -14,7 +14,12 @@ export MONGO_INITDB_ROOT_PASSWORD="secret_password_okay"
 # export CLOCKWORK_TASK="clockwork_run_web_development"
 export CLOCKWORK_TASK="clockwork_run_web_unit_tests"
 
-docker-compose up -d
+# you really need only those two pieces to test with fake data
+docker-compose up -d clockwork_web mongodb
+
+docker-compose logs -f clockwork_web
+docker-compose down
+
 ```
 
 ## Different tasks
