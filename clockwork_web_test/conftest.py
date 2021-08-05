@@ -79,7 +79,8 @@ def user(app):
         user_desc = {"id": "135798713318272451447",
                     "name": "test",
                     "email": "test@mila.quebec",
-                    "profile_pic": ""}
+                    "profile_pic": "",
+                    "clockwork_api_key": "000aaa"}
         user = User.get(user_desc["id"])
         # Doesn't exist? Add to database.
         if not user:

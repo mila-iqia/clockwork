@@ -9,6 +9,9 @@ This seems like a good source of inspiration:
 The code for client.post(...) is from this amazing source:
     https://stackoverflow.com/questions/45703591/how-to-send-post-data-to-flask-using-pytest-flask
 
+
+Lots of details about these tests depend on the particular values that we put in "fake_data.json".
+
 """
 
 import json
