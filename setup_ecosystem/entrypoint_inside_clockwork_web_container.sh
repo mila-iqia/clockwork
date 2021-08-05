@@ -38,7 +38,7 @@ export FLASK_APP=clockwork_web.main:app
 # is the name of the host under Docker Compose.
 # It seems that Docker Compose files refer to the addresses
 # of services that way.
-export MONGODB_CONNECTION_STRING="mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@deepgroove.local:27017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false"
+export MONGODB_CONNECTION_STRING="mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false"
 export MONGODB_DATABASE_NAME="clockwork"
 
 # Environment variable that will decide whether we're going to run

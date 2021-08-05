@@ -10,6 +10,8 @@ export GID=$(id -g ${USER})
 
 export MONGO_INITDB_ROOT_USERNAME="mongoadmin"
 export MONGO_INITDB_ROOT_PASSWORD="secret_password_okay"
+# maybe add the port as environment variable, and then also modify the bit of code
+# responsible for generating the connection string
 
 # export CLOCKWORK_TASK="clockwork_run_web_development"
 export CLOCKWORK_TASK="clockwork_run_web_unit_tests"
