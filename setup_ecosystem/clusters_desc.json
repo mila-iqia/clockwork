@@ -1,0 +1,65 @@
+{
+    "beluga":
+        {"name": "beluga",
+        "cmd" : "module load python/3.8.2; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ",
+        "hostname": "beluga.computecanada.ca",
+        "username": "alaingui",
+        "port": 22,
+        "slurm_login_nodes": [ ],
+        "slurm_partitions": [
+            "cpularge_bycore_b4", "cpubase_bycore_b2", "gpubackfill", "cpubase_bycore_b4",
+            "cpularge_bynode_b3", "cpubase_bycore_b1", "cpularge_bynode_b2", "cpularge_bycore_b1",
+            "gpubase_bygpu_b2", "gpubase_bygpu_b3", "cpularge_interac", "cpubase_bynode_b5",
+            "cpularge_bynode_b5", "cpularge_bynode_b4", "gpubase_bynode_b1", "cpularge_bycore_b2",
+            "c-gput4", "cpubase_bynode_b1", "gpubase_bygpu_b4", "cpubase_bynode_b2", "cpubase_bynode_b3",
+            "cpularge_bynode_b1", "gpubase_bynode_b4", "gpubase_bynode_b5", "c-slarge", "gpubase_bygpu_b5",
+            "cpubase_bycore_b5", "cpularge_bycore_b3", "gpubase_bynode_b3", "gpubase_bynode_b2",
+            "cpubase_bycore_b3", "cpubackfill", "gpubase_interac", "cpubase_bynode_b4", "cpularge_bycore_b5",
+            "gpubase_bygpu_b1", "c-dragen", "cpubase_interac"],
+        "slurm_ignore_partitions": []
+        },
+    "mila":
+        {"name": "mila",
+        "cmd" : "source ${HOME}/Documents/code/venv38/bin/activate; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ",
+        "hostname": "login.server.mila.quebec",
+        "username": "alaingui",
+        "port": 2222,
+        "slurm_login_nodes": [ "login-1", "login-2", "login-3", "login-4"],
+        "slurm_partitions": ["debug", "long", "cpu_jobs_low-grace", "unkillable", "short-unkillable", "main", "long-grace", "cpu_jobs_low", "cpu_jobs", "main-grace"],
+        "slurm_ignore_partitions":
+            ["gcpDebug", "cloud_tpux1Cloud", "gcpDevCPUCloud", "gcpMicroMemCPUCloud",
+            "gcpMiniMemCPUCloud", "gcpComputeCPUCloud", "gcpGeneralCPUCloud", "gcpMemoryCPUCloud",
+            "gcpV100x1Cloud", "gcpV100Xx1Cloud", "gcpV100x2Cloud", "gcpV100x4Cloud", "gcpK80x1Cloud",
+            "gcpK80Xx1Cloud", "gcpK80x2Cloud", "gcpK80x4Cloud"]
+        },
+    "graham":
+        {"name": "graham",
+        "cmd" : "module load python/3.6.10; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ",
+        "hostname": "graham.computecanada.ca",
+        "username": "alaingui",
+        "port": 22,
+        "slurm_login_nodes": [ ],
+        "slurm_partitions": [
+            "cpularge_bycore_b4", "cpubase_bycore_b2", "cpularge_bynode_b6", "cpularge_bynode_b3",
+            "cpubase_bycore_b4", "gpubackfill", "cpubase_bycore_b1", "cpularge_bynode_b2",
+            "cpularge_bycore_b1", "c-gwtaylor", "gpubase_bygpu_b2", "cpularge_interac",
+            "gpubase_bygpu_b3", "cpubase_bynode_b5", "cpularge_bynode_b5", "cpubase_bynode_b6",
+            "cpularge_bynode_b4", "gpubase_bynode_b1", "cpularge_bycore_b2", "cpubase_bynode_b1",
+            "gpubase_bygpu_b4", "cpubase_bynode_b3", "cpubase_bynode_b2", "cpularge_bynode_b1",
+            "cpularge_bycore_b6", "gpubase_bynode_b4", "gpubase_bynode_b5", "cpubase_bycore_b5",
+            "gpubase_bygpu_b5", "cpularge_bycore_b3", "c-rubel", "gpubase_bynode_b3", "gpubase_bynode_b2",
+            "cpubase_bycore_b3", "cpubackfill", "gpubase_bygpu_b6", "cpubase_bynode_b4", "cpubase_bycore_b6",
+            "cpularge_bycore_b5", "gpubase_bynode_b6", "gpubase_bygpu_b1", "gpubase_interac", "cpubase_interac"],
+        "slurm_ignore_partitions": []
+        },
+    "cedar": 
+        {"name": "cedar",
+        "cmd" : "module load python/3.6.10; python3 ${HOME}/bin/on_site_sinfo_and_sacct_scraper.py",
+        "hostname": "cedar.computecanada.ca",
+        "username": "alaingui",
+        "port": 22,
+        "slurm_login_nodes": [ ],
+        "slurm_partitions": [],
+        "slurm_ignore_partitions": []
+        }
+}
