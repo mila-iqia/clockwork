@@ -19,14 +19,11 @@ cd ${CLOCKWORK_ROOT}
 python3 -m pip install --upgrade pip
 
 python3 -m pip install -r ${CLOCKWORK_ROOT}/clockwork_web/requirements.txt
-# do that for any other packages that we'll have in there
-# python3 -m pip install -r ${CLOCKWORK_ROOT}/clockwork_web/requirements.txt
-
-export FLASK_RUN_PORT=5000
-export FLASK_DEBUG=1
+python3 -m pip install -r ${CLOCKWORK_ROOT}/clockwork_web_test/requirements.txt
+python3 -m pip install -r ${CLOCKWORK_ROOT}/mila_tools/requirements.txt
+python3 -m pip install -r ${CLOCKWORK_ROOT}/mila_tools_test/requirements.txt
 
 export FLASK_APP=clockwork_web.main:app
-# export FLASK_APP=main.py
 
 # Note that, with the way that things are set up, when
 # you end up here with Docker Compose, you should have
@@ -44,15 +41,26 @@ export MONGODB_DATABASE_NAME="clockwork"
 # Environment variable that will decide whether we're going to run
 # the tests or run in development mode.
 # We'll give it a default value to run only the unit tests.
-# export CLOCKWORK_TASK=${CLOCKWORK_TASK:-"clockwork_run_web_unit_tests"}
+# export CLOCKWORK_TASK=${CLOCKWORK_TASK:-"clockwork_run_web_test"}
 
-if [ ${CLOCKWORK_TASK} = "clockwork_run_web_unit_tests" ]; then
+if [ ${CLOCKWORK_TASK} = "clockwork_run_web_test" ]; then
     # This is sufficient to disable the @login_required,
     # but also to enable the /login/fake_user route.
     export LOGIN_DISABLED=True
     cd ${CLOCKWORK_ROOT}/clockwork_web_test
     pytest
+elif [ ${CLOCKWORK_TASK} = "clockwork_run_mila_tools_test" ]; then
+    export FLASK_DEBUG=1
+    # This is sufficient to disable the @login_required,
+    # but also to enable the /login/fake_user route.
+    export LOGIN_DISABLED=True
+    # note the "TEST_" being removed
+    export MILA_TOOLS_EMAIL=${MILA_TOOLS_TEST_EMAIL}
+    export MILA_TOOLS_API_KEY=${MILA_TOOLS_TEST_API_KEY}
+    cd ${CLOCKWORK_ROOT}/mila_tools_test
+    pytest
 elif [ ${CLOCKWORK_TASK} = "clockwork_run_web_development" ]; then
+    export FLASK_DEBUG=1
     # This is sufficient to disable the @login_required,
     # but also to enable the /login/fake_user route.
     export LOGIN_DISABLED=True
@@ -63,6 +71,7 @@ elif [ ${CLOCKWORK_TASK} = "clockwork_run_web_production" ]; then
     #        in that rabbit hole right now.
     #        We can't test it without DNS, TLS, nginx setup anyway.
     echo "CLOCKWORK_TASK 'clockwork_run_web_production' not currently implemented."
+    export FLASK_DEBUG=0  # is this how it works or should I unset it?
 fi
 
 

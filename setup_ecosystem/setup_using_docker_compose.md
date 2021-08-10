@@ -13,8 +13,16 @@ export MONGO_INITDB_ROOT_PASSWORD="secret_password_okay"
 # maybe add the port as environment variable, and then also modify the bit of code
 # responsible for generating the connection string
 
+export MILA_TOOLS_TEST_EMAIL="mario@mila.quebec"
+export MILA_TOOLS_TEST_API_KEY="mario"
+
 # export CLOCKWORK_TASK="clockwork_run_web_development"
-export CLOCKWORK_TASK="clockwork_run_web_unit_tests"
+# export CLOCKWORK_TASK="clockwork_run_web_test"
+export CLOCKWORK_TASK="clockwork_run_mila_tools_test"
+
+
+export FLASK_RUN_PORT=5000  # inside container
+export EXTERNAL_FLASK_RUN_PORT=15000  # port outside container
 
 # you really need only those two pieces to test with fake data
 docker-compose up -d clockwork_web mongodb
@@ -37,7 +45,7 @@ This is done by setting an environment variable CLOCKWORK_TASK.
 # but no real data nor any scraping. This terminates after running
 # the tests and does not stay up to serve more HTTP requests.
 # The web server is in debug mode and logins are disabled.
-export CLOCKWORK_TASK="clockwork_run_web_unit_tests"
+export CLOCKWORK_TASK="clockwork_run_web_test"
 
 # Starts the web server in debug mode and logins are disabled.
 # This is for development.
