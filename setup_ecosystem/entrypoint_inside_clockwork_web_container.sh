@@ -47,6 +47,8 @@ if [ ${CLOCKWORK_TASK} = "clockwork_run_web_test" ]; then
     # This is sufficient to disable the @login_required,
     # but also to enable the /login/fake_user route.
     export LOGIN_DISABLED=True
+    # These tests are run without instantiating the web server
+    # as a separate program.
     cd ${CLOCKWORK_ROOT}/clockwork_web_test
     pytest
 elif [ ${CLOCKWORK_TASK} = "clockwork_run_mila_tools_test" ]; then
@@ -54,9 +56,14 @@ elif [ ${CLOCKWORK_TASK} = "clockwork_run_mila_tools_test" ]; then
     # This is sufficient to disable the @login_required,
     # but also to enable the /login/fake_user route.
     export LOGIN_DISABLED=True
+    # Gotta start the server if you expect to run tests
+    # with your tools interacting with it.
+    python3 -m flask run --host=0.0.0.0 &
+    sleep 2
+
     # note the "TEST_" being removed
     export MILA_TOOLS_EMAIL=${MILA_TOOLS_TEST_EMAIL}
-    export MILA_TOOLS_API_KEY=${MILA_TOOLS_TEST_API_KEY}
+    export MILA_TOOLS_API_KEY=${MILA_TOOLS_TEST_CLOCKWORK_API_KEY}
     cd ${CLOCKWORK_ROOT}/mila_tools_test
     pytest
 elif [ ${CLOCKWORK_TASK} = "clockwork_run_web_development" ]; then
