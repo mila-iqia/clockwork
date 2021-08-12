@@ -69,7 +69,7 @@ def _split_header_authorization_value(s:str) -> dict:
     Returns a dict if successful, and `None` otherwise.
     """
     # Caret for beginning, dollar for ending.
-    if m := re.match("^Basic\s+(.*?)$", s):
+    if m := re.match(r"^Basic\s+(.*?)$", s):
         decoded_bytes = base64.b64decode(m.group(1))
         decoded_s = str(decoded_bytes, "utf-8")
     else:
@@ -77,7 +77,7 @@ def _split_header_authorization_value(s:str) -> dict:
 
     # Here "decoded_s" should be something like "guillaume.alain@mila.quebec:98rjfjksdfkjsdh".
 
-    if m := re.match("^(.*):(.*)$", decoded_s):
+    if m := re.match(r"^(.*):(.*)$", decoded_s):
         email = m.group(1)
         clockwork_api_key = m.group(2)
         return {'email': email, 'clockwork_api_key': clockwork_api_key}

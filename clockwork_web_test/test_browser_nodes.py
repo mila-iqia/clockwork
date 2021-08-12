@@ -24,10 +24,7 @@ def test_nodes(client, fake_data: dict[list[dict]]):
     Note that the `client` fixture depends on other fixtures that
     are going to put the fake data in the database for us.
     """
-    # This test fails if you leave out the trailing "/" because you hit
-    # the rediction page, and while the browser will follow that automatically,
-    # this request in the test won't do it. Use "/nodes/" and not "/nodes".
-    response = client.get("/nodes/")
+    response = client.get("/nodes/list")
     for D_node in fake_data['nodes']:
         assert D_node['name'].encode('utf-8') in response.data
 
@@ -42,7 +39,7 @@ def test_nodes_with_filter(client, fake_data: dict[list[dict]], cluster_name):
 
     # Yes, "sephiroth" is a fake cluster name. There are no entries in the data for it.
 
-    response = client.get(f"/nodes/?cluster_name={cluster_name}")
+    response = client.get(f"/nodes/list?cluster_name={cluster_name}")
     for D_node in fake_data['nodes']:
         if D_node["cluster_name"] == cluster_name:
             assert D_node['name'].encode('utf-8') in response.data

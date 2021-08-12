@@ -20,7 +20,8 @@ from flask_login import (
     LoginManager
 )
 from .browser_routes.nodes import flask_api as nodes_routes_flask_api
-from .jobs_routes import flask_api as jobs_routes_flask_api  # TODO: this will be updated as well with new pattern
+from .browser_routes.jobs import flask_api as jobs_routes_flask_api
+# from .jobs_routes import flask_api as jobs_routes_flask_api  # TODO: this will be updated as well with new pattern
 from .settings_routes import flask_api as settings_routes_flask_api
 from .login_routes import flask_api as login_routes_flask_api
 from .user import User

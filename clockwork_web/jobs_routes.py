@@ -37,66 +37,7 @@ from .jobs_routes_helper import (
     get_jobs,
     infer_best_guess_for_username)
 
-@flask_api.route('/')
-@login_required
-def route_index():
-    return redirect("list")
 
-
-# @flask_api.route('/list/', defaults={'mila_user_account': None})
-# @flask_api.route('/list/<mila_user_account>')
-@flask_api.route('/list')
-@login_required
-def route_list():
-    """
-    This is the main route that's going to be used.
-    """
-    # We can work some other time at adding the back the username argument.
-    # This could be set as the default value in the option box in jobs.html.
-    # Let's leave it out for now.
-
-    # When running tests against routes protected by login (under normal circumstances),
-    # `current_user` is not specified, so retrieving the email would lead to errors.
-    if hasattr(current_user, "email"):
-        mila_email_username = current_user.email.split("@")[0]
-    else:
-        mila_email_username = None
-
-    return render_template("jobs.html", mila_email_username=mila_email_username)
-
-
-@flask_api.route('/single_job/<job_id>')
-@login_required
-def route_single_job_p_job_id(job_id):
-
-    m = re.match(r"^[\d]+$", job_id)
-    if not m:
-        return render_template("error.html", error_msg="job_id contains invalid characters")
-
-    LD_jobs = get_jobs({'job_id': int(job_id)})
-
-    if len(LD_jobs) == 0:
-        return render_template("error.html", error_msg=f"Found no job with job_id {job_id}.")
-    if len(LD_jobs) > 1:
-        return render_template("error.html", error_msg=f"Found {len(LD_jobs)} jobs with job_id {job_id}. Not sure what to do about these cases.")
-
-    D_job = strip_artificial_fields_from_job(LD_jobs[0])
-    D_job = infer_best_guess_for_username(D_job)
-
-    # let's sort alphabetically by keys
-    LP_single_job = list(sorted(D_job.items(), key=lambda e: e[0]))
-
-    # When running tests against routes protected by login (under normal circumstances),
-    # `current_user` is not specified, so retrieving the email would lead to errors.
-    if hasattr(current_user, "email"):
-        mila_email_username = current_user.email.split("@")[0]
-    else:
-        mila_email_username = None
-
-    return render_template("single_job.html",
-                            LP_single_job=LP_single_job,
-                            job_id=job_id,
-                            mila_email_username=mila_email_username)
 
 
 @flask_api.route('/api/list', methods=['POST'])

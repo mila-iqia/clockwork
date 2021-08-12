@@ -30,20 +30,15 @@ from flask import Blueprint
 flask_api = Blueprint('nodes', __name__)
 
 from clockwork_web.core.nodes_helper import get_nodes
-from clockwork_web.core.common import get_filter_from_request_args
+from clockwork_web.core.common import get_filter_from_request_args, get_mila_email_username
 
-def get_mila_email_username():
-    # When running tests against routes protected by login (under normal circumstances),
-    # `current_user` is not specified, so retrieving the email would lead to errors.
-    if hasattr(current_user, "email"):
-        return current_user.email.split("@")[0]
-    else:
-        return None
+# Note that flask_api.route('/') will lead to a redirection with "/nodes", and pytest might not like that.
 
 
-@flask_api.route('/')
+
+@flask_api.route('/list')
 @login_required
-def route_index():
+def route_list():
     """
     Can take optional args "cluster_name" and "name",
     where "name" refers to the host name.
@@ -51,3 +46,7 @@ def route_index():
     filter = get_filter_from_request_args(["cluster_name", "name"])
     LD_nodes = get_nodes(filter)
     return render_template("nodes.html", LD_nodes=LD_nodes, mila_email_username=get_mila_email_username())
+
+# @flask_api.route('/one')
+# @login_required
+# def route_list():
