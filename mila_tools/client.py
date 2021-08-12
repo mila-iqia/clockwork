@@ -47,17 +47,27 @@ class MilaTools:
     # For endpoints requiring `params` you'll pass the correct ones by specific arguments
     # to this function. This should help documenting expectations.
     def jobs_list(self):
+        # TODO : Add arguments here.
         endpoint = "api/v1/clusters/jobs/list"
         params = {}
         return self._request(endpoint, params)
 
-    def jobs_single_job(self, cluster_name, job_id):
-        # TODO : I don't think that's implemented on the Flask server at the moment.
-        endpoint = "api/v1/clusters/jobs/list"
-        params = {"cluster_name": cluster_name, "job_id": job_id}
-        return self._request(endpoint, params)
+    # def jobs_single_job(self, cluster_name, job_id):
+    #     # TODO : I don't think that's implemented on the Flask server at the moment.
+    #     endpoint = "api/v1/clusters/jobs/list"
+    #     params = {"cluster_name": cluster_name, "job_id": job_id}
+    #     return self._request(endpoint, params)
 
-    def nodes_list(self):
+    def nodes_list(self, cluster_name=None):
         endpoint = "api/v1/clusters/nodes/list"
         params = {}
+        if cluster_name is not None:
+            params["cluster_name"] = cluster_name
+        return self._request(endpoint, params)
+
+    def nodes_one(self, name=None):
+        endpoint = "api/v1/clusters/nodes/one"
+        params = {}
+        if name is not None:
+            params["name"] = name
         return self._request(endpoint, params)
