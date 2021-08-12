@@ -38,11 +38,11 @@ class MilaTools:
         complete_address = f"{self.complete_base_address}{middle_slash}{endpoint}"
         response = requests.get(complete_address, params=params, headers=self._get_headers())
         print(response)
-        # TODO : Check code instead and raise exception if it's the wrong one.
+        # Check code instead and raise exception if it's the wrong one.
         if response.status_code == 200:
             return response.json()
         else:
-            return None
+            raise Exception(f"Server rejected call with code {response.status_code}. {response.json()}")
 
     # For endpoints requiring `params` you'll pass the correct ones by specific arguments
     # to this function. This should help documenting expectations.
@@ -55,4 +55,9 @@ class MilaTools:
         # TODO : I don't think that's implemented on the Flask server at the moment.
         endpoint = "api/v1/clusters/jobs/list"
         params = {"cluster_name": cluster_name, "job_id": job_id}
+        return self._request(endpoint, params)
+
+    def nodes_list(self):
+        endpoint = "api/v1/clusters/nodes/list"
+        params = {}
         return self._request(endpoint, params)
