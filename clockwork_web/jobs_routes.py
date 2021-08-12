@@ -55,7 +55,13 @@ def route_list():
     # This could be set as the default value in the option box in jobs.html.
     # Let's leave it out for now.
 
-    mila_email_username = current_user.email.split("@")[0]
+    # When running tests against routes protected by login (under normal circumstances),
+    # `current_user` is not specified, so retrieving the email would lead to errors.
+    if hasattr(current_user, "email"):
+        mila_email_username = current_user.email.split("@")[0]
+    else:
+        mila_email_username = None
+
     return render_template("jobs.html", mila_email_username=mila_email_username)
 
 

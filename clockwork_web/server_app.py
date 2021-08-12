@@ -25,6 +25,7 @@ from .settings_routes import flask_api as settings_routes_flask_api
 from .login_routes import flask_api as login_routes_flask_api
 from .user import User
 from .rest_routes.jobs import flask_api as rest_jobs_flask_api
+from .rest_routes.nodes import flask_api as rest_nodes_flask_api
 
 def create_app(extra_config:dict):
     app = Flask(__name__)
@@ -44,6 +45,7 @@ def create_app(extra_config:dict):
 
     # TODO : See if you should include the "/jobs" part here or have it in the rest_routes/jobs.py file.
     app.register_blueprint(rest_jobs_flask_api, url_prefix="/api/v1/clusters")
+    app.register_blueprint(rest_nodes_flask_api, url_prefix="/api/v1/clusters")
     
 
 
