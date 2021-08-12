@@ -43,5 +43,18 @@ def get_mila_email_username():
 @flask_api.route('/')
 @login_required
 def route_index():
-    LD_nodes = get_nodes()
+    """
+    Can take optional args "cluster_name" and "name",
+    where "name" refers to the host name.
+    """
+
+    keys_for_filter = ["cluster_name", "name"]
+    
+    filter = {}
+    for k in keys_for_filter:
+        v = request.args.get(k, None)
+        if v is not None:
+            filter[k] = v
+
+    LD_nodes = get_nodes(filter)
     return render_template("nodes.html", LD_nodes=LD_nodes, mila_email_username=get_mila_email_username())

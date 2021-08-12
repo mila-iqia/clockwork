@@ -19,8 +19,8 @@ from flask_login import (
     current_user,
     LoginManager
 )
-# import .nodes_routes
-from .jobs_routes import flask_api as jobs_routes_flask_api
+from .browser_routes.nodes import flask_api as nodes_routes_flask_api
+from .jobs_routes import flask_api as jobs_routes_flask_api  # TODO: this will be updated as well with new pattern
 from .settings_routes import flask_api as settings_routes_flask_api
 from .login_routes import flask_api as login_routes_flask_api
 from .user import User
@@ -34,7 +34,7 @@ def create_app(extra_config:dict):
     for (k, v) in extra_config.items():
         app.config[k] = v
 
-    # app.register_blueprint(nodes_routes.flask_api, url_prefix="/nodes")
+    app.register_blueprint(nodes_routes_flask_api, url_prefix="/nodes")
     app.register_blueprint(jobs_routes_flask_api, url_prefix="/jobs")
     app.register_blueprint(settings_routes_flask_api, url_prefix="/settings")
 

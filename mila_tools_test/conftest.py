@@ -8,7 +8,10 @@ import mila_tools
 import mila_tools.client
 
 from clockwork_web.db import get_db, init_db
-from clockwork_web_test.conftest import populate_fake_data
+from clockwork_web_test.conftest import populate_fake_data, fake_data
+
+# It would appear that it's quite possible to import a fixture like `fake_data` from another module.
+# This is done to overcome some of the clumsyness of having "fake_data.json" live elsewhere.
 
 @pytest.fixture
 def config():
@@ -23,8 +26,6 @@ def config():
     for (k, v) in config.items():
         assert v, (f"Missing value in environment for mila_tools configuration {k}.")
     return config
-
-
 
 @pytest.fixture
 def invalid_config_00():

@@ -109,6 +109,21 @@ def user(app):
     # logout_user(user)
 
 
+@pytest.fixture
+def fake_data():
+    """
+    The genius of having `fake_data` as fixture is that all those tests that depend
+    on verifying some fake data in the database can now be written in a way that
+    can adjust automatically to updates in the "fake_data.json" file.
+    """
+    json_file = os.path.join(   os.path.dirname(os.path.abspath(__file__)),
+                                "fake_data.json")
+    with open(json_file, "r") as f:
+        E = json.load(f)
+    return E
+
+
+
 
 def populate_fake_data(db_insertion_point, json_file=None):
     """
