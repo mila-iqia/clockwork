@@ -1,7 +1,11 @@
 version: "3.7"
 
-# You need to set the environment variables UID and GID
-# for this recipe to work.
+# TODO : Set up something a bit more civilized to build the Docker image for the main
+#        component without reinstalling all the python modules each time.
+#        https://stackoverflow.com/questions/65560269/how-can-docker-compose-be-used-to-build-dockerfiles
+
+
+# You need to set many environment variables for this to work.
 
 services:
   prometheus:
@@ -62,6 +66,10 @@ services:
 
   clockwork_web:
     image: python:3.9-buster
+    # user: "${UID}:${GID}"
+    #build:    # this "build:" was an attempt to refactor, and was put on the back burner for now
+    #  context: ..
+    #  dockerfile: clockwork_web0.Dockerfile     
     ports:
       # Any exterior port works, but let's pick 15000 to make it more unique
       # and avoid some potential conflicts with other Flask servers on the host.
@@ -75,8 +83,8 @@ services:
       - ../mila_tools:/clockwork/mila_tools
       - ../mila_tools_test:/clockwork/mila_tools_test
       - ./entrypoint_inside_clockwork_web_container.sh:/clockwork/entrypoint_inside_clockwork_web_container.sh
-    command: bash /clockwork/entrypoint_inside_clockwork_web_container.sh
-    # command: bash -c "sleep 43897423"
+    # command: bash /clockwork/entrypoint_inside_clockwork_web_container.sh
+    command: bash -c "sleep 43897423"
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -85,6 +93,6 @@ services:
       MILA_TOOLS_TEST_HOST: clockwork_web  # name of this very service
       MILA_TOOLS_TEST_PORT: ${FLASK_RUN_PORT}
       MILA_TOOLS_TEST_EMAIL: ${MILA_TOOLS_TEST_EMAIL}
-      MILA_TOOLS_TEST_API_KEY: ${MILA_TOOLS_TEST_API_KEY}
+      MILA_TOOLS_TEST_CLOCKWORK_API_KEY: ${MILA_TOOLS_TEST_CLOCKWORK_API_KEY}
 
 # TODO : This    CLOCKWORK_TASK: ${CLOCKWORK_TASK}    will go elsewhere as well.

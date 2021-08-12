@@ -14,7 +14,7 @@ export MONGO_INITDB_ROOT_PASSWORD="secret_password_okay"
 # responsible for generating the connection string
 
 export MILA_TOOLS_TEST_EMAIL="mario@mila.quebec"
-export MILA_TOOLS_TEST_API_KEY="mario"
+export MILA_TOOLS_TEST_CLOCKWORK_API_KEY="000aaa"
 
 # export CLOCKWORK_TASK="clockwork_run_web_development"
 # export CLOCKWORK_TASK="clockwork_run_web_test"
