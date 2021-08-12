@@ -2,6 +2,7 @@
 This is a special file that pytest will find first.
 """
 
+import base64
 import os
 import json
 from flask.globals import current_app
@@ -123,6 +124,12 @@ def fake_data():
     return E
 
 
+@pytest.fixture
+def valid_rest_auth_headers():      
+    s = f"{os.environ['MILA_TOOLS_TEST_EMAIL']}:{os.environ['MILA_TOOLS_TEST_CLOCKWORK_API_KEY']}"
+    encoded_bytes = base64.b64encode(s.encode("utf-8"))
+    encoded_s = str(encoded_bytes, "utf-8")
+    return {"Authorization": f"Basic {encoded_s}"}
 
 
 def populate_fake_data(db_insertion_point, json_file=None):
