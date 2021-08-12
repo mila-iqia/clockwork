@@ -30,6 +30,7 @@ from flask import Blueprint
 flask_api = Blueprint('nodes', __name__)
 
 from clockwork_web.core.nodes_helper import get_nodes
+from clockwork_web.core.common import get_filter_from_request_args
 
 def get_mila_email_username():
     # When running tests against routes protected by login (under normal circumstances),
@@ -47,14 +48,6 @@ def route_index():
     Can take optional args "cluster_name" and "name",
     where "name" refers to the host name.
     """
-
-    keys_for_filter = ["cluster_name", "name"]
-    
-    filter = {}
-    for k in keys_for_filter:
-        v = request.args.get(k, None)
-        if v is not None:
-            filter[k] = v
-
+    filter = get_filter_from_request_args(["cluster_name", "name"])
     LD_nodes = get_nodes(filter)
     return render_template("nodes.html", LD_nodes=LD_nodes, mila_email_username=get_mila_email_username())
