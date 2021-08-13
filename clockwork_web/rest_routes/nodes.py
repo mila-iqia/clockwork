@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, make_response
 from flask.json import jsonify
 from .authentication import authenticate_with_header_basic
 
@@ -18,9 +18,18 @@ def route_api_v1_nodes_list():
 
     D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
     if D_user is None:
-        return jsonify("Authorization error."), 401  # unauthorized
+        resp = jsonify("Authorization error.")
+        resp.status_code = 401  # unauthorized
+        return resp
 
-    return jsonify(get_nodes(filter)), 200
+    resp = jsonify(get_nodes(filter))
+    resp.status_code = 200
+    return resp
+
+    # return jsonify(get_nodes(filter))
+    # resp = make_response(jsonify(get_nodes(filter)), 200)  # success
+    # resp.headers['Content-Type'] = 'application/json'
+    # return resp
 
 
 @flask_api.route('/nodes/one')
@@ -34,6 +43,28 @@ def route_api_v1_nodes_one():
 
     D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
     if D_user is None:
-        return jsonify("Authorization error."), 401  # unauthorized
+        resp = jsonify("Authorization error.")
+        resp.status_code = 401  # unauthorized
+        return resp
 
-    return jsonify(get_nodes(filter)), 200
+    LD_nodes = get_nodes(filter)
+
+    if len(LD_nodes) == 0:
+        # Not a great when missing the value we want, but it's an acceptable answer.
+        resp = jsonify({})
+        resp.status_code = 200
+        return resp
+    if len(LD_nodes) > 1:
+        # This is not a situation that should even happen, and it's a sign of data corruption.
+        resp = jsonify(f"Found {len(LD_nodes)} nodes with filter {filter}. Not sure what to do about these cases.")
+        resp.status_code = 500  # server error
+        return resp
+
+    D_node = LD_nodes[0]
+
+    resp = jsonify(D_node)
+    resp.status_code = 200
+    return resp
+    # resp = make_response(jsonify(D_node), 200)  # success
+    # resp.headers['Content-Type'] = 'application/json'
+    # return resp

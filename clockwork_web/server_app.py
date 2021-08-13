@@ -22,7 +22,7 @@ from flask_login import (
 from .browser_routes.nodes import flask_api as nodes_routes_flask_api
 from .browser_routes.jobs import flask_api as jobs_routes_flask_api
 # from .jobs_routes import flask_api as jobs_routes_flask_api  # TODO: this will be updated as well with new pattern
-from .settings_routes import flask_api as settings_routes_flask_api
+from .browser_routes.settings import flask_api as settings_routes_flask_api
 from .login_routes import flask_api as login_routes_flask_api
 from .user import User
 from .rest_routes.jobs import flask_api as rest_jobs_flask_api
@@ -35,18 +35,14 @@ def create_app(extra_config:dict):
     for (k, v) in extra_config.items():
         app.config[k] = v
 
-    app.register_blueprint(nodes_routes_flask_api, url_prefix="/nodes")
-    app.register_blueprint(jobs_routes_flask_api, url_prefix="/jobs")
+    app.register_blueprint(nodes_routes_flask_api,    url_prefix="/nodes")
+    app.register_blueprint(jobs_routes_flask_api,     url_prefix="/jobs")
     app.register_blueprint(settings_routes_flask_api, url_prefix="/settings")
-
-    # TODO : Maybe you can add the /login stuff from Google OAuth
-    #        just like a blueprint being registered?
-    #        It would be the first time I did this.
-    app.register_blueprint(login_routes_flask_api, url_prefix="/login")
+    app.register_blueprint(login_routes_flask_api,    url_prefix="/login")
 
     # TODO : See if you should include the "/jobs" part here or have it in the rest_routes/jobs.py file.
-    app.register_blueprint(rest_jobs_flask_api, url_prefix="/api/v1/clusters")
-    app.register_blueprint(rest_nodes_flask_api, url_prefix="/api/v1/clusters")
+    app.register_blueprint(rest_jobs_flask_api,       url_prefix="/api/v1/clusters")
+    app.register_blueprint(rest_nodes_flask_api,      url_prefix="/api/v1/clusters")
     
 
 

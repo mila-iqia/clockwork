@@ -43,7 +43,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for D_job in LD_nodes %}
+                    {% for D_job in LD_jobs %}
                     <tr>
                         <td>{{D_job['cluster_name']}}</td>
                         <td>{{D_job['best_guess_for_username']}}</td>
@@ -52,8 +52,8 @@
                         </td>
                         <td>{{D_job.get("name", "")[0:20]}}</td>
                         <td>{{D_job["job_state"]}}</td>
-                        <td>{{D_job["start_time_str"][0:10] + " " + D_job["start_time_str"][11:19]}}</td>
-                        <td>{{D_job["end_time_str"][0:10]   + " " + D_job["end_time_str"][11:19]}}</td>
+                        <td>{{D_job["start_time_str"]}}</td>
+                        <td>{{D_job["end_time_str"]}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
