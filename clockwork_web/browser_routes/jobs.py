@@ -59,8 +59,26 @@ def route_list():
     # This is because `get_mongodb_filter_from_query_filter` builds a more
     # complex filter for mongodb that allows the "user" argument to match
     # with an OR clause.
-    filter = get_mongodb_filter_from_query_filter( get_filter_from_request_args(["cluster_name", "user", "time"]) )
-    LD_jobs = get_jobs(filter)
+    filter = get_filter_from_request_args(["cluster_name", "user", "time"])
+    if 'user' in filter:
+        filter['user'] = filter['user'].replace(" ", "")
+    if 'time' in filter:
+        try:
+            filter['time'] = int(filter['time'])
+        except:
+            return render_template("error.html", error_msg=f"Field 'time' cannot be cast as a valid integer: {filter['time']}."), 400  # bad request
+
+    # pprint(filter)
+    LD_jobs = get_jobs(get_mongodb_filter_from_query_filter( filter ))
+
+    LD_jobs = [infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
+                 for D_job in LD_jobs]
+
+    for D_job in LD_jobs:
+        if D_job is None:
+            print("OMG, D_job in None!" * 100)
+            # quit()
+
     return render_template("jobs.html", LD_jobs=LD_jobs, mila_email_username=get_mila_email_username())
 
 
@@ -77,7 +95,7 @@ def route_one():
         filter["job_id"] = int(filter["job_id"])
         job_id = filter["job_id"]  # convenience
     else:
-        return render_template("error.html", error_msg=f"Missing argument job_id.")
+        return render_template("error.html", error_msg=f"Missing argument job_id."),  400  # bad request
 
     LD_jobs = get_jobs(filter)
 

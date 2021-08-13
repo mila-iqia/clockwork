@@ -37,6 +37,7 @@ def get_mongodb_filter_from_query_filter(query_filter):
 
     
     if 'time' in query_filter:
+        # print(f"query_filter['time'] is {query_filter['time']}")
         mongodb_filter_for_time = {
             '$or' : [   {'end_time': {'$gt': int(time.time() - query_filter['time'])}},
                         {'end_time': 0}]

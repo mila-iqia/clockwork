@@ -52,6 +52,15 @@ class MilaTools:
         params = {}
         return self._request(endpoint, params)
 
+    def jobs_one(self, cluster_name=None, job_id=None):
+        endpoint = "api/v1/clusters/jobs/one"
+        params = {}
+        if cluster_name is not None:
+            params["cluster_name"] = cluster_name
+        if job_id is not None:
+            params["job_id"] = job_id
+        return self._request(endpoint, params)
+
     # def jobs_single_job(self, cluster_name, job_id):
     #     # TODO : I don't think that's implemented on the Flask server at the moment.
     #     endpoint = "api/v1/clusters/jobs/list"
