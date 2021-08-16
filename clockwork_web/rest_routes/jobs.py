@@ -6,7 +6,13 @@ from flask.json import jsonify
 from .authentication import authenticate_with_header_basic
 
 from clockwork_web.core.common import get_filter_from_request_args
-from clockwork_web.core.jobs_helper import (strip_artificial_fields_from_job,
+from clockwork_web.core.jobs_helper import (
+    get_filter_user,
+    get_filter_time,
+    get_filter_cluster_name,
+    get_filter_job_id,
+    combine_all_mongodb_filters,
+    strip_artificial_fields_from_job,
     get_mongodb_filter_from_query_filter,
     get_jobs,
     infer_best_guess_for_username)
@@ -23,17 +29,30 @@ def route_api_v1_jobs_list():
     if D_user is None:
         return jsonify("Authorization error."), 401  # unauthorized
 
+    f0 = get_filter_user(request.args.get("user", None))
+    
+    time1 = request.args.get('time', None)
+    try:
+        f1 = get_filter_time(time1)
+    except Exception as inst:
+        print(inst)
+        return jsonify(f"Field 'time' cannot be cast as a valid integer: {time1}."), 400  # bad request
 
-    filter = get_filter_from_request_args(["cluster_name", "user", "time"])
-    if 'user' in filter:
-        filter['user'] = filter['user'].replace(" ", "")
-    if 'time' in filter:
-        try:
-            filter['time'] = int(filter['time'])
-        except:
-            return jsonify(f"Field 'time' cannot be cast as a valid integer: {filter['time']}."), 400  # bad request
+    f2 = get_filter_cluster_name(request.args.get("cluster_name", None))
 
-    LD_jobs = get_jobs(mongodb_filter=get_mongodb_filter_from_query_filter(filter))
+    filter = combine_all_mongodb_filters(f0, f1, f2)
+
+
+    # filter = get_filter_from_request_args(["cluster_name", "user", "time"])
+    # if 'user' in filter:
+    #     filter['user'] = filter['user'].replace(" ", "")
+    # if 'time' in filter:
+    #     try:
+    #         filter['time'] = int(filter['time'])
+    #     except:
+    #         return jsonify(f"Field 'time' cannot be cast as a valid integer: {filter['time']}."), 400  # bad request
+    # LD_jobs = get_jobs(mongodb_filter=get_mongodb_filter_from_query_filter(filter))
+    LD_jobs = get_jobs(filter)
 
     LD_jobs = [infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
                  for D_job in LD_jobs]
@@ -48,18 +67,12 @@ def route_api_v1_jobs_one():
     if D_user is None:
         return jsonify("Authorization error."), 401  # unauthorized
 
-
-    filter = get_filter_from_request_args(["cluster_name", "job_id"])
-    if "job_id" in filter:
-        # There's this annoying thing by which many of the job_id are integers in the database,
-        # but then some of them are these weird slurm batch identifiers, and then we can't cast
-        # them as integers. Let's just add a conversion here when it's all digits, and leave it
-        # as it is when there are non-digits characters.
-        if re.match(r"^(\d*)$", filter["job_id"]):
-            filter["job_id"] = int(filter["job_id"])
-    else:
+    job_id = request.args.get("job_id", None)
+    if job_id is None:
         return jsonify("Missing argument job_id."), 400  # bad request
-
+    f0 = get_filter_job_id(job_id)
+    f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
+    filter = combine_all_mongodb_filters(f0, f1)
 
     LD_jobs = get_jobs(filter)
 

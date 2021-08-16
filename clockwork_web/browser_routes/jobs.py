@@ -29,7 +29,13 @@ from flask_login import (
 from flask import Blueprint
 flask_api = Blueprint('jobs', __name__)
 
-from clockwork_web.core.jobs_helper import (strip_artificial_fields_from_job,
+from clockwork_web.core.jobs_helper import (
+    get_filter_user,
+    get_filter_time,
+    get_filter_cluster_name,
+    get_filter_job_id,
+    combine_all_mongodb_filters,
+    strip_artificial_fields_from_job,
     get_mongodb_filter_from_query_filter,
     get_jobs,
     infer_best_guess_for_username)
@@ -55,21 +61,19 @@ def route_list():
     "time" refers to how many seconds to go back in time to list jobs.
     """
 
-    # We need to do two passes to extract the desired filter.
-    # This is because `get_mongodb_filter_from_query_filter` builds a more
-    # complex filter for mongodb that allows the "user" argument to match
-    # with an OR clause.
-    filter = get_filter_from_request_args(["cluster_name", "user", "time"])
-    if 'user' in filter:
-        filter['user'] = filter['user'].replace(" ", "")
-    if 'time' in filter:
-        try:
-            filter['time'] = int(filter['time'])
-        except:
-            return render_template("error.html", error_msg=f"Field 'time' cannot be cast as a valid integer: {filter['time']}."), 400  # bad request
+    f0 = get_filter_user(request.args.get("user", None))
+    
+    time1 = request.args.get('time', None)
+    try:
+        f1 = get_filter_time(time1)
+    except Exception as inst:
+        print(inst)
+        return render_template("error.html", error_msg=f"Field 'time' cannot be cast as a valid integer: {time1}."), 400  # bad request
+
+    filter = combine_all_mongodb_filters(f0, f1)
 
     # pprint(filter)
-    LD_jobs = get_jobs(get_mongodb_filter_from_query_filter( filter ))
+    LD_jobs = get_jobs( filter )
 
     LD_jobs = [infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
                  for D_job in LD_jobs]
@@ -90,12 +94,12 @@ def route_one():
     This can work with only "job_id" if it's unique,
     but otherwise it might require specifying the cluster name.
     """
-    filter = get_filter_from_request_args(["cluster_name", "job_id"])
-    if "job_id" in filter:
-        filter["job_id"] = int(filter["job_id"])
-        job_id = filter["job_id"]  # convenience
-    else:
+    job_id = request.args.get("job_id", None)
+    if job_id is None:
         return render_template("error.html", error_msg=f"Missing argument job_id."),  400  # bad request
+    f0 = get_filter_job_id(job_id)
+    f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
+    filter = combine_all_mongodb_filters(f0, f1)
 
     LD_jobs = get_jobs(filter)
 
