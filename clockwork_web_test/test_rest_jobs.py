@@ -19,15 +19,20 @@ import random
 import json
 import pytest
 
-
-def test_single_job_at_random(client, fake_data, valid_rest_auth_headers):
+@pytest.mark.parametrize("cluster_name", ("mila", "beluga", "cedar", "graham"))
+def test_single_job_at_random(client, fake_data, valid_rest_auth_headers, cluster_name):
     """
     Make a request to the REST API endpoint /api/v1/clusters/jobs/one.
 
     This job entry should be present in the database.
+    We test for every database just to be sure that we get jobs
+    corresponding to the data format used by each scraping method
+    (i.e. when PySlurm works at one place but not the other, it's worth
+    making sure that job_id stored as int vs strings doesn't cause issues).
     """
 
-    original_D_job = random.choice(fake_data['jobs'])
+    original_D_job = random.choice(
+        [D_job for D_job in fake_data['jobs'] if D_job["cluster_name"] == cluster_name])
 
     response = client.get(f"/api/v1/clusters/jobs/one?job_id={original_D_job['job_id']}", headers=valid_rest_auth_headers)
     assert 'application/json' in response.content_type
@@ -69,45 +74,43 @@ def test_single_job_missing(client, fake_data, valid_rest_auth_headers):
     assert D_job == {}
 
 
-# @pytest.mark.parametrize("username", ("mario", "luigi", "toad", "peach"))
-# def test_api_list_four_valid_usernames(client, valid_rest_auth_headers, username):
-#     """
-#     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
-#     """
+@pytest.mark.parametrize("username", ("mario", "luigi", "toad", "peach"))
+def test_api_list_four_valid_usernames(client, valid_rest_auth_headers, username):
+    """
+    Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
+    """
 
-#     response = client.get(f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers)
-#     assert response.content_type == 'application/json'
-#     LD_jobs = response.get_json()
+    response = client.get(f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers)
+    assert response.content_type == 'application/json'
+    LD_jobs = response.get_json()
 
-#     # make sure that every job returned has that username somewhere
-#     for D_job in LD_jobs:
-#         assert username in [
-#             D_job.get("mila_cluster_username", None), D_job.get("mila_user_account",   None),
-#             D_job.get("mila_email_username",   None), D_job.get("cc_account_username", None)]
-
-
-# @pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
-# def test_api_list_two_invalid_usernames(client, valid_rest_auth_headers, username):
-#     """
-#     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
-#     """
-#     response = client.get(f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers)
-#     assert response.content_type == 'application/json'
-#     LD_jobs = response.get_json()
-
-#     # we expect no matches for those made-up names
-#     assert len(LD_jobs) == 0
+    # make sure that every job returned has that username somewhere
+    for D_job in LD_jobs:
+        assert username in [
+            D_job.get("mila_cluster_username", None), D_job.get("mila_user_account",   None),
+            D_job.get("mila_email_username",   None), D_job.get("cc_account_username", None)]
 
 
-# # TODO : This job probably needs to fixing in order to be properly written.
+@pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
+def test_api_list_two_invalid_usernames(client, valid_rest_auth_headers, username):
+    """
+    Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
+    """
+    response = client.get(f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers)
+    assert response.content_type == 'application/json'
+    LD_jobs = response.get_json()
 
-# def test_api_list_invalid_time(client, valid_rest_auth_headers):
-#     """
-#     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
-#     """
-#     response = client.get(f"/api/v1/clusters/jobs/list?time=this_is_not_a_valid_time", headers=valid_rest_auth_headers)
-#     assert response.content_type == 'application/json'
-#     LD_jobs = response.get_json()
-    
-#     assert b"Field 'time' cannot be cast as a valid integer" in response.data
-#     assert b"this_is_not_a_valid_time" in response.data
+    # we expect no matches for those made-up names
+    assert len(LD_jobs) == 0
+
+
+def test_api_list_invalid_time(client, valid_rest_auth_headers):
+    """
+    Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
+    """
+    response = client.get(f"/api/v1/clusters/jobs/list?time=this_is_not_a_valid_time", headers=valid_rest_auth_headers)
+    assert response.content_type == 'application/json'
+    assert response.status_code == 400  # bad request
+    error_msg = response.get_json()
+
+    assert "Field 'time' cannot be cast as a valid integer: this_is_not_a_valid_time." in error_msg

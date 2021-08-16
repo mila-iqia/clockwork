@@ -3,10 +3,73 @@ This file contains a lot of arbitrary decisions that could change in the future.
 
 """
 
+import re
 import time
 
 from flask.globals import current_app
 from ..db import get_db
+
+def get_filter_cluster_name(cluster_name):
+    if cluster_name is None:
+        return {}
+    else:
+        return {"cluster_name": cluster_name}
+
+def get_filter_job_id(job_id):
+    """
+    Add a check whether it's an integer or a string.
+    """
+    if job_id is None:
+        return {}
+    else:
+        if re.match(r"^(\d*)$", job_id):
+            return {'$or': [{'job_id': job_id}, 
+                            {'job_id': int(job_id)}]
+                        }
+        else:
+            return {'job_id': job_id}
+
+def get_filter_user(user):
+    if user is None:
+        return {}
+    else:
+        if user not in ["all", "*", ""]:
+            return {
+                '$or': [{'mila_cluster_username': user}, 
+                        {'cc_account_username': user}, 
+                        {'mila_email_username': user}, 
+                        {'mila_user_account': user}]
+                }
+        else:
+            return {}
+
+def get_filter_time(time0):
+    """
+    We're calling the argument "time0" because "time" is already
+    a python module, and we're using it in this very function.
+    """
+    if time0 is None:
+        return {}
+    else:
+        # This can throw exceptions when "time0" is invalid.
+        return {
+            '$or' : [   {'end_time': {'$gt': int(time.time() - int(time0))}},
+                        {'end_time': 0}]
+            }
+
+
+def combine_all_mongodb_filters(*mongodb_filters):
+    """
+    Creates a big AND clause if more than one argument is given.
+    Drops out all the filters that are empty dict.
+    """
+    non_empty_mongodb_filters = [mf for mf in mongodb_filters if mf]
+    if len(non_empty_mongodb_filters) == 0:
+        return {}
+    elif len(non_empty_mongodb_filters) == 1:
+        return non_empty_mongodb_filters[0]
+    else:
+        return {'$and': list(non_empty_mongodb_filters)}
 
 
 def get_mongodb_filter_from_query_filter(query_filter):
@@ -23,39 +86,10 @@ def get_mongodb_filter_from_query_filter(query_filter):
     the reasoning behing this function. It requires a document just by itself.
     """
 
-    if 'user' in query_filter and query_filter['user'] not in ["all", "*", ""]:
-        user = query_filter['user']
+    mongodb_filter_for_user = get_filter_user(query_filter.get('user', None))
+    mongodb_filter_for_time = get_filter_time(query_filter.get('time', None))
 
-        mongodb_filter_for_user = {
-            '$or': [{'mila_cluster_username': user}, 
-                    {'cc_account_username': user}, 
-                    {'mila_email_username': user}, 
-                    {'mila_user_account': user}]
-            }
-    else:
-        mongodb_filter_for_user = {}
-
-    
-    if 'time' in query_filter:
-        # print(f"query_filter['time'] is {query_filter['time']}")
-        mongodb_filter_for_time = {
-            '$or' : [   {'end_time': {'$gt': int(time.time() - query_filter['time'])}},
-                        {'end_time': 0}]
-            }
-    else:
-        mongodb_filter_for_time = {}
-
-
-    # Let's add a AND clause only if needed.
-    # If any of the two dict are empty, just
-    # return the other one.
-    # If neither are empty, then use that AND clause.
-    if not mongodb_filter_for_user:
-        return mongodb_filter_for_time
-    elif not mongodb_filter_for_time:
-        return mongodb_filter_for_user
-    else:
-        return {'$and': [mongodb_filter_for_user, mongodb_filter_for_time]}
+    return combine_all_mongodb_filters(mongodb_filter_for_user, mongodb_filter_for_time)
 
 
 def get_jobs(mongodb_filter:dict={}):

@@ -60,7 +60,6 @@ def test_list_two_invalid_usernames(client, username):
     # assert 'text/html' in response.content_type
     assert username.encode('utf-8') not in response.data  # notice the NOT
 
-
 def test_list_invalid_time(client):
     """
     Make a request to /jobs/list.
@@ -68,5 +67,4 @@ def test_list_invalid_time(client):
     response = client.get(f"/jobs/list?time=this_is_not_a_valid_time")
     assert 'text/html' in response.content_type
 
-    assert b"cannot be cast as a valid integer" in response.data
-    assert b"this_is_not_a_valid_time" in response.data
+    assert b"cannot be cast as a valid integer: this_is_not_a_valid_time" in response.data
