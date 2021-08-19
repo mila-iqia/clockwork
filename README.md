@@ -6,7 +6,7 @@ makes it hard to document properly.
 
 At the time of this writing (2021-08-16), the most relevant readme file is
 
-[setup_ecosystem/setup_using_docker_compose.md!](https://github.com/mila-iqia/clockwork/blob/master/setup_ecosystem/setup_using_docker_compose.md)
+[setup_ecosystem/setup_using_docker_compose.md !](https://github.com/mila-iqia/clockwork/blob/master/setup_ecosystem/setup_using_docker_compose.md)
 
 ## Brief overview of folders
 
