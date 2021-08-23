@@ -74,9 +74,11 @@ class MilaTools:
             params["cluster_name"] = cluster_name
         return self._request(endpoint, params)
 
-    def nodes_one(self, name=None):
+    def nodes_one(self, name=None, cluster_name=None):
         endpoint = "api/v1/clusters/nodes/one"
         params = {}
         if name is not None:
             params["name"] = name
+        if cluster_name is not None:
+            params["cluster_name"] = cluster_name
         return self._request(endpoint, params)

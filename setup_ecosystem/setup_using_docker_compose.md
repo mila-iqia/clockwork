@@ -13,6 +13,8 @@ export MONGO_INITDB_ROOT_PASSWORD="secret_password_okay"
 # maybe add the port as environment variable, and then also modify the bit of code
 # responsible for generating the connection string
 
+# This test account corresponds to values from "fake_data.json"
+# that we can manually inspect.
 export MILA_TOOLS_TEST_EMAIL="mario@mila.quebec"
 export MILA_TOOLS_TEST_CLOCKWORK_API_KEY="000aaa"
 
@@ -29,7 +31,6 @@ docker-compose up -d clockwork_web mongodb
 
 docker-compose logs -f clockwork_web
 docker-compose down
-
 ```
 
 ## Different tasks
