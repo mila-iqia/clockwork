@@ -44,12 +44,14 @@ class MilaTools:
         else:
             raise Exception(f"Server rejected call with code {response.status_code}. {response.json()}")
 
-    # For endpoints requiring `params` you'll pass the correct ones by specific arguments
-    # to this function. This should help documenting expectations.
-    def jobs_list(self):
-        # TODO : Add arguments here.
+    # For endpoints requiring `params` we could use **kwargs instead,
+    # but let's use explicit arguments instead.
+    def jobs_list(self, user=None, time=None, cluster_name=None):
         endpoint = "api/v1/clusters/jobs/list"
         params = {}
+        for (k, a) in [("user", user), ("time", time), ("cluster_name", cluster_name)]:
+            if a is not None:
+                params[k] = a
         return self._request(endpoint, params)
 
     def jobs_one(self, cluster_name=None, job_id=None):
@@ -60,12 +62,6 @@ class MilaTools:
         if job_id is not None:
             params["job_id"] = job_id
         return self._request(endpoint, params)
-
-    # def jobs_single_job(self, cluster_name, job_id):
-    #     # TODO : I don't think that's implemented on the Flask server at the moment.
-    #     endpoint = "api/v1/clusters/jobs/list"
-    #     params = {"cluster_name": cluster_name, "job_id": job_id}
-    #     return self._request(endpoint, params)
 
     def nodes_list(self, cluster_name=None):
         endpoint = "api/v1/clusters/nodes/list"

@@ -1,5 +1,35 @@
 
+import pytest
 import random
+
+@pytest.mark.parametrize("cluster_name", ("mila", "cedar", "graham", "beluga", "sephiroth"))
+def test_jobs_list_with_filter(mtclient, fake_data, cluster_name):
+    """
+    Test the `jobs_list` command. This is just to make sure that the filtering works
+    and the `cluster_name` argument is functional.
+
+    Note that "sephiroth" is not a valid cluster, so we will expect empty lists as results.
+    """
+    LD_jobs = mtclient.jobs_list(cluster_name=cluster_name)
+    LD_original_jobs = [D_job for D_job in fake_data['jobs'] if D_job["cluster_name"] == cluster_name]
+
+    assert len(LD_jobs) == len(LD_original_jobs), (
+        "Lengths of lists don't match, so we shouldn't expect them to be able "
+        "to match the elements themselves."
+    )
+
+    # agree on some ordering so you can zip the lists and have
+    # matching elements in the same order
+    LD_jobs = list(sorted(LD_jobs, key=lambda D_job: D_job['job_id']))
+    LD_original_jobs = list(sorted(LD_original_jobs, key=lambda D_job: D_job['job_id']))
+
+    # compare all the dicts one by one
+    for (D_job, D_original_job) in zip(LD_jobs, LD_original_jobs):
+        for k in D_original_job:
+            if k in ["grafana_helpers"]:  # ignore that one
+                continue
+            assert D_job[k] == D_original_job[k]
+
 
 
 def test_single_job_at_random(mtclient, fake_data):
