@@ -59,17 +59,26 @@ def test_get_nodes_with_filter(mtclient, fake_data, cluster_name):
     Analogous to the test in "clockwork_web_test/test_nodes.py" bearing the same name.
     """
     LD_nodes = mtclient.nodes_list(cluster_name=cluster_name)
+    LD_original_nodes = [D_node for D_node in fake_data['nodes'] if D_node["cluster_name"] == cluster_name]
 
-    S_names_A = set([D_node['name'] for D_node in LD_nodes])
-    S_names_B = set([D_node['name'] for D_node in fake_data['nodes'] if D_node["cluster_name"] == cluster_name])
-    # S_names_B = set([
-    #    'ci-computenode', 'cn-a001', 'cn-a002', 'cn-a003', 'cn-a004', 'cn-a005', 'cn-a006',
-    #    'cn-a007', 'cn-a008', 'cn-a009', 'blg4101', 'blg4102', 'blg4103', 'blg4104', 'blg4105',
-    #    'blg4106', 'blg4107', 'blg4108', 'blg4109', 'blg4110', 'gra1', 'gra2', 'gra3', 'gra4',
-    #    'gra5', 'gra6', 'gra7', 'gra8', 'gra9', 'gra10', 'cdr2', 'cdr3', 'cdr4', 'cdr5', 'cdr6',
-    #    'cdr25', 'cdr26', 'cdr27', 'cdr28', 'cdr29'])
+    assert len(LD_nodes) == len(LD_original_nodes), (
+        "Lengths of lists don't match, so we shouldn't expect them to be able "
+        "to match the elements themselves."
+    )
 
-    assert S_names_A == S_names_B
+    # agree on some ordering so you can zip the lists and have
+    # matching elements in the same order
+    LD_nodes = list(sorted(LD_nodes, key=lambda D_node: D_node['name']))
+    LD_original_nodes = list(sorted(LD_original_nodes, key=lambda D_node: D_node['name']))
+
+    # compare all the dicts one by one
+    for (D_node, D_original_node) in zip(LD_nodes, LD_original_nodes):
+        for k in D_original_node:
+            assert D_node[k] == D_original_node[k]
+
+    # S_names_A = set([D_node['name'] for D_node in LD_nodes])
+    # S_names_B = set([D_node['name'] for D_node in fake_data['nodes'] if D_node["cluster_name"] == cluster_name])
+    # assert S_names_A == S_names_B
 
 
 @pytest.mark.parametrize("want_valid_name", (True, False))

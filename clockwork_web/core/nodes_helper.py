@@ -7,6 +7,18 @@ and rest_routes, which are just fronts for these functions here.
 
 from flask.globals import current_app
 from clockwork_web.db import get_db
+# from clockwork_web.core.jobs_helper import get_filter_cluster_name
+
+def get_filter_name(name):
+    """
+    Looks rather useless right now, but this is where you'd patch
+    some modifications the "name" if you want to have them.
+    Things like tolower() or stripping spaces.
+    """
+    if name is None:
+        return {}
+    else:
+        return {"name": name}
 
 def get_nodes(mongodb_filter:dict={}) -> list[dict]:
     """

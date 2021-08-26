@@ -80,7 +80,7 @@ def route_list():
 
     for D_job in LD_jobs:
         if D_job is None:
-            print("OMG, D_job in None!" * 100)
+            print("OMG, D_job is None!" * 100)
             # quit()
 
     return render_template("jobs.html", LD_jobs=LD_jobs, mila_email_username=get_mila_email_username())
