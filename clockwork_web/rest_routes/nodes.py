@@ -26,11 +26,6 @@ def route_api_v1_nodes_list():
     resp.status_code = 200
     return resp
 
-    # return jsonify(get_nodes(filter))
-    # resp = make_response(jsonify(get_nodes(filter)), 200)  # success
-    # resp.headers['Content-Type'] = 'application/json'
-    # return resp
-
 
 @flask_api.route('/nodes/one')
 def route_api_v1_nodes_one():
@@ -65,6 +60,3 @@ def route_api_v1_nodes_one():
     resp = jsonify(D_node)
     resp.status_code = 200
     return resp
-    # resp = make_response(jsonify(D_node), 200)  # success
-    # resp.headers['Content-Type'] = 'application/json'
-    # return resp
