@@ -18,3 +18,8 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+# Keep in mind that things after the inclusion are exclusions.
+# sphinx-apidoc [options] -o <output_path> <module_path> [exclude_path, ...]
+rst:
+	sphinx-apidoc -f -o ../docs/apidoc .. ../slurm_monitor ../setup_ecosystem ../scripts ../clockwork_web/main.py

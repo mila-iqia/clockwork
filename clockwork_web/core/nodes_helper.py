@@ -20,7 +20,7 @@ def get_filter_name(name):
     else:
         return {"name": name}
 
-def get_nodes(mongodb_filter:dict={}) -> list[dict]:
+def get_nodes(mongodb_filter:dict={}) -> list:
     """
     Talk to the database and get the information.
 

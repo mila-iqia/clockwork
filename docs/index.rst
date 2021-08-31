@@ -18,6 +18,15 @@ Welcome to Clockwork's documentation!
 
    clockwork_web_test/patate
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Apidoc
+
+   apidoc/clockwork_web
+   apidoc/clockwork_web.rest_routes
+   apidoc/mila_tools
+   apidoc/modules
+
 
 Indices and tables
 ==================
