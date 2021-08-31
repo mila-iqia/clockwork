@@ -3,7 +3,7 @@ from flask import request
 from flask_login import current_user
 
 
-def get_filter_from_request_args(keys_for_filter: list[str]):
+def get_filter_from_request_args(keys_for_filter: list):
     """
     Helper function. Relies on `request` in the correct context
     in order to get the actual values.
