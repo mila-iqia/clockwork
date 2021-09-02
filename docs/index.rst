@@ -8,13 +8,13 @@ Welcome to Clockwork's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Clockwork User Guide
+   :caption: User Guide
 
    clockwork_user_guide/main
 
 .. toctree::
    :maxdepth: 2
-   :caption: Clockwork Developer Guide
+   :caption: Developer Guide
 
    clockwork_dev_guide/main
 
@@ -23,11 +23,15 @@ Welcome to Clockwork's documentation!
    :caption: Apidoc
 
    apidoc/clockwork_web
+   apidoc/mila_tools
+   apidoc/modules
+
+..
+   This is a comment.
    apidoc/clockwork_web.core
    apidoc/clockwork_web.browser_routes
    apidoc/clockwork_web.rest_routes
-   apidoc/mila_tools
-   apidoc/modules
+
 
 
 Indices and tables
