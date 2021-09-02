@@ -29,4 +29,7 @@ chmod -R 600 ~/.ssh/github_keys/*id_rsa
 
 # checkout the code locally
 git clone git@github-clockwork:mila-iqia/clockwork.git
+
+# updating the remote after moving to mila-iqia
+git remote set-url origin git@github-slurm_monitoring_and_reporting:mila-iqia/clockwork.git
 ```

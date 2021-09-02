@@ -31,3 +31,12 @@ Needs to be redesigned or deleted:
 | clockwork_web_test | IDT | IDT | dev instance in docker container |
 | mila_tools | N/A | everyone at Mila  | prod |
 | mila_tools_test | IDT | IDT | dev instance in docker container|
+
+## modules needed
+
+```bash
+# for main project
+python3 -m pip install flask flask-login numpy pymongo oauthlib
+# for docs
+python3 -m pip install sphinx myst_parser sphinx_rtd_theme
+```
