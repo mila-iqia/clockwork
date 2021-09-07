@@ -5,7 +5,7 @@ import pytest
 
 def get_random_string():
     b = str(random.random()).encode('utf-8')
-    return base64.b64encode(b)
+    return base64.b64encode(b).decode('utf-8')
 
 def test_get_nodes_list(mtclient, fake_data):
     LD_nodes = mtclient.nodes_list()
