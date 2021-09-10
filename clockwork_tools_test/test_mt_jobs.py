@@ -60,7 +60,8 @@ def test_single_job_missing(mtclient, fake_data):
     # Make sure you pick a random job_id that's not in the database.
     S_job_ids = set([D_job['job_id'] for D_job in fake_data['jobs']])
     while True:
-        job_id = int(random.random()*1e7)
+        # let's move towards having all job_id be strings
+        job_id = str(int(random.random()*1e7))
         if job_id not in S_job_ids:
             break
 

@@ -4,8 +4,8 @@ import pytest
 
 from pymongo import MongoClient
 
-import mila_tools
-import mila_tools.client
+import clockwork_tools
+import clockwork_tools.client
 
 from clockwork_web.db import get_db, init_db
 from clockwork_web_test.conftest import populate_fake_data, fake_data
@@ -19,12 +19,12 @@ def config():
     Better here to fail completely if any of those values are empty.
     """
     config = {
-        'host': os.environ['MILA_TOOLS_TEST_HOST'],
-        'port': os.environ['MILA_TOOLS_TEST_PORT'],
-        'email': os.environ['MILA_TOOLS_TEST_EMAIL'],
-        'clockwork_api_key': os.environ['MILA_TOOLS_TEST_CLOCKWORK_API_KEY']}
+        'host': os.environ['clockwork_tools_test_HOST'],
+        'port': os.environ['clockwork_tools_test_PORT'],
+        'email': os.environ['clockwork_tools_test_EMAIL'],
+        'clockwork_api_key': os.environ['clockwork_tools_test_CLOCKWORK_API_KEY']}
     for (k, v) in config.items():
-        assert v, (f"Missing value in environment for mila_tools configuration {k}.")
+        assert v, (f"Missing value in environment for clockwork_tools configuration {k}.")
     return config
 
 @pytest.fixture
@@ -34,8 +34,8 @@ def invalid_config_00():
     Calls will fail with that configuration.
     """
     config = {
-        'host': os.environ['MILA_TOOLS_TEST_HOST'],
-        'port': os.environ['MILA_TOOLS_TEST_PORT'],
+        'host': os.environ['clockwork_tools_test_HOST'],
+        'port': os.environ['clockwork_tools_test_PORT'],
         'email': "invalid_user_984230747236",
         'clockwork_api_key': "908wkjkjhdfs86423y78"}
     return config
@@ -49,8 +49,8 @@ def invalid_config_01():
     Valid email with invalid 'clockwork_api_key'.
     """
     config = {
-        'host': os.environ['MILA_TOOLS_TEST_HOST'],
-        'port': os.environ['MILA_TOOLS_TEST_PORT'],
+        'host': os.environ['clockwork_tools_test_HOST'],
+        'port': os.environ['clockwork_tools_test_PORT'],
         'email': "mario@mila.quebec",
         'clockwork_api_key': "invalid_key_ndjashuhfinvalidsduhjh1"}
     return config
@@ -75,12 +75,12 @@ def db_with_fake_data():
 
 @pytest.fixture
 def mtclient(config, db_with_fake_data):
-    return mila_tools.client.MilaTools(config)
+    return clockwork_tools.client.ClockworkTools(config)
 
 @pytest.fixture
 def unauthorized_mtclient_00(invalid_config_00, db_with_fake_data):
-    return mila_tools.client.MilaTools(invalid_config_00)
+    return clockwork_tools.client.ClockworkTools(invalid_config_00)
 
 @pytest.fixture
 def unauthorized_mtclient_01(invalid_config_01, db_with_fake_data):
-    return mila_tools.client.MilaTools(invalid_config_01)
+    return clockwork_tools.client.ClockworkTools(invalid_config_01)

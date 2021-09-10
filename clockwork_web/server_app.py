@@ -1,17 +1,17 @@
 """
-
-export FLASK_RUN_PORT=5555
-export FLASK_DEBUG=1
-export FLASK_APP=main.py
-
-# if I didn't use `python3` directly, flask would use the wrong python interpreter
-
-# local connections only
-python3 -m flask run  
-# outside
-python3 -m flask run --host=0.0.0.0
-
+Instantiates the Flask app an wires up all the routes
+in the right place.
 """
+
+
+# export FLASK_RUN_PORT=5555
+# export FLASK_DEBUG=1
+# export FLASK_APP=main.py
+#
+### local connections only
+# python3 -m flask run  
+### outside
+# python3 -m flask run --host=0.0.0.0
 
 import os
 from flask import Flask, redirect, render_template, url_for
@@ -29,6 +29,16 @@ from .rest_routes.jobs import flask_api as rest_jobs_flask_api
 from .rest_routes.nodes import flask_api as rest_nodes_flask_api
 
 def create_app(extra_config:dict):
+    """Creates the Flask app with everything wired up.
+    
+    For a proper project with testing, there is a need
+    to be able to instantiate our app many times instead of
+    having it instantiated automatically when a certain .py
+    source is parsed. Hence this function.
+
+    Returns:
+        A Flask app ready to be used.
+    """
     app = Flask(__name__)
     app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 

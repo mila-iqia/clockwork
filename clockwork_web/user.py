@@ -1,7 +1,25 @@
+"""
+Determines what the properties of the "User" are going to be.
+
+TODO : There are rough edges here because of decisions pertaining
+to the correct behavior to have when encountering errors.
+For example, what are we supposed to do when we find two instances
+of a user in our database?
+
+This file could be polished a little better once we have more
+of the project in place and we can make more informed decisions
+about these things.
+"""
+
 from flask.globals import current_app
 from flask_login import UserMixin
 
-import numpy as np  # used to generate random `clockwork_api_key` for users
+# Numpy used to generate random `clockwork_api_key` for users.
+# This feels like an unjustified use of numpy.
+# TODO : Rethink this and harmonize with the random strings
+#        generated for unit tests, through a similar function
+#        than this `get_new_clockwork_api_key` at the end of this file.
+import numpy as np  
 
 # import sys, traceback  # debugging
 

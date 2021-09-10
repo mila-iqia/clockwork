@@ -5,10 +5,10 @@ with their @mila.quebec account.
 
 The web front-end is accessible at https://clockwork.mila.quebec 
 and everything can be done also through a REST API.
-There is a `mila_tools` python module that can be used to access the REST API
+There is a `clockwork_tools` python module that can be used to access the REST API
 without having to think about any implementation details.
 
-Mila members can thus simply use the `mila_tools` in their python scripts
+Mila members can thus simply use the `clockwork_tools` in their python scripts
 and ignore the web site (beyond the initial authentication to get the API key).
 
 ## clusters

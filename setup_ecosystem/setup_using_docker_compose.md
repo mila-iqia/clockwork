@@ -15,12 +15,12 @@ export MONGO_INITDB_ROOT_PASSWORD="secret_password_okay"
 
 # This test account corresponds to values from "fake_data.json"
 # that we can manually inspect.
-export MILA_TOOLS_TEST_EMAIL="mario@mila.quebec"
-export MILA_TOOLS_TEST_CLOCKWORK_API_KEY="000aaa"
+export clockwork_tools_test_EMAIL="mario@mila.quebec"
+export clockwork_tools_test_CLOCKWORK_API_KEY="000aaa"
 
 # export CLOCKWORK_TASK="clockwork_run_web_development"
 # export CLOCKWORK_TASK="clockwork_run_web_test"
-export CLOCKWORK_TASK="clockwork_run_mila_tools_test"
+export CLOCKWORK_TASK="clockwork_run_clockwork_tools_test"
 
 
 export FLASK_RUN_PORT=5000  # inside container

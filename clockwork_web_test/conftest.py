@@ -53,7 +53,7 @@ def app():
     # You can close file descriptors here and do other cleanup.
     # 
     # 2021-08-11 : Okay, so we have important decisions to make here,
-    #              because it's pretty hard to test mila_tools without
+    #              because it's pretty hard to test clockwork_tools without
     #              fake data in the database, but the fake_data.json lives
     #              in clockword_web_test. Maybe we can remove the cleanup step
     #              from those tests and rely on side-effects from pytest
@@ -62,7 +62,7 @@ def app():
     #              to rethink how those tests are written to begin with,
     #              and possibly add the fake data as part of the mongodb
     #              component of Docker Compose when running in test mode.
-    #              Tests from mila_tools aren't supposed to muck with the database.
+    #              Tests from clockwork_tools aren't supposed to muck with the database.
     #
     cleanup_function()
 
@@ -126,7 +126,7 @@ def fake_data():
 
 @pytest.fixture
 def valid_rest_auth_headers():      
-    s = f"{os.environ['MILA_TOOLS_TEST_EMAIL']}:{os.environ['MILA_TOOLS_TEST_CLOCKWORK_API_KEY']}"
+    s = f"{os.environ['clockwork_tools_test_EMAIL']}:{os.environ['clockwork_tools_test_CLOCKWORK_API_KEY']}"
     encoded_bytes = base64.b64encode(s.encode("utf-8"))
     encoded_s = str(encoded_bytes, "utf-8")
     return {"Authorization": f"Basic {encoded_s}"}

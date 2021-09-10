@@ -15,8 +15,8 @@ Used:
 * clockwork_web : the web server, to be deployed by IDT
 * clockwork_web_test : unit tests for "clockwork_web"
 
-* mila_tools : python module to be used by Mila members in conjuction with prod instance "clockwork_web"
-* mila_tools_test : unit tests for "mila_tools", running on a dev instance of "clockwork_web"
+* clockwork_tools : python module to be used by Mila members in conjuction with prod instance "clockwork_web"
+* clockwork_tools_test : unit tests for "clockwork_tools", running on a dev instance of "clockwork_web"
 
 Needs to be redesigned or deleted:
 
@@ -29,8 +29,8 @@ Needs to be redesigned or deleted:
 |--|--|--|--|
 | clockwork_web | IDT | everyone at Mila | N/A |
 | clockwork_web_test | IDT | IDT | dev instance in docker container |
-| mila_tools | N/A | everyone at Mila  | prod |
-| mila_tools_test | IDT | IDT | dev instance in docker container|
+| clockwork_tools | N/A | everyone at Mila  | prod |
+| clockwork_tools_test | IDT | IDT | dev instance in docker container|
 
 ## modules needed
 
