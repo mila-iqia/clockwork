@@ -23,7 +23,7 @@ Welcome to Clockwork's documentation!
    :caption: Apidoc
 
    apidoc/clockwork_web
-   apidoc/mila_tools
+   apidoc/clockwork_tools
    apidoc/modules
 
 ..

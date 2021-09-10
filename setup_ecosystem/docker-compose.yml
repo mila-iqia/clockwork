@@ -80,8 +80,8 @@ services:
     volumes:
       - ../clockwork_web:/clockwork/clockwork_web
       - ../clockwork_web_test:/clockwork/clockwork_web_test
-      - ../mila_tools:/clockwork/mila_tools
-      - ../mila_tools_test:/clockwork/mila_tools_test
+      - ../clockwork_tools:/clockwork/clockwork_tools
+      - ../clockwork_tools_test:/clockwork/clockwork_tools_test
       - ./entrypoint_inside_clockwork_web_container.sh:/clockwork/entrypoint_inside_clockwork_web_container.sh
     # command: bash /clockwork/entrypoint_inside_clockwork_web_container.sh
     command: bash -c "sleep 43897423"
@@ -90,9 +90,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
       CLOCKWORK_TASK: ${CLOCKWORK_TASK}
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
-      MILA_TOOLS_TEST_HOST: clockwork_web  # name of this very service
-      MILA_TOOLS_TEST_PORT: ${FLASK_RUN_PORT}
-      MILA_TOOLS_TEST_EMAIL: ${MILA_TOOLS_TEST_EMAIL}
-      MILA_TOOLS_TEST_CLOCKWORK_API_KEY: ${MILA_TOOLS_TEST_CLOCKWORK_API_KEY}
+      clockwork_tools_test_HOST: clockwork_web  # name of this very service
+      clockwork_tools_test_PORT: ${FLASK_RUN_PORT}
+      clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
+      clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
 
 # TODO : This    CLOCKWORK_TASK: ${CLOCKWORK_TASK}    will go elsewhere as well.

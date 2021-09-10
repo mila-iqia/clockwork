@@ -1,12 +1,17 @@
 """
+This code handles the OAuth part of the server.
+It does involve some cargo-cult code from online tutorials
+about using Google's OAuth 2.0 service.
 
-TODO : Whatever you did with /logout, now you'll be doing with /login/logout
-       if you set up your routes like that.
+The other source of complexity is that testing a Flask
+app requires bypassing the authentication in some places,
+and having a proper user authenticated at other places.
+This is feasible, but it leads to code that might be
+a little more convoluted than otherwise.
 
-TODO : For the whole REST API thing, you should think about what's written here:
-        https://flask-login.readthedocs.io/en/latest/
-        Custom Login using Request Loader
-
+For the developers, this is a useful resource:
+    https://flask-login.readthedocs.io/en/latest/
+    Custom Login using Request Loader
 """
 
 from logging import error
@@ -55,6 +60,14 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 @flask_api.route("/")
 def route_index():
+    """Browsing to this starts the authentication dance.
+    
+    We prepare the necessary components to have the user be
+    directed to the Google OAuth services, which also includes
+    an address (the callback) that they'll use to return to us afterwards.
+
+    Returns: Redirects the browser to Google's authentication server.
+    """
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -64,13 +77,27 @@ def route_index():
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
         redirect_uri=request.base_url + "callback",
-        scope=["openid", "email", "profile"],  # 2021-07-15 we removed "openid" from list because we set up OAuth without asking for "openid"
+        scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
 
 
 @flask_api.route("/callback")
 def route_callback():
+    """Browser destination after authentication with Google.
+
+    After having talked with Google for the authentication,
+    the user is told to browse back to this address, but with
+    a code in hand to be used by us to retrieve the access token.
+    With that code, we can finish the conversation with Google.
+
+    Note that we don't save any of that server-side because
+    we are not going to do anything on behalf of the users on Google.
+    We just want to identify them and get basic information.
+
+    Returns: Redirects the browser to the index of the page afterwards,
+    which will now act differently facing an authenticated user.   
+    """
     # Get authorization code Google sent back to you
     code = request.args.get("code")
 
@@ -141,21 +168,28 @@ def route_callback():
     login_user(user)
     print(f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated}")
     # Send user back to homepage
-    # return redirect("/")
     return redirect(url_for("index"))
 
 
 @flask_api.route("/logout")
 @login_required
 def route_logout():
+    """Logs out the user when browsing to this address.
+    
+    Everything happens through the `flask_login` module,
+    and we just need to call `logout_user()`.
+    """
     logout_user()
-    # redirect("/")
     return redirect(url_for("index"))
 
 
 """
 When logins are disabled, we add the route /login/fake_user in order to be able
 to login easily to test out functionality locally (i.e. running on "deepgroove").
+
+To be more precise, this piece of code is useful not when running pytest,
+but when poking around in the browser, with the web server running locally
+(thus being unable to test using https).
 
 Since the "LOGIN_DISABLED" environment variable is already being used,
 we might as well use it. Poking this URL logs the session as "fake_user@mila.quebec".

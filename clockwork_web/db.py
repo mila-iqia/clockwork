@@ -6,9 +6,13 @@ from flask.cli import with_appcontext
 
 
 def get_db():
-    """Connect to the application's configured database. The connection
-    is unique for each request and will be reused if this is called
-    again.
+    """Connect to the application's configured database.
+    
+    The connection is unique for each request and will be reused
+    if this is called again in the same request context.
+
+    Returns:
+        MongoClient: a client to the mongodb server (but not a specific collection)
     """
     if "db" not in g:
         g.db = MongoClient(current_app.config["MONGODB_CONNECTION_STRING"])
@@ -17,8 +21,10 @@ def get_db():
 
 
 def close_db(e=None):
-    """If this request connected to the database, close the
-    connection.
+    """If this request connected to the database, close the connection.
+
+    Disclaimer: The `e=None` code is cargo code. Not sure why it's there.
+    Not really worth investigating too deeply now, but maybe later.
     """
     db = g.pop("db", None)
 
@@ -47,14 +53,23 @@ def close_db(e=None):
 #        back in.
 
 def init_db():
-    """Clear existing data and create new tables."""
+    """Clear existing data and create new tables.
+    
+    TODO : Think a bit more about the whole idea of clearing
+    the database when you initialize it like that. It's fine
+    in development, but it would be a bad idea if our production
+    server kept wiping the database every time we restarted it.
+
+    Some better design is needed here to have a better strategy
+    that allows proper testing, development and deployment.
+    """
     db = get_db()
 
-    # clear out everything, in case there's stuff leftover from a previous run
+    # Clear out everything, in case there's stuff leftover from a previous run.
     for collection in ["jobs", "nodes", "users"]:
         db[current_app.config["MONGODB_DATABASE_NAME"]][collection].delete_many({})
 
-    # TODO : We probably have some minor things to do here
+    # TODO : We may have some minor things to do here
     #        to setup some basic information in the database.
 
     # with current_app.open_resource("schema.sql") as f:

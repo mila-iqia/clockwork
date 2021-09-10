@@ -20,8 +20,8 @@ python3 -m pip install --upgrade pip
 
 python3 -m pip install -r ${CLOCKWORK_ROOT}/clockwork_web/requirements.txt
 python3 -m pip install -r ${CLOCKWORK_ROOT}/clockwork_web_test/requirements.txt
-python3 -m pip install -r ${CLOCKWORK_ROOT}/mila_tools/requirements.txt
-python3 -m pip install -r ${CLOCKWORK_ROOT}/mila_tools_test/requirements.txt
+python3 -m pip install -r ${CLOCKWORK_ROOT}/clockwork_tools/requirements.txt
+python3 -m pip install -r ${CLOCKWORK_ROOT}/clockwork_tools_test/requirements.txt
 
 export FLASK_APP=clockwork_web.main:app
 
@@ -51,7 +51,7 @@ if [ ${CLOCKWORK_TASK} = "clockwork_run_web_test" ]; then
     # as a separate program.
     cd ${CLOCKWORK_ROOT}/clockwork_web_test
     pytest
-elif [ ${CLOCKWORK_TASK} = "clockwork_run_mila_tools_test" ]; then
+elif [ ${CLOCKWORK_TASK} = "clockwork_run_clockwork_tools_test" ]; then
     export FLASK_DEBUG=1
     # This is sufficient to disable the @login_required,
     # but also to enable the /login/fake_user route.
@@ -62,9 +62,9 @@ elif [ ${CLOCKWORK_TASK} = "clockwork_run_mila_tools_test" ]; then
     sleep 2
 
     # note the "TEST_" being removed
-    export MILA_TOOLS_EMAIL=${MILA_TOOLS_TEST_EMAIL}
-    export MILA_TOOLS_API_KEY=${MILA_TOOLS_TEST_CLOCKWORK_API_KEY}
-    cd ${CLOCKWORK_ROOT}/mila_tools_test
+    export clockwork_tools_EMAIL=${clockwork_tools_test_EMAIL}
+    export clockwork_tools_API_KEY=${clockwork_tools_test_CLOCKWORK_API_KEY}
+    cd ${CLOCKWORK_ROOT}/clockwork_tools_test
     pytest
 elif [ ${CLOCKWORK_TASK} = "clockwork_run_web_development" ]; then
     export FLASK_DEBUG=1
