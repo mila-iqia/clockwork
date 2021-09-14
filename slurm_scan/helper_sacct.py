@@ -27,25 +27,32 @@ import json
 import datetime
 import time
 
+# Note about delimiters:
+#   Don't use "|" because sacct can return things like
+#   "x86_64&(32gb|48gb)" which will get split into two terms.
+#
+# Let's pick something that won't occur accidentally.
 
-def get_remote_cmd():
+delimiter = "<^>"
+
+def get_remote_sacct_cmd():
     """Get the command to run remotely.
     
     The SSH part will be handled by the parent context,
-    but by having `get_remote_cmd` in this file
+    but by having `get_remote_sacct_cmd` in this file
     we have access to the decision about which fields
     are retrieved.
     """
 
     accounts = ",".join(get_accounts())
     format = ",".join(get_desired_sacct_fields())
-    delimiter = "|"
+    # delimiter = 
 
     cmd = f"sacct --allusers --accounts {accounts} --format {format} --delimiter '{delimiter}' --parsable"
     return cmd
 
 
-def get_job_desc_from_stdout(stdout:str):
+def get_jobs_desc_from_stdout(stdout:str):
     """Takes the stdout from a remote call and parses it into final result.
     
     This is the function that you want to call from the outside.
@@ -57,7 +64,7 @@ def get_job_desc_from_stdout(stdout:str):
     """
     L_lines = [e for e in stdout.split("\n") if len(e)>0]
  
-    delimiter = "|"
+    # delimiter = 
     desired_sacct_fields = get_desired_sacct_fields()
     LD_jobs = []
     # skip the header in L_lines[0]
@@ -96,32 +103,42 @@ def process_to_sacct_data(job_raw:dict[str]) -> dict[str]:
 #####################################################
 
 
-def analyze_stdout_line(sacct_fields, line, delimiter="|"):
 
-    # print(line)
+def analyze_stdout_line(sacct_fields, line, delimiter):
+    """
+    """
 
-    # Knock off the last delimiter because we want to make it clear
-    # that there's no empty string beyond that.
-    assert line[-1] == delimiter
-    line = line[:-1]
+    # The problem is that sometimes we have one more delimiter at the end,
+    # despite having no elements after. It doesn't appear to be consistent
+    # between every platform (and between sacct/sinfo on the same platform).
+    # We'll split the lines anyways and consume the tokens if we have exactly
+    # the right number, or that number+1.
 
     # Do not reject values with length zero because many will have length zero.
-    # L = [e for e in line.split(delimiter) if len(e)>0]
     L = line.split(delimiter)
 
-    if len(L) != len(sacct_fields):
+    if len(L) == len(sacct_fields):
+        return dict(zip(sacct_fields, L))
+    elif len(L) == len(sacct_fields) + 1:
+        # if we're off by one in the number of tokens, at least check
+        # that the last one is just zero of more empty spaces
+        assert re.match(r"\s*", L[-1])
+        return dict(zip(sacct_fields, L[:-1]))  # dropping the last one
+    else:
+        print("-----------")
+        print(line)
         print(L)
         print(sacct_fields)
-
-    assert len(L) == len(sacct_fields), (f"We have {len(L)} fields read, but we're looking for {len(sacct_fields)} values.")
-    return dict(zip(sacct_fields, L))
-
-
+        print("-----------")
+        raise Exception(f"We have {len(L)} fields read, but we're looking for {len(sacct_fields)} values.")
+    
 
 def get_accounts():
     """Returns the CC allocations that are relevant to Mila.
     """
-    return [# greater Yoshua account for many people
+    return [# we need 'mila' in there now that we run this method instead of PySlurm at Mila 
+            'mila',
+            # greater Yoshua account for many people
             'def-bengioy_gpu', 'rrg-bengioy-ad_gpu', 'rrg-bengioy-ad_cpu', 'def-bengioy_cpu',
             # doina + joelle + jackie
             'rrg-dprecup', 'def-dprecup',
