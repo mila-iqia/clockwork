@@ -1,0 +1,18 @@
+{"name": "graham",
+    "hostname": "graham.computecanada.ca",
+    "username": "mila-automation",
+    "port": 22,
+    "slurm_login_nodes": [ ],
+    "slurm_partitions": [
+        "cpularge_bycore_b4", "cpubase_bycore_b2", "cpularge_bynode_b6", "cpularge_bynode_b3",
+        "cpubase_bycore_b4", "gpubackfill", "cpubase_bycore_b1", "cpularge_bynode_b2",
+        "cpularge_bycore_b1", "c-gwtaylor", "gpubase_bygpu_b2", "cpularge_interac",
+        "gpubase_bygpu_b3", "cpubase_bynode_b5", "cpularge_bynode_b5", "cpubase_bynode_b6",
+        "cpularge_bynode_b4", "gpubase_bynode_b1", "cpularge_bycore_b2", "cpubase_bynode_b1",
+        "gpubase_bygpu_b4", "cpubase_bynode_b3", "cpubase_bynode_b2", "cpularge_bynode_b1",
+        "cpularge_bycore_b6", "gpubase_bynode_b4", "gpubase_bynode_b5", "cpubase_bycore_b5",
+        "gpubase_bygpu_b5", "cpularge_bycore_b3", "c-rubel", "gpubase_bynode_b3", "gpubase_bynode_b2",
+        "cpubase_bycore_b3", "cpubackfill", "gpubase_bygpu_b6", "cpubase_bynode_b4", "cpubase_bycore_b6",
+        "cpularge_bycore_b5", "gpubase_bynode_b6", "gpubase_bygpu_b1", "gpubase_interac", "cpubase_interac"],
+    "slurm_ignore_partitions": []
+}

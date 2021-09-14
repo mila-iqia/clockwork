@@ -1,0 +1,8 @@
+{"name": "cedar",
+    "hostname": "cedar.computecanada.ca",
+    "username": "mila-automation",
+    "port": 22,
+    "slurm_login_nodes": [ ],
+    "slurm_partitions": [],
+    "slurm_ignore_partitions": []
+}
