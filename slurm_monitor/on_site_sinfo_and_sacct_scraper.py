@@ -471,12 +471,6 @@ def main():
     # We print results because the parent script will retrieve them as stdout.
     print(json.dumps(results))
 
-    # YOU ARE HERE.
-    #     test this
-    #     deploy
-    #     maybe add stuff for nodes?
-    #     probably not stuff for reservations
-
 
 if __name__ == "__main__":
     main()
