@@ -13,5 +13,7 @@
         "cpubase_bycore_b5", "cpularge_bycore_b3", "gpubase_bynode_b3", "gpubase_bynode_b2",
         "cpubase_bycore_b3", "cpubackfill", "gpubase_interac", "cpubase_bynode_b4", "cpularge_bycore_b5",
         "gpubase_bygpu_b1", "c-dragen", "cpubase_interac"],
-    "slurm_ignore_partitions": []
+    "slurm_ignore_partitions": [],
+    "timezone_offset_montreal_minus_there_in_seconds": 0,
+    "local_username_referenced_by_parent_as": "cc_account_username"
 }
