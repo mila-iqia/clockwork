@@ -82,7 +82,7 @@ def main(
                 print("Got an empty response from server.")
                 print(" ".join(ssh_stderr.readlines()))
                 quit()
-            LD_jobs = get_jobs_desc_from_stdout(response_str)
+            LD_jobs = get_jobs_desc_from_stdout(response_str, cluster_desc)
         else:
             LD_jobs = None
 
@@ -94,11 +94,11 @@ def main(
                 print("Got an empty response from server.")
                 print(" ".join(ssh_stderr.readlines()))
                 quit()
-            LD_nodes = get_nodes_desc_from_stdout(response_str)
+            LD_nodes = get_nodes_desc_from_stdout(response_str, cluster_desc)
         else:
             LD_nodes = None
+    # The closing python context triggers `ssh_client.close()`.
 
-    # ssh_client.close()
 
     data = {"jobs": LD_jobs, "nodes": LD_nodes}
 

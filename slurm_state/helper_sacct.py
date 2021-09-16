@@ -52,15 +52,23 @@ def get_remote_sacct_cmd():
     return cmd
 
 
-def get_jobs_desc_from_stdout(stdout:str):
+def get_jobs_desc_from_stdout(stdout:str, cluster_desc:dict):
     """Takes the stdout from a remote call and parses it into final result.
     
     This is the function that you want to call from the outside.
     We just need to know what delimiter `sacct` was told to use
     so that we can parse its output from the remote machine.
 
-    TODO : You need to specify the time zone in some way because
-           the parsing alone doesn't know if it's coming from British Columbia.
+    The `cluster_desc` is needed for things such as interpreting the
+    times properly or user names.
+
+    Args:
+        stdout (str) : The output of the sacct command.
+        cluster_desc (dict) : The description of the cluster coming from
+        the parent script, needed for decisions about how to interpret the data.
+
+    Returns:
+        list[dict]: List of descriptions for each individual jobs.
     """
     L_lines = [e for e in stdout.split("\n") if len(e)>0]
  
@@ -72,16 +80,69 @@ def get_jobs_desc_from_stdout(stdout:str):
         LD_jobs.append( {"raw_sacct" : analyze_stdout_line(desired_sacct_fields, line, delimiter)} )
 
     for D_job in LD_jobs:
-        D_job["sacct"] = process_to_sacct_data(D_job["raw_sacct"])
+        D_job["sacct"] = process_to_sacct_data(D_job["raw_sacct"], cluster_desc)
 
     return LD_jobs
 
 
-def process_to_sacct_data(job_raw:dict[str]) -> dict[str]:
+def process_to_sacct_data(job_raw_sacct:dict[str], cluster_desc:dict) -> dict[str]:
     """Takes all the "raw" sacct from Slurm and converts it to cleaner format.
     
-    Additionally, it also converts all the CamelCase to more pythonic names.
+    Additionally, it converts all the CamelCase to more pythonic names.
+    It also converts the times from their original locations into unix timestamps.
+    This requires the "timezone_offset_montreal_minus_there_in_seconds"
+    from the cluster_desc.
     """
+
+    job_sacct = {}
+
+    job_sacct['account'] = job_raw_sacct['Account']
+    job_sacct['alloc_node'] = job_raw_sacct['AllocNodes']
+    job_sacct['tres_req_str'] = job_raw_sacct['ReqTRES']       # why the str? are we syncing with pyslurm with that?
+    job_sacct['tres_alloc_str'] = job_raw_sacct['AllocTRES']   # why the str? are we syncing with pyslurm with that?
+    job_sacct['work_dir'] = job_raw_sacct['WorkDir']
+
+    # unsure about this mapping
+    job_sacct['user_id'] = job_raw_sacct['UID']
+
+    # Depending which cluster where we find this username,
+    # we'll put it in a different slot. This is important
+    # to distinguish with the (currently) three identities we track.
+    job_sacct[cluster_desc["local_username_referenced_by_parent_as"]] = job_raw_sacct['User']
+
+    job_sacct['job_state'] = job_raw_sacct['State']
+    job_sacct['partition'] = job_raw_sacct['Partition']
+
+
+    ##################################################################
+    #
+    #   Stuff after here starts being a bit shady.
+    #
+    #   Some arbitrary decisions are weird if you don't take into
+    #   consideration a desire to harmonize with whatever PySlurm
+    #   was returning. This is not a nice thing.
+    #   We should discuss this design at some point.
+    ##################################################################
+
+
+    # This is a bit strange because sometimes we have a 'JobIdRaw' that doesn't match.
+    # You might think that JobID should be an integer, but it gets
+    # values like '3114459_1.batch' so it's not an integer.
+    job_sacct['job_id'] = job_raw_sacct['JobID']
+
+    # This one is an editorial decision. These look similar
+    # but it's dangerous to some degree to start matching
+    # fields that aren't necessarily the same.
+    job_sacct['command'] = job_raw_sacct['JobName']
+
+    # Nope. One is a list and the other is an integer written as string.
+    # D_job['req_nodes'] = D_results['ReqNodes']
+
+    job_sacct['resv_name'] = job_raw_sacct['Reservation'] if 0<len(job_raw_sacct['Reservation']) else None
+
+
+    # You are not done here. Continue from "on_site_sinfo_and_sacct_scraper.py".
+
 
     # TODO : Code this.
     #        It involves a lot of the real meat with certain
