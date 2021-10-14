@@ -1,5 +1,9 @@
 # Setup for Slurm Monitor
 
+```
+Note that "Slurm Monitor" is going to phased out, so this .md file is going to be deleted eventually.
+```
+
 The Slurm Monitor is going to scrape the slurm information from various clusters
 for the services described in "setup_four_services.md" : Prometheus, Grafana, ElasticSearch, MongoDB.
 

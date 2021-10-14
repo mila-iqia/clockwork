@@ -39,3 +39,9 @@ When the server fails to query the database, the interface should give some
 kind of feedback to the user to let them know (as developer) that the
 database was unreachable. This is especially important when we run in Docker Compose
 and we can't easily see the stdout of flask.
+
+---
+
+
+
+

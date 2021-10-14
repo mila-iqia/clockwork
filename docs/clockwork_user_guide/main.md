@@ -23,10 +23,12 @@ of the clusters.
 | Mila cluster | every minute |
 | beluga, cedar, graham | every 10 minutes |
 
+[todo : expand this section]
 
 ## people
 
 The REST API also exposes information that's available publicly
 on the Mila web site in a way that's more convenient for python users.
 
-[stub]
+[todo : expand this section]
+

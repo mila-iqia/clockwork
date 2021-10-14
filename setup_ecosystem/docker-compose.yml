@@ -83,7 +83,10 @@ services:
       - ../clockwork_tools:/clockwork/clockwork_tools
       - ../clockwork_tools_test:/clockwork/clockwork_tools_test
       - ./entrypoint_inside_clockwork_web_container.sh:/clockwork/entrypoint_inside_clockwork_web_container.sh
+    # Toggle between these lines to run
+    #    the usual script for production
     # command: bash /clockwork/entrypoint_inside_clockwork_web_container.sh
+    #    the more interactive approach
     command: bash -c "sleep 43897423"
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
