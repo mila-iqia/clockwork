@@ -125,10 +125,11 @@ def process_to_sacct_data(job_raw_sacct:dict[str], cluster_desc:dict) -> dict[st
     ##################################################################
 
 
-    # This is a bit strange because sometimes we have a 'JobIdRaw' that doesn't match.
+
     # You might think that JobID should be an integer, but it gets
     # values like '3114459_1.batch' so it's not an integer.
     job_sacct['job_id'] = job_raw_sacct['JobID']
+    job_sacct['job_id_raw'] = job_raw_sacct['JobIDRaw']
 
     # This one is an editorial decision. These look similar
     # but it's dangerous to some degree to start matching
@@ -136,9 +137,53 @@ def process_to_sacct_data(job_raw_sacct:dict[str], cluster_desc:dict) -> dict[st
     job_sacct['command'] = job_raw_sacct['JobName']
 
     # Nope. One is a list and the other is an integer written as string.
-    # D_job['req_nodes'] = D_results['ReqNodes']
+    # job_sacct['req_nodes'] = job_raw_sacct['ReqNodes']
 
     job_sacct['resv_name'] = job_raw_sacct['Reservation'] if 0<len(job_raw_sacct['Reservation']) else None
+
+
+
+    """
+    job_raw_sacct['Submit'] is something like 2021-05-08T15:37:35
+    job_raw_sacct['Start'], job_raw_sacct['End'] can be "Unknown"
+    job_raw_sacct['Eligible'] is something like 2021-05-08T15:37:35
+
+    D_job['submit_time'] is unix time as integer.
+    Same for 'submit_time', 'start_time', 'end_time', 'eligible_time'.
+
+    Remember that cedar is in Vancouver time.
+    """
+
+    #### Submit ####
+    job_sacct['submit_time'] = int(localtime_to_unix_timestamp(job_raw_sacct['Submit']))
+    #### Start ####
+    if job_raw_sacct['Start'] is None or job_raw_sacct['Start'] == "Unknown":
+        job_sacct['start_time'] = None
+    else:
+        job_sacct['start_time'] = int(localtime_to_unix_timestamp(job_raw_sacct['Start']))
+    #### End ####
+    if job_raw_sacct['End'] is None or job_raw_sacct['End'] == "Unknown":
+        job_sacct['end_time'] = None
+    else:
+        job_sacct['end_time'] = int(localtime_to_unix_timestamp(job_raw_sacct['End']))
+    #### Eligible ####
+    job_sacct['eligible_time'] = int(localtime_to_unix_timestamp(job_raw_sacct['Eligible']))
+    ####
+
+    # No idea what this does, but the mapping seems natural.
+    job_sacct['assoc_id'] = int(job_raw_sacct['AssocID'])
+
+    """
+        "time_limit": 900,
+        "time_limit_str": "15:00:00",
+        "Timelimit": "23:59:00",
+        "TimelimitRaw": "1439",
+    """
+    job_sacct['time_limit'] = int(job_raw_sacct['TimelimitRaw']) if job_raw_sacct['TimelimitRaw'] else 0
+    job_sacct['time_limit_str'] = job_raw_sacct['Timelimit']
+
+    job_sacct['exit_code'] = job_raw_sacct['ExitCode']
+
 
 
     # You are not done here. Continue from "on_site_sinfo_and_sacct_scraper.py".
