@@ -34,26 +34,38 @@ import time
 import argparse
 from pymongo import MongoClient
 
-parser = argparse.ArgumentParser(description='Migrate data from one instance of mongodb to another.')
-parser.add_argument('--src_host', type=str,
-                    help='source mongodb connection string')
-parser.add_argument('--dst_host', type=str,
-                    help='destination mongodb connection string')
-parser.add_argument('--src_db', type=str, default="clockwork",
-                    help='source mongodb database')
-parser.add_argument('--dst_db', type=str, default="clockwork",
-                    help='destination mongodb database')
-parser.add_argument('--coll', type=str, default="jobs",
-                    help='collection to transfer')
-parser.add_argument('--days_to_expiration', type=int, default=None, # default is to not apply filtering
-                    help='how many days before we ignore the source data (and purge from destination)')
+parser = argparse.ArgumentParser(
+    description="Migrate data from one instance of mongodb to another."
+)
+parser.add_argument("--src_host", type=str, help="source mongodb connection string")
+parser.add_argument(
+    "--dst_host", type=str, help="destination mongodb connection string"
+)
+parser.add_argument(
+    "--src_db", type=str, default="clockwork", help="source mongodb database"
+)
+parser.add_argument(
+    "--dst_db", type=str, default="clockwork", help="destination mongodb database"
+)
+parser.add_argument("--coll", type=str, default="jobs", help="collection to transfer")
+parser.add_argument(
+    "--days_to_expiration",
+    type=int,
+    default=None,  # default is to not apply filtering
+    help="how many days before we ignore the source data (and purge from destination)",
+)
 
 args = parser.parse_args()
 
-def main(src_host:str, src_db:str,
-         dst_host:str, dst_db:str,
-         coll:str,
-         days_to_expiration):
+
+def main(
+    src_host: str,
+    src_db: str,
+    dst_host: str,
+    dst_db: str,
+    coll: str,
+    days_to_expiration,
+):
 
     src = MongoClient(src_host)[src_db]
     dst = MongoClient(dst_host)[dst_db]
@@ -67,12 +79,14 @@ def main(src_host:str, src_db:str,
         # `days_to_expiration` is None.
         # mongodb_filter_for_removal = None
     else:
-        seconds_to_expiration = days_to_expiration*3600*24
+        seconds_to_expiration = days_to_expiration * 3600 * 24
         # Those jobs; you want to update.
         mongodb_src_filter_for_update = {
-            '$or' : [   {'end_time': {'$gt': int(time.time() - seconds_to_expiration)}},
-                        {'end_time': 0}]
-            }
+            "$or": [
+                {"end_time": {"$gt": int(time.time() - seconds_to_expiration)}},
+                {"end_time": 0},
+            ]
+        }
         # Those jobs; you want to remove them.
         # At least remove them from the destination,
         # but maybe we'd want to remove them from the
@@ -80,9 +94,11 @@ def main(src_host:str, src_db:str,
         # This filter is pretty much the negation of the
         # previous filter.
         mongodb_filter_for_removal = {
-            '$and' : [  {'end_time': {'$lt': int(time.time() - seconds_to_expiration)}},
-                        {'end_time': {'$ne': 0}}]
-            }
+            "$and": [
+                {"end_time": {"$lt": int(time.time() - seconds_to_expiration)}},
+                {"end_time": {"$ne": 0}},
+            ]
+        }
 
     # Query is on SOURCE.
     nbr_updated = 0
@@ -90,10 +106,9 @@ def main(src_host:str, src_db:str,
         # Perform the updates by mongodb '_id' field so we
         # don't have to know anything about the particular
         # meaning of the data contained.
-        dst[coll].update_one({'_id': e['_id']}, {"$set": e}, upsert=True)
+        dst[coll].update_one({"_id": e["_id"]}, {"$set": e}, upsert=True)
         nbr_updated += 1
     print(f"Updated {nbr_updated} from collection {coll} in destination.")
-
 
     # Hardcoding a certain protection.
     # This is a sign that the tool wasn't designed as something elegant and general,
@@ -109,9 +124,11 @@ def main(src_host:str, src_db:str,
 
 if __name__ == "__main__":
 
-    main(   src_host=args.src_host,
-            src_db=args.src_db,
-            dst_host=args.dst_host,
-            dst_db=args.dst_db,
-            coll=args.coll.replace(" ", ""),
-            days_to_expiration=args.days_to_expiration)
+    main(
+        src_host=args.src_host,
+        src_db=args.src_db,
+        dst_host=args.dst_host,
+        dst_db=args.dst_db,
+        coll=args.coll.replace(" ", ""),
+        days_to_expiration=args.days_to_expiration,
+    )

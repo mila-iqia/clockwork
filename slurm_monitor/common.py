@@ -21,7 +21,6 @@ messy_ugly_analyze_gpu_gres:
 """
 
 
-
 from collections import defaultdict
 import re
 
@@ -41,7 +40,6 @@ def extract_username_from_job_data(job_data):
     def f(job_data, k):
         # avoid problems with entries that are present but are `None`
         return str(job_data.get(k, ""))
-        
 
     ### mila cluster ###
 
@@ -50,7 +48,7 @@ def extract_username_from_job_data(job_data):
     # "std_err": "/home/mila/d/dehganar/randomsearch_906962.log",
     # "std_in": "/dev/null",
     # "std_out": "/home/mila/d/dehganar/randomsearch_906962.log",
-    for k in ['command', 'std_err', 'std_in', 'std_out', 'work_dir']:
+    for k in ["command", "std_err", "std_in", "std_out", "work_dir"]:
         if m := re.match(r"/home/mila/[\.a-zA-Z0-9]{1}/([^/]+?)/.*", f(job_data, k)):
             potential_guesses.append(m.group(1))
 
@@ -58,45 +56,45 @@ def extract_username_from_job_data(job_data):
     if m := re.match(r"/home/mila/[a-zA-Z0-9]{1}/([^/]+)$", f(job_data, "work_dir")):
         potential_guesses.append(m.group(1))
 
-
     # !! This person has a dot in their username!?
     # "command": "/network/tmp1/kaustubh.mani/git/bts/pytorch/job_script.sh 0.0001"
-    for k in ['command', 'work_dir']:
+    for k in ["command", "work_dir"]:
         if m := re.match(r"/network/tmp\d/([^/]+?)/.*", f(job_data, k)):
             potential_guesses.append(m.group(1))
 
     # 'work_dir': '/network/tmp1/subakany'
-    for k in ['command', 'work_dir']:
+    for k in ["command", "work_dir"]:
         if m := re.match(r"/network/tmp\d/([^/]+)$", f(job_data, k)):
             potential_guesses.append(m.group(1))
-
 
     # No idea what to do with that one. Is it a project?
     # 'work_dir': '/network/data2/tech-transfer/fansitca/chloe_project/neurips/casande'
     # 'work_dir': '/network/data2/tech-transfer/rishab_goel/chloe_backup'
-    if m := re.match(r"/network/data\d/tech-transfer/([^/]+?)/.*", f(job_data, "work_dir")):
+    if m := re.match(
+        r"/network/data\d/tech-transfer/([^/]+?)/.*", f(job_data, "work_dir")
+    ):
         potential_guesses.append(m.group(1))
     # Let's pretend that we want to match "/network/data2/tech-transfer/rishab_goel" as well.
-    if m := re.match(r"/network/data\d/tech-transfer/([^/]+)$", f(job_data, "work_dir")):
+    if m := re.match(
+        r"/network/data\d/tech-transfer/([^/]+)$", f(job_data, "work_dir")
+    ):
         potential_guesses.append(m.group(1))
 
-
     ### beluga ###
-    
+
     # "work_dir": "/scratch/prouse/log/WCSim_data_jobs/HyperK_2pi"
     # "std_err": "/scratch/prouse/log/WCSim_data_jobs/HyperK_2pi/gamma-750.err",
     # "std_in": "/dev/null",
     # "std_out": "/scratch/prouse/log/WCSim_data_jobs/HyperK_2pi/gamma-750.out",
 
-    for k in ['std_err', 'std_in', 'std_out', 'work_dir']:
+    for k in ["std_err", "std_in", "std_out", "work_dir"]:
         if m := re.match(r"/scratch/([^/]+?)/.*", f(job_data, k)):
             potential_guesses.append(m.group(1))
-
 
     # "std_err": "/lustre03/project/6008004/yanlin/nextTadCaller/downsample/slurm-19741310.out",
     # "std_out": "/lustre03/project/6008004/yanlin/nextTadCaller/downsample/slurm-19741310.out",
     # "work_dir": "/lustre03/project/6008004/yanlin/nextTadCaller/downsample",
-    for k in ['std_err', 'std_in', 'std_out', 'work_dir']:
+    for k in ["std_err", "std_in", "std_out", "work_dir"]:
         if m := re.match(r"/lustre\d+/project/\d+/([^/]+?)/.*", f(job_data, k)):
             potential_guesses.append(m.group(1))
 
@@ -107,18 +105,16 @@ def extract_username_from_job_data(job_data):
     # "std_err": "/home/pratogab/ood_scaling_new/logs/proto_eval_coco_densenet121_data_ratio_100_percent_bird_5way_5shot.out",
     # "std_out": "/home/pratogab/ood_scaling_new/logs/proto_eval_coco_densenet121_data_ratio_100_percent_bird_5way_5shot.out",
     # "work_dir": "/home/pratogab/ood_scaling_new",
-    for k in ['command', 'std_err', 'std_in', 'std_out', 'work_dir']:
+    for k in ["command", "std_err", "std_in", "std_out", "work_dir"]:
         if m := re.match(r"/home/([^/]+?)/.*", f(job_data, k)):
             potential_guesses.append(m.group(1))
 
     # "std_err": "/lustre04/scratch/fkaadou/Ag_Ca2N_MoS2/separate_layers/Ag_Ca2N/PES_scan/short_diag/scan11/slurm-19785495.out",
     # "std_out": "/lustre04/scratch/fkaadou/Ag_Ca2N_MoS2/separate_layers/Ag_Ca2N/PES_scan/short_diag/scan11/slurm-19785495.out",
     # "command": "/lustre04/scratch/haipwu/code/self-sup-att-rl/scripts/train_single"
-    for k in ['command', 'std_err', 'std_in', 'std_out', 'work_dir']:
+    for k in ["command", "std_err", "std_in", "std_out", "work_dir"]:
         if m := re.match(r"/lustre\d+/scratch/([^/]+?)/.*", f(job_data, k)):
             potential_guesses.append(m.group(1))
-
-
 
     # "work_dir": "/home/hattie"
     # 'work_dir': "/home/meade"
@@ -174,16 +170,12 @@ def filter_unrelated_jobs(psl_jobs):
     so there's no harm filtering twice (especially since it's cheaper
     the second time around with a shorter list).
     """
-    accounts = set(v['account'] for v in psl_jobs.values())
-    valid_accounts = set(
-        [a for a in accounts if re.match(r".*bengio.*", a)] + ["mila"]
-    )
-    return dict((k, v) for (k, v) in psl_jobs.items() if v['account'] in valid_accounts)
+    accounts = set(v["account"] for v in psl_jobs.values())
+    valid_accounts = set([a for a in accounts if re.match(r".*bengio.*", a)] + ["mila"])
+    return dict((k, v) for (k, v) in psl_jobs.items() if v["account"] in valid_accounts)
 
 
-
-
-def messy_ugly_analyze_node_state(node_state:str):
+def messy_ugly_analyze_node_state(node_state: str):
     """
     Used exclusively by NodeStatesManager.
     Factored out because it's ugly and full of arbitrary
@@ -191,7 +183,7 @@ def messy_ugly_analyze_node_state(node_state:str):
 
     This complicated mess comes from "sinfo.py" and we need to be
     able to factor it out in order to reason about it.
-    
+
     This function seriously needs documentation, motivation,
     and unit tests. Otherwise it's unacceptable.
 
@@ -199,16 +191,16 @@ def messy_ugly_analyze_node_state(node_state:str):
     """
 
     # Split if node has 2 states
-    if '+' in node_state:
+    if "+" in node_state:
         multi = False
         node_state = node_state.split("+")
         # Keep only 1 state DOWN>DRAIN>REST
         # UGLY: TODO better
         for _s in node_state:
-            if _s.startswith('DOWN'):
+            if _s.startswith("DOWN"):
                 multi = "DOWN"
                 break
-            elif _s.startswith('DRAIN'):
+            elif _s.startswith("DRAIN"):
                 # DRAIN assumes DRAINED
                 multi = "DRAINED"
         if not multi:
@@ -217,16 +209,16 @@ def messy_ugly_analyze_node_state(node_state:str):
         node_state = multi
 
     # Count not responding nodes separatly
-    if node_state.endswith('*'):
+    if node_state.endswith("*"):
         node_state = node_state[:-1]
     # TODO: count reboots ?
-    if node_state.endswith((('#', '@'))):
+    if node_state.endswith((("#", "@"))):
         node_state = node_state[:-1]
 
     # Guillaume says : I added this on 2021-07-01
     # when beluga hit me with a "mixed$" that this
     # function wasn't handling well.
-    if node_state.endswith('$'):
+    if node_state.endswith("$"):
         node_state = node_state[:-1]
 
     node_state = node_state.lower()
@@ -274,15 +266,15 @@ def messy_ugly_analyze_gpu_gres(node_gres, node_gres_used):
     node_gpus = {}
     # Loop on Gres
     for g_tot in node_gres:
-        g_tot = g_tot.split(':',2)
+        g_tot = g_tot.split(":", 2)
         if len(g_tot) == 3:
-            node_gpus.setdefault(g_tot[1], {})['total'] = int(g_tot[2].split('(')[0])
+            node_gpus.setdefault(g_tot[1], {})["total"] = int(g_tot[2].split("(")[0])
     # Loop on Gres used
     for g_used in node_gres_used:
-        g_used = g_used.split(':',2)
+        g_used = g_used.split(":", 2)
         # Exclude MPS for now
         if len(g_used) == 3:
             # Remove IDX index
-            node_gpus.setdefault(g_used[1], {})['alloc'] = int(g_used[2].split('(')[0])
-        
+            node_gpus.setdefault(g_used[1], {})["alloc"] = int(g_used[2].split("(")[0])
+
     return node_gpus

@@ -1,19 +1,20 @@
-
 import base64
 import random
 import pytest
 
+
 def get_random_string():
-    b = str(random.random()).encode('utf-8')
-    return base64.b64encode(b).decode('utf-8')
+    b = str(random.random()).encode("utf-8")
+    return base64.b64encode(b).decode("utf-8")
+
 
 def test_get_nodes_list(mtclient, fake_data):
     LD_nodes = mtclient.nodes_list()
 
-    assert len(LD_nodes) == len(fake_data['nodes'])
+    assert len(LD_nodes) == len(fake_data["nodes"])
 
-    S_names_A = set([D_node['name'] for D_node in LD_nodes])
-    S_names_B = set([D_node['name'] for D_node in fake_data['nodes']])
+    S_names_A = set([D_node["name"] for D_node in LD_nodes])
+    S_names_B = set([D_node["name"] for D_node in fake_data["nodes"]])
     # S_names_B = set([
     #    'ci-computenode', 'cn-a001', 'cn-a002', 'cn-a003', 'cn-a004', 'cn-a005', 'cn-a006',
     #    'cn-a007', 'cn-a008', 'cn-a009', 'blg4101', 'blg4102', 'blg4103', 'blg4104', 'blg4105',
@@ -30,6 +31,8 @@ def test_unauthorized_get_nodes_list_00(unauthorized_mtclient_00):
     except Exception as e:
         assert "Server rejected call with code" in str(e)
         assert "Authorization error." in str(e)
+
+
 #
 def test_unauthorized_get_nodes_list_01(unauthorized_mtclient_01):
     try:
@@ -38,12 +41,15 @@ def test_unauthorized_get_nodes_list_01(unauthorized_mtclient_01):
         assert "Server rejected call with code" in str(e)
         assert "Authorization error." in str(e)
 
+
 def test_unauthorized_get_nodes_one_00(unauthorized_mtclient_00):
     try:
         response = unauthorized_mtclient_00.nodes_one(name="doesntmatter")
     except Exception as e:
         assert "Server rejected call with code" in str(e)
         assert "Authorization error." in str(e)
+
+
 #
 def test_unauthorized_get_nodes_one_01(unauthorized_mtclient_01):
     try:
@@ -53,13 +59,19 @@ def test_unauthorized_get_nodes_one_01(unauthorized_mtclient_01):
         assert "Authorization error." in str(e)
 
 
-@pytest.mark.parametrize("cluster_name", ("mila", "cedar", "graham", "beluga", "sephiroth"))
+@pytest.mark.parametrize(
+    "cluster_name", ("mila", "cedar", "graham", "beluga", "sephiroth")
+)
 def test_get_nodes_with_filter(mtclient, fake_data, cluster_name):
     """
     Analogous to the test in "clockwork_web_test/test_nodes.py" bearing the same name.
     """
     LD_nodes = mtclient.nodes_list(cluster_name=cluster_name)
-    LD_original_nodes = [D_node for D_node in fake_data['nodes'] if D_node["cluster_name"] == cluster_name]
+    LD_original_nodes = [
+        D_node
+        for D_node in fake_data["nodes"]
+        if D_node["cluster_name"] == cluster_name
+    ]
 
     assert len(LD_nodes) == len(LD_original_nodes), (
         "Lengths of lists don't match, so we shouldn't expect them to be able "
@@ -68,8 +80,10 @@ def test_get_nodes_with_filter(mtclient, fake_data, cluster_name):
 
     # agree on some ordering so you can zip the lists and have
     # matching elements in the same order
-    LD_nodes = list(sorted(LD_nodes, key=lambda D_node: D_node['name']))
-    LD_original_nodes = list(sorted(LD_original_nodes, key=lambda D_node: D_node['name']))
+    LD_nodes = list(sorted(LD_nodes, key=lambda D_node: D_node["name"]))
+    LD_original_nodes = list(
+        sorted(LD_original_nodes, key=lambda D_node: D_node["name"])
+    )
 
     # compare all the dicts one by one
     for (D_node, D_original_node) in zip(LD_nodes, LD_original_nodes):
@@ -82,7 +96,9 @@ def test_get_nodes_with_filter(mtclient, fake_data, cluster_name):
 
 
 @pytest.mark.parametrize("want_valid_name", (True, False))
-@pytest.mark.parametrize("want_valid_cluster_name", (True, False, None))  # None for missing
+@pytest.mark.parametrize(
+    "want_valid_cluster_name", (True, False, None)
+)  # None for missing
 def test_get_nodes_one(mtclient, fake_data, want_valid_name, want_valid_cluster_name):
     """
     Test many combinations of arguments for "nodes_one".
@@ -91,8 +107,8 @@ def test_get_nodes_one(mtclient, fake_data, want_valid_name, want_valid_cluster_
     and without it, and then try any variation of good and bad values.
     """
 
-    assert fake_data['nodes']
-    valid_D_node = random.choice(fake_data['nodes'])
+    assert fake_data["nodes"]
+    valid_D_node = random.choice(fake_data["nodes"])
 
     expected_match_to_be_found = True
     filter = {}
@@ -111,7 +127,6 @@ def test_get_nodes_one(mtclient, fake_data, want_valid_name, want_valid_cluster_
     else:
         filter["cluster_name"] = get_random_string()
         expected_match_to_be_found = False
-
 
     found_D_node = mtclient.nodes_one(**filter)
     if expected_match_to_be_found:

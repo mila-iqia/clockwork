@@ -36,20 +36,20 @@ from .user import User
 # Configuration
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
-GOOGLE_DISCOVERY_URL = (
-    "https://accounts.google.com/.well-known/openid-configuration"
-)
+GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 
 # As described on
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
 # this is what allows the factorization into many files.
 from flask import Blueprint
-flask_api = Blueprint('login', __name__)
+
+flask_api = Blueprint("login", __name__)
 
 
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
+
 
 # TODO : Does this go here? Is it just needed in one function only?
 # OAuth2 client setup
@@ -57,11 +57,10 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 #############################################
 
 
-
 @flask_api.route("/")
 def route_index():
     """Browsing to this starts the authentication dance.
-    
+
     We prepare the necessary components to have the user be
     directed to the Google OAuth services, which also includes
     an address (the callback) that they'll use to return to us afterwards.
@@ -96,7 +95,7 @@ def route_callback():
     We just want to identify them and get basic information.
 
     Returns: Redirects the browser to the index of the page afterwards,
-    which will now act differently facing an authenticated user.   
+    which will now act differently facing an authenticated user.
     """
     # Get authorization code Google sent back to you
     code = request.args.get("code")
@@ -139,16 +138,24 @@ def route_callback():
         picture = userinfo_response.json()["picture"]
         users_name = userinfo_response.json()["given_name"]
     else:
-        return render_template("error.html", error_msg="User email not available or not verified by Google.")
-    
+        return render_template(
+            "error.html",
+            error_msg="User email not available or not verified by Google.",
+        )
+
     user = User.get(unique_id)
     # The first time around, if user is None, it's either
     # because of a corrupted database (should not happen, worth investigating),
     # or because it simply was never created.
     if user is None:
-        success, error_msg = User.add_to_database(unique_id, users_name, users_email, picture)
+        success, error_msg = User.add_to_database(
+            unique_id, users_name, users_email, picture
+        )
         if not success:
-            return render_template("error.html", error_msg=f"Failed to add a user to the database. {error_msg}")
+            return render_template(
+                "error.html",
+                error_msg=f"Failed to add a user to the database. {error_msg}",
+            )
         else:
             # We successfully added the user to the database,
             # so we should be able to retrieve it now.
@@ -157,16 +164,24 @@ def route_callback():
                 # If we still have a `None`, then it means that we really have an error.
                 # Again, if we had a database corruption, then this should have been
                 # detected earlier, but let's test anyway.
-                return render_template("error.html", error_msg="We tried to create an account for {users_email} but it failed.")
+                return render_template(
+                    "error.html",
+                    error_msg="We tried to create an account for {users_email} but it failed.",
+                )
 
     # At this point in the code, the user cannot possibly be `None`.
 
     if user.status != "enabled":
-        return render_template("error.html", error_msg="The user retrieved does not have its status as 'enabled'.")
+        return render_template(
+            "error.html",
+            error_msg="The user retrieved does not have its status as 'enabled'.",
+        )
         # return f"The user retrieved does not have its status as 'enabled'.", 400
 
     login_user(user)
-    print(f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated}")
+    print(
+        f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated}"
+    )
     # Send user back to homepage
     return redirect(url_for("index"))
 
@@ -175,7 +190,7 @@ def route_callback():
 @login_required
 def route_logout():
     """Logs out the user when browsing to this address.
-    
+
     Everything happens through the `flask_login` module,
     and we just need to call `logout_user()`.
     """
@@ -196,6 +211,7 @@ we might as well use it. Poking this URL logs the session as "fake_user@mila.que
 """
 
 if os.environ.get("LOGIN_DISABLED", "False") in ["True", "true", "1"]:
+
     @flask_api.route("/fake_user")
     def route_fake_user():
         # This unique ID could be anything, and it's also not something private.
@@ -210,7 +226,8 @@ if os.environ.get("LOGIN_DISABLED", "False") in ["True", "true", "1"]:
         if user is None:
             User.add_to_database(unique_id, "Fake User", "fake_user@mila.quebec", "")
         user = User.get(unique_id)
-        assert user is not None, "Failed to create a fake user with route /login/fake_user."
+        assert (
+            user is not None
+        ), "Failed to create a fake user with route /login/fake_user."
         login_user(user)
         return redirect(url_for("index"))
-

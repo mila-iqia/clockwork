@@ -19,20 +19,23 @@ from flask_login import UserMixin
 # TODO : Rethink this and harmonize with the random strings
 #        generated for unit tests, through a similar function
 #        than this `get_new_clockwork_api_key` at the end of this file.
-import numpy as np  
+import numpy as np
 
 # import sys, traceback  # debugging
 
 from .db import get_db
 
+
 class User(UserMixin):
     """
-    The methods of this class are determined by the demands of the 
+    The methods of this class are determined by the demands of the
     `login_manager` library. For example, the fact that `get` returns
     a `None` if it fails to find the user.
     """
 
-    def __init__(self, id, name, email, profile_pic, status="enabled", clockwork_api_key=None):
+    def __init__(
+        self, id, name, email, profile_pic, status="enabled", clockwork_api_key=None
+    ):
         """
         This constructor is called only by the `get` method.
         We never call it directly.
@@ -49,18 +52,19 @@ class User(UserMixin):
     # on a link or refresh the pages.
     def is_authenticated(self):
         return True
+
     def is_active(self):
         return self.status == "enabled"
 
     @staticmethod
-    def get(id:str):
+    def get(id: str):
         """
         Returns a tuple (user:User or None, error_msg:str).
         """
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
 
-        L = list(mc['users'].find({'id': id}))
+        L = list(mc["users"].find({"id": id}))
         # This is not an error from which we expect to be able to recover gracefully.
         # It could happen if you copied data from your database directly
         # using an external script, and ended up with many instances of your users.
@@ -72,17 +76,18 @@ class User(UserMixin):
             return None
         # this is fine, and the user will just get created by the parent code
         elif len(L) == 0:
-            return None  #, f"Found no user in the database for id {id}."
+            return None  # , f"Found no user in the database for id {id}."
         else:
             e = L[0]
             user = User(
                 id=id,
-                name=e['name'],
-                email=e['email'],
-                profile_pic=e['profile_pic'],
-                status=e['status'],
-                clockwork_api_key=e['clockwork_api_key'])
-            print("Retrieved entry for user with email %s." % e['email'])
+                name=e["name"],
+                email=e["email"],
+                profile_pic=e["profile_pic"],
+                status=e["status"],
+                clockwork_api_key=e["clockwork_api_key"],
+            )
+            print("Retrieved entry for user with email %s." % e["email"])
 
             # traceback.print_stack(file=sys.stdout)
 
@@ -92,7 +97,9 @@ class User(UserMixin):
             return user
 
     @staticmethod
-    def add_to_database(id, name, email, profile_pic, status="enabled", clockwork_api_key=None):
+    def add_to_database(
+        id, name, email, profile_pic, status="enabled", clockwork_api_key=None
+    ):
         """
         Create the entry in the database.
         Note that this method does not return the actual instance of User,
@@ -101,7 +108,7 @@ class User(UserMixin):
         Returns a tuple (success:bool, error_msg:str).
         """
 
-        if status not in ['enabled', 'disabled']:
+        if status not in ["enabled", "disabled"]:
             # Note that testing that the status is contained in the list enum values
             # is NOT the same as testing that the user's status is equal to "enabled".
             # Those are two different things entirely.
@@ -115,18 +122,18 @@ class User(UserMixin):
             clockwork_api_key = get_new_clockwork_api_key()
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
-        e = {'id': id,
-            'name': name,
-            'email': email,
-            'profile_pic': profile_pic,
-            'status': status,
-            'clockwork_api_key': clockwork_api_key
+        e = {
+            "id": id,
+            "name": name,
+            "email": email,
+            "profile_pic": profile_pic,
+            "status": status,
+            "clockwork_api_key": clockwork_api_key,
         }
-        mc['users'].update_one({'id': id}, {"$set": e}, upsert=True)
+        mc["users"].update_one({"id": id}, {"$set": e}, upsert=True)
         # No need to do a "commit" operation or something like that.
-        print("Created entry for user with email %s." % e['email'])
+        print("Created entry for user with email %s." % e["email"])
         return True, ""
-
 
     @staticmethod
     def validate_before_creation(id, name, email):
@@ -139,16 +146,17 @@ class User(UserMixin):
         # There are already mechanisms in place to that login
         # is restricted to users within the organization only,
         # but let's add this check on top of it.
-        if not email.endswith('@mila.quebec'):
+        if not email.endswith("@mila.quebec"):
             return False, "We accept only accounts @mila.quebec ."
 
         return True, ""
 
 
-def get_new_clockwork_api_key(nbr_of_hex_characters = 32):
+def get_new_clockwork_api_key(nbr_of_hex_characters=32):
     """
     Creates a string with 32 hex characters one after the other.
     """
     return "".join(
-            '%0.2x' % np.random.randint(low=0, high=256)
-            for _ in range(nbr_of_hex_characters // 2))
+        "%0.2x" % np.random.randint(low=0, high=256)
+        for _ in range(nbr_of_hex_characters // 2)
+    )

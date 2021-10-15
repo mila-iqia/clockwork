@@ -16,7 +16,7 @@ from flask.globals import current_app
 from ..db import get_db
 
 
-def authenticate_with_header_basic(s:str):
+def authenticate_with_header_basic(s: str):
     """
     Looks at the value of {"Authorization" : "Basic kfjio329ur328jb"},
     decodes and analyzes the string,
@@ -40,19 +40,23 @@ def authenticate_with_header_basic(s:str):
     # failed that might help attackers. That being said, most accounts aren't very secret
     # because students have their @mila.quebec emails listed online.
 
-    L = list(mc["users"].find({'email': E['email']}))
+    L = list(mc["users"].find({"email": E["email"]}))
     if L:
         # If the user is present, we expect only one entry, but it's not worth
         # shutting down the web server for such an error.
         if 1 < len(L):
-            current_app.logger.error(f"You have many entries in the database matching {E}.")
+            current_app.logger.error(
+                f"You have many entries in the database matching {E}."
+            )
 
         D_user = L[0]
-        if D_user['clockwork_api_key'] == E['clockwork_api_key']:
+        if D_user["clockwork_api_key"] == E["clockwork_api_key"]:
             # success
             return D_user
         else:
-            current_app.logger.debug(f"Wrong clockwork_api_key {E['clockwork_api_key']} for {E['email']}")
+            current_app.logger.debug(
+                f"Wrong clockwork_api_key {E['clockwork_api_key']} for {E['email']}"
+            )
             # failure to authenticate
             return None
     else:
@@ -61,8 +65,7 @@ def authenticate_with_header_basic(s:str):
         return None
 
 
-
-def _split_header_authorization_value(s:str) -> dict:
+def _split_header_authorization_value(s: str) -> dict:
     """
     Helper for `authenticate` separated for easier unit testing.
 
@@ -80,11 +83,10 @@ def _split_header_authorization_value(s:str) -> dict:
     if m := re.match(r"^(.*):(.*)$", decoded_s):
         email = m.group(1)
         clockwork_api_key = m.group(2)
-        return {'email': email, 'clockwork_api_key': clockwork_api_key}
+        return {"email": email, "clockwork_api_key": clockwork_api_key}
     else:
         return None
 
 
-
-#def test():
+# def test():
 #    _split_header_authorization_value("Basic kfjio329ur328jb")

@@ -43,6 +43,7 @@ from helper_sinfo import get_nodes_desc_from_stdout, get_remote_sinfo_cmd
 
 # See at the end of this script for the argparse definitions.
 
+
 def main(
     cluster_desc,
     mongodb_connection_string="",
@@ -50,7 +51,8 @@ def main(
     want_mongodb=True,
     want_sacct=True,
     want_sinfo=True,
-    write_data_to_file=None):
+    write_data_to_file=None,
+):
 
     with SSHClient() as ssh_client:
 
@@ -62,7 +64,11 @@ def main(
         #     paramiko.ssh_exception.AuthenticationException: Authentication timeout.
         try:
             print(f"Connecting to {cluster_desc['hostname']}.")
-            ssh_client.connect(cluster_desc["hostname"], username=cluster_desc["username"], port=cluster_desc["port"])
+            ssh_client.connect(
+                cluster_desc["hostname"],
+                username=cluster_desc["username"],
+                port=cluster_desc["port"],
+            )
             print(f"Connected to {cluster_desc['hostname']}.")
         # except ssh_exception.AuthenticationException as inst:
         #     maybe do something different?
@@ -72,10 +78,12 @@ def main(
             quit()
 
         # Run the desired commands remotely.
-        
+
         #    sacct
         if want_sacct:
-            ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(get_remote_sacct_cmd())
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(
+                get_remote_sacct_cmd()
+            )
             response_str = "\n".join(ssh_stdout.readlines())
             print(response_str)
             if len(response_str) == 0:
@@ -88,7 +96,9 @@ def main(
 
         #    sinfo
         if want_sinfo:
-            ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(get_remote_sinfo_cmd())
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(
+                get_remote_sinfo_cmd()
+            )
             response_str = "\n".join(ssh_stdout.readlines())
             if len(response_str) == 0:
                 print("Got an empty response from server.")
@@ -98,7 +108,6 @@ def main(
         else:
             LD_nodes = None
     # The closing python context triggers `ssh_client.close()`.
-
 
     data = {"jobs": LD_jobs, "nodes": LD_nodes}
 
@@ -113,25 +122,43 @@ def main(
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Calls sacct and sinfo on a remote machine part of a Slurm cluster.')
-    parser.add_argument('--cluster_desc', type=str, default="./cluster_desc/mila.json",
-                        help='Path to a json file with all the information about the target cluster.')
-    parser.add_argument('--mongodb_connection_string', type=str, default="",
-                        help='Connection string to be used by MongoClient. Ignored if --no_mongodb is set.')
-    parser.add_argument('--mongodb_collection', type=str, default="clockwork",
-                        help='Collection to populate. Ignored if --no_mongodb is set.')
+    parser = argparse.ArgumentParser(
+        description="Calls sacct and sinfo on a remote machine part of a Slurm cluster."
+    )
+    parser.add_argument(
+        "--cluster_desc",
+        type=str,
+        default="./cluster_desc/mila.json",
+        help="Path to a json file with all the information about the target cluster.",
+    )
+    parser.add_argument(
+        "--mongodb_connection_string",
+        type=str,
+        default="",
+        help="Connection string to be used by MongoClient. Ignored if --no_mongodb is set.",
+    )
+    parser.add_argument(
+        "--mongodb_collection",
+        type=str,
+        default="clockwork",
+        help="Collection to populate. Ignored if --no_mongodb is set.",
+    )
     # for debugging and testing, especially in conjunction with "--no-mongodb"
-    parser.add_argument('--write_data_to_file', type=str, default=None,
-                        help='Writes the data to a file specified by that path (when specified). Assumes the parent directory already exists.')
+    parser.add_argument(
+        "--write_data_to_file",
+        type=str,
+        default=None,
+        help="Writes the data to a file specified by that path (when specified). Assumes the parent directory already exists.",
+    )
 
     # https://stackoverflow.com/questions/15008758/parsing-boolean-values-with-argparse#15008806
-    parser.add_argument('--sacct', dest='want_sacct', action='store_true')
-    parser.add_argument('--no-sacct', dest='want_sacct', action='store_false')
-    parser.add_argument('--sinfo', dest='want_sinfo', action='store_true')
-    parser.add_argument('--no-sinfo', dest='want_sinfo', action='store_false')
+    parser.add_argument("--sacct", dest="want_sacct", action="store_true")
+    parser.add_argument("--no-sacct", dest="want_sacct", action="store_false")
+    parser.add_argument("--sinfo", dest="want_sinfo", action="store_true")
+    parser.add_argument("--no-sinfo", dest="want_sinfo", action="store_false")
     # disabling mongodb might be useful for debugging and testing
-    parser.add_argument('--mongodb', dest='want_mongodb', action='store_true')
-    parser.add_argument('--no-mongodb', dest='want_mongodb', action='store_false')
+    parser.add_argument("--mongodb", dest="want_mongodb", action="store_true")
+    parser.add_argument("--no-mongodb", dest="want_mongodb", action="store_false")
     parser.set_defaults(want_sacct=True, want_sinfo=True, want_mongodb=True)
 
     args = parser.parse_args()
@@ -145,16 +172,21 @@ if __name__ == "__main__":
         with open(args.cluster_desc, "r") as f:
             cluster_desc = json.load(f)
 
-    if args.mongodb_collection.endswith("jobs") or args.mongodb_collection.endswith("nodes"):
-        print("There is a good chance that you are not using the --mongodb_collection properly.\n"
-              "The 'jobs' or 'nodes' suffix is added automatically. Don't add it yourself."
+    if args.mongodb_collection.endswith("jobs") or args.mongodb_collection.endswith(
+        "nodes"
+    ):
+        print(
+            "There is a good chance that you are not using the --mongodb_collection properly.\n"
+            "The 'jobs' or 'nodes' suffix is added automatically. Don't add it yourself."
         )
         quit()
 
-    main(   cluster_desc=cluster_desc,
-            mongodb_connection_string=args.mongodb_connection_string,
-            mongodb_collection=args.mongodb_collection,
-            want_mongodb=args.want_mongodb,
-            want_sacct=args.want_sacct,
-            want_sinfo=args.want_sinfo,
-            write_data_to_file=args.write_data_to_file)
+    main(
+        cluster_desc=cluster_desc,
+        mongodb_connection_string=args.mongodb_connection_string,
+        mongodb_collection=args.mongodb_collection,
+        want_mongodb=args.want_mongodb,
+        want_sacct=args.want_sacct,
+        want_sinfo=args.want_sinfo,
+        write_data_to_file=args.write_data_to_file,
+    )

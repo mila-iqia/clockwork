@@ -15,9 +15,6 @@ import datetime
 import time
 
 
-
-
-
 #### functions for `sacct` ####
 
 
@@ -39,7 +36,7 @@ def date_sanity_check():
     # datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 
 
-def localtime_to_unix_timestamp(date_string:str):
+def localtime_to_unix_timestamp(date_string: str):
     """
     We need to convert time expressed in local time string as "2021-05-08T15:37:35"
     into unix time that's not dependent on time zone.
@@ -66,39 +63,40 @@ def translate_sacct_format_into_pyslurm_format(D_results):
 
     D_job = {}
 
-    D_job['account'] = D_results['Account']
+    D_job["account"] = D_results["Account"]
 
-    D_job['alloc_node'] = D_results['AllocNodes']
+    D_job["alloc_node"] = D_results["AllocNodes"]
 
-    D_job['tres_req_str'] = D_results['ReqTRES']
-    D_job['tres_alloc_str'] = D_results['AllocTRES']
+    D_job["tres_req_str"] = D_results["ReqTRES"]
+    D_job["tres_alloc_str"] = D_results["AllocTRES"]
 
-    D_job['work_dir'] = D_results['WorkDir']
+    D_job["work_dir"] = D_results["WorkDir"]
 
     # unsure about this mapping
-    D_job['user_id'] = D_results['UID']
+    D_job["user_id"] = D_results["UID"]
 
     # Unsure what to call this.
-    D_job['cc_account_username'] = D_results['User']
+    D_job["cc_account_username"] = D_results["User"]
 
-    D_job['job_state'] = D_results['State']
-    D_job['partition'] = D_results['Partition']
+    D_job["job_state"] = D_results["State"]
+    D_job["partition"] = D_results["Partition"]
 
     # This is a bit strange because sometimes we have a 'JobIdRaw' that doesn't match.
     # You might think that JobID should be an integer, but it gets
     # values like '3114459_1.batch' so it's not an integer.
-    D_job['job_id'] = D_results['JobID']
+    D_job["job_id"] = D_results["JobID"]
 
     # This one is an editorial decision. These look similar
     # but it's dangerous to some degree to start matching
     # fields that aren't necessarily the same.
-    D_job['command'] = D_results['JobName']
+    D_job["command"] = D_results["JobName"]
 
     # Nope. One is a list and the other is an integer written as string.
     # D_job['req_nodes'] = D_results['ReqNodes']
 
-    D_job['resv_name'] = D_results['Reservation'] if 0<len(D_results['Reservation']) else None
-
+    D_job["resv_name"] = (
+        D_results["Reservation"] if 0 < len(D_results["Reservation"]) else None
+    )
 
     """
     D_results['Submit'] is something like 2021-05-08T15:37:35
@@ -114,23 +112,23 @@ def translate_sacct_format_into_pyslurm_format(D_results):
     """
 
     #### Submit ####
-    D_job['submit_time'] = int(localtime_to_unix_timestamp(D_results['Submit']))
+    D_job["submit_time"] = int(localtime_to_unix_timestamp(D_results["Submit"]))
     #### Start ####
-    if D_results['Start'] is None or D_results['Start'] == "Unknown":
-        D_job['start_time'] = None
+    if D_results["Start"] is None or D_results["Start"] == "Unknown":
+        D_job["start_time"] = None
     else:
-        D_job['start_time'] = int(localtime_to_unix_timestamp(D_results['Start']))
+        D_job["start_time"] = int(localtime_to_unix_timestamp(D_results["Start"]))
     #### End ####
-    if D_results['End'] is None or D_results['End'] == "Unknown":
-        D_job['end_time'] = None
+    if D_results["End"] is None or D_results["End"] == "Unknown":
+        D_job["end_time"] = None
     else:
-        D_job['end_time'] = int(localtime_to_unix_timestamp(D_results['End']))
+        D_job["end_time"] = int(localtime_to_unix_timestamp(D_results["End"]))
     #### Eligible ####
-    D_job['eligible_time'] = int(localtime_to_unix_timestamp(D_results['Eligible']))
+    D_job["eligible_time"] = int(localtime_to_unix_timestamp(D_results["Eligible"]))
     ####
 
     # No idea what this does, but the mapping seems natural.
-    D_job['assoc_id'] = int(D_results['AssocID'])
+    D_job["assoc_id"] = int(D_results["AssocID"])
 
     """
         "time_limit": 900,
@@ -138,10 +136,12 @@ def translate_sacct_format_into_pyslurm_format(D_results):
         "Timelimit": "23:59:00",
         "TimelimitRaw": "1439",
     """
-    D_job['time_limit'] = int(D_results['TimelimitRaw']) if D_results['TimelimitRaw'] else 0
-    D_job['time_limit_str'] = D_results['Timelimit']
+    D_job["time_limit"] = (
+        int(D_results["TimelimitRaw"]) if D_results["TimelimitRaw"] else 0
+    )
+    D_job["time_limit_str"] = D_results["Timelimit"]
 
-    D_job['exit_code'] = D_results['ExitCode']
+    D_job["exit_code"] = D_results["ExitCode"]
 
     # Something like that could be done.
     #     D_job['nodes'] = D_results['NodeList']
@@ -149,7 +149,7 @@ def translate_sacct_format_into_pyslurm_format(D_results):
     # However, this needs some care because we need to know the representation used
     # when facing many nodes in an enumeration. We should assume that it's going to
     # be something like blg[4109,5608-5609,5803-5804] which we're not going to parse.
-    # 
+    #
     # At the current time, we're only doing the expansion when it comes to "reservations"
     # so that end up being somewhat useless, unfortunately.
     # We have a TODO element in README.md for that, called "add_node_list_simplified on the wrong data structure!".
@@ -157,24 +157,32 @@ def translate_sacct_format_into_pyslurm_format(D_results):
     # The point is that more could and should be done to have this
     # be a proper list of node names and never a shorthand that only
     # slurm knows how to parse.
-    if D_results['NodeList'] == "None assigned":
-        D_job['nodes'] = None
+    if D_results["NodeList"] == "None assigned":
+        D_job["nodes"] = None
     else:
-        D_job['nodes'] = D_results['NodeList']
+        D_job["nodes"] = D_results["NodeList"]
 
     # Note that there might be other fields that we're leaving out at the moment.
-    D_job['name'] = ""
+    D_job["name"] = ""
 
     return D_job
 
 
 def get_accounts():
-    return [# greater Yoshua account for many people
-            'def-bengioy_gpu', 'rrg-bengioy-ad_gpu', 'rrg-bengioy-ad_cpu', 'def-bengioy_cpu',
-            # doina + joelle + jackie
-            'rrg-dprecup', 'def-dprecup',
-            # blake williams
-            'def-tyrell', 'rrg-tyrell', 'rpp-markpb68']
+    return [  # greater Yoshua account for many people
+        "def-bengioy_gpu",
+        "rrg-bengioy-ad_gpu",
+        "rrg-bengioy-ad_cpu",
+        "def-bengioy_cpu",
+        # doina + joelle + jackie
+        "rrg-dprecup",
+        "def-dprecup",
+        # blake williams
+        "def-tyrell",
+        "rrg-tyrell",
+        "rpp-markpb68",
+    ]
+
 
 def get_valid_sacct_fields():
     """
@@ -211,7 +219,9 @@ def get_valid_sacct_fields():
         WCKey               WCKeyID             WorkDir
     """
     raw_str = raw_str.replace("\n", " ")
-    field_names = [field_name for field_name in raw_str.split(" ") if len(field_name)>0]
+    field_names = [
+        field_name for field_name in raw_str.split(" ") if len(field_name) > 0
+    ]
     return field_names
 
 
@@ -246,7 +256,9 @@ def get_desired_sacct_fields():
             WorkDir
        """
     raw_str = raw_str.replace("\n", " ")
-    field_names = [field_name for field_name in raw_str.split(" ") if len(field_name)>0]
+    field_names = [
+        field_name for field_name in raw_str.split(" ") if len(field_name) > 0
+    ]
     return field_names
 
 
@@ -267,10 +279,10 @@ def analyze_stdout_line(sacct_fields, line, delimiter="|"):
         print(L)
         print(sacct_fields)
 
-    assert len(L) == len(sacct_fields), (f"We have {len(L)} fields read, but we're looking for {len(sacct_fields)} values.")
+    assert len(L) == len(
+        sacct_fields
+    ), f"We have {len(L)} fields read, but we're looking for {len(sacct_fields)} values."
     return dict(zip(sacct_fields, L))
-
-
 
 
 #### functions for `sinfo` ####
@@ -378,11 +390,11 @@ def analyze_sinfo_json(LD_nodes_original, cluster_name="cedar"):
 
     for D_node in LD_nodes_original:
 
-        name = D_node['HOSTNAMES']
+        name = D_node["HOSTNAMES"]
         assert re.match(r"^[a-zA-Z\d\-]+$", name)
         if name in psl_nodes:
             # If we already have that entry, just add the partition name and we're done.
-            psl_nodes[name]['partitions'].append( D_node['PARTITION'] )
+            psl_nodes[name]["partitions"].append(D_node["PARTITION"])
         else:
             # Otherwise we're going to translate values.
             # Note difficulties such as
@@ -392,34 +404,36 @@ def analyze_sinfo_json(LD_nodes_original, cluster_name="cedar"):
             # because it appears to be the long form.
 
             # "CPUS(A/I/O/T) ": "20/4/0/24 ",
-            alloc_cpus, idle_cpus, other_cpus, total_cpus = [int(n) for n in D_node['CPUS(A/I/O/T)'].split('/')]
+            alloc_cpus, idle_cpus, other_cpus, total_cpus = [
+                int(n) for n in D_node["CPUS(A/I/O/T)"].split("/")
+            ]
             # not using "idle_cpus" nor "total_cpus" (the latter being inferred by the field "cpus")
 
             psl_nodes[name] = {
-                'name': name,
-                'cluster_name': cluster_name,
-                'partitions': [ D_node['PARTITION'] ], # will be append to, later
-                'cores': int(D_node["CORES"]),
-                'cpu_load': float(D_node["CPU_LOAD"]) if "N/A" not in D_node["CPU_LOAD"] else 0,
-                'alloc_cpus': alloc_cpus,
-                'err_cpus': other_cpus,  # "other" gets interpreted as "error"
-                'cpus': int(D_node["CPUS"]),
-                'gres': [D_node["GRES"].replace(" ", "")] if "null" not in D_node["GRES"] else [],
-                'gres_used': [],
+                "name": name,
+                "cluster_name": cluster_name,
+                "partitions": [D_node["PARTITION"]],  # will be append to, later
+                "cores": int(D_node["CORES"]),
+                "cpu_load": float(D_node["CPU_LOAD"])
+                if "N/A" not in D_node["CPU_LOAD"]
+                else 0,
+                "alloc_cpus": alloc_cpus,
+                "err_cpus": other_cpus,  # "other" gets interpreted as "error"
+                "cpus": int(D_node["CPUS"]),
+                "gres": [D_node["GRES"].replace(" ", "")]
+                if "null" not in D_node["GRES"]
+                else [],
+                "gres_used": [],
                 # would be nice to have some kind of 'gres_used' but it's not there
-                'node_addr': D_node['NODE_ADDR'],
-                'state': D_node['STATE'].replace(" ", ""),
-                'reason': D_node['REASON'],
-                'tmp_disk': D_node['TMP_DISK'],
-                'version': D_node['VERSION'],
-                'weight': int(D_node['WEIGHT']),
-                'reservation': "None"  # because it's missing and "None" is the symbol we use for that
+                "node_addr": D_node["NODE_ADDR"],
+                "state": D_node["STATE"].replace(" ", ""),
+                "reason": D_node["REASON"],
+                "tmp_disk": D_node["TMP_DISK"],
+                "version": D_node["VERSION"],
+                "weight": int(D_node["WEIGHT"]),
+                "reservation": "None",  # because it's missing and "None" is the symbol we use for that
             }
     return psl_nodes
-
-
-
-
 
 
 def main():
@@ -429,17 +443,21 @@ def main():
     desired_sacct_fields = get_desired_sacct_fields()
 
     accounts = ",".join(get_accounts())
-    format = ",".join(desired_sacct_fields) #[e.lower() for e in valid_sacct_fields])
+    format = ",".join(desired_sacct_fields)  # [e.lower() for e in valid_sacct_fields])
     delimiter = "|"
 
     cmd = f"sacct --allusers --accounts {accounts} --format {format} --delimiter '{delimiter}' --parsable"
     # print(cmd)
-    L_lines = [e for e in subprocess.check_output(cmd, shell=True, encoding='utf8').split("\n") if len(e)>0]
- 
+    L_lines = [
+        e
+        for e in subprocess.check_output(cmd, shell=True, encoding="utf8").split("\n")
+        if len(e) > 0
+    ]
+
     LD_jobs = []
     # skip the header in L_lines[0]
     for line in L_lines[1:]:
-        LD_jobs.append( analyze_stdout_line(desired_sacct_fields, line, delimiter) )
+        LD_jobs.append(analyze_stdout_line(desired_sacct_fields, line, delimiter))
 
     # with open("sinfo_LD_jobs.json", "w") as f:
     #     json.dump(LD_jobs, f)
@@ -447,23 +465,23 @@ def main():
 
     # This is what will be returned. We format it as a dict with keys
     # given by job_id in order to match the format from pyslurm.
-    LD_jobs_as_pyslurm_format = [translate_sacct_format_into_pyslurm_format(D_job) for D_job in LD_jobs]
-    psl_jobs = dict((D_job['job_id'], D_job) for D_job in LD_jobs_as_pyslurm_format)
-
-
-
+    LD_jobs_as_pyslurm_format = [
+        translate_sacct_format_into_pyslurm_format(D_job) for D_job in LD_jobs
+    ]
+    psl_jobs = dict((D_job["job_id"], D_job) for D_job in LD_jobs_as_pyslurm_format)
 
     cmd = "sinfo --Format All --Node"
-    L_lines = [e for e in subprocess.check_output(cmd, shell=True, encoding='utf8').split("\n") if len(e)>0]
+    L_lines = [
+        e
+        for e in subprocess.check_output(cmd, shell=True, encoding="utf8").split("\n")
+        if len(e) > 0
+    ]
 
     # We hardcoded here that this would run on `cedar` because it's the only cluster
     # where we need to run this like that.
     psl_nodes = analyze_sinfo_json(load_sinfo_stdout(L_lines), cluster_name="cedar")
 
-
-    results = { 'node': psl_nodes,
-                'reservation': {},
-                'job': psl_jobs}
+    results = {"node": psl_nodes, "reservation": {}, "job": psl_jobs}
 
     with open("/home/alaingui/last_sacct_sinfo_data.json", "w") as f:
         json.dump(results, f)

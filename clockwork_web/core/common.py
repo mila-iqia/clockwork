@@ -1,4 +1,3 @@
-
 from flask import request
 from flask_login import current_user
 
@@ -14,6 +13,7 @@ def get_filter_from_request_args(keys_for_filter: list):
         if v is not None:
             filter[k] = v
     return filter
+
 
 def get_mila_email_username():
     # When running tests against routes protected by login (under normal circumstances),

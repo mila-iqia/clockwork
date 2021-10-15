@@ -7,10 +7,7 @@ import os
 import json
 from flask.globals import current_app
 
-from flask_login import (
-    login_user,
-    logout_user
-)
+from flask_login import login_user, logout_user
 
 import pytest
 
@@ -32,10 +29,16 @@ assert "MONGODB_CONNECTION_STRING" in os.environ, (
 def app():
     """Create and configure a new app instance for each test."""
     # create the app with common test config
-    app = create_app(extra_config={ "TESTING": True,
-                                    "LOGIN_DISABLED": True,
-                                    "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
-                                    "MONGODB_DATABASE_NAME": os.environ.get("MONGODB_DATABASE_NAME", "clockwork")})
+    app = create_app(
+        extra_config={
+            "TESTING": True,
+            "LOGIN_DISABLED": True,
+            "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
+            "MONGODB_DATABASE_NAME": os.environ.get(
+                "MONGODB_DATABASE_NAME", "clockwork"
+            ),
+        }
+    )
 
     # We thought that the LoginManager module would check for the
     # presence of "TESTING" and we wouldn't need to also set
@@ -46,12 +49,14 @@ def app():
     with app.app_context():
         init_db()
         db = get_db()
-        cleanup_function = populate_fake_data(db[current_app.config["MONGODB_DATABASE_NAME"]])
+        cleanup_function = populate_fake_data(
+            db[current_app.config["MONGODB_DATABASE_NAME"]]
+        )
 
     yield app
 
     # You can close file descriptors here and do other cleanup.
-    # 
+    #
     # 2021-08-11 : Okay, so we have important decisions to make here,
     #              because it's pretty hard to test clockwork_tools without
     #              fake data in the database, but the fake_data.json lives
@@ -90,11 +95,13 @@ def user(app):
         # we need an app context because we'll be contacting the database,
         # and the database deals with "g" which is in the app context
 
-        user_desc = {"id": "135798713318272451447",
-                    "name": "test",
-                    "email": "test@mila.quebec",
-                    "profile_pic": "",
-                    "clockwork_api_key": "000aaa"}
+        user_desc = {
+            "id": "135798713318272451447",
+            "name": "test",
+            "email": "test@mila.quebec",
+            "profile_pic": "",
+            "clockwork_api_key": "000aaa",
+        }
         user = User.get(user_desc["id"])
         # Doesn't exist? Add to database.
         if not user:
@@ -117,15 +124,16 @@ def fake_data():
     on verifying some fake data in the database can now be written in a way that
     can adjust automatically to updates in the "fake_data.json" file.
     """
-    json_file = os.path.join(   os.path.dirname(os.path.abspath(__file__)),
-                                "fake_data.json")
+    json_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "fake_data.json"
+    )
     with open(json_file, "r") as f:
         E = json.load(f)
     return E
 
 
 @pytest.fixture
-def valid_rest_auth_headers():      
+def valid_rest_auth_headers():
     s = f"{os.environ['clockwork_tools_test_EMAIL']}:{os.environ['clockwork_tools_test_CLOCKWORK_API_KEY']}"
     encoded_bytes = base64.b64encode(s.encode("utf-8"))
     encoded_s = str(encoded_bytes, "utf-8")
@@ -151,14 +159,15 @@ def populate_fake_data(db_insertion_point, json_file=None):
     """
 
     if json_file is None:
-        json_file = os.path.join(   os.path.dirname(os.path.abspath(__file__)),
-                                    "fake_data.json")
-    assert os.path.exists(json_file), (
-        f"Failed to find the fake data file to populate the database for testing: {json_file}."
-    )
+        json_file = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "fake_data.json"
+        )
+    assert os.path.exists(
+        json_file
+    ), f"Failed to find the fake data file to populate the database for testing: {json_file}."
     with open(json_file, "r") as f:
         E = json.load(f)
-    
+
     for k in ["users", "jobs", "nodes"]:
         if k in E:
             for e in E[k]:
@@ -182,7 +191,6 @@ def populate_fake_data(db_insertion_point, json_file=None):
                     db_insertion_point[k].delete_many({id_field: e[id_field]})
 
     return cleanup_function
-
 
 
 # How do we do something like that, but using Google OAuth instead?
