@@ -1,4 +1,3 @@
-
 """
 This seems like a good source of inspiration:
     https://medium.com/analytics-vidhya/how-to-test-flask-applications-aef12ae5181c
@@ -25,12 +24,13 @@ def test_nodes(client, fake_data: dict[list[dict]]):
     are going to put the fake data in the database for us.
     """
     response = client.get("/nodes/list")
-    for D_node in fake_data['nodes']:
-        assert D_node['name'].encode('utf-8') in response.data
+    for D_node in fake_data["nodes"]:
+        assert D_node["name"].encode("utf-8") in response.data
 
 
-
-@pytest.mark.parametrize("cluster_name", ("mila", "cedar", "graham", "beluga", "sephiroth"))
+@pytest.mark.parametrize(
+    "cluster_name", ("mila", "cedar", "graham", "beluga", "sephiroth")
+)
 def test_nodes_with_filter(client, fake_data: dict[list[dict]], cluster_name):
     """
     Same as `test_nodes` but adding a filter for the key "cluster_name".
@@ -40,15 +40,15 @@ def test_nodes_with_filter(client, fake_data: dict[list[dict]], cluster_name):
     # Yes, "sephiroth" is a fake cluster name. There are no entries in the data for it.
 
     response = client.get(f"/nodes/list?cluster_name={cluster_name}")
-    for D_node in fake_data['nodes']:
+    for D_node in fake_data["nodes"]:
         if D_node["cluster_name"] == cluster_name:
-            assert D_node['name'].encode('utf-8') in response.data
+            assert D_node["name"].encode("utf-8") in response.data
         else:
             # We're being a little demanding here by asking that the name of the
             # host should never occur in the document. The host names are unique,
             # but there's no reason or guarantee that a string like "cn-a003" should NEVER
             # show up elsewhere in the page for some other reason.
-            assert D_node['name'].encode('utf-8') not in response.data
+            assert D_node["name"].encode("utf-8") not in response.data
 
 
 # def test_single_job_missing_1111111(client):

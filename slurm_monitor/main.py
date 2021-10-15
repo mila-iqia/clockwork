@@ -44,23 +44,40 @@ from elasticsearch import Elasticsearch
 from paramiko import SSHClient, AutoAddPolicy, ssh_exception
 
 import slurm_monitor
-from slurm_monitor.common import (filter_unrelated_jobs, )
-from slurm_monitor.state_managers import (NodeStatesManager, JobStatesManager)
+from slurm_monitor.common import (
+    filter_unrelated_jobs,
+)
+from slurm_monitor.state_managers import NodeStatesManager, JobStatesManager
 from slurm_monitor.mongo_client import get_mongo_client
 
 import argparse
-parser = argparse.ArgumentParser(description='Prometheus endpoint that exposes information from pyslurm.')
-parser.add_argument('--port', type=int,
-                    help='port for the prometheus endpoint')
-parser.add_argument('--cluster_name', type=str, default="mila",
-                    help='one of ["mila", "beluga", "graham", "cedar"]')
-parser.add_argument('--endpoint_prefix', type=str, default=None,
-                    help='to tell apart prometheus endpoints, we need to have a different prefixes')
-parser.add_argument('--refresh_interval', type=int, default=5*60,
-                    help='interval between fetches')
+
+parser = argparse.ArgumentParser(
+    description="Prometheus endpoint that exposes information from pyslurm."
+)
+parser.add_argument("--port", type=int, help="port for the prometheus endpoint")
+parser.add_argument(
+    "--cluster_name",
+    type=str,
+    default="mila",
+    help='one of ["mila", "beluga", "graham", "cedar"]',
+)
+parser.add_argument(
+    "--endpoint_prefix",
+    type=str,
+    default=None,
+    help="to tell apart prometheus endpoints, we need to have a different prefixes",
+)
+parser.add_argument(
+    "--refresh_interval", type=int, default=5 * 60, help="interval between fetches"
+)
 # for testing
-parser.add_argument('--mock_data_dir', type=str, default=None,
-                    help='instead of pyslurm.job().get(), read job.json, node.json, reservation.json from this directory')
+parser.add_argument(
+    "--mock_data_dir",
+    type=str,
+    default=None,
+    help="instead of pyslurm.job().get(), read job.json, node.json, reservation.json from this directory",
+)
 
 args = parser.parse_args()
 if args.endpoint_prefix is None:
@@ -69,76 +86,163 @@ if args.endpoint_prefix is None:
 # This is hardcoded, but it should be stored as a configuration file
 # specified as argument to the script.
 DD_cluster_desc = {
-    "beluga":
-        {"name": "beluga",
-        "cmd" : 'module load python/3.8.2; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ',
+    "beluga": {
+        "name": "beluga",
+        "cmd": "module load python/3.8.2; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ",
         "hostname": "beluga.computecanada.ca",
         "username": "alaingui",
         "port": 22,
         # TODO : Find these values.
-        "slurm_login_nodes": [ ],
+        "slurm_login_nodes": [],
         "slurm_partitions": [
-            'cpularge_bycore_b4', 'cpubase_bycore_b2', 'gpubackfill', 'cpubase_bycore_b4',
-            'cpularge_bynode_b3', 'cpubase_bycore_b1', 'cpularge_bynode_b2', 'cpularge_bycore_b1',
-            'gpubase_bygpu_b2', 'gpubase_bygpu_b3', 'cpularge_interac', 'cpubase_bynode_b5',
-            'cpularge_bynode_b5', 'cpularge_bynode_b4', 'gpubase_bynode_b1', 'cpularge_bycore_b2',
-            'c-gput4', 'cpubase_bynode_b1', 'gpubase_bygpu_b4', 'cpubase_bynode_b2', 'cpubase_bynode_b3',
-            'cpularge_bynode_b1', 'gpubase_bynode_b4', 'gpubase_bynode_b5', 'c-slarge', 'gpubase_bygpu_b5',
-            'cpubase_bycore_b5', 'cpularge_bycore_b3', 'gpubase_bynode_b3', 'gpubase_bynode_b2',
-            'cpubase_bycore_b3', 'cpubackfill', 'gpubase_interac', 'cpubase_bynode_b4', 'cpularge_bycore_b5',
-            'gpubase_bygpu_b1', 'c-dragen', 'cpubase_interac'],
-        "slurm_ignore_partitions": []
-        },
-    "mila":
-        {"name": "mila",
-        "cmd" : 'source ${HOME}/Documents/code/venv38/bin/activate; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ',
+            "cpularge_bycore_b4",
+            "cpubase_bycore_b2",
+            "gpubackfill",
+            "cpubase_bycore_b4",
+            "cpularge_bynode_b3",
+            "cpubase_bycore_b1",
+            "cpularge_bynode_b2",
+            "cpularge_bycore_b1",
+            "gpubase_bygpu_b2",
+            "gpubase_bygpu_b3",
+            "cpularge_interac",
+            "cpubase_bynode_b5",
+            "cpularge_bynode_b5",
+            "cpularge_bynode_b4",
+            "gpubase_bynode_b1",
+            "cpularge_bycore_b2",
+            "c-gput4",
+            "cpubase_bynode_b1",
+            "gpubase_bygpu_b4",
+            "cpubase_bynode_b2",
+            "cpubase_bynode_b3",
+            "cpularge_bynode_b1",
+            "gpubase_bynode_b4",
+            "gpubase_bynode_b5",
+            "c-slarge",
+            "gpubase_bygpu_b5",
+            "cpubase_bycore_b5",
+            "cpularge_bycore_b3",
+            "gpubase_bynode_b3",
+            "gpubase_bynode_b2",
+            "cpubase_bycore_b3",
+            "cpubackfill",
+            "gpubase_interac",
+            "cpubase_bynode_b4",
+            "cpularge_bycore_b5",
+            "gpubase_bygpu_b1",
+            "c-dragen",
+            "cpubase_interac",
+        ],
+        "slurm_ignore_partitions": [],
+    },
+    "mila": {
+        "name": "mila",
+        "cmd": "source ${HOME}/Documents/code/venv38/bin/activate; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ",
         "hostname": "login.server.mila.quebec",
         "username": "alaingui",
         "port": 2222,
         # Mila-specific values.
         # These should be read from a configuration file instead of from the source code.
         # We should figure out also what are the equivalent values for beluga and other clusters.
-        "slurm_login_nodes": [ "login-1", "login-2", "login-3", "login-4"],
-        "slurm_partitions": ['debug', 'long', 'cpu_jobs_low-grace', 'unkillable', 'short-unkillable', 'main', 'long-grace', 'cpu_jobs_low', 'cpu_jobs', 'main-grace'],
-        "slurm_ignore_partitions":
-            ["gcpDebug", "cloud_tpux1Cloud", "gcpDevCPUCloud", "gcpMicroMemCPUCloud",
-             "gcpMiniMemCPUCloud", "gcpComputeCPUCloud", "gcpGeneralCPUCloud", "gcpMemoryCPUCloud",
-             "gcpV100x1Cloud", "gcpV100Xx1Cloud", "gcpV100x2Cloud", "gcpV100x4Cloud", "gcpK80x1Cloud",
-             "gcpK80Xx1Cloud", "gcpK80x2Cloud", "gcpK80x4Cloud"]
-        },
-    "graham":
-        {"name": "graham",
-        "cmd" : 'module load python/3.6.10; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ',
+        "slurm_login_nodes": ["login-1", "login-2", "login-3", "login-4"],
+        "slurm_partitions": [
+            "debug",
+            "long",
+            "cpu_jobs_low-grace",
+            "unkillable",
+            "short-unkillable",
+            "main",
+            "long-grace",
+            "cpu_jobs_low",
+            "cpu_jobs",
+            "main-grace",
+        ],
+        "slurm_ignore_partitions": [
+            "gcpDebug",
+            "cloud_tpux1Cloud",
+            "gcpDevCPUCloud",
+            "gcpMicroMemCPUCloud",
+            "gcpMiniMemCPUCloud",
+            "gcpComputeCPUCloud",
+            "gcpGeneralCPUCloud",
+            "gcpMemoryCPUCloud",
+            "gcpV100x1Cloud",
+            "gcpV100Xx1Cloud",
+            "gcpV100x2Cloud",
+            "gcpV100x4Cloud",
+            "gcpK80x1Cloud",
+            "gcpK80Xx1Cloud",
+            "gcpK80x2Cloud",
+            "gcpK80x4Cloud",
+        ],
+    },
+    "graham": {
+        "name": "graham",
+        "cmd": "module load python/3.6.10; python3 ${HOME}/bin/on_site_pyslurm_scraper.py ",
         "hostname": "graham.computecanada.ca",
         "username": "alaingui",
         "port": 22,
         # TODO : Find these values.
-        "slurm_login_nodes": [ ],
+        "slurm_login_nodes": [],
         "slurm_partitions": [
-            'cpularge_bycore_b4', 'cpubase_bycore_b2', 'cpularge_bynode_b6', 'cpularge_bynode_b3',
-            'cpubase_bycore_b4', 'gpubackfill', 'cpubase_bycore_b1', 'cpularge_bynode_b2',
-            'cpularge_bycore_b1', 'c-gwtaylor', 'gpubase_bygpu_b2', 'cpularge_interac',
-            'gpubase_bygpu_b3', 'cpubase_bynode_b5', 'cpularge_bynode_b5', 'cpubase_bynode_b6',
-            'cpularge_bynode_b4', 'gpubase_bynode_b1', 'cpularge_bycore_b2', 'cpubase_bynode_b1',
-            'gpubase_bygpu_b4', 'cpubase_bynode_b3', 'cpubase_bynode_b2', 'cpularge_bynode_b1',
-            'cpularge_bycore_b6', 'gpubase_bynode_b4', 'gpubase_bynode_b5', 'cpubase_bycore_b5',
-            'gpubase_bygpu_b5', 'cpularge_bycore_b3', 'c-rubel', 'gpubase_bynode_b3', 'gpubase_bynode_b2',
-            'cpubase_bycore_b3', 'cpubackfill', 'gpubase_bygpu_b6', 'cpubase_bynode_b4', 'cpubase_bycore_b6',
-            'cpularge_bycore_b5', 'gpubase_bynode_b6', 'gpubase_bygpu_b1', 'gpubase_interac', 'cpubase_interac'],
-        "slurm_ignore_partitions": []
-        },
-    "cedar": 
-        {"name": "cedar",
-        "cmd" : 'module load python/3.6.10; python3 ${HOME}/bin/on_site_sinfo_and_sacct_scraper.py',
+            "cpularge_bycore_b4",
+            "cpubase_bycore_b2",
+            "cpularge_bynode_b6",
+            "cpularge_bynode_b3",
+            "cpubase_bycore_b4",
+            "gpubackfill",
+            "cpubase_bycore_b1",
+            "cpularge_bynode_b2",
+            "cpularge_bycore_b1",
+            "c-gwtaylor",
+            "gpubase_bygpu_b2",
+            "cpularge_interac",
+            "gpubase_bygpu_b3",
+            "cpubase_bynode_b5",
+            "cpularge_bynode_b5",
+            "cpubase_bynode_b6",
+            "cpularge_bynode_b4",
+            "gpubase_bynode_b1",
+            "cpularge_bycore_b2",
+            "cpubase_bynode_b1",
+            "gpubase_bygpu_b4",
+            "cpubase_bynode_b3",
+            "cpubase_bynode_b2",
+            "cpularge_bynode_b1",
+            "cpularge_bycore_b6",
+            "gpubase_bynode_b4",
+            "gpubase_bynode_b5",
+            "cpubase_bycore_b5",
+            "gpubase_bygpu_b5",
+            "cpularge_bycore_b3",
+            "c-rubel",
+            "gpubase_bynode_b3",
+            "gpubase_bynode_b2",
+            "cpubase_bycore_b3",
+            "cpubackfill",
+            "gpubase_bygpu_b6",
+            "cpubase_bynode_b4",
+            "cpubase_bycore_b6",
+            "cpularge_bycore_b5",
+            "gpubase_bynode_b6",
+            "gpubase_bygpu_b1",
+            "gpubase_interac",
+            "cpubase_interac",
+        ],
+        "slurm_ignore_partitions": [],
+    },
+    "cedar": {
+        "name": "cedar",
+        "cmd": "module load python/3.6.10; python3 ${HOME}/bin/on_site_sinfo_and_sacct_scraper.py",
         "hostname": "cedar.computecanada.ca",
         "username": "alaingui",
         "port": 22,
         # TODO : Find these values.
-        "slurm_login_nodes": [ ],
+        "slurm_login_nodes": [],
         "slurm_partitions": [],
-        "slurm_ignore_partitions": []
-        },
-
+        "slurm_ignore_partitions": [],
+    },
 }
 
 # The names for `es_jobs_index` and `es_nodes_index` will go into elasticsearch.
@@ -161,7 +265,7 @@ D_elasticsearch_config = {
     "port": 9200,
     "jobs_index": "slurm_jobs",
     "nodes_index": "slurm_nodes",
-    "timeout": '30s',
+    "timeout": "30s",
 }
 
 D_mongodb_config = {
@@ -172,12 +276,19 @@ D_mongodb_config = {
     # the database is "slurm", and it contains two collections "jobs" and "nodes"
     "database": "slurm",
     "jobs_collection": "jobs",
-    "nodes_collection": "nodes"
+    "nodes_collection": "nodes",
 }
 
-class SinfoManager:
 
-    def __init__(self, cluster_name, endpoint_prefix, mock_data_dir=None, want_elasticsearch=True, want_mongodb=True):
+class SinfoManager:
+    def __init__(
+        self,
+        cluster_name,
+        endpoint_prefix,
+        mock_data_dir=None,
+        want_elasticsearch=True,
+        want_mongodb=True,
+    ):
 
         self.cluster_name = cluster_name
         self.endpoint_prefix = endpoint_prefix
@@ -187,7 +298,6 @@ class SinfoManager:
         # alternatively will be fetched from a config file
         self.D_cluster_desc = DD_cluster_desc[cluster_name]
 
-
         if want_elasticsearch:
             # alternatively will be fetched from a config file
             self.D_elasticsearch_config = D_elasticsearch_config
@@ -196,17 +306,20 @@ class SinfoManager:
             # with multiple servers for ElasticSearch instead of
             # assuming that we'll have only one (which is our case).
             self.elasticsearch_client = Elasticsearch(
-                self.D_elasticsearch_config['host'],
-                port=self.D_elasticsearch_config['port'])
+                self.D_elasticsearch_config["host"],
+                port=self.D_elasticsearch_config["port"],
+            )
 
             # Guillaume says : My understanding of this line is that
             # when the index is not created we can't do anything, but
             # when it's already there we need to ignore an error code 400
             # that would signal this to us.
             self.elasticsearch_client.indices.create(
-                index=self.D_elasticsearch_config['jobs_index'], ignore=400)
+                index=self.D_elasticsearch_config["jobs_index"], ignore=400
+            )
             self.elasticsearch_client.indices.create(
-                index=self.D_elasticsearch_config['nodes_index'], ignore=400)
+                index=self.D_elasticsearch_config["nodes_index"], ignore=400
+            )
         else:
             self.elasticsearch_client = None
 
@@ -215,23 +328,41 @@ class SinfoManager:
             self.D_mongodb_config = D_mongodb_config
 
             self.mongo_client = get_mongo_client(self.D_mongodb_config)
-            
+
             # Run a little sanity check. Better to fail now than later
             # if the database isn't set up. Helps with diagnosing problems.
-            L = self.mongo_client[self.D_mongodb_config['database']].list_collection_names()
-            assert self.D_mongodb_config['jobs_collection'] in L,  f"Testing mongodb connection. Missing collection {self.D_mongodb_config['jobs_collection']}."
-            assert self.D_mongodb_config['nodes_collection'] in L, f"Testing mongodb connection. Missing collection {self.D_mongodb_config['nodes_collection']}."
+            L = self.mongo_client[
+                self.D_mongodb_config["database"]
+            ].list_collection_names()
+            assert (
+                self.D_mongodb_config["jobs_collection"] in L
+            ), f"Testing mongodb connection. Missing collection {self.D_mongodb_config['jobs_collection']}."
+            assert (
+                self.D_mongodb_config["nodes_collection"] in L
+            ), f"Testing mongodb connection. Missing collection {self.D_mongodb_config['nodes_collection']}."
 
         else:
             self.mongo_client = None
 
         self.ssh_client = None
-        self.node_states_manager = NodeStatesManager(cluster_name, endpoint_prefix, self.D_cluster_desc,
-                                                    self.D_elasticsearch_config, self.elasticsearch_client,
-                                                    self.D_mongodb_config, self.mongo_client)
-        self.job_states_manager = JobStatesManager( cluster_name, endpoint_prefix, self.D_cluster_desc,
-                                                    self.D_elasticsearch_config, self.elasticsearch_client,
-                                                    self.D_mongodb_config, self.mongo_client)
+        self.node_states_manager = NodeStatesManager(
+            cluster_name,
+            endpoint_prefix,
+            self.D_cluster_desc,
+            self.D_elasticsearch_config,
+            self.elasticsearch_client,
+            self.D_mongodb_config,
+            self.mongo_client,
+        )
+        self.job_states_manager = JobStatesManager(
+            cluster_name,
+            endpoint_prefix,
+            self.D_cluster_desc,
+            self.D_elasticsearch_config,
+            self.elasticsearch_client,
+            self.D_mongodb_config,
+            self.mongo_client,
+        )
 
     def open_connection(self):
         """
@@ -254,8 +385,10 @@ class SinfoManager:
         # If we get an unknown exception, then we might as well quit()
         # look at it manually, and decide whether we want to add another exception
         # from which we can/should recover.
-        try:        
-            self.ssh_client.connect(clds["hostname"], username=clds["username"], port=clds["port"])
+        try:
+            self.ssh_client.connect(
+                clds["hostname"], username=clds["username"], port=clds["port"]
+            )
         except ssh_exception.AuthenticationException as inst:
             print(type(inst))
             print(inst)
@@ -266,7 +399,6 @@ class SinfoManager:
             print(type(inst))
             print(inst)
             quit()
-
 
     def close_connection(self):
         """
@@ -286,9 +418,7 @@ class SinfoManager:
         self.ssh_client.close()
 
     def fetch_data(self):
-        """
-
-        """
+        """ """
 
         if args.mock_data_dir is not None and os.path.exists(args.mock_data_dir):
             # Read data from files (mostly for testing purposes).
@@ -308,7 +438,9 @@ class SinfoManager:
                 # This happens when the connection fails to be established.
                 return
 
-            ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(self.D_cluster_desc["cmd"])
+            ssh_stdin, ssh_stdout, ssh_stderr = self.ssh_client.exec_command(
+                self.D_cluster_desc["cmd"]
+            )
 
             response_str = " ".join(ssh_stdout.readlines())
             if len(response_str) == 0:
@@ -318,10 +450,14 @@ class SinfoManager:
             # print(ssh_stdout.readlines())
             try:
                 E = json.loads(response_str)
-                psl_nodes, psl_reservations, psl_jobs = (E['node'], E['reservation'], E['job'])
+                psl_nodes, psl_reservations, psl_jobs = (
+                    E["node"],
+                    E["reservation"],
+                    E["job"],
+                )
             except Exception as inst:
-                print(type(inst))    # the exception instance
-                print(inst.args)     # arguments stored in .args
+                print(type(inst))  # the exception instance
+                print(inst.args)  # arguments stored in .args
                 print(inst)
                 psl_nodes, psl_reservations, psl_jobs = (None, None, None)
                 # Probably better to quit than to try to salvage this right now.
@@ -339,6 +475,7 @@ class SinfoManager:
         # self.reservation_states_manager.update(psl_reservations)
         self.job_states_manager.update(psl_jobs)
 
+
 """
 These "state managers" are a way to encapsulate the processing done
 to the data read from pyslurm. There are a lot of specific rules that
@@ -352,8 +489,12 @@ def run():
     # prom_metrics = {'request_latency_seconds': Summary('request_latency_seconds', 'Description of summary')}
 
     sima = SinfoManager(
-        args.cluster_name, args.endpoint_prefix, args.mock_data_dir,
-        want_elasticsearch=True, want_mongodb=True)
+        args.cluster_name,
+        args.endpoint_prefix,
+        args.mock_data_dir,
+        want_elasticsearch=True,
+        want_mongodb=True,
+    )
 
     start_http_server(port)
     while True:
@@ -361,6 +502,7 @@ def run():
         sima.fetch_data()
         sima.close_connection()
         time.sleep(args.refresh_interval)
+
 
 if __name__ == "__main__":
     run()

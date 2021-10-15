@@ -1,4 +1,3 @@
-
 import re
 
 from flask import request, make_response
@@ -15,14 +14,16 @@ from clockwork_web.core.jobs_helper import (
     strip_artificial_fields_from_job,
     get_mongodb_filter_from_query_filter,
     get_jobs,
-    infer_best_guess_for_username)
+    infer_best_guess_for_username,
+)
 
 
 from flask import Blueprint
-flask_api = Blueprint('rest_jobs', __name__)
+
+flask_api = Blueprint("rest_jobs", __name__)
 
 
-@flask_api.route('/jobs/list')
+@flask_api.route("/jobs/list")
 def route_api_v1_jobs_list():
 
     D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
@@ -30,18 +31,20 @@ def route_api_v1_jobs_list():
         return jsonify("Authorization error."), 401  # unauthorized
 
     f0 = get_filter_user(request.args.get("user", None))
-    
-    time1 = request.args.get('time', None)
+
+    time1 = request.args.get("time", None)
     try:
         f1 = get_filter_time(time1)
     except Exception as inst:
         print(inst)
-        return jsonify(f"Field 'time' cannot be cast as a valid integer: {time1}."), 400  # bad request
+        return (
+            jsonify(f"Field 'time' cannot be cast as a valid integer: {time1}."),
+            400,
+        )  # bad request
 
     f2 = get_filter_cluster_name(request.args.get("cluster_name", None))
 
     filter = combine_all_mongodb_filters(f0, f1, f2)
-
 
     # filter = get_filter_from_request_args(["cluster_name", "user", "time"])
     # if 'user' in filter:
@@ -54,13 +57,15 @@ def route_api_v1_jobs_list():
     # LD_jobs = get_jobs(mongodb_filter=get_mongodb_filter_from_query_filter(filter))
     LD_jobs = get_jobs(filter)
 
-    LD_jobs = [infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
-                 for D_job in LD_jobs]
+    LD_jobs = [
+        infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
+        for D_job in LD_jobs
+    ]
 
     return jsonify(LD_jobs)
 
 
-@flask_api.route('/jobs/one')
+@flask_api.route("/jobs/one")
 def route_api_v1_jobs_one():
 
     D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
@@ -81,7 +86,9 @@ def route_api_v1_jobs_one():
         return jsonify({}), 200
     if len(LD_jobs) > 1:
         # This is not a situation that should even happen, and it's a sign of data corruption.
-        resp = jsonify(f"Found {len(LD_jobs)} jobs with job_id {filter['job_id']}. Not sure what to do about these cases.")
+        resp = jsonify(
+            f"Found {len(LD_jobs)} jobs with job_id {filter['job_id']}. Not sure what to do about these cases."
+        )
         resp.status_code = 500  # server error
         return resp
 

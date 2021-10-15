@@ -7,7 +7,7 @@ from flask.cli import with_appcontext
 
 def get_db():
     """Connect to the application's configured database.
-    
+
     The connection is unique for each request and will be reused
     if this is called again in the same request context.
 
@@ -32,7 +32,6 @@ def close_db(e=None):
         db.close()
 
 
-
 # def get_mc():
 #     """
 #     Since we are going to use this shortcut many many times,
@@ -52,9 +51,10 @@ def close_db(e=None):
 #        then we can put all that clear/reset stuff
 #        back in.
 
+
 def init_db():
     """Clear existing data and create new tables.
-    
+
     TODO : Think a bit more about the whole idea of clearing
     the database when you initialize it like that. It's fine
     in development, but it would be a bad idea if our production
