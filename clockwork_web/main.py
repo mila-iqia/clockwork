@@ -24,11 +24,14 @@ We should pick some kind of convention by which, when we disable
 the login, we set the user to be "mario" or something like that.
 """
 app = create_app(
-    extra_config={  "TESTING": False,
-                    "LOGIN_DISABLED": os.environ.get("LOGIN_DISABLED", "False") in ["True", "true", "1"],
-                    "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
-                    "MONGODB_DATABASE_NAME": os.environ.get("MONGODB_DATABASE_NAME", "clockwork")
-    })
+    extra_config={
+        "TESTING": False,
+        "LOGIN_DISABLED": os.environ.get("LOGIN_DISABLED", "False")
+        in ["True", "true", "1"],
+        "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
+        "MONGODB_DATABASE_NAME": os.environ.get("MONGODB_DATABASE_NAME", "clockwork"),
+    }
+)
 
 # If you call `app.run()` on the code that goes to gcloud, it causes problems.
 # If you don't, then it's fine.

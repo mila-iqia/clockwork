@@ -20,7 +20,8 @@ import json
 from pymongo import MongoClient
 from datetime import datetime
 
-def fix_job(D_job:dict):
+
+def fix_job(D_job: dict):
     """
     Mostly about anonymization.
     Mutates the argument `D_job`.
@@ -29,20 +30,33 @@ def fix_job(D_job:dict):
     fake_username = np.random.choice(["mario", "luigi", "peach", "toad"])
 
     # scrub those fields because they contain identifiable information
-    L_fields_to_wipe = ["command", "comment", "name", "std_err", "std_in", "std_out", "work_dir", "account"]
+    L_fields_to_wipe = [
+        "command",
+        "comment",
+        "name",
+        "std_err",
+        "std_in",
+        "std_out",
+        "work_dir",
+        "account",
+    ]
     for field_to_wipe in L_fields_to_wipe:
         if field_to_wipe in D_job:
             D_job[field_to_wipe] = "anonymized_for_fake_data"
 
-    L_name_fields = ["cc_account_username", "mila_email_username",
-                     "mila_cluster_username", "mila_user_account"]
+    L_name_fields = [
+        "cc_account_username",
+        "mila_email_username",
+        "mila_cluster_username",
+        "mila_user_account",
+    ]
     for name_field in L_name_fields:
         # let's just replace the fields that are not "unknown"
         if D_job.get(name_field, "unknown") != "unknown":
             D_job[name_field] = fake_username
 
 
-def fix_node(D_node:dict):
+def fix_node(D_node: dict):
     """
     It's not clear what needs to be anonymized in this case.
     Maybe just the "os" field because it reveals information
@@ -57,8 +71,6 @@ def fix_node(D_node:dict):
             D_node[field_to_wipe] = "anonymized_for_fake_data"
 
 
-
-
 def main():
 
     mc = MongoClient(os.environ["CLOCKWORK_MONGODB_DATABASE"])["slurm"]
@@ -67,7 +79,9 @@ def main():
     LD_jobs = []
     for cluster_name in ["mila", "beluga", "graham", "cedar"]:
         for job_state in ["RUNNING", "PENDING", "COMPLETED", "FAILED"]:
-            for (k, D_job) in enumerate(mc["jobs"].find({"cluster_name": cluster_name, "job_state": job_state})):
+            for (k, D_job) in enumerate(
+                mc["jobs"].find({"cluster_name": cluster_name, "job_state": job_state})
+            ):
                 if k >= nbr_max_jobs_per_category:
                     break
                 else:
@@ -76,7 +90,9 @@ def main():
                         del D_job["licenses"]  # this is an Object
                     # mongodb stores certain things as a datetime object,
                     # but we can't put that in a json
-                    if "timestamp" in D_job and isinstance(D_job["timestamp"], datetime):
+                    if "timestamp" in D_job and isinstance(
+                        D_job["timestamp"], datetime
+                    ):
                         D_job["timestamp"] = D_job["timestamp"].timestamp()
 
                     fix_job(D_job)  # mutates D_job
@@ -86,27 +102,29 @@ def main():
     LD_nodes = []
     for cluster_name in ["mila", "beluga", "graham", "cedar"]:
         for (k, D_node) in enumerate(mc["nodes"].find({"cluster_name": cluster_name})):
-                if k >= nbr_max_nodes_per_category:
-                    break
-                else:
-                    del D_node["_id"]  # clear this "_id" field coming from mongodb
-                    # mongodb stores certain things as a datetime object,
-                    # but we can't put that in a json
-                    if "timestamp" in D_node and isinstance(D_node["timestamp"], datetime):
-                        D_node["timestamp"] = D_node["timestamp"].timestamp()
-                    fix_node(D_node)  # mutates D_node
-                    LD_nodes.append(D_node)
+            if k >= nbr_max_nodes_per_category:
+                break
+            else:
+                del D_node["_id"]  # clear this "_id" field coming from mongodb
+                # mongodb stores certain things as a datetime object,
+                # but we can't put that in a json
+                if "timestamp" in D_node and isinstance(D_node["timestamp"], datetime):
+                    D_node["timestamp"] = D_node["timestamp"].timestamp()
+                fix_node(D_node)  # mutates D_node
+                LD_nodes.append(D_node)
 
-    LD_users = [{
-        "id": "%0.6d" % np.random.randint(low=0, high=10000),
-        "name": name,
-        "email": "%s@mila.quebec" % name,
-        "profile_pic": "",
-        "status": "enabled",
-        "clockwork_api_key": "000aaa",
-    } for name in ["mario", "luigi", "peach", "toad"]]
+    LD_users = [
+        {
+            "id": "%0.6d" % np.random.randint(low=0, high=10000),
+            "name": name,
+            "email": "%s@mila.quebec" % name,
+            "profile_pic": "",
+            "status": "enabled",
+            "clockwork_api_key": "000aaa",
+        }
+        for name in ["mario", "luigi", "peach", "toad"]
+    ]
 
-    
     for D_node in LD_nodes:
         for (k, v) in D_node.items():
             if isinstance(v, datetime):
@@ -118,10 +136,8 @@ def main():
         json.dump({"users": LD_users, "jobs": LD_jobs, "nodes": LD_nodes}, f, indent=4)
 
 
-
 if __name__ == "__main__":
     main()
-
 
 
 # {$and: [{"job_state": {$ne: "COMPLETED"}}, {"job_state": {$ne: "PENDING"}}, {"job_state": {$ne: "RUNNING"}}]}
