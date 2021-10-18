@@ -1,5 +1,3 @@
-
-
 import os
 import time
 import json
@@ -12,7 +10,11 @@ from pymongo import UpdateOne
 from prometheus_client import Enum, Summary, Gauge
 
 import slurm_monitor
-from slurm_monitor.common import (extract_username_from_job_data, messy_ugly_analyze_node_state, messy_ugly_analyze_gpu_gres)
+from slurm_monitor.common import (
+    extract_username_from_job_data,
+    messy_ugly_analyze_node_state,
+    messy_ugly_analyze_gpu_gres,
+)
 
 
 class NodeStatesManager:
@@ -28,16 +30,34 @@ class NodeStatesManager:
     default_reservation_when_missing = "None"
 
     # Slurm States
-    slurm_usable_node_states = [ "allocated", "completing", "idle", "maint", "mixed", "perfctrs", "power_up", "reserved" ]
-    slurm_useless_node_states = [ "reboot", "down", "drained", "draining", "fail", "failing", "future", "power_down", "unknown" ]
+    slurm_usable_node_states = [
+        "allocated",
+        "completing",
+        "idle",
+        "maint",
+        "mixed",
+        "perfctrs",
+        "power_up",
+        "reserved",
+    ]
+    slurm_useless_node_states = [
+        "reboot",
+        "down",
+        "drained",
+        "draining",
+        "fail",
+        "failing",
+        "future",
+        "power_down",
+        "unknown",
+    ]
     # Not built-in state
-    slurm_useless_node_states.append('not_responding')
+    slurm_useless_node_states.append("not_responding")
     # All states
     slurm_node_states = slurm_usable_node_states + slurm_useless_node_states
 
-
     # States for CPU/GPU.
-    slurm_pu_states=[ "alloc", "idle", "drain", "total" ]
+    slurm_pu_states = ["alloc", "idle", "drain", "total"]
     # Note that "total" and "alloc" are values that are reported by slurm,
     # and the other two values are things that we make up, infer, or decide
     # to label.
@@ -51,29 +71,34 @@ class NodeStatesManager:
     # can't be used at the moment.
     # This is part of the discussion around `common.messy_ugly_analyze_node_state`.
 
-
     # See comment about `slurm_job_states_color` also being
     # at the wrong place in the pipeline.
     # This is for Grafana, and it shouldn't be here.
     # TODO : Rethink this properly in design doc.
     slurm_node_states_color = {
-        "down" : 0, # Red
-        "drained" : 5, # Orange foncé
-        "draining" : 10  # Green
+        "down": 0,  # Red
+        "drained": 5,  # Orange foncé
+        "draining": 10,  # Green
     }
 
-
-    def __init__(self, cluster_name, endpoint_prefix, D_cluster_desc: dict,
-        D_elasticsearch_config: dict, elasticsearch_client:Elasticsearch=None,
-        D_mongodb_config:dict={}, mongo_client=None):
+    def __init__(
+        self,
+        cluster_name,
+        endpoint_prefix,
+        D_cluster_desc: dict,
+        D_elasticsearch_config: dict,
+        elasticsearch_client: Elasticsearch = None,
+        D_mongodb_config: dict = {},
+        mongo_client=None,
+    ):
 
         assert cluster_name in ["mila", "beluga", "graham", "cedar", "dummy"]
         self.cluster_name = cluster_name
         self.endpoint_prefix = endpoint_prefix
 
         # any node that belongs to this will be filtered out
-        self.slurm_ignore_partitions = set(D_cluster_desc['slurm_ignore_partitions'])
-        
+        self.slurm_ignore_partitions = set(D_cluster_desc["slurm_ignore_partitions"])
+
         # We purposefully avoid storing a self copy of `D_cluster_desc`
         # to make explicit the ways in which it is being used (i.e. not much).
 
@@ -98,18 +123,31 @@ class NodeStatesManager:
         self.cpu_state_counters = {}
         self.gpu_state_counters = {}
         for pu_state in NodeStatesManager.slurm_pu_states:
-            self.cpu_state_counters[pu_state] = Gauge('slurm_cpus_' + pu_state, pu_state + ' CPUs', labelnames=[ 'reservation' ])
-            self.gpu_state_counters[pu_state] = Gauge('slurm_gpus_' + pu_state, pu_state + ' GPUs', labelnames=[ 'type', 'reservation' ])
+            self.cpu_state_counters[pu_state] = Gauge(
+                "slurm_cpus_" + pu_state, pu_state + " CPUs", labelnames=["reservation"]
+            )
+            self.gpu_state_counters[pu_state] = Gauge(
+                "slurm_gpus_" + pu_state,
+                pu_state + " GPUs",
+                labelnames=["type", "reservation"],
+            )
 
         # This creates a separate individual metric for hundreds of nodes to track their state.
-        self.prom_node_states = Enum('slurm_node_states', 'States of nodes', states=NodeStatesManager.slurm_node_states, labelnames=['name'])
+        self.prom_node_states = Enum(
+            "slurm_node_states",
+            "States of nodes",
+            states=NodeStatesManager.slurm_node_states,
+            labelnames=["name"],
+        )
 
         self.clear_prometheus_metrics()
 
     def clear_prometheus_metrics(self):
         # reset the gauges for prom_node_states, cpu_state_counters, gpu_state_counters
         self.prom_node_states._metrics.clear()
-        for counter in list(self.cpu_state_counters.values()) + list(self.gpu_state_counters.values()):
+        for counter in list(self.cpu_state_counters.values()) + list(
+            self.gpu_state_counters.values()
+        ):
             counter._metrics.clear()
 
     def update(self, psl_reservations: dict, psl_nodes: dict):
@@ -143,9 +181,9 @@ class NodeStatesManager:
         node_name_to_resv_name = {}
         for (resv_name, resv_desc) in psl_reservations.items():
             # `resv_name` is the answer, and now we must find the question that maps to it
-            if resv_desc['start_time'] <= unix_now <= resv_desc['end_time'] :
-                if 'node_list_simplified' in resv_desc:
-                    for node_name in resv_desc['node_list_simplified']:
+            if resv_desc["start_time"] <= unix_now <= resv_desc["end_time"]:
+                if "node_list_simplified" in resv_desc:
+                    for node_name in resv_desc["node_list_simplified"]:
                         node_name_to_resv_name[node_name] = resv_name
 
         # Accumulate over elements of psl_nodes
@@ -171,46 +209,50 @@ class NodeStatesManager:
 
             # Copied from "sinfo.py" assuming that we'd have good reasons
             # to want to ignore certain partitions.
-            # Right now these ignored partitions seem to be related 
+            # Right now these ignored partitions seem to be related
             # to cloud computing partitions set up at Mila temporarily.
-            for p in node_data['partitions']:
+            for p in node_data["partitions"]:
                 if p in self.slurm_ignore_partitions:
                     continue
 
             # Most of the times, "reservation" is "None", meaning
             # that the node is accessible to all Mila students
             # instead of being reserved for MLART, for example.
-            node_data["reservation"] = node_name_to_resv_name.get(node_name, self.default_reservation_when_missing)
+            node_data["reservation"] = node_name_to_resv_name.get(
+                node_name, self.default_reservation_when_missing
+            )
 
             # Since we're going to be messing up with the 'state',
             # it's a good idea to store whatever the original value was.
             # This might allow us to dig better to debug cluster issues,
             # or simply to make better opinions about what kind of judicious
             # processing we want to do in `messy_ugly_analyze_node_state`.
-            node_data['state_original_unprocessed'] = node_data['state']
-            node_data['state'] = messy_ugly_analyze_node_state(node_data['state'])
-
+            node_data["state_original_unprocessed"] = node_data["state"]
+            node_data["state"] = messy_ugly_analyze_node_state(node_data["state"])
 
             # Grafana wants UTC
-            node_data['timestamp'] = utc_now
+            node_data["timestamp"] = utc_now
 
             # Boolean for state, only for Grafana colors.
             # TODO : See if this is actually being used in Grafana
             #        or if it was just a vestigial field in "sinfo.py".
             #        Get rid of it if possible, because it's happening at
             #        the wrong level of the pipeline.
-            if node_data['state'] in self.slurm_node_states_color:
-                node_data['grafana_helpers'] = {
-                        'job_state_color': self.slurm_node_states_color[node_data['state']]
+            if node_data["state"] in self.slurm_node_states_color:
+                node_data["grafana_helpers"] = {
+                    "job_state_color": self.slurm_node_states_color[node_data["state"]]
                 }
 
-            if node_data.get('reason_time', None) is not None:
-                node_data['reason_time_str'] = datetime.fromtimestamp(node_data['reason_time']).astimezone().strftime('%Y-%m-%dT%H:%M:%S %Z')
+            if node_data.get("reason_time", None) is not None:
+                node_data["reason_time_str"] = (
+                    datetime.fromtimestamp(node_data["reason_time"])
+                    .astimezone()
+                    .strftime("%Y-%m-%dT%H:%M:%S %Z")
+                )
 
             # Save in dict. Note that all the many (~18) possible node states are tallied.
             # This is not a projection down to 4 states like for the cpus/gpus.
-            self.prom_node_states.labels(name=node_name).state(node_data['state'])
-
+            self.prom_node_states.labels(name=node_name).state(node_data["state"])
 
             ##############################################
             # CPUs
@@ -226,76 +268,116 @@ class NodeStatesManager:
             #
             # The word "drain" is really being used a catchcall category for errors.
 
-            node_data['idle_cpus'] = node_data['cpus'] - node_data['err_cpus']
-            self.cpu_state_counters['total'].labels(reservation=node_data["reservation"]).inc(node_data['cpus'])
-            self.cpu_state_counters['alloc'].labels(reservation=node_data["reservation"]).inc(node_data['alloc_cpus'])
-            self.cpu_state_counters['drain'].labels(reservation=node_data["reservation"]).inc(node_data['err_cpus'])
-            if node_data['state'] not in NodeStatesManager.slurm_useless_node_states:
-                self.cpu_state_counters['idle'].labels(reservation=node_data["reservation"]).inc(node_data['idle_cpus'])
+            node_data["idle_cpus"] = node_data["cpus"] - node_data["err_cpus"]
+            self.cpu_state_counters["total"].labels(
+                reservation=node_data["reservation"]
+            ).inc(node_data["cpus"])
+            self.cpu_state_counters["alloc"].labels(
+                reservation=node_data["reservation"]
+            ).inc(node_data["alloc_cpus"])
+            self.cpu_state_counters["drain"].labels(
+                reservation=node_data["reservation"]
+            ).inc(node_data["err_cpus"])
+            if node_data["state"] not in NodeStatesManager.slurm_useless_node_states:
+                self.cpu_state_counters["idle"].labels(
+                    reservation=node_data["reservation"]
+                ).inc(node_data["idle_cpus"])
             else:
                 # TODO : Whoa! This is NOT a node being drained. It could be in any number of problematic states.
                 #        We're just not keeping track of the problematics states.
-                self.cpu_state_counters['drain'].labels(reservation=node_data["reservation"]).inc(node_data['idle_cpus'])
-
+                self.cpu_state_counters["drain"].labels(
+                    reservation=node_data["reservation"]
+                ).inc(node_data["idle_cpus"])
 
             ##############################################
             # GPUs
 
             # If the 'gres' field exists, and provided it's a list with at least one element.
-            if node_data.get('gres', []):
-                node_data['gpus'] = messy_ugly_analyze_gpu_gres(node_data['gres'], node_data['gres_used'])
-                
+            if node_data.get("gres", []):
+                node_data["gpus"] = messy_ugly_analyze_gpu_gres(
+                    node_data["gres"], node_data["gres_used"]
+                )
+
                 # Loop on sanitized gpus and set counters
-                for gpu_name, gpu_counts in node_data['gpus'].items():
+                for gpu_name, gpu_counts in node_data["gpus"].items():
                     # gpu_name described the name of a product from nvidia (ex : "rtx8000", "m40", "k80")
                     # gpu_counts is a dict with keys ['total', 'alloc']
 
-                    self.gpu_state_counters['total'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['total'])
+                    self.gpu_state_counters["total"].labels(
+                        type=gpu_name, reservation=node_data["reservation"]
+                    ).inc(gpu_counts["total"])
 
                     # We need to test if the key is present because it isn't present when we use the not-pyslurm script on "cedar".
                     # This should be solved when we run pyslurm everywhere.
-                    if 'alloc' in gpu_counts:
-                        self.gpu_state_counters['alloc'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['alloc'])
+                    if "alloc" in gpu_counts:
+                        self.gpu_state_counters["alloc"].labels(
+                            type=gpu_name, reservation=node_data["reservation"]
+                        ).inc(gpu_counts["alloc"])
                         # Test state: if node is available/mixed and a least 1 cpu is avail, gres are idle otherwise drain
                         # TODO : The comment from previous line was copied as it was in "sinfo.py".
                         #        We're not sure how good of an idea that was.
                         #        This is yet another of those situations where it's worth a discussion with the group.
-                        if node_data['state'] not in NodeStatesManager.slurm_useless_node_states and node_data['idle_cpus']>1:
-                            self.gpu_state_counters['idle'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['total'] - gpu_counts['alloc'])
+                        if (
+                            node_data["state"]
+                            not in NodeStatesManager.slurm_useless_node_states
+                            and node_data["idle_cpus"] > 1
+                        ):
+                            self.gpu_state_counters["idle"].labels(
+                                type=gpu_name, reservation=node_data["reservation"]
+                            ).inc(gpu_counts["total"] - gpu_counts["alloc"])
                         else:
-                            self.gpu_state_counters['drain'].labels(type=gpu_name, reservation=node_data["reservation"]).inc(gpu_counts['total'] - gpu_counts['alloc'])
+                            self.gpu_state_counters["drain"].labels(
+                                type=gpu_name, reservation=node_data["reservation"]
+                            ).inc(gpu_counts["total"] - gpu_counts["alloc"])
 
             # Add Elastic Search action for each node.
             # We put the `es_nodes_body` construction here because
             # of the node_data['gpus'] that gets added in the above
             # code block.
-            es_nodes_body.append({'index': {'_id': node_name}})
+            es_nodes_body.append({"index": {"_id": node_name}})
             es_nodes_body.append(node_data)
 
         # Send bulk update for Elastic Search
-        if 'nodes_index' in self.D_elasticsearch_config and self.elasticsearch_client is not None:
-            print(f"Want to bulk commit {len(es_nodes_body)//2} node_data values to ElasticSearch.")
+        if (
+            "nodes_index" in self.D_elasticsearch_config
+            and self.elasticsearch_client is not None
+        ):
+            print(
+                f"Want to bulk commit {len(es_nodes_body)//2} node_data values to ElasticSearch."
+            )
             self.elasticsearch_client.bulk(
-                index=self.D_elasticsearch_config['nodes_index'],
-                body=es_nodes_body, timeout=self.D_elasticsearch_config['timeout'])
+                index=self.D_elasticsearch_config["nodes_index"],
+                body=es_nodes_body,
+                timeout=self.D_elasticsearch_config["timeout"],
+            )
 
-        if 'nodes_collection' in self.D_mongodb_config and self.mongo_client is not None:
+        if (
+            "nodes_collection" in self.D_mongodb_config
+            and self.mongo_client is not None
+        ):
             timestamp_start = time.time()
             L_updates_to_do = [
                 UpdateOne(
                     # rule to match if already present in collection
-                    {'name': node_data['name'], 'cluster_name': node_data['cluster_name']},
+                    {
+                        "name": node_data["name"],
+                        "cluster_name": node_data["cluster_name"],
+                    },
                     # the data that we write in the collection
-                    {'$set': node_data},
+                    {"$set": node_data},
                     # create if missing, update if present
-                    upsert=True)
-                for node_data in psl_nodes.values() ]
+                    upsert=True,
+                )
+                for node_data in psl_nodes.values()
+            ]
             # this is a one-liner, but we're breaking it into multiple steps to highlight the structure
-            database = self.mongo_client[self.D_mongodb_config['database']]
-            nodes_collection = database[self.D_mongodb_config['nodes_collection']]
-            nodes_collection.bulk_write(L_updates_to_do) #  <- the actual work
+            database = self.mongo_client[self.D_mongodb_config["database"]]
+            nodes_collection = database[self.D_mongodb_config["nodes_collection"]]
+            nodes_collection.bulk_write(L_updates_to_do)  #  <- the actual work
             mongo_update_duration = time.time() - timestamp_start
-            print(f"Bulk write for {len(L_updates_to_do)} node_data entries in mongodb took {mongo_update_duration} seconds.")
+            print(
+                f"Bulk write for {len(L_updates_to_do)} node_data entries in mongodb took {mongo_update_duration} seconds."
+            )
 
 
 class JobStatesManager:
@@ -308,23 +390,28 @@ class JobStatesManager:
     # at this stage of the pipeline.
     # TODO : See if this can be achieved another way in Grafana.
     slurm_job_states_color = {
-        "failed" : 0, # Red
-        "pending" : 5, # Orange
-        "running" : 10  # Green
+        "failed": 0,  # Red
+        "pending": 5,  # Orange
+        "running": 10,  # Green
     }
 
     # Jobs have certain fields that contain dates.
     # For each of those fields, we'll add an extra one that's easier to display.
     # It will have the same key followed by the "_str" suffix.
     # We are not overwriting the original value.
-    job_date_fields = [ 'submit_time', 'start_time', 'end_time', 'eligible_time' ]
+    job_date_fields = ["submit_time", "start_time", "end_time", "eligible_time"]
 
+    def __init__(
+        self,
+        cluster_name: str,
+        endpoint_prefix: str,
+        D_cluster_desc: dict,
+        D_elasticsearch_config: dict = {},
+        elasticsearch_client: Elasticsearch = None,
+        D_mongodb_config: dict = {},
+        mongo_client=None,
+    ):
 
-    def __init__(self,
-        cluster_name:str, endpoint_prefix: str, D_cluster_desc: dict,
-        D_elasticsearch_config:dict={}, elasticsearch_client:Elasticsearch=None,
-        D_mongodb_config:dict={}, mongo_client=None):
-    
         assert cluster_name in ["mila", "beluga", "graham", "cedar", "dummy"]
         self.cluster_name = cluster_name
 
@@ -334,9 +421,21 @@ class JobStatesManager:
         self.slurm_partitions = D_cluster_desc["slurm_partitions"]
 
         # The prometheus metrics are tracked by these values.
-        self.job_state_counter = Gauge(endpoint_prefix + 'slurm_job_states', cluster_name + ' Slurm Job States', labelnames=['name'])
-        self.login_node_counter = Gauge(endpoint_prefix + 'slurm_login_nodes', cluster_name + ' Slurm Login Nodes', labelnames=['name'])
-        self.partition_counter = Gauge(endpoint_prefix + 'slurm_partitions', cluster_name + ' Slurm Partitions', labelnames=['name'])
+        self.job_state_counter = Gauge(
+            endpoint_prefix + "slurm_job_states",
+            cluster_name + " Slurm Job States",
+            labelnames=["name"],
+        )
+        self.login_node_counter = Gauge(
+            endpoint_prefix + "slurm_login_nodes",
+            cluster_name + " Slurm Login Nodes",
+            labelnames=["name"],
+        )
+        self.partition_counter = Gauge(
+            endpoint_prefix + "slurm_partitions",
+            cluster_name + " Slurm Partitions",
+            labelnames=["name"],
+        )
 
         self.D_elasticsearch_config = D_elasticsearch_config
         self.elasticsearch_client = elasticsearch_client
@@ -381,34 +480,39 @@ class JobStatesManager:
             # of usernames that we anticipate we'll have to manage.
             # 'cc_account_username', 'mila_cluster_username', 'mila_email_username'
             #
-            if 'cc_account_username' in job_data and job_data['cc_account_username'] is not None:
+            if (
+                "cc_account_username" in job_data
+                and job_data["cc_account_username"] is not None
+            ):
                 # This means that this was already supplied to us from the scraper.
-                job_data['mila_cluster_username'] = "unknown"
+                job_data["mila_cluster_username"] = "unknown"
                 # job_data['cc_account_username'] already identified
-                job_data['mila_email_username'] = "unknown"
+                job_data["mila_email_username"] = "unknown"
             elif self.cluster_name == "mila":
                 # We attempt to extract the username in the same way in both cases,
                 # but we just place it at a different location.
-                job_data['mila_cluster_username'] = extract_username_from_job_data(job_data)
-                job_data['cc_account_username'] = "unknown"
-                job_data['mila_email_username'] = "unknown"
+                job_data["mila_cluster_username"] = extract_username_from_job_data(
+                    job_data
+                )
+                job_data["cc_account_username"] = "unknown"
+                job_data["mila_email_username"] = "unknown"
             else:
-                job_data['mila_cluster_username'] = "unknown"
-                job_data['cc_account_username'] = extract_username_from_job_data(job_data)
-                job_data['mila_email_username'] = "unknown"
-
-
+                job_data["mila_cluster_username"] = "unknown"
+                job_data["cc_account_username"] = extract_username_from_job_data(
+                    job_data
+                )
+                job_data["mila_email_username"] = "unknown"
 
             # Very useful for later when we untangle the sources in the plots.
             # Will also serve to have a unique id for entries in mongodb.
-            job_data['cluster_name'] = self.cluster_name
+            job_data["cluster_name"] = self.cluster_name
 
             # Guillaume says : I'm unsure why Quentin does this.
-            #if job_state not in self.slurm_job_states:
+            # if job_state not in self.slurm_job_states:
             #    self.slurm_job_states.append(job_state)
-        
+
             # Quentin wrote that Grafana wanted UTC.
-            job_data['timestamp'] = utc_now
+            job_data["timestamp"] = utc_now
             # Create display time for convenience.
             for key in self.job_date_fields:
                 #        When those dates are not available, pyslurm writes `0` instead.
@@ -421,35 +525,41 @@ class JobStatesManager:
                 #        to this is where the timezone gets set. In any case, we add %Z to the
                 #        strings so we could always recover from mistakes (and we store the original
                 #        timestamps as well).
-                if ((key in job_data) and
-                    (job_data[key] is not None) and
-                    (job_data[key] != 0)):
-                    job_data[key + '_str'] = datetime.fromtimestamp(job_data[key]).astimezone().strftime('%Y-%m-%dT%H:%M:%S %Z')
+                if (
+                    (key in job_data)
+                    and (job_data[key] is not None)
+                    and (job_data[key] != 0)
+                ):
+                    job_data[key + "_str"] = (
+                        datetime.fromtimestamp(job_data[key])
+                        .astimezone()
+                        .strftime("%Y-%m-%dT%H:%M:%S %Z")
+                    )
                 else:
-                    job_data[key + '_str'] = None
+                    job_data[key + "_str"] = None
                 # Maybe add a UTC version here too?
 
             # Boolean for state, only for Grafana colors.
             # See comment in header of JobStatesManager class.
             if job_state in self.slurm_job_states_color.keys():
-                job_data['grafana_helpers'] = {
-                    'job_state_color': self.slurm_job_states_color[job_state]
+                job_data["grafana_helpers"] = {
+                    "job_state_color": self.slurm_job_states_color[job_state]
                 }
 
             # interacts with prometheus
             self.job_state_counter.labels(name=job_state).inc()
 
             # Login node counters
-            alloc_node = job_data['alloc_node'].split('.')[0]
+            alloc_node = job_data["alloc_node"].split(".")[0]
             # Don't count compute nodes which are sometimes used to submit
             if alloc_node in self.slurm_login_nodes:
                 # interacts with prometheus
                 self.login_node_counter.labels(name=alloc_node).inc()
 
             # Partition counter
-            if job_data['partition'] in self.slurm_partitions:
+            if job_data["partition"] in self.slurm_partitions:
                 # interacts with prometheus
-                self.partition_counter.labels(name=job_data['partition']).inc()
+                self.partition_counter.labels(name=job_data["partition"]).inc()
 
             # ElasticSearch thing here.
             # The current understanding that we have about how ElasticSearch
@@ -473,34 +583,46 @@ class JobStatesManager:
             #        of this parent `for (job_id, job_data) in ...`.
             if ".extern" in job_id or ".batch" in job_id:
                 pass
-            elif m:= re.match("^(\d+)\.interactive", job_id):
-                es_jobs_body.append({'index': {'_id': int(m.group(1))}})
+            elif m := re.match("^(\d+)\.interactive", job_id):
+                es_jobs_body.append({"index": {"_id": int(m.group(1))}})
                 es_jobs_body.append(job_data)
-            elif m:= re.match("^(\d+)\.\d+", job_id):
+            elif m := re.match("^(\d+)\.\d+", job_id):
                 # e.g. '7943791.0'
-                es_jobs_body.append({'index': {'_id': int(m.group(1))}})
+                es_jobs_body.append({"index": {"_id": int(m.group(1))}})
                 es_jobs_body.append(job_data)
-            elif m:= re.match("^(\d+)_.*", job_id):
+            elif m := re.match("^(\d+)_.*", job_id):
                 # This was originally made to be (\d+)_\d+,
                 # but one time we had job_id being "6380334_[0-11%4]",
                 # so we updated the regex.
-                es_jobs_body.append({'index': {'_id': int(m.group(1))}})
+                es_jobs_body.append({"index": {"_id": int(m.group(1))}})
                 es_jobs_body.append(job_data)
             else:
                 # The normal thing that happens with data from legit pyslurm.
-                es_jobs_body.append({'index': {'_id': int(job_id)}})
+                es_jobs_body.append({"index": {"_id": int(job_id)}})
                 # full body
                 es_jobs_body.append(job_data)
 
-        if 'jobs_index' in self.D_elasticsearch_config and self.elasticsearch_client is not None and es_jobs_body:
-            print(f"Want to bulk commit {len(es_jobs_body) // 2} job_data values to ElasticSearch.")
+        if (
+            "jobs_index" in self.D_elasticsearch_config
+            and self.elasticsearch_client is not None
+            and es_jobs_body
+        ):
+            print(
+                f"Want to bulk commit {len(es_jobs_body) // 2} job_data values to ElasticSearch."
+            )
             # Send bulk update for ElasticSearch.
             self.elasticsearch_client.bulk(
-                index=self.D_elasticsearch_config['jobs_index'],
-                body=es_jobs_body, timeout=self.D_elasticsearch_config['timeout'])
+                index=self.D_elasticsearch_config["jobs_index"],
+                body=es_jobs_body,
+                timeout=self.D_elasticsearch_config["timeout"],
+            )
             # print("Done with commit to ElasticSearch.")
 
-        if 'jobs_collection' in self.D_mongodb_config and self.mongo_client is not None and psl_jobs:
+        if (
+            "jobs_collection" in self.D_mongodb_config
+            and self.mongo_client is not None
+            and psl_jobs
+        ):
             timestamp_start = time.time()
             L_updates_to_do = [
                 UpdateOne(
@@ -509,18 +631,25 @@ class JobStatesManager:
                     # they might be str whereas the entries in the database are int.
                     # This is a source of headaches, but at least with this approach
                     # we'll get the upserts working properly.
-                    {'job_id': job_data['job_id'], 'cluster_name': job_data['cluster_name']},
+                    {
+                        "job_id": job_data["job_id"],
+                        "cluster_name": job_data["cluster_name"],
+                    },
                     # the data that we write in the collection
-                    {'$set': job_data},
+                    {"$set": job_data},
                     # create if missing, update if present
-                    upsert=True)
-                    for job_data in psl_jobs.values() ]
+                    upsert=True,
+                )
+                for job_data in psl_jobs.values()
+            ]
 
             # this is a one-liner, but we're breaking it into multiple steps to highlight the structure
-            database = self.mongo_client[self.D_mongodb_config['database']]
-            jobs_collection = database[self.D_mongodb_config['jobs_collection']]
-            result = jobs_collection.bulk_write(L_updates_to_do) #  <- the actual work
+            database = self.mongo_client[self.D_mongodb_config["database"]]
+            jobs_collection = database[self.D_mongodb_config["jobs_collection"]]
+            result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
             # TODO : investigate why the updates aren't performed, and new entries are created instead
             # print(result.bulk_api_result)
             mongo_update_duration = time.time() - timestamp_start
-            print(f"Bulk write for {len(L_updates_to_do)} job_data entries in mongodb took {mongo_update_duration} seconds.")
+            print(
+                f"Bulk write for {len(L_updates_to_do)} job_data entries in mongodb took {mongo_update_duration} seconds."
+            )

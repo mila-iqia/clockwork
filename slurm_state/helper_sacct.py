@@ -35,9 +35,10 @@ import time
 
 delimiter = "<^>"
 
+
 def get_remote_sacct_cmd():
     """Get the command to run remotely.
-    
+
     The SSH part will be handled by the parent context,
     but by having `get_remote_sacct_cmd` in this file
     we have access to the decision about which fields
@@ -46,15 +47,15 @@ def get_remote_sacct_cmd():
 
     accounts = ",".join(get_accounts())
     format = ",".join(get_desired_sacct_fields())
-    # delimiter = 
+    # delimiter =
 
     cmd = f"sacct --allusers --accounts {accounts} --format {format} --delimiter '{delimiter}' --parsable"
     return cmd
 
 
-def get_jobs_desc_from_stdout(stdout:str, cluster_desc:dict):
+def get_jobs_desc_from_stdout(stdout: str, cluster_desc: dict):
     """Takes the stdout from a remote call and parses it into final result.
-    
+
     This is the function that you want to call from the outside.
     We just need to know what delimiter `sacct` was told to use
     so that we can parse its output from the remote machine.
@@ -70,14 +71,16 @@ def get_jobs_desc_from_stdout(stdout:str, cluster_desc:dict):
     Returns:
         list[dict]: List of descriptions for each individual jobs.
     """
-    L_lines = [e for e in stdout.split("\n") if len(e)>0]
- 
-    # delimiter = 
+    L_lines = [e for e in stdout.split("\n") if len(e) > 0]
+
+    # delimiter =
     desired_sacct_fields = get_desired_sacct_fields()
     LD_jobs = []
     # skip the header in L_lines[0]
     for line in L_lines[1:]:
-        LD_jobs.append( {"raw_sacct" : analyze_stdout_line(desired_sacct_fields, line, delimiter)} )
+        LD_jobs.append(
+            {"raw_sacct": analyze_stdout_line(desired_sacct_fields, line, delimiter)}
+        )
 
     for D_job in LD_jobs:
         D_job["sacct"] = process_to_sacct_data(D_job["raw_sacct"], cluster_desc)
@@ -85,9 +88,9 @@ def get_jobs_desc_from_stdout(stdout:str, cluster_desc:dict):
     return LD_jobs
 
 
-def process_to_sacct_data(job_raw_sacct:dict[str], cluster_desc:dict) -> dict[str]:
+def process_to_sacct_data(job_raw_sacct: dict[str], cluster_desc: dict) -> dict[str]:
     """Takes all the "raw" sacct from Slurm and converts it to cleaner format.
-    
+
     Additionally, it converts all the CamelCase to more pythonic names.
     It also converts the times from their original locations into unix timestamps.
     This requires the "timezone_offset_montreal_minus_there_in_seconds"
@@ -96,23 +99,28 @@ def process_to_sacct_data(job_raw_sacct:dict[str], cluster_desc:dict) -> dict[st
 
     job_sacct = {}
 
-    job_sacct['account'] = job_raw_sacct['Account']
-    job_sacct['alloc_node'] = job_raw_sacct['AllocNodes']
-    job_sacct['tres_req_str'] = job_raw_sacct['ReqTRES']       # why the str? are we syncing with pyslurm with that?
-    job_sacct['tres_alloc_str'] = job_raw_sacct['AllocTRES']   # why the str? are we syncing with pyslurm with that?
-    job_sacct['work_dir'] = job_raw_sacct['WorkDir']
+    job_sacct["account"] = job_raw_sacct["Account"]
+    job_sacct["alloc_node"] = job_raw_sacct["AllocNodes"]
+    job_sacct["tres_req_str"] = job_raw_sacct[
+        "ReqTRES"
+    ]  # why the str? are we syncing with pyslurm with that?
+    job_sacct["tres_alloc_str"] = job_raw_sacct[
+        "AllocTRES"
+    ]  # why the str? are we syncing with pyslurm with that?
+    job_sacct["work_dir"] = job_raw_sacct["WorkDir"]
 
     # unsure about this mapping
-    job_sacct['user_id'] = job_raw_sacct['UID']
+    job_sacct["user_id"] = job_raw_sacct["UID"]
 
     # Depending which cluster where we find this username,
     # we'll put it in a different slot. This is important
     # to distinguish with the (currently) three identities we track.
-    job_sacct[cluster_desc["local_username_referenced_by_parent_as"]] = job_raw_sacct['User']
+    job_sacct[cluster_desc["local_username_referenced_by_parent_as"]] = job_raw_sacct[
+        "User"
+    ]
 
-    job_sacct['job_state'] = job_raw_sacct['State']
-    job_sacct['partition'] = job_raw_sacct['Partition']
-
+    job_sacct["job_state"] = job_raw_sacct["State"]
+    job_sacct["partition"] = job_raw_sacct["Partition"]
 
     ##################################################################
     #
@@ -124,24 +132,22 @@ def process_to_sacct_data(job_raw_sacct:dict[str], cluster_desc:dict) -> dict[st
     #   We should discuss this design at some point.
     ##################################################################
 
-
-
     # You might think that JobID should be an integer, but it gets
     # values like '3114459_1.batch' so it's not an integer.
-    job_sacct['job_id'] = job_raw_sacct['JobID']
-    job_sacct['job_id_raw'] = job_raw_sacct['JobIDRaw']
+    job_sacct["job_id"] = job_raw_sacct["JobID"]
+    job_sacct["job_id_raw"] = job_raw_sacct["JobIDRaw"]
 
     # This one is an editorial decision. These look similar
     # but it's dangerous to some degree to start matching
     # fields that aren't necessarily the same.
-    job_sacct['command'] = job_raw_sacct['JobName']
+    job_sacct["command"] = job_raw_sacct["JobName"]
 
     # Nope. One is a list and the other is an integer written as string.
     # job_sacct['req_nodes'] = job_raw_sacct['ReqNodes']
 
-    job_sacct['resv_name'] = job_raw_sacct['Reservation'] if 0<len(job_raw_sacct['Reservation']) else None
-
-
+    job_sacct["resv_name"] = (
+        job_raw_sacct["Reservation"] if 0 < len(job_raw_sacct["Reservation"]) else None
+    )
 
     """
     job_raw_sacct['Submit'] is something like 2021-05-08T15:37:35
@@ -155,23 +161,27 @@ def process_to_sacct_data(job_raw_sacct:dict[str], cluster_desc:dict) -> dict[st
     """
 
     #### Submit ####
-    job_sacct['submit_time'] = int(localtime_to_unix_timestamp(job_raw_sacct['Submit']))
+    job_sacct["submit_time"] = int(localtime_to_unix_timestamp(job_raw_sacct["Submit"]))
     #### Start ####
-    if job_raw_sacct['Start'] is None or job_raw_sacct['Start'] == "Unknown":
-        job_sacct['start_time'] = None
+    if job_raw_sacct["Start"] is None or job_raw_sacct["Start"] == "Unknown":
+        job_sacct["start_time"] = None
     else:
-        job_sacct['start_time'] = int(localtime_to_unix_timestamp(job_raw_sacct['Start']))
+        job_sacct["start_time"] = int(
+            localtime_to_unix_timestamp(job_raw_sacct["Start"])
+        )
     #### End ####
-    if job_raw_sacct['End'] is None or job_raw_sacct['End'] == "Unknown":
-        job_sacct['end_time'] = None
+    if job_raw_sacct["End"] is None or job_raw_sacct["End"] == "Unknown":
+        job_sacct["end_time"] = None
     else:
-        job_sacct['end_time'] = int(localtime_to_unix_timestamp(job_raw_sacct['End']))
+        job_sacct["end_time"] = int(localtime_to_unix_timestamp(job_raw_sacct["End"]))
     #### Eligible ####
-    job_sacct['eligible_time'] = int(localtime_to_unix_timestamp(job_raw_sacct['Eligible']))
+    job_sacct["eligible_time"] = int(
+        localtime_to_unix_timestamp(job_raw_sacct["Eligible"])
+    )
     ####
 
     # No idea what this does, but the mapping seems natural.
-    job_sacct['assoc_id'] = int(job_raw_sacct['AssocID'])
+    job_sacct["assoc_id"] = int(job_raw_sacct["AssocID"])
 
     """
         "time_limit": 900,
@@ -179,15 +189,14 @@ def process_to_sacct_data(job_raw_sacct:dict[str], cluster_desc:dict) -> dict[st
         "Timelimit": "23:59:00",
         "TimelimitRaw": "1439",
     """
-    job_sacct['time_limit'] = int(job_raw_sacct['TimelimitRaw']) if job_raw_sacct['TimelimitRaw'] else 0
-    job_sacct['time_limit_str'] = job_raw_sacct['Timelimit']
+    job_sacct["time_limit"] = (
+        int(job_raw_sacct["TimelimitRaw"]) if job_raw_sacct["TimelimitRaw"] else 0
+    )
+    job_sacct["time_limit_str"] = job_raw_sacct["Timelimit"]
 
-    job_sacct['exit_code'] = job_raw_sacct['ExitCode']
-
-
+    job_sacct["exit_code"] = job_raw_sacct["ExitCode"]
 
     # You are not done here. Continue from "on_site_sinfo_and_sacct_scraper.py".
-
 
     # TODO : Code this.
     #        It involves a lot of the real meat with certain
@@ -209,10 +218,8 @@ def process_to_sacct_data(job_raw_sacct:dict[str], cluster_desc:dict) -> dict[st
 #####################################################
 
 
-
 def analyze_stdout_line(sacct_fields, line, delimiter):
-    """
-    """
+    """ """
 
     # The problem is that sometimes we have one more delimiter at the end,
     # despite having no elements after. It doesn't appear to be consistent
@@ -236,20 +243,28 @@ def analyze_stdout_line(sacct_fields, line, delimiter):
         print(L)
         print(sacct_fields)
         print("-----------")
-        raise Exception(f"We have {len(L)} fields read, but we're looking for {len(sacct_fields)} values.")
-    
+        raise Exception(
+            f"We have {len(L)} fields read, but we're looking for {len(sacct_fields)} values."
+        )
+
 
 def get_accounts():
-    """Returns the CC allocations that are relevant to Mila.
-    """
-    return [# we need 'mila' in there now that we run this method instead of PySlurm at Mila 
-            'mila',
-            # greater Yoshua account for many people
-            'def-bengioy_gpu', 'rrg-bengioy-ad_gpu', 'rrg-bengioy-ad_cpu', 'def-bengioy_cpu',
-            # doina + joelle + jackie
-            'rrg-dprecup', 'def-dprecup',
-            # blake williams
-            'def-tyrell', 'rrg-tyrell', 'rpp-markpb68']
+    """Returns the CC allocations that are relevant to Mila."""
+    return [  # we need 'mila' in there now that we run this method instead of PySlurm at Mila
+        "mila",
+        # greater Yoshua account for many people
+        "def-bengioy_gpu",
+        "rrg-bengioy-ad_gpu",
+        "rrg-bengioy-ad_cpu",
+        "def-bengioy_cpu",
+        # doina + joelle + jackie
+        "rrg-dprecup",
+        "def-dprecup",
+        # blake williams
+        "def-tyrell",
+        "rrg-tyrell",
+        "rpp-markpb68",
+    ]
 
 
 def get_valid_sacct_fields():
@@ -287,10 +302,10 @@ def get_valid_sacct_fields():
         WCKey               WCKeyID             WorkDir
     """
     raw_str = raw_str.replace("\n", " ")
-    field_names = [field_name for field_name in raw_str.split(" ") if len(field_name)>0]
+    field_names = [
+        field_name for field_name in raw_str.split(" ") if len(field_name) > 0
+    ]
     return field_names
-
-
 
 
 # map_camel_to_underscore = {
@@ -335,6 +350,7 @@ def get_valid_sacct_fields():
 # that sacct has to give us.
 get_desired_sacct_fields = get_valid_sacct_fields
 
+
 def get_desired_sacct_fields_00():
     """
     This is a subset of the `sacct` fields that we're interested in.
@@ -368,6 +384,7 @@ def get_desired_sacct_fields_00():
             WorkDir
        """
     raw_str = raw_str.replace("\n", " ")
-    field_names = [field_name for field_name in raw_str.split(" ") if len(field_name)>0]
+    field_names = [
+        field_name for field_name in raw_str.split(" ") if len(field_name) > 0
+    ]
     return field_names
-

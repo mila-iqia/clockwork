@@ -37,7 +37,7 @@ import re
 import time
 
 
-def add_node_list_simplified(psl_reservations:dict):
+def add_node_list_simplified(psl_reservations: dict):
     """
     dicts returned by `pyslurm.reservation().get()`
     will have an entry
@@ -61,35 +61,34 @@ def add_node_list_simplified(psl_reservations:dict):
     """
     for resv_desc in psl_reservations.values():
         hl = pyslurm.hostlist()  # we need to involve pyslurm in this process
-        hl.create(resv_desc['node_list'])
+        hl.create(resv_desc["node_list"])
         # modify in place
-        resv_desc["node_list_simplified"] = [e.decode('UTF-8') for e in hl.get_list()]
-
-
+        resv_desc["node_list_simplified"] = [e.decode("UTF-8") for e in hl.get_list()]
 
 
 def main():
-    results = { 'node': pyslurm.node().get(),
-                'reservation': pyslurm.reservation().get(),
-                'job': pyslurm.job().get()}
+    results = {
+        "node": pyslurm.node().get(),
+        "reservation": pyslurm.reservation().get(),
+        "job": pyslurm.job().get(),
+    }
 
-    add_node_list_simplified(results['reservation'])
+    add_node_list_simplified(results["reservation"])
 
     # We decided to avoid doing this approach, but let's keep the code around
     # for just a little while.
     # results['node_name_to_resv_names'] = get_node_name_to_resv_names(results['reservation'])
-
 
     # Then we want to filter out many of the accounts from Compute Canada
     # that are not related to Mila.
     # Obviously, this is not something that we need to do if we're running
     # on the Mila cluster. Every job on the Mila cluster has account "mila".
 
-    accounts = set(v['account'] for v in results['job'].values())
-    valid_accounts = set(
-        [a for a in accounts if re.match(r".*bengio.*", a)] + ["mila"]
+    accounts = set(v["account"] for v in results["job"].values())
+    valid_accounts = set([a for a in accounts if re.match(r".*bengio.*", a)] + ["mila"])
+    results["job"] = dict(
+        (k, v) for (k, v) in results["job"].items() if v["account"] in valid_accounts
     )
-    results['job'] = dict((k, v) for (k, v) in results['job'].items() if v['account'] in valid_accounts)
 
     # At this point, `results` contains the values that we want to return.
     # This does not mean that have done all the massaging of the data that we want to do.
@@ -99,6 +98,7 @@ def main():
 
     # We print results because the parent script will retrieve them as stdout.
     print(json.dumps(results))
+
 
 if __name__ == "__main__":
     main()
@@ -110,7 +110,6 @@ if __name__ == "__main__":
     """
 
 
-
 ###############################################################
 # The path not taken.
 #   This code works fine, but there's a better way to do things
@@ -118,7 +117,8 @@ if __name__ == "__main__":
 #   Probably safe to delete it after 2021-05-31 plus two months.
 ###############################################################
 
-def get_node_name_to_resv_names(psl_reservations:dict):
+
+def get_node_name_to_resv_names(psl_reservations: dict):
     """
     dicts returned by `pyslurm.reservation().get()`
     will have an entry
@@ -155,15 +155,15 @@ def get_node_name_to_resv_names(psl_reservations:dict):
 
     for (resv_name, resv_desc) in psl_reservations.items():
         # `resv_name` is the answer, and now we must find the question that maps to it
-        if resv_desc['start_time'] <= unix_now <= resv_desc['end_time'] :
+        if resv_desc["start_time"] <= unix_now <= resv_desc["end_time"]:
 
             # get hostlist
             hl = pyslurm.hostlist()
-            hl.create(resv_desc['node_list'])
-    
+            hl.create(resv_desc["node_list"])
+
             # they're bytefields that need decoding
             for node_name_bytes in hl.get_list():
-                node_name = node_name_bytes.decode('UTF-8')
+                node_name = node_name_bytes.decode("UTF-8")
                 node_name_to_resv_names[node_name].append(resv_name)
 
     return node_name_to_resv_names

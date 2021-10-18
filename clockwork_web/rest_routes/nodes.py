@@ -6,10 +6,11 @@ from clockwork_web.core.nodes_helper import get_nodes
 from clockwork_web.core.common import get_filter_from_request_args
 
 from flask import Blueprint
-flask_api = Blueprint('rest_nodes', __name__)
+
+flask_api = Blueprint("rest_nodes", __name__)
 
 
-@flask_api.route('/nodes/list')
+@flask_api.route("/nodes/list")
 def route_api_v1_nodes_list():
     """
     Take one optional args "cluster_name", as in "/nodes/list?cluster_name=beluga".
@@ -27,7 +28,7 @@ def route_api_v1_nodes_list():
     return resp
 
 
-@flask_api.route('/nodes/one')
+@flask_api.route("/nodes/one")
 def route_api_v1_nodes_one():
     """
     Takes one mandatory args "name", as in "/nodes/one?name=cn-a003".
@@ -51,7 +52,9 @@ def route_api_v1_nodes_one():
         return resp
     if len(LD_nodes) > 1:
         # This is not a situation that should even happen, and it's a sign of data corruption.
-        resp = jsonify(f"Found {len(LD_nodes)} nodes with filter {filter}. Not sure what to do about these cases.")
+        resp = jsonify(
+            f"Found {len(LD_nodes)} nodes with filter {filter}. Not sure what to do about these cases."
+        )
         resp.status_code = 500  # server error
         return resp
 

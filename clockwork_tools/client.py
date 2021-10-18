@@ -2,6 +2,7 @@ from __future__ import annotations
 import requests
 import base64
 
+
 class ClockworkTools:
     """
     Implements the client to a "Clockwork" web server already running.
@@ -27,18 +28,20 @@ class ClockworkTools:
         # TODO : When deployed for real, we might want to be a little more careful
         #        to protect people against sending http by accident to remote hosts.
         #        Not sure what the correct thing to do would be.
-        if self.config['port'] == 443:
+        if self.config["port"] == 443:
             http_or_https = "https"
         else:
             http_or_https = "http"
 
-        self.complete_base_address = f"{http_or_https}://{self.config['host']}:{self.config['port']}"
+        self.complete_base_address = (
+            f"{http_or_https}://{self.config['host']}:{self.config['port']}"
+        )
 
     def _get_headers(self):
         """Get headers of REST API calls. Includes authentication.
 
-            Returns:
-                dict: The headers to be used. Includes authentication.
+        Returns:
+            dict: The headers to be used. Includes authentication.
         """
         # This is a common way to identify http requests.
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
@@ -53,46 +56,52 @@ class ClockworkTools:
     def _request(self, endpoint, params):
         """Helper method for REST API calls.
 
-            Internal helper method to make the calls to the REST API endpoints
-            for many different methods of `self`. Hidden from the user.
+        Internal helper method to make the calls to the REST API endpoints
+        for many different methods of `self`. Hidden from the user.
 
-            Args:
-                endpoint (str): The REST endpoint, omitting the server address.
-                params (dict): Arguments to be provided to the REST endpoint.
+        Args:
+            endpoint (str): The REST endpoint, omitting the server address.
+            params (dict): Arguments to be provided to the REST endpoint.
 
-            Returns:
-                Depends on the call made.
+        Returns:
+            Depends on the call made.
         """
         if endpoint.startswith("/") or self.complete_base_address.endswith("/"):
-            middle_slash = "" 
+            middle_slash = ""
         else:
             middle_slash = "/"
 
         complete_address = f"{self.complete_base_address}{middle_slash}{endpoint}"
-        response = requests.get(complete_address, params=params, headers=self._get_headers())
+        response = requests.get(
+            complete_address, params=params, headers=self._get_headers()
+        )
         print(response)
         # Check code instead and raise exception if it's the wrong one.
         if response.status_code == 200:
             return response.json()
         else:
-            raise Exception(f"Server rejected call with code {response.status_code}. {response.json()}")
+            raise Exception(
+                f"Server rejected call with code {response.status_code}. {response.json()}"
+            )
 
     # For endpoints requiring `params` we could use **kwargs instead,
     # but let's use explicit arguments instead.
-    def jobs_list(self, user=None, time=None, cluster_name:str=None) -> list[dict[str,any]]:
+    def jobs_list(
+        self, user=None, time=None, cluster_name: str = None
+    ) -> list[dict[str, any]]:
         """REST call to api/v1/clusters/jobs/list.
 
-            Gets a list with detailed description of a all the jobs
-            from the specified cluster.
+        Gets a list with detailed description of a all the jobs
+        from the specified cluster.
 
-            Args:
-                user (str): Name of user. Matches any of the three possible kinds of usernames.
-                time (int): How many seconds to go back in time to list jobs.
-                cluster_name (str): Name of cluster.
+        Args:
+            user (str): Name of user. Matches any of the three possible kinds of usernames.
+            time (int): How many seconds to go back in time to list jobs.
+            cluster_name (str): Name of cluster.
 
-            Returns:
-                list[dict[str,any]]: List of properties of all the jobs.
-                If cluster_name is invalid, returns an empty list.
+        Returns:
+            list[dict[str,any]]: List of properties of all the jobs.
+            If cluster_name is invalid, returns an empty list.
         """
         endpoint = "api/v1/clusters/jobs/list"
         params = {}
@@ -101,21 +110,21 @@ class ClockworkTools:
                 params[k] = a
         return self._request(endpoint, params)
 
-    def jobs_one(self, job_id:str=None, cluster_name:str=None) -> dict[str,any]:
+    def jobs_one(self, job_id: str = None, cluster_name: str = None) -> dict[str, any]:
         """REST call to api/v1/clusters/jobs/one.
 
-            Gets the detailed description of a single job
-            on the cluster specified. If there is no ambiguity
-            with the job_id, the cluster_name argument
-            is not required.
+        Gets the detailed description of a single job
+        on the cluster specified. If there is no ambiguity
+        with the job_id, the cluster_name argument
+        is not required.
 
-            Args:
-                job_id (str): job_id to be described (in terms of Slurm terminology)
-                cluster_name (str): Name of cluster where that job is running.
+        Args:
+            job_id (str): job_id to be described (in terms of Slurm terminology)
+            cluster_name (str): Name of cluster where that job is running.
 
-            Returns:
-                dict[str,any]: Properties of the job, when valid.
-                Otherwise returns an empty dict.
+        Returns:
+            dict[str,any]: Properties of the job, when valid.
+            Otherwise returns an empty dict.
         """
         endpoint = "api/v1/clusters/jobs/one"
         params = {}
@@ -125,18 +134,18 @@ class ClockworkTools:
             params["job_id"] = job_id
         return self._request(endpoint, params)
 
-    def nodes_list(self, cluster_name:str=None) -> list[dict[str,any]]:
+    def nodes_list(self, cluster_name: str = None) -> list[dict[str, any]]:
         """REST call to api/v1/clusters/nodes/list.
 
-            Gets a list with detailed description of a all the nodes
-            from the specified cluster.
+        Gets a list with detailed description of a all the nodes
+        from the specified cluster.
 
-            Args:
-                cluster_name (str): Name of cluster.
+        Args:
+            cluster_name (str): Name of cluster.
 
-            Returns:
-                list[dict[str,any]]: List of properties of all the nodes.
-                If cluster_name is invalid, returns an empty list.
+        Returns:
+            list[dict[str,any]]: List of properties of all the nodes.
+            If cluster_name is invalid, returns an empty list.
         """
         endpoint = "api/v1/clusters/nodes/list"
         params = {}
@@ -144,21 +153,21 @@ class ClockworkTools:
             params["cluster_name"] = cluster_name
         return self._request(endpoint, params)
 
-    def nodes_one(self, name:str=None, cluster_name:str=None) -> dict[str,any]:
+    def nodes_one(self, name: str = None, cluster_name: str = None) -> dict[str, any]:
         """REST call to api/v1/clusters/nodes/one.
 
-            Gets the detailed description of a single node
-            on the cluster specified. If there is no ambiguity
-            with the name of the node, the cluster_name argument
-            is not required.
+        Gets the detailed description of a single node
+        on the cluster specified. If there is no ambiguity
+        with the name of the node, the cluster_name argument
+        is not required.
 
-            Args:
-                name (str): Name of node to be described.
-                cluster_name (str): Name of cluster where that node lives.
+        Args:
+            name (str): Name of node to be described.
+            cluster_name (str): Name of cluster where that node lives.
 
-            Returns:
-                dict[str,any]: Properties of the node, when valid.
-                Otherwise returns an empty dict.
+        Returns:
+            dict[str,any]: Properties of the node, when valid.
+            Otherwise returns an empty dict.
         """
         endpoint = "api/v1/clusters/nodes/one"
         params = {}
