@@ -43,5 +43,9 @@ Needs to be redesigned or deleted:
 # for main project
 python3 -m pip install flask flask-login numpy pymongo oauthlib
 # for docs
-python3 -m pip install sphinx myst_parser sphinx_rtd_theme
+python3 -m pip install sphinx myst_parser sphinx_rtd_theme sphinxcontrib.httpdomain
 ```
+
+## documentation
+
+In the "doc" directory, build the documentation with `make rst; make html`.
