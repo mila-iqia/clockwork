@@ -29,7 +29,11 @@ author = "IDT"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["myst_parser", "sphinx.ext.autodoc", "sphinx.ext.napoleon"]
+extensions = ["myst_parser", "sphinx.ext.autodoc", "sphinx.ext.napoleon",
+                'sphinxcontrib.httpdomain',
+                'sphinxcontrib.autohttp.flask',
+                'sphinxcontrib.autohttp.flaskqref']
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -42,7 +46,7 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "docs/slurm_monitor.rst",
-    "docs/.pytest_cache/**" "clockwork_web/browser_routes/obsolete_nodes.py",
+    "docs/.pytest_cache/**",
     "clockwork_web/static/**",
     "clockwork_web/template/**",
     "slurm_monitor/**",
@@ -78,3 +82,7 @@ source_suffix = {
 #     https://developer.ridgerun.com/wiki/index.php/How_to_generate_sphinx_documentation_for_python_code_running_in_an_embedded_system
 # Sort members by type
 autodoc_member_order = "groupwise"
+
+
+# https://sphinxcontrib-httpdomain.readthedocs.io/en/stable
+http_index_localname = "Clockwork REST API"

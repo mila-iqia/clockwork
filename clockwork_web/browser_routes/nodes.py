@@ -60,6 +60,8 @@ def route_list():
     """
     Can take optional args "cluster_name" and "name",
     where "name" refers to the host name.
+
+    .. :quickref: list all Slurm nodes as formatted html
     """
     f0 = get_filter_name(request.args.get("name", None))
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
@@ -90,6 +92,8 @@ def route_one():
     """
     Same as /list but we expect to have only a single value,
     and we render the template "single_node.html" instead of "nodes.html".
+
+    .. :quickref: list one Slurm node as formatted html
     """
 
     f0 = get_filter_name(request.args.get("name", None))
