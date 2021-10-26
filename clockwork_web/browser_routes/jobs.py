@@ -168,9 +168,7 @@ def route_interactive():
 @flask_api.route("/single_job/<job_id>")
 @login_required
 def route_single_job_p_job_id(job_id):
-    """
-    
-    """
+    """ """
 
     m = re.match(r"^[\d]+$", job_id)
     if not m:

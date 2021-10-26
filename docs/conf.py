@@ -29,10 +29,14 @@ author = "IDT"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["myst_parser", "sphinx.ext.autodoc", "sphinx.ext.napoleon",
-                'sphinxcontrib.httpdomain',
-                'sphinxcontrib.autohttp.flask',
-                'sphinxcontrib.autohttp.flaskqref']
+extensions = [
+    "myst_parser",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinxcontrib.httpdomain",
+    "sphinxcontrib.autohttp.flask",
+    "sphinxcontrib.autohttp.flaskqref",
+]
 
 
 # Add any paths that contain templates here, relative to this directory.
