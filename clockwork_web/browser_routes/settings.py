@@ -29,7 +29,7 @@ flask_api = Blueprint("settings", __name__)
 @login_required
 def route_index():
     """
-    
+
     .. :quickref: access the settings page as html
     """
     return render_template(
