@@ -11,12 +11,15 @@ Welcome to Clockwork's documentation!
    :caption: User Guide
 
    clockwork_user_guide/main
+   clockwork_user_guide/rest_api.rst
+   clockwork_user_guide/rest_api_short.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: Developer Guide
 
    clockwork_dev_guide/main
+   clockwork_dev_guide/slurm_state
 
 .. toctree::
    :maxdepth: 2

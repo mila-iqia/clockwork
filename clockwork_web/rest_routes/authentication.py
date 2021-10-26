@@ -3,8 +3,8 @@ Every call to a REST API endpoint has to be validated in terms of email:clockwor
 
 The reason why we don't pass authentication information through json contents
 in the body is that
-    - it requires a json-deserialization of potentially-malicious contents
-    - it works only for POST (not a big deal)
+- it requires a json-deserialization of potentially-malicious contents
+- it works only for POST (not a big deal)
 
 """
 
