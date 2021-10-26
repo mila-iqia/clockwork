@@ -66,6 +66,8 @@ def route_list():
     "user" refers to any of the three alternatives to identify a user,
     and it will many any of them.
     "time" refers to how many seconds to go back in time to list jobs.
+
+    .. :quickref: list all Slurm job as formatted html
     """
 
     f0 = get_filter_user(request.args.get("user", None))
@@ -110,6 +112,8 @@ def route_one():
     Takes args "cluster_name", "job_id".
     This can work with only "job_id" if it's unique,
     but otherwise it might require specifying the cluster name.
+
+    .. :quickref: list one Slurm job as formatted html
     """
     job_id = request.args.get("job_id", None)
     if job_id is None:
@@ -164,6 +168,9 @@ def route_interactive():
 @flask_api.route("/single_job/<job_id>")
 @login_required
 def route_single_job_p_job_id(job_id):
+    """
+    
+    """
 
     m = re.match(r"^[\d]+$", job_id)
     if not m:

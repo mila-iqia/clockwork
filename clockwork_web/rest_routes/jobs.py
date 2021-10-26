@@ -25,6 +25,10 @@ flask_api = Blueprint("rest_jobs", __name__)
 
 @flask_api.route("/jobs/list")
 def route_api_v1_jobs_list():
+    """
+    
+    .. :quickref: list all Slurm jobs
+    """
 
     D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
     if D_user is None:
@@ -67,6 +71,10 @@ def route_api_v1_jobs_list():
 
 @flask_api.route("/jobs/one")
 def route_api_v1_jobs_one():
+    """
+    
+    .. :quickref: list one Slurm job
+    """
 
     D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
     if D_user is None:

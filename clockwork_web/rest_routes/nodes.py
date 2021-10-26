@@ -14,6 +14,8 @@ flask_api = Blueprint("rest_nodes", __name__)
 def route_api_v1_nodes_list():
     """
     Take one optional args "cluster_name", as in "/nodes/list?cluster_name=beluga".
+
+    .. :quickref: list all Slurm nodes
     """
     filter = get_filter_from_request_args(["cluster_name"])
 
@@ -34,6 +36,8 @@ def route_api_v1_nodes_one():
     Takes one mandatory args "name", as in "/nodes/one?name=cn-a003".
     This could take a "cluster_name" args if, for some freak reason,
     we have two clusters that have clashes with their host names.
+
+    .. :quickref: list one Slurm node
     """
     filter = get_filter_from_request_args(["cluster_name", "name"])
 
