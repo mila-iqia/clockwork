@@ -151,3 +151,28 @@ def test_job_parser_error():
     p = job_parser(f, None)
     with pytest.raises(ValueError):
         list(p)
+
+
+def test_node_parser():
+    f = StringIO(
+        """NodeName=abc1 Arch=x86_64
+
+NodeName=abc2 Arch=power9
+
+"""
+    )
+    assert list(node_parser(f, None)) == [
+        {"name": "abc1", "arch": "x86_64"},
+        {"name": "abc2", "arch": "power9"},
+    ]
+
+
+def test_node_parser_error():
+    f = StringIO(
+        """NodeName=abc potato=123
+
+"""
+    )
+    p = node_parser(f, None)
+    with pytest.raises(ValueError):
+        list(p)
