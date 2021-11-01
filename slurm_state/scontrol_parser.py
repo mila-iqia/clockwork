@@ -159,12 +159,78 @@ JOB_FIELD_MAP = {
 
 
 def job_parser(f, ctx):
-    """."""
+    """Parse a file of job entries.
+
+    This is an iterator that will yield a dict for each job entry with
+    the fields mapped according to JOB_FIELD_MAP.
+
+    Unknown fields will raise an error.
+    """
     for d in gen_dicts(f):
         res = dict()
         for k, v in d.items():
             m = JOB_FIELD_MAP.get(k, None)
             if m is None:
                 raise ValueError(f"Unknown field in job output: {k}")
+            m(v, ctx, res)
+        yield res
+
+
+NODE_FIELD_MAP = {
+    "NodeName": rename(id, "name"),
+    "Arch": rename(id, "arch"),
+    "CoresPerSocket": ignore,
+    "CPUAlloc": ignore,
+    "CPUTot": ignore,
+    "CPULoad": ignore,
+    "AvailableFeatures": rename(id, "features"),
+    "ActiveFeatures": ignore,
+    "Gres": rename(id, "gres"),
+    "NodeAddr": rename(id, "addr"),
+    "NodeHostName": ignore,
+    "Version": ignore,
+    "OS": ignore,
+    "RealMemory": rename(id, "memory"),
+    "AllocMem": ignore,
+    "FreeMem": ignore,
+    "Sockets": ignore,
+    "Boards": ignore,
+    "State": rename(id, "state"),
+    "ThreadsPerCore": ignore,
+    "TmpDisk": ignore,
+    "Weight": ignore,
+    "Owner": ignore,
+    "MCS_label": ignore,
+    "Partitions": ignore,
+    "BootTime": ignore,
+    "SlurmdStartTime": ignore,
+    # Probably better to parse these
+    "CfgTRES": rename(id, "cfg_tres"),
+    "AllocTRES": rename(id, "alloc_tres"),
+    "CapWatts": ignore,
+    "CurrentWatts": ignore,
+    "AveWatts": ignore,
+    "ExtSensorsJoules": ignore,
+    "ExtSensorsWatts": ignore,
+    "ExtSensorsTemp": ignore,
+    "Reason": rename(id, "reason"),
+    "Comment": ignore,
+}
+
+
+def node_parser(f, ctx):
+    """Parse a file of node entries.
+
+    This is an iterator that will yield a dict for each node entry with
+    the fields mapped according to NODE_FIELD_MAP.
+
+    Unknown fields will raise an error.
+    """
+    for d in gen_dicts(f):
+        res = dict()
+        for k, v in d.items():
+            m = NODE_FIELD_MAP.get(k, None)
+            if m is None:
+                raise ValueError(f"Unknown field in node output: {k}")
             m(v, ctx, res)
         yield res
