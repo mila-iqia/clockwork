@@ -1,7 +1,7 @@
 import re
 import datetime
 
-FIELD = re.compile("([a-zA-z/:]+)=(.*?)(?: ([a-zA-Z]+=.*)|$)")
+FIELD = re.compile(r"([a-zA-z/:]+)=(.*?)(?: ([a-zA-Z]+=.*)|$)")
 
 
 def gen_dicts(f):
@@ -51,19 +51,16 @@ def account(f, ctx):
     return f.split("(")[0]
 
 
-TIMELIMIT = re.compile("(?:(\d+)-)?(\d\d):(\d\d):(\d\d)", re.ASCII)
+TIMELIMIT = re.compile(r"(?:(?:(?:(\d+)-)?(\d\d):)?(\d\d):)?(\d\d)", re.ASCII)
 
 
 def timelimit(f, ctx):
     m = TIMELIMIT.fullmatch(f)
     if m is None:
         raise ValueError(f"Unknown time limit format: {f}")
-    days = m.group(1)
-    if days is None:
-        days = 0
-    else:
-        days = int(days)
-    hours, minutes, seconds = map(int, m.groups()[1:])
+    days, hours, minutes, seconds = map(
+        lambda t: 0 if t is None else int(t), m.groups()
+    )
     return seconds + 60 * minutes + 3600 * hours + 86400 * days
 
 
