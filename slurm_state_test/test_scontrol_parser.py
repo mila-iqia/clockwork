@@ -93,6 +93,20 @@ def test_rename():
     assert d == {"name": "1"}
 
 
+def test_dynrename():
+    fn = dynrename(id, "user_field")
+
+    class CTX:
+        pass
+
+    ctx = CTX()
+    ctx.user_field = "test_user"
+
+    d = {}
+    fn("name", ctx, d)
+    assert d == {"test_user": "name"}
+
+
 def test_id():
     assert id("1", None) == "1"
 
