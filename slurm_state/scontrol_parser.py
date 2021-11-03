@@ -38,8 +38,15 @@ def rename(fn, name):
         val = fn(f, ctx)
         res[name] = val
 
-    # copy over the properties of 'fn' to renamer
     return renamer
+
+
+def dynrename(fn, ctx_key):
+    def dynrenamer(f, ctx, res):
+        val = fn(f, ctx)
+        res[getattr(ctx, ctx_key)] = val
+
+    return dynrenamer
 
 
 def id(f, ctx):
@@ -84,7 +91,7 @@ JOB_FIELD_MAP = {
     "ArrayTaskId": ignore,
     "ArrayTaskThrottle": ignore,
     "JobName": rename(id, "name"),
-    "UserId": rename(account, "cc_account_username"),
+    "UserId": dynrename(account, "local_username_referenced_by_parent_as"),
     "GroupId": ignore,
     "MCS_label": ignore,
     "Priority": ignore,
@@ -146,9 +153,9 @@ JOB_FIELD_MAP = {
     # this is probably not right
     "Command": rename(id, "command"),
     "WorkDir": rename(id, "work_dir"),
-    "StdErr": ignore,
-    "StdIn": ignore,
-    "StdOut": ignore,
+    "StdErr": rename(id, "stderr"),
+    "StdIn": rename(id, "stdin"),
+    "StdOut": rename(id, "stdout"),
     "Power": ignore,
     "CpusPerTres": ignore,
     # maybe not?
