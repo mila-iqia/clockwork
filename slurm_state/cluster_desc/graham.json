@@ -15,6 +15,6 @@
         "cpubase_bycore_b3", "cpubackfill", "gpubase_bygpu_b6", "cpubase_bynode_b4", "cpubase_bycore_b6",
         "cpularge_bycore_b5", "gpubase_bynode_b6", "gpubase_bygpu_b1", "gpubase_interac", "cpubase_interac"],
     "slurm_ignore_partitions": [],
-    "timezone_offset_montreal_minus_there_in_seconds": 0,
+    "timezone": "America/Toronto",
     "local_username_referenced_by_parent_as": "cc_account_username"
 }
