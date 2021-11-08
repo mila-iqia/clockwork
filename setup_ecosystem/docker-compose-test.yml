@@ -1,0 +1,33 @@
+version: "3.7"
+
+# You need to set many environment variables for this to work.
+
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - 37017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    logging:
+      driver: "none"
+
+  clockwork_web_test:
+    image: clockwork_web_test
+    build:
+      context: ../clockwork_web_test
+    ports:
+      - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
+    working_dir: /clockwork
+    volumes:
+      - ../clockwork_web:/clockwork/clockwork_web
+      - ../clockwork_web_test:/clockwork/clockwork_web_test
+    environment:
+      LOGIN_DISABLED: "True"
+      FLASK_RUN_PORT: ${FLASK_RUN_PORT}
+      MONGODB_CONNECTION_STRING: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false
+      clockwork_tools_test_HOST: clockwork_web  # name of this very service
+      clockwork_tools_test_PORT: ${FLASK_RUN_PORT}
+      clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
+      clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
