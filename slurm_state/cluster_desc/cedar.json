@@ -5,6 +5,6 @@
     "slurm_login_nodes": [ ],
     "slurm_partitions": [],
     "slurm_ignore_partitions": [],
-    "timezone_offset_montreal_minus_there_in_seconds": 10800,
+    "timezone": "America/Vancouver",
     "local_username_referenced_by_parent_as": "cc_account_username"
 }
