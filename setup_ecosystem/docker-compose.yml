@@ -1,48 +1,8 @@
 version: "3.7"
 
-# TODO : Set up something a bit more civilized to build the Docker image for the main
-#        component without reinstalling all the python modules each time.
-#        https://stackoverflow.com/questions/65560269/how-can-docker-compose-be-used-to-build-dockerfiles
-
-
 # You need to set many environment variables for this to work.
 
 services:
-  prometheus:
-    image: prom/prometheus
-    ports:
-      - 19090:9090
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    # Note that we are not persisting the data outside of the container.
-    # This is not a great long-term solution for Prometheus,
-    # but it's perfect for testing the Clockwork code.
-
-  grafana:
-    image: grafana/grafana:latest-ubuntu
-    ports:
-      - 13000:3000
-    user: "${UID}:${GID}"
-    volumes:
-      - ./grafana_unprotected.ini:/etc/grafana/grafana.ini
-    # Note that we are not persisting the data outside of the container.
-    # This is not a great long-term solution for Grafana because
-    # it doesn't save any of our nice graphs, but it's fine for
-    # testing the Clockwork code.
-
-  elasticsearch:
-    image: elasticsearch:7.12.1
-    ports:
-      - 19200:9200
-      - 19300:9300
-    environment:
-      discovery.type: single-node
-    # Note that we are not persisting the data outside of the container.
-    # This is not a great long-term solution for ElasticSearch because
-    # but it's fine for testing the Clockwork code.
-
   mongodb:
     image: mongo
     ports:
@@ -50,52 +10,50 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    logging:
+     driver: none
 
-# TODO : Maybe find way to specify the ssh public/private keys as mount.
-#        This is something you should develop in isolation before trying
-#        to wrap it into a Docker Compose recipe.
-
-# TODO : Create an executable file in the scraper that does
-#        - install dependencies
-#        - make sure the current code is found
-#        if testing mode:
-#          - run the cluster monitor with fake data forever
-#        otherwise:
-#          - ssh copy over the executable on the cluster
-#          - run the cluster monitor forever
-
-  clockwork_web:
-    image: python:3.9-buster
-    # user: "${UID}:${GID}"
-    #build:    # this "build:" was an attempt to refactor, and was put on the back burner for now
-    #  context: ..
-    #  dockerfile: clockwork_web0.Dockerfile     
+  clockwork_web-dev:
+    image: clockwork_web
     ports:
-      # Any exterior port works, but let's pick 15000 to make it more unique
-      # and avoid some potential conflicts with other Flask servers on the host.
-      # At the same time, let's keep 5000 for services running inside the
-      # container to make it more predictible.
+      - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
+    working_dir: /clockwork
+    volumes:
+      - ../clockwork_web:/clockwork/clockwork_web
+    command: flask run --host=0.0.0.0
+    environment:
+      FLASK_DEBUG: "1"
+      LOGIN_DISABLED: "True"
+      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
+      FLASK_RUN_PORT: ${FLASK_RUN_PORT}
+
+  clockwork_web_test:
+    image: clockwork_web_test
+    ports:
       - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
     working_dir: /clockwork
     volumes:
       - ../clockwork_web:/clockwork/clockwork_web
       - ../clockwork_web_test:/clockwork/clockwork_web_test
-      - ../clockwork_tools:/clockwork/clockwork_tools
-      - ../clockwork_tools_test:/clockwork/clockwork_tools_test
-      - ./entrypoint_inside_clockwork_web_container.sh:/clockwork/entrypoint_inside_clockwork_web_container.sh
-    # Toggle between these lines to run
-    #    the usual script for production
-    # command: bash /clockwork/entrypoint_inside_clockwork_web_container.sh
-    #    the more interactive approach
-    command: bash -c "sleep 43897423"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      CLOCKWORK_TASK: ${CLOCKWORK_TASK}
+      LOGIN_DISABLED: "True"
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
-      clockwork_tools_test_HOST: clockwork_web  # name of this very service
-      clockwork_tools_test_PORT: ${FLASK_RUN_PORT}
+      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
       clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
       clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
 
-# TODO : This    CLOCKWORK_TASK: ${CLOCKWORK_TASK}    will go elsewhere as well.
+  clockwork_tools_test:
+    image: clockwork_tools_test
+    working_dir: /clockwork
+    volumes:
+      - ../clockwork_tools:/clockwork/clockwork_tools
+      - ../clockwork_tools_test:/clockwork/clockwork_tools_test
+      - ../clockwork_web:/clockwork/clockwork_web
+      - ../clockwork_web_test:/clockwork/clockwork_web_test
+    environment:
+      MONGODB_DATABASE_NAME: "clockwork"
+      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
+      clockwork_tools_test_HOST: ${clockwork_tools_test_HOST}
+      clockwork_tools_test_PORT: ${clockwork_tools_test_PORT}
+      clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
+      clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
