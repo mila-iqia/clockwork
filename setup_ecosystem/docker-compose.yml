@@ -17,8 +17,6 @@ services:
     image: clockwork_web_test
     depends_on:
       - mongodb
-    ports:
-      - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
     working_dir: /clockwork
     volumes:
       - ../clockwork_web:/clockwork/clockwork_web
@@ -53,6 +51,8 @@ services:
     depends_on:
       - mongodb
     working_dir: /clockwork
+    ports:
+      - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
     volumes:
       - ../clockwork_tools:/clockwork/clockwork_tools
       - ../clockwork_tools_test:/clockwork/clockwork_tools_test
