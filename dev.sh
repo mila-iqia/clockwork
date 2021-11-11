@@ -2,11 +2,10 @@
 
 set -eu
 
-docker build -t clockwork_web clockwork_web
-docker build -t clockwork_web_test clockwork_web_test
-docker build -t clockwork_tools_test -f clockwork_tools_test/Dockerfile .
+docker build -t clockwork_dev -f setup_ecosystem/clockwork_dev.Dockerfile .
 
 . ./env.sh
 
-export clockwork_tools_test_HOST="localhost"
 docker-compose -f setup_ecosystem/docker-compose.yml run --service-ports clockwork_dev
+
+docker-compose -f setup_ecosystem/docker-compose.yml down && docker-compose -f setup_ecosystem/docker-compose.yml rm -fv
