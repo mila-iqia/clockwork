@@ -21,6 +21,7 @@ services:
     volumes:
       - ../clockwork_web:/clockwork/clockwork_web
       - ../clockwork_web_test:/clockwork/clockwork_web_test
+      - ../test_common:/clockwork/test_common
     environment:
       LOGIN_DISABLED: "True"
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
@@ -38,6 +39,7 @@ services:
       - ../clockwork_tools_test:/clockwork/clockwork_tools_test
       - ../clockwork_web:/clockwork/clockwork_web
       - ../clockwork_web_test:/clockwork/clockwork_web_test
+      - ../test_common:/clockwork/test_common
     environment:
       MONGODB_DATABASE_NAME: "clockwork"
       MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
@@ -58,6 +60,7 @@ services:
       - ../clockwork_tools_test:/clockwork/clockwork_tools_test
       - ../clockwork_web:/clockwork/clockwork_web
       - ../clockwork_web_test:/clockwork/clockwork_web_test
+      - ../test_common:/clockwork/test_common
     command: bash
     stdin_open: true
     tty: true
