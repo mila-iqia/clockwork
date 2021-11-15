@@ -1,20 +1,27 @@
-
 import os, time
 import numpy as np
 from mongo_client import get_mongo_client
 from pymongo import UpdateOne
 
+
 def fake_job_entries(N):
     for n in range(N):
-        yield { "slurm": {  "cc_account_username": "tommy",
-                            "job_state": "RUNNING",
-                            "cluster_name": "beluga",
-                            "job_id": str(np.random.randint(low=0, high=1e6)),
-                            "command": None},
-                "cw": { "cc_account_username": "tommy",
-                        "mila_account_username": "enginet",
-                        "mila_email_username": "thomas.engine"  },
-                "user": {"blastoise": True}}
+        yield {
+            "slurm": {
+                "cc_account_username": "tommy",
+                "job_state": "RUNNING",
+                "cluster_name": "beluga",
+                "job_id": str(np.random.randint(low=0, high=1e6)),
+                "command": None,
+            },
+            "cw": {
+                "cc_account_username": "tommy",
+                "mila_account_username": "enginet",
+                "mila_email_username": "thomas.engine",
+            },
+            "user": {"blastoise": True},
+        }
+
 
 def run():
 
@@ -25,7 +32,6 @@ def run():
     database_name = os.environ.get("MONGODB_DATABASE_NAME", "")
     assert database_name
 
-    
     # What we want is to create the entry as
     #    {"slurm": slurm_dict, "cw": cw_dict, "user": user_dict}
     # if it's not present in the database,
@@ -42,25 +48,27 @@ def run():
     for i in range(3):
 
         L_updates_to_do = [
-                UpdateOne(
-                    # rule to match if already present in collection
-                    {
-                        "slurm.job_id": D_job["slurm"]["job_id"],
-                        "slurm.cluster_name": D_job["slurm"]["cluster_name"],
-                    },
-                    # the data that we write in the collection
-                    {   "$set": {"slurm": D_job["slurm"]},
-                        "$setOnInsert": {"cw": D_job["cw"], "user": D_job["user"]},
-                        },
-                    # create if missing, update if present
-                    upsert=True,
-                )
+            UpdateOne(
+                # rule to match if already present in collection
+                {
+                    "slurm.job_id": D_job["slurm"]["job_id"],
+                    "slurm.cluster_name": D_job["slurm"]["cluster_name"],
+                },
+                # the data that we write in the collection
+                {
+                    "$set": {"slurm": D_job["slurm"]},
+                    "$setOnInsert": {"cw": D_job["cw"], "user": D_job["user"]},
+                },
+                # create if missing, update if present
+                upsert=True,
+            )
             for D_job in LD_jobs
         ]
 
         # Here we can add set extra values to "cw".
         for D_job in LD_jobs:
-            L_updates_to_do.append(UpdateOne(
+            L_updates_to_do.append(
+                UpdateOne(
                     # rule to match if already present in collection
                     {
                         "slurm.job_id": D_job["slurm"]["job_id"],
@@ -82,6 +90,7 @@ def run():
         print(
             f"Bulk write for {len(L_updates_to_do)} job entries in mongodb took {mongo_update_duration} seconds."
         )
+
 
 if __name__ == "__main__":
     run()
