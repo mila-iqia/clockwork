@@ -1,8 +1,7 @@
-
 from pymongo import MongoClient
 
 
-def get_mongo_client(connection_string:str):
+def get_mongo_client(connection_string: str):
     """
     The first time calling this, you need to pass the proper connection string,
     but later on it's going to be filled in properly.
