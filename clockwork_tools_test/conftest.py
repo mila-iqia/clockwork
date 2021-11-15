@@ -6,10 +6,7 @@ from pymongo import MongoClient
 import clockwork_tools
 import clockwork_tools.client
 
-from clockwork_web_test.conftest import populate_fake_data, fake_data
-
-# It would appear that it's quite possible to import a fixture like `fake_data` from another module.
-# This is done to overcome some of the clumsyness of having "fake_data.json" live elsewhere.
+from test_common.fake_data import populate_fake_data, fake_data
 
 
 @pytest.fixture

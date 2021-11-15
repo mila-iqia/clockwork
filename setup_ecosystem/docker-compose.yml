@@ -13,6 +13,22 @@ services:
     logging:
      driver: none
 
+  clockwork_web-dev:
+    image: clockwork_web
+    depends_on:
+      - mongodb
+    working_dir: /clockwork
+    volumes:
+      - ../clockwork_web:/clockwork/clockwork_web
+    ports:
+      - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
+    environment:
+      LOGIN_DISABLED: "True"
+      FLASK_RUN_PORT: ${FLASK_RUN_PORT}
+      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
+    command:
+      flask run --host=0.0.0.0
+
   clockwork_web_test:
     image: clockwork_web_test
     depends_on:
@@ -21,6 +37,7 @@ services:
     volumes:
       - ../clockwork_web:/clockwork/clockwork_web
       - ../clockwork_web_test:/clockwork/clockwork_web_test
+      - ../test_common:/clockwork/test_common
     environment:
       LOGIN_DISABLED: "True"
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
@@ -32,22 +49,22 @@ services:
     image: clockwork_tools_test
     depends_on:
       - mongodb
+      - clockwork_web-dev
     working_dir: /clockwork
     volumes:
       - ../clockwork_tools:/clockwork/clockwork_tools
       - ../clockwork_tools_test:/clockwork/clockwork_tools_test
-      - ../clockwork_web:/clockwork/clockwork_web
-      - ../clockwork_web_test:/clockwork/clockwork_web_test
+      - ../test_common:/clockwork/test_common
     environment:
       MONGODB_DATABASE_NAME: "clockwork"
       MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
-      clockwork_tools_test_HOST: ${clockwork_tools_test_HOST}
-      clockwork_tools_test_PORT: ${clockwork_tools_test_PORT}
+      clockwork_tools_test_HOST: "clockwork_web-dev"
+      clockwork_tools_test_PORT: ${FLASK_RUN_PORT}
       clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
       clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
 
   clockwork_dev:
-    image: clockwork_tools_test
+    image: clockwork_dev
     depends_on:
       - mongodb
     working_dir: /clockwork
@@ -58,13 +75,14 @@ services:
       - ../clockwork_tools_test:/clockwork/clockwork_tools_test
       - ../clockwork_web:/clockwork/clockwork_web
       - ../clockwork_web_test:/clockwork/clockwork_web_test
+      - ../test_common:/clockwork/test_common
     command: bash
     stdin_open: true
     tty: true
     environment:
       MONGODB_DATABASE_NAME: "clockwork"
       MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
-      clockwork_tools_test_HOST: ${clockwork_tools_test_HOST}
-      clockwork_tools_test_PORT: ${clockwork_tools_test_PORT}
+      clockwork_tools_test_HOST: "localhost"
+      clockwork_tools_test_PORT: ${FLASK_RUN_PORT}
       clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
       clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
