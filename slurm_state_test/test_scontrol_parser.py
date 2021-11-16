@@ -96,8 +96,8 @@ def test_rename():
 def test_dynrename():
     fn = dynrename(id, "user_field")
 
-    ctx = {}
-    ctx["user_field"] = "test_user"
+
+    ctx = {"user_field": "test_user"}
 
     d = {}
     fn("name", ctx, d)
@@ -123,6 +123,7 @@ def test_timelimit():
 
 def test_timestamp():
 
+    ctx = {}
     ctx["timezone"] = zoneinfo.ZoneInfo("America/Montreal")
     assert timestamp("2021-12-24T12:34:56", ctx) == "2021-12-24T12:34:56-05:00"
     assert timestamp("2021-06-24T12:34:56", ctx) == "2021-06-24T12:34:56-04:00"
