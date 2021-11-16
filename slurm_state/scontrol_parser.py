@@ -54,15 +54,17 @@ def id(f, ctx):
     """Return the field as-is."""
     return f
 
+
 def account(f, ctx):
     return f.split("(")[0]
+
 
 def maybe_null_string_to_none_object(f, ctx):
     """
     Converts "(null)" into `None` if applicable.
     Otherwise, leaves the field unchanged.
     """
-    if f == '(null)':
+    if f == "(null)":
         return None
     else:
         return f
@@ -178,7 +180,7 @@ JOB_FIELD_MAP = {
     "Switches": ignore,
     "TresPerTask": ignore,
     "MemPerTres": ignore,
-    "CPU_max_freq": ignore
+    "CPU_max_freq": ignore,
 }
 
 

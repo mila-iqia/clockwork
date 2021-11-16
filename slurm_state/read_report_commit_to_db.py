@@ -18,12 +18,14 @@ import argparse
 from mongo_client import get_mongo_client
 from mongo_update import (
     main_read_nodes_and_update_collection,
-    main_read_jobs_and_update_collection)
+    main_read_jobs_and_update_collection,
+)
 
 
 def main(argv):
     parser = argparse.ArgumentParser(
-        prog=argv[0], description="Parse slurm report files and load them to a database."
+        prog=argv[0],
+        description="Parse slurm report files and load them to a database.",
     )
 
     parser.add_argument("-j", "--jobs_file", help="The jobs file.")
@@ -60,15 +62,15 @@ def main(argv):
         assert os.path.exists(args.jobs_file)
         assert os.path.exists(args.cluster_desc)
         main_read_jobs_and_update_collection(
-            client[collection_name]["jobs"],
-            args.cluster_desc, args.jobs_file)
+            client[collection_name]["jobs"], args.cluster_desc, args.jobs_file
+        )
 
     if args.nodes_file:
         assert os.path.exists(args.nodes_file)
         assert os.path.exists(args.cluster_desc)
         main_read_nodes_and_update_collection(
-            client[collection_name]["nodes"],
-            args.cluster_desc, args.nodes_file)
+            client[collection_name]["nodes"], args.cluster_desc, args.nodes_file
+        )
 
 
 if __name__ == "__main__":

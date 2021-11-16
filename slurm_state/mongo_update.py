@@ -7,11 +7,18 @@ import zoneinfo
 
 from scontrol_parser import job_parser, node_parser
 
+
 def fetch_slurm_report_jobs(cluster_desc_path, scontrol_report_path):
-    return _fetch_slurm_report_helper(job_parser, cluster_desc_path, scontrol_report_path)
+    return _fetch_slurm_report_helper(
+        job_parser, cluster_desc_path, scontrol_report_path
+    )
+
 
 def fetch_slurm_report_nodes(cluster_desc_path, scontrol_report_path):
-    return _fetch_slurm_report_helper(node_parser, cluster_desc_path, scontrol_report_path)
+    return _fetch_slurm_report_helper(
+        node_parser, cluster_desc_path, scontrol_report_path
+    )
+
 
 def _fetch_slurm_report_helper(parser, cluster_desc_path, scontrol_report_path):
     """
@@ -70,6 +77,7 @@ def infer_user_accounts(clockwork_job: dict[dict]):
             clockwork_job["cw"][k] = clockwork_job["slurm"][k]
     return clockwork_job
 
+
 # def none_string_to_none_object(D:dict):
 #     """
 #     Returns a new dict with the same content
@@ -89,16 +97,14 @@ def slurm_node_to_clockwork_node(slurm_node: dict):
     """
     clockwork_node = {
         "slurm": slurm_node,
-        "cw": {
-        },
+        "cw": {},
     }
     return clockwork_node
 
 
 def main_read_jobs_and_update_collection(
-    jobs_collection,
-    cluster_desc_path,
-    scontrol_show_job_path):
+    jobs_collection, cluster_desc_path, scontrol_show_job_path
+):
 
     # What we want is to create the entry as
     #    {"slurm": slurm_dict, "cw": cw_dict, "user": user_dict}
@@ -117,7 +123,7 @@ def main_read_jobs_and_update_collection(
             infer_user_accounts,
             map(
                 slurm_job_to_clockwork_job,
-                    fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path)
+                fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path),
             ),
         )
     ):
@@ -166,11 +172,9 @@ def main_read_jobs_and_update_collection(
     )
 
 
-
 def main_read_nodes_and_update_collection(
-    nodes_collection,
-    cluster_desc_path,
-    scontrol_show_node_path):
+    nodes_collection, cluster_desc_path, scontrol_show_node_path
+):
 
     # What we want is to create the entry as
     #    {"slurm": slurm_dict, "cw": cw_dict}
@@ -184,7 +188,7 @@ def main_read_nodes_and_update_collection(
     for (n, D_node) in enumerate(
         map(
             slurm_node_to_clockwork_node,
-                fetch_slurm_report_nodes(cluster_desc_path, scontrol_show_node_path)
+            fetch_slurm_report_nodes(cluster_desc_path, scontrol_show_node_path),
         ),
     ):
         # if 4 <= n:
@@ -246,7 +250,6 @@ def run():
     database_name = os.environ.get("MONGODB_DATABASE_NAME", "")
     assert database_name
 
-
     # https://stackoverflow.com/questions/33541290/how-can-i-create-an-index-with-pymongo
     # Apparently "ensure_index" is deprecated, and we should always call "create_index".
     timestamp_start = time.time()
@@ -259,7 +262,6 @@ def run():
     create_index_duration = time.time() - timestamp_start
     print(f"create_index took {create_index_duration} seconds.")
 
-
     # Now let's do both nodes and jobs, with hardcoded paths.
 
     for (cluster_desc_path, scontrol_show_node_path) in [
@@ -269,8 +271,8 @@ def run():
         ("./cluster_desc/graham.json", "../tmp/slurm_report/graham/scontrol_show_node"),
     ]:
         main_read_nodes_and_update_collection(
-            client[database_name]["nodes"],
-            cluster_desc_path, scontrol_show_node_path)
+            client[database_name]["nodes"], cluster_desc_path, scontrol_show_node_path
+        )
 
     for (cluster_desc_path, scontrol_show_job_path) in [
         ("./cluster_desc/mila.json", "../tmp/slurm_report/mila/scontrol_show_job"),
@@ -279,10 +281,8 @@ def run():
         ("./cluster_desc/graham.json", "../tmp/slurm_report/graham/scontrol_show_job"),
     ]:
         main_read_jobs_and_update_collection(
-            client[database_name]["jobs"],
-            cluster_desc_path, scontrol_show_job_path)
-
-
+            client[database_name]["jobs"], cluster_desc_path, scontrol_show_job_path
+        )
 
 
 if __name__ == "__main__":
