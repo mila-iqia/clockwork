@@ -30,15 +30,17 @@ def fake_job_entries(N):
 
 def fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path):
     """
-    
+
     Yields elements ready to be slotted into the "slurm" field,
     but they have to be processed further before committing to mongodb.
     """
 
-    assert os.path.exists(cluster_desc_path), (
-        f"cluster_desc_path {cluster_desc_path} is missing.")
-    assert os.path.exists(scontrol_show_job_path), (
-        f"scontrol_show_job_path {scontrol_show_job_path} is missing.")
+    assert os.path.exists(
+        cluster_desc_path
+    ), f"cluster_desc_path {cluster_desc_path} is missing."
+    assert os.path.exists(
+        scontrol_show_job_path
+    ), f"scontrol_show_job_path {scontrol_show_job_path} is missing."
 
     class CTX:
         pass
@@ -60,7 +62,7 @@ def fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path):
             yield e
 
 
-def slurm_job_to_clockwork_job(slurm_job:dict):
+def slurm_job_to_clockwork_job(slurm_job: dict):
     """
     Takes the components returned from the slurm reports,
     and turns it into a dict with 3 subcomponents.
@@ -73,12 +75,14 @@ def slurm_job_to_clockwork_job(slurm_job:dict):
             "cc_account_username": None,
             "mila_account_username": None,
             "mila_email_username": None,
-        }, "user": {}}
+        },
+        "user": {},
+    }
     infer_user_accounts(clockwork_job)  # mutates argument
     return clockwork_job
 
 
-def infer_user_accounts(clockwork_job:dict[dict]):
+def infer_user_accounts(clockwork_job: dict[dict]):
     """
     Mutates the argument in order to fill in the
     fields for "cw" pertaining to the user accounts.
@@ -101,6 +105,19 @@ def run():
     database_name = os.environ.get("MONGODB_DATABASE_NAME", "")
     assert database_name
 
+    # this is a one-liner, but we're breaking it into multiple steps to highlight the structure
+    database = client[database_name]
+    jobs_collection = database["jobs"]
+
+    # https://stackoverflow.com/questions/33541290/how-can-i-create-an-index-with-pymongo
+    # Apparently "ensure_index" is deprecated, and we should always call "create_index".
+    timestamp_start = time.time()
+    jobs_collection.create_index(
+        [("slurm.job_id", 1), ("slurm.cluster_name", 1)], name="job_id_and_cluster_name"
+    )
+    create_index_duration = time.time() - timestamp_start
+    print(f"jobs_collection.create_index took {create_index_duration} seconds.")
+
     # What we want is to create the entry as
     #    {"slurm": slurm_dict, "cw": cw_dict, "user": user_dict}
     # if it's not present in the database,
@@ -115,18 +132,24 @@ def run():
         ("./cluster_desc/beluga.json", "../tmp/slurm_report/beluga/scontrol_show_job"),
         ("./cluster_desc/cedar.json", "../tmp/slurm_report/cedar/scontrol_show_job"),
         ("./cluster_desc/graham.json", "../tmp/slurm_report/graham/scontrol_show_job"),
-        ]:
+    ]:
 
         timestamp_start = time.time()
         L_updates_to_do = []
 
         for (n, D_job) in enumerate(
-            map(infer_user_accounts,
-                map(slurm_job_to_clockwork_job,
-                    fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path)))):
-            if 4 <= n:
-                break
-            print(D_job)
+            map(
+                infer_user_accounts,
+                map(
+                    slurm_job_to_clockwork_job,
+                    fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path),
+                ),
+            )
+        ):
+            # if 4 <= n:
+            #    break
+            if n < 2:
+                print(D_job)
 
             L_updates_to_do.append(
                 UpdateOne(
@@ -145,7 +168,8 @@ def run():
                     },
                     # create if missing, update if present
                     upsert=True,
-                ))
+                )
+            )
 
             # Here we can add set extra values to "cw".
             L_updates_to_do.append(
@@ -159,11 +183,9 @@ def run():
                     {"$set": {"cw.last_slurm_update": time.time()}},
                     # create if missing, update if present
                     upsert=False,
-                ))
+                )
+            )
 
-        # this is a one-liner, but we're breaking it into multiple steps to highlight the structure
-        database = client[database_name]
-        jobs_collection = database["jobs"]
         result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
         # print(result.bulk_api_result)
         mongo_update_duration = time.time() - timestamp_start

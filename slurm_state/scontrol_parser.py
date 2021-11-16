@@ -162,6 +162,12 @@ JOB_FIELD_MAP = {
     "TresPerNode": ignore,
     "MailUser": ignore,
     "MailType": ignore,
+    # seems like "Comment" pops up on other clusters
+    "Comment": rename(id, "comment"),
+    "TresPerJob": ignore,
+    "Switches": ignore,
+    "TresPerTask": ignore,
+    "MemPerTres": ignore,
 }
 
 
@@ -221,7 +227,7 @@ NODE_FIELD_MAP = {
     "ExtSensorsWatts": ignore,
     "ExtSensorsTemp": ignore,
     "Reason": rename(id, "reason"),
-    "Comment": ignore,
+    "Comment": rename(id, "comment"),
 }
 
 
