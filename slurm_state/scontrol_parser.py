@@ -228,6 +228,9 @@ NODE_FIELD_MAP = {
     "ExtSensorsTemp": ignore,
     "Reason": rename(id, "reason"),
     "Comment": rename(id, "comment"),
+    # added by gyom (to be discussed),
+    "NextState": ignore,
+    "Port": ignore,
 }
 
 
