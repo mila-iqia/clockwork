@@ -16,7 +16,7 @@ connect to it through a simple connection string given as command-line argument.
 import os
 import argparse
 from mongo_client import get_mongo_client
-from mongo_update3 import (
+from mongo_update import (
     main_read_nodes_and_update_collection,
     main_read_jobs_and_update_collection)
 
