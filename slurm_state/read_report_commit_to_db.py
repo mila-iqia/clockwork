@@ -1,0 +1,97 @@
+"""
+This script is to be called from cron on `blink`, or wherever the "slurm reports"
+are found on the local filesystem.
+
+It serves as the entry point to the code in "mongo_update.py" that
+does the actual work, and calls "scontrol_parser.py" internally.
+
+The parameters of this function are exposed through command-line arguments
+because of the particular setup in which this script is going to be used.
+It is not going to run inside a Docker container.
+
+It expects that a MongoDB database is online, accessible, and that it can
+connect to it through a simple connection string given as command-line argument.
+"""
+
+import os
+import argparse
+from mongo_client import get_mongo_client
+from mongo_update3 import (
+    main_read_nodes_and_update_collection,
+    main_read_jobs_and_update_collection)
+
+
+def main(argv):
+    parser = argparse.ArgumentParser(
+        prog=argv[0], description="Parse slurm report files and load them to a database."
+    )
+
+    parser.add_argument("-j", "--jobs_file", help="The jobs file.")
+    parser.add_argument("-n", "--nodes_file", help="The nodes file.")
+    parser.add_argument(
+        "-c",
+        "--cluster_desc",
+        required=True,
+        help="Path to a cluster description file (json format).",
+    )
+
+    parser.add_argument(
+        "--mongodb_connection_string", help="Connection string used by MongoClient."
+    )
+    parser.add_argument(
+        "--mongodb_collection", default="clockwork", help="Collection to populate."
+    )
+
+    parser.add_argument(
+        "--dump_file", help="Dump the data to the specified file, used for debugging."
+    )
+
+    args = parser.parse_args(argv[1:])
+    print(args)
+
+    connection_string = args.mongodb_connection_string
+    assert connection_string
+    client = get_mongo_client(connection_string)
+
+    collection_name = args.mongodb_collection
+    assert collection_name
+
+    if args.jobs_file:
+        assert os.path.exists(args.jobs_file)
+        assert os.path.exists(args.cluster_desc)
+        main_read_jobs_and_update_collection(
+            client[collection_name]["jobs"],
+            args.cluster_desc, args.jobs_file)
+
+    if args.nodes_file:
+        assert os.path.exists(args.nodes_file)
+        assert os.path.exists(args.cluster_desc)
+        main_read_nodes_and_update_collection(
+            client[collection_name]["nodes"],
+            args.cluster_desc, args.nodes_file)
+
+
+if __name__ == "__main__":
+    import sys
+
+    main(sys.argv)
+
+"""
+export MONGO_INITDB_ROOT_USERNAME="mongoadmin"
+export MONGO_INITDB_ROOT_PASSWORD="secret_passowrd_okay"
+export MONGODB_CONNECTION_STRING="mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@127.0.0.1:37017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false"
+export MONGODB_DATABASE_NAME="clockwork"
+
+python3 read_report_commit_to_db.py \
+    --cluster_desc cluster_desc/beluga.json \
+    --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job \
+    --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \
+    --mongodb_collection ${MONGODB_DATABASE_NAME}
+
+python3 read_report_commit_to_db.py \
+    --cluster_desc cluster_desc/beluga.json \
+    --nodes_file ../tmp/slurm_report/beluga/scontrol_show_node \
+    --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \
+    --mongodb_collection ${MONGODB_DATABASE_NAME}
+
+"""
