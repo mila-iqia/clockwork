@@ -96,7 +96,6 @@ def test_rename():
 def test_dynrename():
     fn = dynrename(id, "user_field")
 
-
     ctx = {"user_field": "test_user"}
 
     d = {}
