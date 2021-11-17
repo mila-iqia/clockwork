@@ -94,7 +94,11 @@ def slurm_node_to_clockwork_node(slurm_node: dict):
 
 
 def main_read_jobs_and_update_collection(
-    jobs_collection, cluster_desc_path, scontrol_show_job_path
+    jobs_collection,
+    cluster_desc_path,
+    scontrol_show_job_path,
+    want_commit_to_db=True,
+    dump_file="",
 ):
 
     # What we want is to create the entry as
@@ -108,18 +112,17 @@ def main_read_jobs_and_update_collection(
 
     timestamp_start = time.time()
     L_updates_to_do = []
+    L_data_for_dump_file = []
 
-    for (n, D_job) in enumerate(
+    for D_job in map(
+        infer_user_accounts,
         map(
-            infer_user_accounts,
-            map(
-                slurm_job_to_clockwork_job,
-                fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path),
-            ),
-        )
+            slurm_job_to_clockwork_job,
+            fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path),
+        ),
     ):
-        # if n < 2:
-        #     print(D_job)
+
+        L_data_for_dump_file.append(D_job)
 
         L_updates_to_do.append(
             UpdateOne(
@@ -153,16 +156,26 @@ def main_read_jobs_and_update_collection(
             )
         )
 
-    result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
-    # print(result.bulk_api_result)
-    mongo_update_duration = time.time() - timestamp_start
-    print(
-        f"Bulk write for {len(L_updates_to_do)} job entries in mongodb took {mongo_update_duration} seconds."
-    )
+    if want_commit_to_db:
+        result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
+        # print(result.bulk_api_result)
+        mongo_update_duration = time.time() - timestamp_start
+        print(
+            f"Bulk write for {len(L_updates_to_do)} job entries in mongodb took {mongo_update_duration} seconds."
+        )
+
+    if dump_file:
+        with open(dump_file, "w") as f:
+            json.dump(L_data_for_dump_file, f, indent=4)
+        print(f"Wrote to dump_file {dump_file}.")
 
 
 def main_read_nodes_and_update_collection(
-    nodes_collection, cluster_desc_path, scontrol_show_node_path
+    nodes_collection,
+    cluster_desc_path,
+    scontrol_show_node_path,
+    want_commit_to_db=True,
+    dump_file="",
 ):
 
     # What we want is to create the entry as
@@ -173,15 +186,14 @@ def main_read_nodes_and_update_collection(
 
     timestamp_start = time.time()
     L_updates_to_do = []
+    L_data_for_dump_file = []
 
-    for (n, D_node) in enumerate(
-        map(
-            slurm_node_to_clockwork_node,
-            fetch_slurm_report_nodes(cluster_desc_path, scontrol_show_node_path),
-        ),
+    for D_node in map(
+        slurm_node_to_clockwork_node,
+        fetch_slurm_report_nodes(cluster_desc_path, scontrol_show_node_path),
     ):
-        # if n < 2:
-        #     print(D_node)
+
+        L_data_for_dump_file.append(D_node)
 
         L_updates_to_do.append(
             UpdateOne(
@@ -215,12 +227,18 @@ def main_read_nodes_and_update_collection(
             )
         )
 
-    result = nodes_collection.bulk_write(L_updates_to_do)  #  <- the actual work
-    # print(result.bulk_api_result)
-    mongo_update_duration = time.time() - timestamp_start
-    print(
-        f"Bulk write for {len(L_updates_to_do)} node entries in mongodb took {mongo_update_duration} seconds."
-    )
+    if want_commit_to_db:
+        result = nodes_collection.bulk_write(L_updates_to_do)  #  <- the actual work
+        # print(result.bulk_api_result)
+        mongo_update_duration = time.time() - timestamp_start
+        print(
+            f"Bulk write for {len(L_updates_to_do)} node entries in mongodb took {mongo_update_duration} seconds."
+        )
+
+    if dump_file:
+        with open(dump_file, "w") as f:
+            json.dump(L_data_for_dump_file, f, indent=4)
+        print(f"Wrote to dump_file {dump_file}.")
 
 
 def run():
