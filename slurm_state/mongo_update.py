@@ -35,12 +35,12 @@ def _fetch_slurm_report_helper(parser, cluster_desc_path, scontrol_report_path):
     ), f"scontrol_report_path {scontrol_report_path} is missing."
 
     with open(cluster_desc_path, "r") as f:
-        ctx_beluga = json.load(f)
-        ctx_beluga["timezone"] = zoneinfo.ZoneInfo(ctx_beluga["timezone"])
+        ctx = json.load(f)
+        ctx["timezone"] = zoneinfo.ZoneInfo(ctx["timezone"])
 
     with open(scontrol_report_path, "r") as f:
-        for e in parser(f, ctx_beluga):
-            e["cluster_name"] = ctx_beluga["name"]
+        for e in parser(f, ctx):
+            e["cluster_name"] = ctx["name"]
             yield e
 
 
@@ -76,15 +76,6 @@ def infer_user_accounts(clockwork_job: dict[dict]):
         if clockwork_job["slurm"].get(k, "") not in ["", None]:
             clockwork_job["cw"][k] = clockwork_job["slurm"][k]
     return clockwork_job
-
-
-# def none_string_to_none_object(D:dict):
-#     """
-#     Returns a new dict with the same content
-#     as the `D` argument, but whenever a key is '(null)'
-#     it is turned into a `None` object instead.
-#     """
-#     return dict( ((k, None) if v == '(null)' else (k, v)) for (k, v) in D.items() )
 
 
 def slurm_node_to_clockwork_node(slurm_node: dict):
