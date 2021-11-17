@@ -138,7 +138,7 @@ JOB_FIELD_MAP = {
     "ReqNodeList": ignore,
     "ExcNodeList": ignore,
     # I don't see jobs with more than one node for now
-    "NodeList": rename(id, "nodes"),
+    "NodeList": rename(maybe_null_string_to_none_object, "nodes"),
     "SchedNodeList": ignore,
     "BatchHost": ignore,
     "NumNodes": ignore,
@@ -163,7 +163,7 @@ JOB_FIELD_MAP = {
     "Licenses": ignore,
     "Network": ignore,
     # this is probably not right
-    "Command": rename(id, "command"),
+    "Command": rename(maybe_null_string_to_none_object, "command"),
     "WorkDir": rename(id, "work_dir"),
     "StdErr": rename(id, "stderr"),
     "StdIn": rename(id, "stdin"),

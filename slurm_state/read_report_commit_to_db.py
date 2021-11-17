@@ -45,31 +45,47 @@ def main(argv):
     )
 
     parser.add_argument(
-        "--dump_file", help="Dump the data to the specified file, used for debugging."
+        "--dump_file",
+        help="Dump the data to the specified file, used for debugging. Can work even without an instance of MongoDB running.",
     )
 
     args = parser.parse_args(argv[1:])
     print(args)
 
     connection_string = args.mongodb_connection_string
-    assert connection_string
-    client = get_mongo_client(connection_string)
-
     collection_name = args.mongodb_collection
-    assert collection_name
+
+    if not connection_string or not collection_name:
+        # We will only write out the results to `args.dump_file` in this case.
+        assert (
+            args.dump_file
+        ), f"Error. Given that mongodb_connection_string ({args.mongodb_connection_string}) or mongodb_collection ({args.mongodb_collection}) are missing, we can still write the results to a the 'dump_file' argument. However, right now this argument is also missing, so we can't do anything."
+        want_commit_to_db = False
+        client = None
+    else:
+        want_commit_to_db = True
+        client = get_mongo_client(connection_string)
 
     if args.jobs_file:
         assert os.path.exists(args.jobs_file)
         assert os.path.exists(args.cluster_desc)
         main_read_jobs_and_update_collection(
-            client[collection_name]["jobs"], args.cluster_desc, args.jobs_file
+            client[collection_name]["jobs"] if client else None,
+            args.cluster_desc,
+            args.jobs_file,
+            want_commit_to_db=want_commit_to_db,
+            dump_file=args.dump_file,
         )
 
     if args.nodes_file:
         assert os.path.exists(args.nodes_file)
         assert os.path.exists(args.cluster_desc)
         main_read_nodes_and_update_collection(
-            client[collection_name]["nodes"], args.cluster_desc, args.nodes_file
+            client[collection_name]["nodes"] if client else None,
+            args.cluster_desc,
+            args.nodes_file,
+            want_commit_to_db=want_commit_to_db,
+            dump_file=args.dump_file,
         )
 
 
@@ -95,5 +111,11 @@ python3 read_report_commit_to_db.py \
     --nodes_file ../tmp/slurm_report/beluga/scontrol_show_node \
     --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \
     --mongodb_collection ${MONGODB_DATABASE_NAME}
+
+# dump file only
+python3 read_report_commit_to_db.py \
+    --cluster_desc cluster_desc/beluga.json \
+    --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job \
+    --dump_file dump_file_beluga.json
 
 """
