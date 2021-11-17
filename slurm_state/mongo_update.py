@@ -118,10 +118,8 @@ def main_read_jobs_and_update_collection(
             ),
         )
     ):
-        # if 4 <= n:
-        #    break
-        if n < 2:
-            print(D_job)
+        # if n < 2:
+        #     print(D_job)
 
         L_updates_to_do.append(
             UpdateOne(
@@ -182,10 +180,8 @@ def main_read_nodes_and_update_collection(
             fetch_slurm_report_nodes(cluster_desc_path, scontrol_show_node_path),
         ),
     ):
-        # if 4 <= n:
-        #    break
-        if n < 2:
-            print(D_node)
+        # if n < 2:
+        #     print(D_node)
 
         L_updates_to_do.append(
             UpdateOne(
