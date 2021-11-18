@@ -44,7 +44,8 @@ def rename(fn, name):
 def dynrename(fn, ctx_key):
     def dynrenamer(f, ctx, res):
         val = fn(f, ctx)
-        res[getattr(ctx, ctx_key)] = val
+        res[ctx[ctx_key]] = val
+        # res[getattr(ctx, ctx_key)] = val
 
     return dynrenamer
 
@@ -56,6 +57,17 @@ def id(f, ctx):
 
 def account(f, ctx):
     return f.split("(")[0]
+
+
+def maybe_null_string_to_none_object(f, ctx):
+    """
+    Converts "(null)" into `None` if applicable.
+    Otherwise, leaves the field unchanged.
+    """
+    if f == "(null)":
+        return None
+    else:
+        return f
 
 
 TIMELIMIT = re.compile(r"(?:(?:(?:(\d+)-)?(\d\d):)?(\d\d):)?(\d\d)", re.ASCII)
@@ -76,7 +88,7 @@ def timestamp(f, ctx):
     if f == "Unknown":
         return f
     date_naive = datetime.datetime.strptime(f, "%Y-%m-%dT%H:%M:%S")
-    date_aware = date_naive.replace(tzinfo=ctx.timezone)
+    date_aware = date_naive.replace(tzinfo=ctx["timezone"])
     return date_aware.isoformat()
 
 
@@ -126,7 +138,7 @@ JOB_FIELD_MAP = {
     "ReqNodeList": ignore,
     "ExcNodeList": ignore,
     # I don't see jobs with more than one node for now
-    "NodeList": rename(id, "nodes"),
+    "NodeList": rename(maybe_null_string_to_none_object, "nodes"),
     "SchedNodeList": ignore,
     "BatchHost": ignore,
     "NumNodes": ignore,
@@ -151,7 +163,7 @@ JOB_FIELD_MAP = {
     "Licenses": ignore,
     "Network": ignore,
     # this is probably not right
-    "Command": rename(id, "command"),
+    "Command": rename(maybe_null_string_to_none_object, "command"),
     "WorkDir": rename(id, "work_dir"),
     "StdErr": rename(id, "stderr"),
     "StdIn": rename(id, "stdin"),
@@ -162,6 +174,13 @@ JOB_FIELD_MAP = {
     "TresPerNode": ignore,
     "MailUser": ignore,
     "MailType": ignore,
+    # seems like "Comment" pops up on other clusters
+    "Comment": rename(maybe_null_string_to_none_object, "comment"),
+    "TresPerJob": ignore,
+    "Switches": ignore,
+    "TresPerTask": ignore,
+    "MemPerTres": ignore,
+    "CPU_max_freq": ignore,
 }
 
 
@@ -192,7 +211,7 @@ NODE_FIELD_MAP = {
     "CPULoad": ignore,
     "AvailableFeatures": rename(id, "features"),
     "ActiveFeatures": ignore,
-    "Gres": rename(id, "gres"),
+    "Gres": rename(maybe_null_string_to_none_object, "gres"),
     "NodeAddr": rename(id, "addr"),
     "NodeHostName": ignore,
     "Version": ignore,
@@ -221,7 +240,10 @@ NODE_FIELD_MAP = {
     "ExtSensorsWatts": ignore,
     "ExtSensorsTemp": ignore,
     "Reason": rename(id, "reason"),
-    "Comment": ignore,
+    "Comment": rename(maybe_null_string_to_none_object, "comment"),
+    # added by gyom (to be discussed),
+    "NextState": ignore,
+    "Port": ignore,
 }
 
 
