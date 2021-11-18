@@ -33,6 +33,7 @@ services:
     image: clockwork_web_test
     depends_on:
       - mongodb
+    user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     volumes:
       - ../clockwork_web:/clockwork/clockwork_web
@@ -50,6 +51,7 @@ services:
     depends_on:
       - mongodb
       - clockwork_web-dev
+    user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     volumes:
       - ../clockwork_tools:/clockwork/clockwork_tools
@@ -67,6 +69,7 @@ services:
     image: clockwork_dev
     depends_on:
       - mongodb
+    user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     ports:
       - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
