@@ -167,6 +167,34 @@ def test_job_parser_error():
         list(p)
 
 
+def test_job_parser_command_hack():
+    f = StringIO(
+        """JobId=123 JobName=bash
+  Command=script arg=1;val=2
+  Account=user
+"""
+    )
+    assert list(job_parser(f, None)) == [
+        {
+            "job_id": "123",
+            "name": "bash",
+            "command": "script arg=1;val=2",
+            "account": "user",
+        },
+    ]
+
+
+def test_job_parser_command_hack_end():
+    f = StringIO(
+        """JobId=123 JobName=bash
+  Command=script arg=1;val=2
+"""
+    )
+    assert list(job_parser(f, None)) == [
+        {"job_id": "123", "name": "bash", "command": "script arg=1;val=2"},
+    ]
+
+
 def test_node_parser():
     f = StringIO(
         """NodeName=abc1 Arch=x86_64

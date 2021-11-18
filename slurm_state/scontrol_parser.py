@@ -175,11 +175,43 @@ def job_parser(f, ctx):
     """
     for d in gen_dicts(f):
         res = dict()
+        command_hack = False
+        v_acc = None
+        saved_m = None
         for k, v in d.items():
             m = JOB_FIELD_MAP.get(k, None)
             if m is None:
+                if command_hack:
+                    # If we encounter an invalid field while doing the
+                    # command hack, then it must have been part of the command.
+                    v_acc = v_acc + f" {k}={v}"
+                    continue
                 raise ValueError(f"Unknown field in job output: {k}")
+            if k == "Command" and not command_hack:
+                # The Command field can have things that look like fields in
+                # it. We attempt to fix this here by appending those to the
+                # command value, but this can be defeated if a program takes
+                # a "field" that is shared with slurm as an input.
+                command_hack = True
+                v_acc = v
+                saved_m = m
+                continue
+            if command_hack:
+                # If we are doing the command hack, but we encouter
+                # a valid field, then we terminate it.
+                saved_m(v_acc, ctx, res)
+                command_hack = False
+                v_acc = None
+                saved_m = None
             m(v, ctx, res)
+        else:
+            # If we end the fields for the dict while doing the command hack,
+            # add the gathered command to the result.
+            if command_hack:
+                saved_m(v_acc, ctx, res)
+                command_hack = False
+                v_acc = None
+                saved_m = None
         yield res
 
 
