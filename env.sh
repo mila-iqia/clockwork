@@ -10,6 +10,9 @@ export MONGODB_CONNECTION_STRING="mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONG
 export FLASK_RUN_PORT=5000
 export EXTERNAL_FLASK_RUN_PORT=15000
 
+export CLOCKWORK_UID=$(id -u)
+export CLOCKWORK_GID=$(id -g)
+
 export clockwork_tools_test_EMAIL="mario@mila.quebec"
 export clockwork_tools_test_CLOCKWORK_API_KEY="000aaa"
 export clockwork_tools_EMAIL=${clockwork_tools_test_EMAIL}

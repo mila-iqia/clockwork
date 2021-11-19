@@ -33,6 +33,7 @@ services:
     image: clockwork_web_test
     depends_on:
       - mongodb
+    user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     volumes:
       - ../clockwork_web:/clockwork/clockwork_web
@@ -50,6 +51,7 @@ services:
     depends_on:
       - mongodb
       - clockwork_web-dev
+    user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     volumes:
       - ../clockwork_tools:/clockwork/clockwork_tools
@@ -63,10 +65,24 @@ services:
       clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
       clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
 
+  slurm_state_test:
+    image: slurm_state_test
+    depends_on:
+      - mongodb
+    user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
+    working_dir: /clockwork
+    volumes:
+      - ../slurm_state:/clockwork/slurm_state
+      - ../slurm_state_test:/clockwork/slurm_state_test
+    environment:
+      MONGODB_DATABASE_NAME: "clockwork"
+      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
+
   clockwork_dev:
     image: clockwork_dev
     depends_on:
       - mongodb
+    user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     ports:
       - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
@@ -75,6 +91,8 @@ services:
       - ../clockwork_tools_test:/clockwork/clockwork_tools_test
       - ../clockwork_web:/clockwork/clockwork_web
       - ../clockwork_web_test:/clockwork/clockwork_web_test
+      - ../slurm_state:/clockwork/slurm_state
+      - ../slurm_state_test:/clockwork/slurm_state_test
       - ../test_common:/clockwork/test_common
     command: bash
     stdin_open: true
