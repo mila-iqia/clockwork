@@ -29,6 +29,6 @@ jobs:
     - name: Run tests
       run: |
         sh test.sh
-    - name Report coverage
+    - name: Report coverage
       run: |
         sh cov.sh
