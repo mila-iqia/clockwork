@@ -1,0 +1,53 @@
+JobId=1 JobName=sh
+   UserId=nobody(65535) GroupId=nobody(65535) MCS_label=N/A
+   Priority=0 Nice=0 Account=clustergroup QOS=normal
+   JobState=PENDING Reason=JobHeldAdmin Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=0 Reboot=0 ExitCode=0:0
+   RunTime=00:00:00 TimeLimit=7-00:00:00 TimeMin=N/A
+   SubmitTime=2020-12-15T16:44:08 EligibleTime=2020-12-15T16:44:08
+   AccrueTime=2020-12-15T16:44:08
+   StartTime=Unknown EndTime=Unknown Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2020-12-24T00:01:37
+   Partition=long AllocNode:Sid=login-2:20721
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=(null)
+   NumNodes=1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=1,mem=2G,node=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=1 MinMemoryCPU=2G MinTmpDiskNode=0
+   Features=x86_64 DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null)
+   Command=(null)
+   WorkDir=/home/user
+   Power=
+   TresPerNode=gpu:titanxp:1
+   NtasksPerTRES:0
+
+JobId=2 JobName=imagenet.sh
+   UserId=nobody(65534) GroupId=nobody(65534) MCS_label=N/A
+   Priority=121777 Nice=0 Account=clustergroup QOS=normal
+   JobState=PENDING Reason=ReqNodeNotAvail,_UnavailableNodes:node8,nodek4,nodep[1-2],nodex3 Dependency=(null)
+   Requeue=1 Restarts=11 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:00:00 TimeLimit=7-00:00:00 TimeMin=N/A
+   SubmitTime=2021-08-12T10:22:30 EligibleTime=2021-08-12T10:24:30
+   AccrueTime=2021-08-12T10:24:30
+   StartTime=Unknown EndTime=Unknown Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2021-11-22T13:44:32
+   Partition=long AllocNode:Sid=login1:28363
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=(null)
+   BatchHost=cn-d002
+   NumNodes=1 NumCPUs=10 NumTasks=1 CPUs/Task=10 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=10,mem=40G,node=1,billing=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=10 MinMemoryNode=40G MinTmpDiskNode=0
+   Features=x86_64 DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null)
+   Command=/home/user2/scripts/imagenet.sh
+   WorkDir=/home/user2/scripts
+   StdErr=/miniscratch/user2/s-msflow-imagenet-928461.out
+   StdIn=/dev/null
+   StdOut=/miniscratch/user2/s-msflow-imagenet-928461.out
+   Power=
+   TresPerNode=gpu:a100:1
+   NtasksPerTRES:0
