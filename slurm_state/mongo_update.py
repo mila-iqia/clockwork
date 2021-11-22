@@ -1,11 +1,10 @@
 import os, time
-import numpy as np
-from mongo_client import get_mongo_client
+from .mongo_client import get_mongo_client
 from pymongo import UpdateOne
 import json
 import zoneinfo
 
-from scontrol_parser import job_parser, node_parser
+from .scontrol_parser import job_parser, node_parser
 
 
 def fetch_slurm_report_jobs(cluster_desc_path, scontrol_report_path):
@@ -158,7 +157,6 @@ def main_read_jobs_and_update_collection(
 
     if want_commit_to_db:
         result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
-        # print(result.bulk_api_result)
         mongo_update_duration = time.time() - timestamp_start
         print(
             f"Bulk write for {len(L_updates_to_do)} job entries in mongodb took {mongo_update_duration} seconds."
