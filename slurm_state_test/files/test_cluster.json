@@ -1,0 +1,5 @@
+{
+ "name": "test_cluster",
+ "timezone": "America/Montreal",
+ "local_username_referenced_by_parent_as": "test_cluster_username"
+}
