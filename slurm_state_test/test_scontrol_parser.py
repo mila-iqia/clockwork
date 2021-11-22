@@ -32,6 +32,12 @@ def test_gen_dicts_equals():
     assert res == [dict(data="a=1,b=2")]
 
 
+def test_gen_dicts_colon():
+    f = StringIO("partition=long field:val=result:33")
+    res = list(gen_dicts(f))
+    assert res == [{"partition": "long", "field:val": "result:33"}]
+
+
 def test_gen_dicts_split():
     f = StringIO(
         """Name=1
