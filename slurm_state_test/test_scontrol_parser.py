@@ -117,6 +117,12 @@ def test_account():
     assert account("name(123456)", None) == "name"
 
 
+def test_maybe_null_string():
+    assert maybe_null_string_to_none_object("(null)", None) is None
+    assert maybe_null_string_to_none_object("(null", None) == "(null"
+    assert maybe_null_string_to_none_object("name", None) == "name"
+
+
 def test_timelimit():
     assert timelimit("7-00:00:00", None) == 604800
     assert timelimit("12:00:00", None) == 43200
