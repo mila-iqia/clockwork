@@ -1,7 +1,7 @@
 import re
 import datetime
 
-FIELD = re.compile(r"([a-zA-z/:]+)=(.*?)(?: ([a-zA-Z]+=.*)|$)")
+FIELD = re.compile(r"([a-zA-z/:]+)=(.*?)(?: ([a-zA-Z/:]+=.*)|$)")
 
 
 def gen_dicts(f):
