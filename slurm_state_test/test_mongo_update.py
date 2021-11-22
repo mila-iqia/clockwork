@@ -1,4 +1,5 @@
 from slurm_state.mongo_update import *
+from slurm_state.mongo_client import get_mongo_client
 
 import pytest
 
@@ -70,3 +71,53 @@ def test_slurm_node_to_clockwork_node():
     node = {"name": "testnode"}
     cw_node = slurm_node_to_clockwork_node(node)
     assert cw_node == {"slurm": {"name": "testnode"}, "cw": {}}
+
+
+def test_main_read_jobs_and_update_collection():
+    client = get_mongo_client(os.environ["MONGODB_CONNECTION_STRING"])
+    db = client[os.environ["MONGODB_DATABASE_NAME"]]
+
+    db.drop_collection("test_jobs")
+
+    main_read_jobs_and_update_collection(
+        db.test_jobs,
+        "slurm_state_test/files/test_cluster.json",
+        "slurm_state_test/files/small_scontrol_job",
+    )
+
+    assert db.test_jobs.count_documents({}) == 1
+
+    main_read_jobs_and_update_collection(
+        db.test_jobs,
+        "slurm_state_test/files/test_cluster.json",
+        "slurm_state_test/files/scontrol_job_2",
+    )
+
+    assert db.test_jobs.count_documents({}) == 2
+
+    db.drop_collection("test_jobs")
+
+
+def test_main_read_nodes_and_update_collection():
+    client = get_mongo_client(os.environ["MONGODB_CONNECTION_STRING"])
+    db = client[os.environ["MONGODB_DATABASE_NAME"]]
+
+    db.drop_collection("test_nodes")
+
+    main_read_nodes_and_update_collection(
+        db.test_nodes,
+        "slurm_state_test/files/test_cluster.json",
+        "slurm_state_test/files/small_scontrol_node",
+    )
+
+    assert db.test_nodes.count_documents({}) == 1
+
+    main_read_nodes_and_update_collection(
+        db.test_nodes,
+        "slurm_state_test/files/test_cluster.json",
+        "slurm_state_test/files/scontrol_node_2",
+    )
+
+    assert db.test_nodes.count_documents({}) == 2
+
+    db.drop_collection("test_nodes")
