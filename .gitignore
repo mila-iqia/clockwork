@@ -1,5 +1,6 @@
 **/.DS_Store
 
+slurm_state/allocations_related_to_mila.json
 tmp
 
 # sphinx

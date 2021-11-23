@@ -99,6 +99,7 @@ export MONGO_INITDB_ROOT_USERNAME="mongoadmin"
 export MONGO_INITDB_ROOT_PASSWORD="secret_passowrd_okay"
 export MONGODB_CONNECTION_STRING="mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@127.0.0.1:37017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false"
 export MONGODB_DATABASE_NAME="clockwork"
+export slurm_state_ALLOCATIONS_RELATED_TO_MILA="./allocations_related_to_mila.json"
 
 python3 read_report_commit_to_db.py \
     --cluster_desc cluster_desc/beluga.json \
@@ -117,5 +118,10 @@ python3 read_report_commit_to_db.py \
     --cluster_desc cluster_desc/beluga.json \
     --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job \
     --dump_file dump_file_beluga.json
+
+python3 read_report_commit_to_db.py \
+    --cluster_desc cluster_desc/mila.json \
+    --jobs_file ../tmp/slurm_report/mila/scontrol_show_job \
+    --dump_file dump_file_mila.json
 
 """

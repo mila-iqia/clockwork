@@ -4,6 +4,7 @@ from mongo_client import get_mongo_client
 from pymongo import UpdateOne
 import json
 import zoneinfo
+from extra_filters import is_allocation_related_to_mila
 
 from scontrol_parser import job_parser, node_parser
 
@@ -69,6 +70,9 @@ def infer_user_accounts(clockwork_job: dict[dict]):
     Mutates the argument in order to fill in the
     fields for "cw" pertaining to the user accounts.
     Returns the mutated value to facilitate a `map` call.
+
+    Later on, this function can be expanded to include
+    correspondances between usernames on different clusters.
     """
     # One of the fields is bound to be known. We can add that one,
     # and leave the other ones empty for now.
@@ -116,9 +120,12 @@ def main_read_jobs_and_update_collection(
 
     for D_job in map(
         infer_user_accounts,
-        map(
-            slurm_job_to_clockwork_job,
-            fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path),
+        filter(
+            is_allocation_related_to_mila,
+            map(
+                slurm_job_to_clockwork_job,
+                fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path),
+            ),
         ),
     ):
 
@@ -282,7 +289,7 @@ def run():
     for (cluster_desc_path, scontrol_show_job_path) in [
         ("./cluster_desc/mila.json", "../tmp/slurm_report/mila/scontrol_show_job"),
         ("./cluster_desc/beluga.json", "../tmp/slurm_report/beluga/scontrol_show_job"),
-        # ("./cluster_desc/cedar.json", "../tmp/slurm_report/cedar/scontrol_show_job"),
+        ("./cluster_desc/cedar.json", "../tmp/slurm_report/cedar/scontrol_show_job"),
         ("./cluster_desc/graham.json", "../tmp/slurm_report/graham/scontrol_show_job"),
     ]:
         main_read_jobs_and_update_collection(
