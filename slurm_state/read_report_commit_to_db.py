@@ -117,7 +117,15 @@ python3 read_report_commit_to_db.py \
 python3 read_report_commit_to_db.py \
     --cluster_desc cluster_desc/beluga.json \
     --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job \
-    --dump_file dump_file_beluga.json
+    --dump_file ../tmp/slurm_report/beluga/job_dump_file.json
+
+# This would out empty due to fake allocations if you don't
+# specify a different allocation file.
+export slurm_state_ALLOCATIONS_RELATED_TO_MILA="../slurm_state_test/fake_allocations_related_to_mila.json"
+python3 read_report_commit_to_db.py \
+    --cluster_desc cluster_desc/beluga.json \
+    --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job_anonymized \
+    --dump_file ../tmp/slurm_report/beluga/job_dump_file_anonymized.json
 
 python3 read_report_commit_to_db.py \
     --cluster_desc cluster_desc/mila.json \
