@@ -32,6 +32,12 @@ def test_gen_dicts_equals():
     assert res == [dict(data="a=1,b=2")]
 
 
+def test_gen_dicts_colon():
+    f = StringIO("partition=long field:val=result:33")
+    res = list(gen_dicts(f))
+    assert res == [{"partition": "long", "field:val": "result:33"}]
+
+
 def test_gen_dicts_split():
     f = StringIO(
         """Name=1
@@ -109,6 +115,12 @@ def test_id():
 
 def test_account():
     assert account("name(123456)", None) == "name"
+
+
+def test_maybe_null_string():
+    assert maybe_null_string_to_none_object("(null)", None) is None
+    assert maybe_null_string_to_none_object("(null", None) == "(null"
+    assert maybe_null_string_to_none_object("name", None) == "name"
 
 
 def test_timelimit():
