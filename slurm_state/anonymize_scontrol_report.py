@@ -18,18 +18,31 @@ import argparse
 
 import numpy as np
 
+
 def get_account_name():
-    return np.random.choice(["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"])
+    return np.random.choice(
+        ["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
+    )
+
 
 def get_random_name():
     return "somename_%d" % np.random.randint(low=0, high=1e6)
 
+
 def get_random_username():
     return np.random.choice(["mario", "luigi", "toad", "peach"])
 
+
+# def get_random_node_name():
+#     return np.random.choice(["beast", "machine", "derp", "engine"]) + ("%0.4d" % np.random.randint(low=0, high=1e5))
+
+
 def get_random_path():
-    return "/a%d/b%d/c%d" % (np.random.randint(low=0, high=1000),
-    np.random.randint(low=0, high=1000), np.random.randint(low=0, high=1000))
+    return "/a%d/b%d/c%d" % (
+        np.random.randint(low=0, high=1000),
+        np.random.randint(low=0, high=1000),
+        np.random.randint(low=0, high=1000),
+    )
 
 
 def process_line(line):
@@ -42,28 +55,64 @@ def process_line(line):
     with regex.
     """
 
-    if m:= re.match(r"(\s*)(JobId=.+?)\s(JobName=.+?)\s*", line):
-        return "%sJodId=%d JobName=%s\n" % (m.group(1), np.random.randint(low=0, high=1e6), get_random_name())
-    if m:= re.match(r"(\s*)(UserId=.+?)\s(GroupId=.+?)\s(MCS_label=.+?)\s*", line):
+    # jobs
+    if m := re.match(r"(\s*)(JobId=.+?)\s(JobName=.+?)\s*", line):
+        return "%sJobId=%d JobName=%s\n" % (
+            m.group(1),
+            np.random.randint(low=0, high=1e6),
+            get_random_name(),
+        )
+    if m := re.match(r"(\s*)(UserId=.+?)\s(GroupId=.+?)\s(MCS_label=.+?)\s*", line):
         u = get_random_username()
         d = np.random.randint(low=0, high=1e6)
-        return "%sUserId=%s(%d) GroupId=%s(%d) MCS_label=N/A\n" % (m.group(1), u, d, u, d)
-    if m:= re.match(r"(.+)(Account=.+?)\s(.+)", line):
+        return "%sUserId=%s(%d) GroupId=%s(%d) MCS_label=N/A\n" % (
+            m.group(1),
+            u,
+            d,
+            u,
+            d,
+        )
+    if m := re.match(r"(.+)(Account=.+?)\s(.+)", line):
         return "%sAccount=%s %s\n" % (m.group(1), get_account_name(), m.group(3))
-    if m:= re.match(r"(\s*)(Command=.+?)\s*", line):
+    if m := re.match(r"(\s*)(Command=.+?)\s*", line):
         return "%sCommand=%s\n" % (m.group(1), get_random_path())
-    if m:= re.match(r"(\s*)(WorkDir=.+?)\s*", line):
+    if m := re.match(r"(\s*)(WorkDir=.+?)\s*", line):
         return "%sWorkDir=%s\n" % (m.group(1), get_random_path())
-    if m:= re.match(r"(\s*)(StdErr=.+?)\s*", line):
+    if m := re.match(r"(\s*)(StdErr=.+?)\s*", line):
         return "%sStdErr=%s.err\n" % (m.group(1), get_random_path())
-    if m:= re.match(r"(\s*)(StdIn=.+?)\s*", line):
-        return "%sStdIn=/dev/null\n" % (m.group(1), )
-    if m:= re.match(r"(\s*)(StdOut=.+?)\s*", line):
+    if m := re.match(r"(\s*)(StdIn=.+?)\s*", line):
+        return "%sStdIn=/dev/null\n" % (m.group(1),)
+    if m := re.match(r"(\s*)(StdOut=.+?)\s*", line):
         return "%sStdOut=%s.out\n" % (m.group(1), get_random_path())
+    if m := re.match(r"(\s*)Partition=.*", line):
+        return "%sPartition=fun_partition \n" % (m.group(1),)
+
+    # nodes
+    if m := re.match(
+        r"(\s*)NodeName=(\w+?)(\d+)\s(Arch=.+?)\s(CoresPerSocket=.+?)\s*", line
+    ):
+        return "%sNodeName=%s%s %s %s\n" % (
+            m.group(1),
+            "machine",
+            m.group(3),
+            m.group(4),
+            m.group(5),
+        )
+    if m := re.match(r"(\s*)(OS=.+?)\s*", line):
+        return "%sOS=Linux 17.10.x86_64\n" % (m.group(1),)
+    if m := re.match(r"(\s*)NodeAddr=\w+?(\d+)\sNodeHostName=\w+?(\d+)(.*)", line):
+        return "%sNodeAddr=%s%s NodeHostName=%s%s %s\n" % (
+            m.group(1),
+            "machine",
+            m.group(2),
+            "machine",
+            m.group(3),
+            m.group(4),
+        )
+    if m := re.match(r"(\s*)Partitions=", line):
+        return "%sPartitions=fun_partitions \n" % (m.group(1),)
 
     return line
-
-
 
 
 def main(argv):
@@ -93,5 +142,10 @@ if __name__ == "__main__":
 python3 anonymize_scontrol_report.py \
     --input_file ../tmp/slurm_report/beluga/scontrol_show_job \
     --output_file ../tmp/slurm_report/beluga/scontrol_show_job_anonymized
+
+python3 anonymize_scontrol_report.py \
+    --input_file ../tmp/slurm_report/beluga/scontrol_show_node \
+    --output_file ../tmp/slurm_report/beluga/scontrol_show_node_anonymized
+
 
 """
