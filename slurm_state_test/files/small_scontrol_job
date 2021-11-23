@@ -1,0 +1,24 @@
+JobId=1 JobName=sh
+   UserId=nobody(65535) GroupId=nobody(65535) MCS_label=N/A
+   Priority=0 Nice=0 Account=clustergroup QOS=normal
+   JobState=PENDING Reason=JobHeldAdmin Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=0 Reboot=0 ExitCode=0:0
+   RunTime=00:00:00 TimeLimit=7-00:00:00 TimeMin=N/A
+   SubmitTime=2020-12-15T16:44:08 EligibleTime=2020-12-15T16:44:08
+   AccrueTime=2020-12-15T16:44:08
+   StartTime=Unknown EndTime=Unknown Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2020-12-24T00:01:37
+   Partition=long AllocNode:Sid=login-2:20721
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=(null)
+   NumNodes=1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=1,mem=2G,node=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=1 MinMemoryCPU=2G MinTmpDiskNode=0
+   Features=x86_64 DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null)
+   Command=(null)
+   WorkDir=/home/user
+   Power=
+   TresPerNode=gpu:titanxp:1
+   NtasksPerTRES:0

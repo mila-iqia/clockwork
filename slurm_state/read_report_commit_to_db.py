@@ -69,6 +69,12 @@ def main(argv):
     if args.jobs_file:
         assert os.path.exists(args.jobs_file)
         assert os.path.exists(args.cluster_desc)
+
+        # https://stackoverflow.com/questions/33541290/how-can-i-create-an-index-with-pymongo
+        # Apparently "ensure_index" is deprecated, and we should always call "create_index".
+        client[collection_name]["jobs"].create_index(
+            [("slurm.job_id", 1), ("slurm.cluster_name", 1)], name="job_id_and_cluster_name"
+        )
         main_read_jobs_and_update_collection(
             client[collection_name]["jobs"] if client else None,
             args.cluster_desc,
@@ -80,6 +86,10 @@ def main(argv):
     if args.nodes_file:
         assert os.path.exists(args.nodes_file)
         assert os.path.exists(args.cluster_desc)
+
+        client[collection_name]["jobs"]["nodes"].create_index(
+            [("slurm.name", 1), ("slurm.cluster_name", 1)], name="name_and_cluster_name"
+        )
         main_read_nodes_and_update_collection(
             client[collection_name]["nodes"] if client else None,
             args.cluster_desc,
