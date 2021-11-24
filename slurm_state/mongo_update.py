@@ -3,7 +3,7 @@ from .mongo_client import get_mongo_client
 from pymongo import UpdateOne
 import json
 import zoneinfo
-from extra_filters import (
+from .extra_filters import (
     is_allocation_related_to_mila,
     extract_username_from_slurm_fields,
 )
