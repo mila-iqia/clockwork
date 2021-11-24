@@ -3,6 +3,13 @@ from slurm_state.anonymize_scontrol_report import process_line
 
 def test_process_line_job():
 
+    D_user = {
+        "username": "some_user",
+        "uid": "10000",
+        "account": "mila",
+        "cluster_name": "mila",
+    }
+
     L_lines = """
 JobId=01234567 JobName=secret_01234567
    UserId=secret(01234567) GroupId=secret(01234567) MCS_label=N/A
@@ -34,11 +41,16 @@ JobId=01234567 JobName=secret_01234567
     )
 
     for line in L_lines:
-        assert "secret" not in process_line(line)
-        assert "01234567" not in process_line(line)
+        line_done = process_line(line, D_user)
+        assert "secret" not in line_done
+        assert "01234567" not in line_done
 
 
 def test_process_line_node():
+
+    # somewhat irrelevant for nodes, but `process_line`
+    # doesn't really know what it's processing
+    D_user = {}
 
     L_lines = """
 NodeName=secret4104 Arch=x86_64 CoresPerSocket=2
@@ -62,4 +74,4 @@ NodeName=secret4104 Arch=x86_64 CoresPerSocket=2
     )
 
     for line in L_lines:
-        assert "secret" not in process_line(line)
+        assert "secret" not in process_line(line, D_user)

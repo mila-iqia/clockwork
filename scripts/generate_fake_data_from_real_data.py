@@ -1,4 +1,13 @@
 """
+
+This file is obsolete as of 2021-11-24
+because the new way to generate the fake data
+is to go through the same pipeline as with the
+real data, but calling "anonymize_scontrol_report.py"
+before anything else.
+
+---
+
 To test the app, we want to use fake data.
 The easiest way to generate such fake data is to use the system
 that's already running and to pull real data from mongodb.
