@@ -157,6 +157,7 @@ def main(argv):
         help="The cluster name. Helps with generating plausible users.",
     )
     parser.add_argument("-i", "--input_file", help="The jobs or nodes report file.")
+    parser.add_argument("-u", "--users_file", help="Description of the fake users.")
     parser.add_argument("-o", "--output_file", help="Output file.")
     parser.add_argument(
         "-k",
