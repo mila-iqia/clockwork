@@ -69,6 +69,13 @@ def main(argv):
     if args.jobs_file:
         assert os.path.exists(args.jobs_file)
         assert os.path.exists(args.cluster_desc)
+
+        # https://stackoverflow.com/questions/33541290/how-can-i-create-an-index-with-pymongo
+        # Apparently "ensure_index" is deprecated, and we should always call "create_index".
+        client[collection_name]["jobs"].create_index(
+            [("slurm.job_id", 1), ("slurm.cluster_name", 1)],
+            name="job_id_and_cluster_name",
+        )
         main_read_jobs_and_update_collection(
             client[collection_name]["jobs"] if client else None,
             args.cluster_desc,
@@ -80,6 +87,10 @@ def main(argv):
     if args.nodes_file:
         assert os.path.exists(args.nodes_file)
         assert os.path.exists(args.cluster_desc)
+
+        client[collection_name]["jobs"]["nodes"].create_index(
+            [("slurm.name", 1), ("slurm.cluster_name", 1)], name="name_and_cluster_name"
+        )
         main_read_nodes_and_update_collection(
             client[collection_name]["nodes"] if client else None,
             args.cluster_desc,
@@ -99,6 +110,7 @@ export MONGO_INITDB_ROOT_USERNAME="mongoadmin"
 export MONGO_INITDB_ROOT_PASSWORD="secret_passowrd_okay"
 export MONGODB_CONNECTION_STRING="mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@127.0.0.1:37017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false"
 export MONGODB_DATABASE_NAME="clockwork"
+export slurm_state_ALLOCATIONS_RELATED_TO_MILA="./allocations_related_to_mila.json"
 
 python3 read_report_commit_to_db.py \
     --cluster_desc cluster_desc/beluga.json \
@@ -116,6 +128,19 @@ python3 read_report_commit_to_db.py \
 python3 read_report_commit_to_db.py \
     --cluster_desc cluster_desc/beluga.json \
     --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job \
-    --dump_file dump_file_beluga.json
+    --dump_file ../tmp/slurm_report/beluga/job_dump_file.json
+
+# This would out empty due to fake allocations if you don't
+# specify a different allocation file.
+export slurm_state_ALLOCATIONS_RELATED_TO_MILA="../slurm_state_test/fake_allocations_related_to_mila.json"
+python3 read_report_commit_to_db.py \
+    --cluster_desc cluster_desc/beluga.json \
+    --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job_anonymized \
+    --dump_file ../tmp/slurm_report/beluga/job_dump_file_anonymized.json
+
+python3 read_report_commit_to_db.py \
+    --cluster_desc cluster_desc/mila.json \
+    --jobs_file ../tmp/slurm_report/mila/scontrol_show_job \
+    --dump_file dump_file_mila.json
 
 """

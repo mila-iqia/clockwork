@@ -3,6 +3,10 @@ from .mongo_client import get_mongo_client
 from pymongo import UpdateOne
 import json
 import zoneinfo
+from .extra_filters import (
+    is_allocation_related_to_mila,
+    extract_username_from_slurm_fields,
+)
 
 from .scontrol_parser import job_parser, node_parser
 
@@ -68,12 +72,36 @@ def infer_user_accounts(clockwork_job: dict[dict]):
     Mutates the argument in order to fill in the
     fields for "cw" pertaining to the user accounts.
     Returns the mutated value to facilitate a `map` call.
+
+    Later on, this function can be expanded to include
+    correspondances between usernames on different clusters.
     """
-    # One of the fields is bound to be known. We can add that one,
+
+    # On the Compute Canada clusters, we get the usernames.
+    # It's on the Mila cluster that we have guesswork to do
+    # because we get "nobody(428397423)" with some UID.
+    # At that point in the postprocessing, we have stripped
+    # away the "(428397423)" part.
+    if clockwork_job["slurm"]["cluster_name"] == "mila" and clockwork_job["slurm"].get(
+        "mila_account_username", ""
+    ) in ["", "nobody"]:
+        guessed = extract_username_from_slurm_fields(clockwork_job["slurm"])
+        if guessed == "unknown":
+            # let's set that as "nobody" to be more consistent
+            guessed = "nobody"
+        clockwork_job["slurm"]["mila_account_username"] = guessed
+
+    # At this point, `clockwork_job["cw"]` is a dict with three fields,
+    # all of which are blank. We can fill in one of those blanks
+    # based on the values from `clockwork_job["slurm"]`,
     # and leave the other ones empty for now.
     for k in ["cc_account_username", "mila_account_username", "mila_email_username"]:
         if clockwork_job["slurm"].get(k, "") not in ["", None]:
             clockwork_job["cw"][k] = clockwork_job["slurm"][k]
+
+    # At the end of it all, it's still possible to have "unknown" as
+    # our username. This isn't great, but it's hard to do better
+    # without some manual LDAP translations.
     return clockwork_job
 
 
@@ -115,9 +143,12 @@ def main_read_jobs_and_update_collection(
 
     for D_job in map(
         infer_user_accounts,
-        map(
-            slurm_job_to_clockwork_job,
-            fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path),
+        filter(
+            is_allocation_related_to_mila,
+            map(
+                slurm_job_to_clockwork_job,
+                fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path),
+            ),
         ),
     ):
 
