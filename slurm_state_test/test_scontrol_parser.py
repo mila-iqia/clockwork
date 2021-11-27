@@ -125,10 +125,6 @@ def test_user_id_splitting():
     assert d["uid"] == "633819"
 
 
-# def test_account():
-#     assert account("name(123456)", None) == "name"
-
-
 def test_maybe_null_string():
     assert maybe_null_string_to_none_object("(null)", None) is None
     assert maybe_null_string_to_none_object("(null", None) == "(null"
