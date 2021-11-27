@@ -65,10 +65,6 @@ def id(f, ctx):
     return f
 
 
-# def account(f, ctx):
-#    return f.split("(")[0]
-
-
 def maybe_null_string_to_none_object(f, ctx):
     """
     Converts "(null)" into `None` if applicable.
@@ -113,7 +109,7 @@ JOB_FIELD_MAP = {
     "ArrayTaskId": ignore,
     "ArrayTaskThrottle": ignore,
     "JobName": rename(id, "name"),
-    "UserId": user_id_splitting,  # dynrename(account, "local_username_referenced_by_parent_as"),
+    "UserId": user_id_splitting,
     "GroupId": ignore,
     "MCS_label": ignore,
     "Priority": ignore,
