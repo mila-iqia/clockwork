@@ -113,8 +113,16 @@ def test_id():
     assert id("1", None) == "1"
 
 
-def test_account():
-    assert account("name(123456)", None) == "name"
+def test_user_id_splitting():
+
+    d = {}
+    user_id_splitting(
+        "luigi(633819)",
+        {"local_username_referenced_by_parent_as": "cc_account_username"},
+        d,
+    )
+    assert d["cc_account_username"] == "luigi"
+    assert d["uid"] == "633819"
 
 
 def test_maybe_null_string():

@@ -50,13 +50,19 @@ def dynrename(fn, ctx_key):
     return dynrenamer
 
 
+# Instead of having something too convoluted,
+# we'll just write this specific example.
+def user_id_splitting(f, ctx, res):
+    m = re.match(r"^(\w+)\((\d+)\)$", f)
+    # Note that `ctx["local_username_referenced_by_parent_as"]`
+    # is something like "cc_account_username"
+    res[ctx["local_username_referenced_by_parent_as"]] = m.group(1)
+    res["uid"] = m.group(2)
+
+
 def id(f, ctx):
     """Return the field as-is."""
     return f
-
-
-def account(f, ctx):
-    return f.split("(")[0]
 
 
 def maybe_null_string_to_none_object(f, ctx):
@@ -103,7 +109,7 @@ JOB_FIELD_MAP = {
     "ArrayTaskId": ignore,
     "ArrayTaskThrottle": ignore,
     "JobName": rename(id, "name"),
-    "UserId": dynrename(account, "local_username_referenced_by_parent_as"),
+    "UserId": user_id_splitting,
     "GroupId": ignore,
     "MCS_label": ignore,
     "Priority": ignore,
