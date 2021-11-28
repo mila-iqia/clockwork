@@ -9,8 +9,82 @@ import os
 import argparse
 import json
 
+"""
+    The "fake users" are going to have the following structure.
+    The "accounts_on_clusters" might have to be revised if it
+    leads to awkward/suboptimal requests for MongoDB.
+    [
+        {
+            "gsuite": { "id": "009643",
+                        "name": "mario",
+                        "email": "mario@mila.quebec",
+                        "profile_pic": ""},
+            "cw": { "status": "enabled",
+                    "clockwork_api_key": "000aaa"},
+            {"accounts_on_clusters":
+                {
+                    "beluga":
+                        {
+                            "username": "ccuser040",
+                            "uid": "10040",
+                            "account": "def-pomme-rrg",
+                            "cluster_name": "beluga",
+                        },
+                    "cedar: { ... }
+                    "graham: { ... }
+                    "mila: { ... }
+                }
+        },
+        { ... },
+        ...
+    ]
+"""
 
-def get_predefined_fake_users():
+def get_predefined_fake_users(N=20):
+    """
+    Generate a complete description of users that
+    we will add to our db["users"] collection.
+    """
+
+    L_cc_clusters = ["beluga", "graham", "cedar", "narval"]
+    L_cc_accounts = ["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg",]
+
+    def gen_single_user(n):
+        D_user = {
+            "gsuite": { "id": "%d" % (4000+n),
+                        "name": "gsuiteuser%0.2d" % n,
+                        "email": "student%0.2d@mila.quebec" % n,
+                        "profile_pic": ""},
+            "cw": { "status": "enabled",
+                    "clockwork_api_key": "000aaa%0.2d" % n},
+            "accounts_on_clusters":
+                {"mila":
+                    {
+                        "username": "milauser%0.2d" % n,
+                        "uid": "%d" % (10000 + n),
+                        "account": "mila",
+                        "cluster_name": "mila",  # redundant
+                    }
+                }
+            }
+        # then add the entries for all the clusters on CC
+        account = L_cc_accounts[n%2]
+        for cluster_name in L_cc_clusters:
+            D_user["accounts_on_clusters"][cluster_name] = (
+                    {
+                        "username": "ccuser%0.2d" % n,
+                        "uid": "%d" % (10000 + n),
+                        "account": account,
+                        "cluster_name": cluster_name,
+                    })
+        return D_user
+
+    return [gen_single_user(n) for n in range(N)]
+
+
+
+
+def get_predefined_fake_users_old():
 
     M = 10
 
@@ -64,7 +138,7 @@ def main(argv):
 
     with open(args.output_file, "w") as f_out:
         LD_users = get_predefined_fake_users()
-        json.dump(LD_users, f_out)
+        json.dump(LD_users, f_out, indent=4)
         print(f"Wrote {args.output_file}.")
 
 
