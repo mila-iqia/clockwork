@@ -15,52 +15,12 @@ a new configuration of the cluster.
 import re
 import os
 import argparse
+import json
 
 import numpy as np
 
-
-def get_predefined_fake_users():
-
-    M = 10
-
-    LD_users = []
-    n = 0
-    for _ in range(M):
-        for account in [
-            "def-patate-rrg",
-            "def-pomme-rrg",
-            "def-cerise-rrg",
-            "def-citron-rrg",
-        ]:
-            for cluster_name in ["beluga", "graham", "cedar", "narval"]:
-                n = n + 1
-                LD_users.append(
-                    {
-                        "username": "ccuser%0.2d" % n,
-                        "uid": "%d" % (10000 + n),
-                        "account": account,
-                        "cluster_name": cluster_name,
-                    }
-                )
-
-    for _ in range(M):
-        for __ in range(4):  # compensate for the other one getting 4x accounts
-            account = "mila"
-            cluster_name = "mila"
-            n = n + 1
-            LD_users.append(
-                {
-                    "username": "milauser%0.2d" % n,
-                    "uid": "%d" % (10000 + n),
-                    "account": "mila",
-                    "cluster_name": "mila",
-                }
-            )
-    return LD_users
-
-
-def get_random_name():
-    return "somename_%d" % np.random.randint(low=0, high=1e6)
+def get_random_job_name():
+    return "somejobname_%d" % np.random.randint(low=0, high=1e6)
 
 
 # def get_random_node_name():
@@ -75,7 +35,7 @@ def get_random_path():
     )
 
 
-def process_line(line, D_user):
+def process_line(line:str, D_cluster_account:dict) -> str:
     """
     Anonymize the lines from the report.
     This involves doing a hatchet job to some fields
@@ -83,6 +43,14 @@ def process_line(line, D_user):
     The assumption is that scontrol is very predictible
     in the layout of its outputs so we can parse things
     with regex.
+
+    D_cluster_account looks like
+        {
+            "username": "ccuser040",
+            "uid": "10040",
+            "account": "def-pomme-rrg",
+            "cluster_name": "beluga",
+        }
     """
 
     # jobs
@@ -90,18 +58,18 @@ def process_line(line, D_user):
         return "%sJobId=%d JobName=%s\n" % (
             m.group(1),
             np.random.randint(low=0, high=1e6),
-            get_random_name(),
+            get_random_job_name(),
         )
     if m := re.match(r"(\s*)(UserId=.+?)\s(GroupId=.+?)\s(MCS_label=.+?)\s*", line):
         return "%sUserId=%s(%s) GroupId=%s(%s) MCS_label=N/A\n" % (
             m.group(1),
-            D_user["username"],
-            D_user["uid"],
-            D_user["username"],
-            D_user["uid"],
+            D_cluster_account["username"],
+            D_cluster_account["uid"],
+            D_cluster_account["username"],
+            D_cluster_account["uid"],
         )
     if m := re.match(r"(.+)(Account=.+?)\s(.+)", line):
-        return "%sAccount=%s %s\n" % (m.group(1), D_user["account"], m.group(3))
+        return "%sAccount=%s %s\n" % (m.group(1), D_cluster_account["account"], m.group(3))
     if m := re.match(r"(\s*)(Command=.+?)\s*", line):
         return "%sCommand=%s\n" % (m.group(1), get_random_path())
     if m := re.match(r"(\s*)(WorkDir=.+?)\s*", line):
@@ -170,11 +138,15 @@ def main(argv):
     args = parser.parse_args(argv[1:])
     print(args)
 
-    LD_users = get_predefined_fake_users()
-    # make sure the cluster_name given is found in at least one user
-    LD_users_on_that_cluster = [
-        D_user for D_user in LD_users if D_user["cluster_name"] == args.cluster_name
-    ]
+    with open(args.users_file, "r") as f:
+        LD_users = json.load(f)
+
+    # Sanity check: let's make sure the cluster we're talking about
+    # was mentioned in some of the users from LD_users.
+    LD_users_on_that_cluster = list(filter(
+        lambda D_user: args.cluster_name in D_user["accounts_on_clusters"],
+        LD_users
+    ))
     assert len(LD_users_on_that_cluster)
     D_user = None
     nbr_processed = 0
@@ -185,10 +157,11 @@ def main(argv):
                 # pick a new user every time we hit an empty line
                 if D_user is None or re.match(r"^\s*$", line):
                     D_user = np.random.choice(LD_users_on_that_cluster)
+                    D_cluster_account = D_user["accounts_on_clusters"][args.cluster_name]
                     nbr_processed = nbr_processed + 1
                     if args.keep and (args.keep <= nbr_processed - 1):
                         quit()
-                f_out.write(process_line(line, D_user))
+                f_out.write(process_line(line, D_cluster_account))
 
 
 if __name__ == "__main__":
