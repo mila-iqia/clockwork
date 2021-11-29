@@ -17,15 +17,17 @@ Used:
 * clockwork_web_test : unit tests for "clockwork_web"
 
 * clockwork_tools : python module to be used by Mila members in conjuction with prod instance "clockwork_web"
-* clockwork_tools_test : unit tests for "clockwork_tools", running on a dev instance of "clockwork_web"
+* clockwork_tools_test : unit tests for "clockwork_tools"
 
 * slurm_state : internal tools to parse the slurm reports from many clusters
+* slurm_state_test : unit tests for "slurm_state"
+
+* test_common : some functions used by two or more of the "_test" components
+
 * scripts : useful scripts for occasional uses internally
 * docs : documentation for this project, to be published externally
 
-Needs to be redesigned or deleted:
-
-* setup_ecosystem : launch point for web server, for tests and development. needs refactoring.
+* setup_ecosystem : configuration to launch the web server, tests and development instances. Needs refactoring.
 
 
 ## Summary of who runs what where
@@ -35,13 +37,15 @@ Needs to be redesigned or deleted:
 | clockwork_web | IDT | everyone at Mila | N/A |
 | clockwork_web_test | IDT | IDT | dev instance in docker container |
 | clockwork_tools | N/A | everyone at Mila  | prod |
-| clockwork_tools_test | IDT | IDT | dev instance in docker container|
+| clockwork_tools_test | IDT | IDT | dev instance in docker container |
+| slurm_state | IDT | IDT | mongodb instance (dev or prod) |
+| slurm_state_test | IDT | IDT | dev instance in docker container |
 
 ## modules needed
 
 ```bash
 # for main project
-python3 -m pip install flask flask-login numpy pymongo oauthlib
+python3 -m pip install flask flask-login numpy pymongo oauthlib coverage black
 # for docs
 python3 -m pip install sphinx myst_parser sphinx_rtd_theme sphinxcontrib.httpdomain
 ```
