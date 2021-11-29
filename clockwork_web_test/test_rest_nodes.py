@@ -9,7 +9,9 @@ import pytest
 
 
 @pytest.mark.parametrize("cluster_name", ("mila", "beluga", "cedar", "graham"))
-def test_single_node_at_random(client, fake_data, valid_rest_auth_headers, cluster_name):
+def test_single_node_at_random(
+    client, fake_data, valid_rest_auth_headers, cluster_name
+):
     """
     Make a request to the REST API endpoint /api/v1/clusters/nodes/one.
 
@@ -17,7 +19,11 @@ def test_single_node_at_random(client, fake_data, valid_rest_auth_headers, clust
     """
 
     original_D_node = random.choice(
-        [D_node for D_node in fake_data["nodes"] if D_node["slurm"]["cluster_name"] == cluster_name]
+        [
+            D_node
+            for D_node in fake_data["nodes"]
+            if D_node["slurm"]["cluster_name"] == cluster_name
+        ]
     )
 
     response = client.get(
@@ -31,7 +37,7 @@ def test_single_node_at_random(client, fake_data, valid_rest_auth_headers, clust
         if k1 not in D_node:
             print(f"Missing key {k1} from fetched D_node.")
             pprint(original_D_node)
-            pprint(D_node)        
+            pprint(D_node)
         else:
             for k2 in original_D_node[k1]:
                 if k2 not in D_node:
@@ -62,5 +68,3 @@ def test_single_node_missing(client, fake_data, valid_rest_auth_headers):
     assert "application/json" in response.content_type
     D_node = response.json  # no `json()` here, just `json`
     assert D_node == {}
-
-

@@ -57,10 +57,16 @@ def test_list_jobs_for_a_given_random_user(client, fake_data):
     """
 
     def get_ground_truth(username, LD_jobs):
-        return [D_job for D_job in LD_jobs if username in [
-            D_job["cw"].get("mila_cluster_username", None),
-            D_job["cw"].get("mila_email_username", None),
-            D_job["cw"].get("cc_account_username", None)]]
+        return [
+            D_job
+            for D_job in LD_jobs
+            if username
+            in [
+                D_job["cw"].get("mila_cluster_username", None),
+                D_job["cw"].get("mila_email_username", None),
+                D_job["cw"].get("cc_account_username", None),
+            ]
+        ]
 
     for retries in range(10):
         # Select something at random from the database.
@@ -73,8 +79,9 @@ def test_list_jobs_for_a_given_random_user(client, fake_data):
         # return empty results, because then this test becomes vacuous
         if LD_jobs_ground_truth:
             break
-    assert LD_jobs_ground_truth, "Failed to get an interesting test candidate for test_list_jobs_for_a_given_random_user. We hit the safety valve."
-
+    assert (
+        LD_jobs_ground_truth
+    ), "Failed to get an interesting test candidate for test_list_jobs_for_a_given_random_user. We hit the safety valve."
 
     response = client.get(f"/jobs/list?user={username}")
 

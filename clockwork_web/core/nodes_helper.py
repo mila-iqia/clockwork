@@ -7,8 +7,6 @@ and rest_routes, which are just fronts for these functions here.
 from flask.globals import current_app
 from clockwork_web.db import get_db
 
-# from clockwork_web.core.jobs_helper import get_filter_cluster_name
-
 
 def get_filter_name(name):
     """

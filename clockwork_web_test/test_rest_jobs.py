@@ -32,7 +32,11 @@ def test_single_job_at_random(client, fake_data, valid_rest_auth_headers, cluste
     """
 
     original_D_job = random.choice(
-        [D_job for D_job in fake_data["jobs"] if D_job["slurm"]["cluster_name"] == cluster_name]
+        [
+            D_job
+            for D_job in fake_data["jobs"]
+            if D_job["slurm"]["cluster_name"] == cluster_name
+        ]
     )
 
     response = client.get(
@@ -46,7 +50,7 @@ def test_single_job_at_random(client, fake_data, valid_rest_auth_headers, cluste
         if k1 not in D_job:
             print(f"Missing key {k1} from fetched D_job.")
             pprint(original_D_job)
-            pprint(D_job)        
+            pprint(D_job)
         else:
             for k2 in original_D_job[k1]:
                 if k2 not in D_job:
@@ -93,10 +97,16 @@ def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_he
     """
 
     def get_ground_truth(username, LD_jobs):
-        return [D_job for D_job in LD_jobs if username in [
-            D_job["cw"].get("mila_cluster_username", None),
-            D_job["cw"].get("mila_email_username", None),
-            D_job["cw"].get("cc_account_username", None)]]
+        return [
+            D_job
+            for D_job in LD_jobs
+            if username
+            in [
+                D_job["cw"].get("mila_cluster_username", None),
+                D_job["cw"].get("mila_email_username", None),
+                D_job["cw"].get("cc_account_username", None),
+            ]
+        ]
 
     # Select something at random from the database, already populated
     # by the fake_data, in order to construct a good request.
@@ -112,7 +122,9 @@ def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_he
         # return empty results, because then this test becomes vacuous
         if LD_jobs_ground_truth:
             break
-    assert LD_jobs_ground_truth, "Failed to get an interesting test candidate for test_api_list_jobs_for_a_given_random_user. We hit the safety valve."
+    assert (
+        LD_jobs_ground_truth
+    ), "Failed to get an interesting test candidate for test_api_list_jobs_for_a_given_random_user. We hit the safety valve."
 
     response = client.get(
         f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers
@@ -132,8 +144,9 @@ def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_he
     # results and the ground truth.
     # We could do an in-depth comparison with all the fields, but that seems
     # a bit zealous for now.
-    assert (set(D_job["slurm"]["job_id"] for D_job in LD_jobs) ==
-            set(D_job["slurm"]["job_id"] for D_job in LD_jobs_ground_truth))
+    assert set(D_job["slurm"]["job_id"] for D_job in LD_jobs) == set(
+        D_job["slurm"]["job_id"] for D_job in LD_jobs_ground_truth
+    )
 
 
 def test_api_list_invalid_username(client, valid_rest_auth_headers):

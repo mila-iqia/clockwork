@@ -47,9 +47,6 @@ from clockwork_web.core.nodes_helper import (
 # Note that flask_api.route('/') will lead to a redirection with "/nodes", and pytest might not like that.
 
 
-# TODO : Rewrite "list" without "get_filter_from_request_args".
-#        This involves writing separate functions for each arg,
-#        in order to allow for particular processing of each.
 @flask_api.route("/list")
 @login_required
 def route_list():

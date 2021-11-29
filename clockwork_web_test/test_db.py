@@ -17,8 +17,12 @@ def test_insert_and_retrieve(app):
         # delete any remaining elements from a previous test first
         mc["jobs"].delete_many({"slurm.job_id": job_id, "slurm.cluster_name": "mila"})
 
-        mc["jobs"].insert_one({"slurm": {"cluster_name": "mila", "job_id": job_id}, "cw":{}, "user":{}})
-        L = list(mc["jobs"].find({"slurm.job_id": job_id, "slurm.cluster_name": "mila"}))
+        mc["jobs"].insert_one(
+            {"slurm": {"cluster_name": "mila", "job_id": job_id}, "cw": {}, "user": {}}
+        )
+        L = list(
+            mc["jobs"].find({"slurm.job_id": job_id, "slurm.cluster_name": "mila"})
+        )
         assert len(L) == 1
         assert L[0]["slurm"]["job_id"] == job_id
         assert L[0]["slurm"]["cluster_name"] == "mila"

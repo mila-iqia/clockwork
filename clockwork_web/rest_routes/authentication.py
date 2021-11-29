@@ -50,7 +50,7 @@ def authenticate_with_header_basic(s: str):
             )
 
         D_user = L[0]
-        if D_user["clockwork"]["clockwork_api_key"] == E["clockwork_api_key"]:
+        if D_user["cw"]["clockwork_api_key"] == E["clockwork_api_key"]:
             # success
             return D_user
         else:

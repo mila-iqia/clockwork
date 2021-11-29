@@ -34,7 +34,7 @@ def get_filter_user(user):
     """
     This is a filter for the "jobs" and "nodes" collections
     that looks into the "cw" part of the entries in order to
-    retrieve the 
+    retrieve the
     """
     if user is None:
         return {}
@@ -44,7 +44,7 @@ def get_filter_user(user):
                 "$or": [
                     {"cw.mila_cluster_username": user},
                     {"cw.cc_account_username": user},
-                    {"cw.mila_email_username": user}
+                    {"cw.mila_email_username": user},
                 ]
             }
         else:
