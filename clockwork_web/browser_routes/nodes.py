@@ -33,15 +33,11 @@ flask_api = Blueprint("nodes", __name__)
 
 from clockwork_web.core.nodes_helper import get_nodes
 from clockwork_web.core.common import (
-    get_filter_from_request_args,
     get_mila_email_username,
 )
 from clockwork_web.core.jobs_helper import (
     get_filter_cluster_name,
     combine_all_mongodb_filters,
-    strip_artificial_fields_from_job,
-    get_mongodb_filter_from_query_filter,
-    infer_best_guess_for_username,
 )
 from clockwork_web.core.nodes_helper import (
     get_filter_name,
@@ -51,9 +47,6 @@ from clockwork_web.core.nodes_helper import (
 # Note that flask_api.route('/') will lead to a redirection with "/nodes", and pytest might not like that.
 
 
-# TODO : Rewrite "list" without "get_filter_from_request_args".
-#        This involves writing separate functions for each arg,
-#        in order to allow for particular processing of each.
 @flask_api.route("/list")
 @login_required
 def route_list():

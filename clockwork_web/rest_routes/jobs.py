@@ -4,7 +4,6 @@ from flask import request, make_response
 from flask.json import jsonify
 from .authentication import authenticate_with_header_basic
 
-from clockwork_web.core.common import get_filter_from_request_args
 from clockwork_web.core.jobs_helper import (
     get_filter_user,
     get_filter_time,
@@ -49,18 +48,9 @@ def route_api_v1_jobs_list():
     f2 = get_filter_cluster_name(request.args.get("cluster_name", None))
 
     filter = combine_all_mongodb_filters(f0, f1, f2)
-
-    # filter = get_filter_from_request_args(["cluster_name", "user", "time"])
-    # if 'user' in filter:
-    #     filter['user'] = filter['user'].replace(" ", "")
-    # if 'time' in filter:
-    #     try:
-    #         filter['time'] = int(filter['time'])
-    #     except:
-    #         return jsonify(f"Field 'time' cannot be cast as a valid integer: {filter['time']}."), 400  # bad request
-    # LD_jobs = get_jobs(mongodb_filter=get_mongodb_filter_from_query_filter(filter))
     LD_jobs = get_jobs(filter)
 
+    # TODO : Potential redesign. See CW-81.
     LD_jobs = [
         infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
         for D_job in LD_jobs
@@ -100,6 +90,7 @@ def route_api_v1_jobs_one():
         resp.status_code = 500  # server error
         return resp
 
+    # TODO : Potential redesign. See CW-81.
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
     D_job = infer_best_guess_for_username(D_job)
 
