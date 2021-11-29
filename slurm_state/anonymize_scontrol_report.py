@@ -11,12 +11,9 @@ when we want to refresh our fake data to reflect potentially
 a new configuration of the cluster.
 """
 
-
 import re
-import os
 import argparse
 import json
-
 import numpy as np
 
 
@@ -52,12 +49,13 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     with regex.
 
     D_cluster_account looks like
-        {
-            "username": "ccuser040",
-            "uid": "10040",
-            "account": "def-pomme-rrg",
-            "cluster_name": "beluga",
-        }
+    {
+        "username": "ccuser040",
+        "uid": "10040",
+        "account": "def-pomme-rrg",
+        "cluster_name": "beluga",
+    }
+
     """
 
     # jobs
