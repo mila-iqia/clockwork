@@ -29,7 +29,7 @@ def populate_fake_data(db_insertion_point, json_file=None):
     Not all those keys need to be present. If they are,
     then we will update the corresponding collections in the database.
 
-    `db_insertion_point` is something like db["slurm"] or db["clockwork"],
+    `db_insertion_point` is something like db["clockwork"],
     at the level right before which we specify the collection.
     It's hard to find the right word for this, because mongodb would
     call it a "database", but in the context of this flask app we refer
@@ -51,6 +51,18 @@ def populate_fake_data(db_insertion_point, json_file=None):
     with open(json_file, "r") as f:
         E = json.load(f)
 
+    # Create indices. This isn't half as important as when we're
+    # dealing with large quantities of data, but it's part of the
+    # set up for the database.
+    db_insertion_point["jobs"].create_index(
+        [("slurm.job_id", 1), ("slurm.cluster_name", 1)],
+        name="job_id_and_cluster_name",
+    )
+    db_insertion_point["nodes"].create_index(
+        [("slurm.name", 1), ("slurm.cluster_name", 1)],
+        name="name_and_cluster_name",
+    )
+
     for k in ["users", "jobs", "nodes"]:
         if k in E:
             for e in E[k]:
@@ -68,9 +80,16 @@ def populate_fake_data(db_insertion_point, json_file=None):
         and not affect the real data. If we cleared the tables completely,
         then we'd be affecting the real data in a bad way.
         """
-        for (k, id_field) in [("users", "id"), ("jobs", "job_id"), ("nodes", "name")]:
+        for (k, sub, id_field) in [
+            ("users", "google_suite", "id"),
+            ("jobs", "slurm", "job_id"),
+            ("nodes", "slurm", "name")]:
             if k in E:
                 for e in E[k]:
-                    db_insertion_point[k].delete_many({id_field: e[id_field]})
+                    # This is complicated, but it's just about a way to say something like
+                    # that we want to remove {"slurm.job_id", e["slurm"]["job_id"]},
+                    # and the weird notation comes from the fact that mongodb filters use dots,
+                    # but not the original python.
+                    db_insertion_point[k].delete_many({f"{sub}.{id_field}": e[sub][id_field]})
 
     return cleanup_function

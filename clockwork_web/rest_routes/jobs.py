@@ -61,6 +61,7 @@ def route_api_v1_jobs_list():
     # LD_jobs = get_jobs(mongodb_filter=get_mongodb_filter_from_query_filter(filter))
     LD_jobs = get_jobs(filter)
 
+    # TODO : Potential redesign. See CW-81.
     LD_jobs = [
         infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
         for D_job in LD_jobs
@@ -100,6 +101,7 @@ def route_api_v1_jobs_one():
         resp.status_code = 500  # server error
         return resp
 
+    # TODO : Potential redesign. See CW-81.
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
     D_job = infer_best_guess_for_username(D_job)
 

@@ -32,29 +32,29 @@ def test_single_job_at_random(client, fake_data, valid_rest_auth_headers, cluste
     """
 
     original_D_job = random.choice(
-        [D_job for D_job in fake_data["jobs"] if D_job["cluster_name"] == cluster_name]
+        [D_job for D_job in fake_data["jobs"] if D_job["slurm"]["cluster_name"] == cluster_name]
     )
 
     response = client.get(
-        f"/api/v1/clusters/jobs/one?job_id={original_D_job['job_id']}",
+        f"/api/v1/clusters/jobs/one?job_id={original_D_job['slurm']['job_id']}",
         headers=valid_rest_auth_headers,
     )
     assert "application/json" in response.content_type
     D_job = response.json
 
-    for k in original_D_job:
-        # That "grafana_helpers" is just pollution in the original data,
-        # and we're stripping it automatically in clockwork_web, so this
-        # is why we won't see it here.
-        if k in ["grafana_helpers", "best_guess_for_username"]:
-            continue
-
-        if k not in D_job:
-            print(f"Missing key {k} from fetched D_job.")
+    for k1 in original_D_job:
+        if k1 not in D_job:
+            print(f"Missing key {k1} from fetched D_job.")
             pprint(original_D_job)
-            pprint(D_job)
-
-        assert D_job[k] == original_D_job[k], k
+            pprint(D_job)        
+        else:
+            for k2 in original_D_job[k1]:
+                if k2 not in D_job:
+                    print(f"Missing key {k2} from fetched D_job[{k1}].")
+                    pprint(original_D_job)
+                    pprint(D_job)
+                else:
+                    assert D_job[k1][k2] == original_D_job[k1][k2], (k1, k2)
 
 
 def test_single_job_missing(client, fake_data, valid_rest_auth_headers):
@@ -65,9 +65,9 @@ def test_single_job_missing(client, fake_data, valid_rest_auth_headers):
     """
 
     # Make sure you pick a random job_id that's not in the database.
-    S_job_ids = set([D_job["job_id"] for D_job in fake_data["jobs"]])
+    S_job_ids = set([D_job["slurm"]["job_id"] for D_job in fake_data["jobs"]])
     while True:
-        job_id = int(random.random() * 1e7)
+        job_id = "absent_job_%d" % int(random.random() * 1e7)
         if job_id not in S_job_ids:
             break
 
@@ -79,11 +79,40 @@ def test_single_job_missing(client, fake_data, valid_rest_auth_headers):
     assert D_job == {}
 
 
-@pytest.mark.parametrize("username", ("mario", "luigi", "toad", "peach"))
-def test_api_list_four_valid_usernames(client, valid_rest_auth_headers, username):
+def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_headers):
     """
     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
+
+    Note that the users for whom we list the jobs is probably not
+    going to be the user encoded in the auth_headers, which we get
+    from the environment variables "clockwork_tools_test_EMAIL"
+    and "clockwork_tools_test_CLOCKWORK_API_KEY".
+
+    We pick a user at random from our fake_data, and we see if we
+    can list the jobs for that user.
     """
+
+    def get_ground_truth(username, LD_jobs):
+        return [D_job for D_job in LD_jobs if username in [
+            D_job["cw"].get("mila_cluster_username", None),
+            D_job["cw"].get("mila_email_username", None),
+            D_job["cw"].get("cc_account_username", None)]]
+
+    # Select something at random from the database, already populated
+    # by the fake_data, in order to construct a good request.
+
+    # let's avoid using a `while True` structure in a test
+    for attempts in range(10):
+        D_user = random.choice(fake_data["users"])
+        assert D_user["accounts_on_clusters"]
+        D_cluster_account = random.choice(list(D_user["accounts_on_clusters"].values()))
+        username = D_cluster_account["username"]
+        LD_jobs_ground_truth = get_ground_truth(username, fake_data["jobs"])
+        # pick something that's interesting, and not something that should
+        # return empty results, because then this test becomes vacuous
+        if LD_jobs_ground_truth:
+            break
+    assert LD_jobs_ground_truth, "Failed to get an interesting test candidate for test_api_list_jobs_for_a_given_random_user. We hit the safety valve."
 
     response = client.get(
         f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers
@@ -94,18 +123,26 @@ def test_api_list_four_valid_usernames(client, valid_rest_auth_headers, username
     # make sure that every job returned has that username somewhere
     for D_job in LD_jobs:
         assert username in [
-            D_job.get("mila_cluster_username", None),
-            D_job.get("mila_user_account", None),
-            D_job.get("mila_email_username", None),
-            D_job.get("cc_account_username", None),
+            D_job["cw"].get("mila_cluster_username", None),
+            D_job["cw"].get("mila_email_username", None),
+            D_job["cw"].get("cc_account_username", None),
         ]
 
+    # Let's just make sure that the set of job_id match for both the returned
+    # results and the ground truth.
+    # We could do an in-depth comparison with all the fields, but that seems
+    # a bit zealous for now.
+    assert (set(D_job["slurm"]["job_id"] for D_job in LD_jobs) ==
+            set(D_job["slurm"]["job_id"] for D_job in LD_jobs_ground_truth))
 
-@pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
-def test_api_list_two_invalid_usernames(client, valid_rest_auth_headers, username):
+
+def test_api_list_invalid_username(client, valid_rest_auth_headers):
     """
     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
     """
+
+    username = "some_username_absent_from_the_data"
+
     response = client.get(
         f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers
     )

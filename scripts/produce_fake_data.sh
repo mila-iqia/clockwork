@@ -61,6 +61,12 @@ python3 concat_json_lists.py --keep 100 \
     ${CLOCKWORK_ROOT}/tmp/slurm_report/mila/node_anonymized_dump_file.json \
     --output ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json
 
-cp ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json ${CLOCKWORK_ROOT}/test_common/fake_data_nodes.json
-cp ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_jobs_anonymized.json ${CLOCKWORK_ROOT}/test_common/fake_data_jobs.json
-cp ${FAKE_USERS_FILE} ${CLOCKWORK_ROOT}/test_common/fake_data_users.json
+python3 stitch_json_lists_as_dict.py \
+    ${CLOCKWORK_ROOT}/test_common/fake_data.json \
+    users ${FAKE_USERS_FILE} \
+    jobs ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_jobs_anonymized.json \
+    nodes ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json
+
+# cp ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json ${CLOCKWORK_ROOT}/test_common/fake_data_nodes.json
+# cp ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_jobs_anonymized.json ${CLOCKWORK_ROOT}/test_common/fake_data_jobs.json
+# cp ${FAKE_USERS_FILE} ${CLOCKWORK_ROOT}/test_common/fake_data_users.json

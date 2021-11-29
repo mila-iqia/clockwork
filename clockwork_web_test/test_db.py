@@ -15,13 +15,13 @@ def test_insert_and_retrieve(app):
 
         job_id = 4872438  # just a meaningless random number
         # delete any remaining elements from a previous test first
-        mc["jobs"].delete_many({"job_id": job_id})
+        mc["jobs"].delete_many({"slurm.job_id": job_id, "slurm.cluster_name": "mila"})
 
-        mc["jobs"].insert_one({"cluster_name": "mila", "job_id": job_id})
-        L = list(mc["jobs"].find({"job_id": job_id}))
+        mc["jobs"].insert_one({"slurm": {"cluster_name": "mila", "job_id": job_id}, "cw":{}, "user":{}})
+        L = list(mc["jobs"].find({"slurm.job_id": job_id, "slurm.cluster_name": "mila"}))
         assert len(L) == 1
-        assert L[0]["job_id"] == job_id
-        assert L[0]["cluster_name"] == "mila"
+        assert L[0]["slurm"]["job_id"] == job_id
+        assert L[0]["slurm"]["cluster_name"] == "mila"
 
         # clean up
-        mc["jobs"].delete_many({"job_id": job_id})
+        mc["jobs"].delete_many({"slurm.job_id": job_id, "slurm.cluster_name": "mila"})

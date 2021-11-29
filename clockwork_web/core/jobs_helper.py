@@ -14,7 +14,7 @@ def get_filter_cluster_name(cluster_name):
     if cluster_name is None:
         return {}
     else:
-        return {"cluster_name": cluster_name}
+        return {"slurm.cluster_name": cluster_name}
 
 
 def get_filter_job_id(job_id):
@@ -25,22 +25,26 @@ def get_filter_job_id(job_id):
         return {}
     else:
         if re.match(r"^(\d*)$", job_id):
-            return {"$or": [{"job_id": job_id}, {"job_id": int(job_id)}]}
+            return {"$or": [{"slurm.job_id": job_id}, {"slurm.job_id": int(job_id)}]}
         else:
-            return {"job_id": job_id}
+            return {"slurm.job_id": job_id}
 
 
 def get_filter_user(user):
+    """
+    This is a filter for the "jobs" and "nodes" collections
+    that looks into the "cw" part of the entries in order to
+    retrieve the 
+    """
     if user is None:
         return {}
     else:
         if user not in ["all", "*", ""]:
             return {
                 "$or": [
-                    {"mila_cluster_username": user},
-                    {"cc_account_username": user},
-                    {"mila_email_username": user},
-                    {"mila_user_account": user},
+                    {"cw.mila_cluster_username": user},
+                    {"cw.cc_account_username": user},
+                    {"cw.mila_email_username": user}
                 ]
             }
         else:
@@ -58,8 +62,8 @@ def get_filter_time(time0):
         # This can throw exceptions when "time0" is invalid.
         return {
             "$or": [
-                {"end_time": {"$gt": int(time.time() - int(time0))}},
-                {"end_time": 0},
+                {"slurm.end_time": {"$gt": int(time.time() - int(time0))}},
+                {"slurm.end_time": 0},
             ]
         }
 
@@ -104,15 +108,19 @@ def get_jobs(mongodb_filter: dict = {}):
 
 
 def infer_best_guess_for_username(D_job):
-    # TODO : We should perform some kind of mapping to Mila accounts or something.
-    #        At the current time we're missing certain things to allow this to be done properly.
-    # let's condense the three possible accounts into just one value
+    """
+    Mutates the argument by adding the "best_guess_for_username" field.
+    """
+
+    # TODO : Rethink this "feature" that's mostly
+    # tied to the web interface to display something
+    # useful to the users. CW-81
     for k in ["cc_account_username", "mila_cluster_username", "mila_email_username"]:
-        if k in D_job and D_job[k] != "unknown":
-            D_job["best_guess_for_username"] = D_job[k]
+        if k in D_job["cw"] and D_job["cw"][k] not in [None, "unknown"]:
+            D_job["cw"]["best_guess_for_username"] = D_job["cw"][k]
             return D_job
     # failed to find something better than that
-    D_job["best_guess_for_username"] = "unknown"
+    D_job["cw"]["best_guess_for_username"] = "unknown"
     return D_job
 
 

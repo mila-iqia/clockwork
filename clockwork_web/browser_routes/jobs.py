@@ -90,10 +90,9 @@ def route_list():
     # pprint(filter)
     LD_jobs = get_jobs(filter)
 
-    LD_jobs = [
-        infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
-        for D_job in LD_jobs
-    ]
+    # TODO : You might want to stop doing the `infer_best_guess_for_username`
+    # at some point to design something better. See CW-81.
+    LD_jobs = [infer_best_guess_for_username(strip_artificial_fields_from_job(D_job)) for D_job in LD_jobs]
 
     for D_job in LD_jobs:
         if D_job is None:
@@ -112,6 +111,12 @@ def route_one():
     Takes args "cluster_name", "job_id".
     This can work with only "job_id" if it's unique,
     but otherwise it might require specifying the cluster name.
+    Note that this returns a page with only the "slurm" component
+    because we had troubles using the templates correctly with dicts.
+    
+    Besides, it's unclear what we're supposed to do with the extra
+    "cw" and "user" fields when it comes to displaying them as html.
+    See CW-82.
 
     .. :quickref: list one Slurm job as formatted html
     """
@@ -138,10 +143,10 @@ def route_one():
         )
 
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
-    D_job = infer_best_guess_for_username(D_job)
+    D_job = infer_best_guess_for_username(D_job) # see CW-81
 
     # let's sort alphabetically by keys
-    LP_single_job = list(sorted(D_job.items(), key=lambda e: e[0]))
+    LP_single_job = list(sorted(D_job["slurm"].items(), key=lambda e: e[0]))
 
     return render_template(
         "single_job.html",
@@ -164,6 +169,12 @@ def route_interactive():
         "jobs_interactive.html", mila_email_username=get_mila_email_username()
     )
 
+
+# This is an old function that is still used by jobs.js
+# but that should probably be removed because .../jobs/one/...
+# does that.
+# Let's leave it for now and mark it for removal later.
+# See CW-83.
 
 @flask_api.route("/single_job/<job_id>")
 @login_required
