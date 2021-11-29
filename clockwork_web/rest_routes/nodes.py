@@ -2,8 +2,11 @@ from flask import request, make_response
 from flask.json import jsonify
 from .authentication import authenticate_with_header_basic
 
-from clockwork_web.core.nodes_helper import get_nodes
-from clockwork_web.core.common import get_filter_from_request_args
+from clockwork_web.core.nodes_helper import get_nodes, get_filter_name
+from clockwork_web.core.jobs_helper import (
+    combine_all_mongodb_filters,
+    get_filter_cluster_name,
+)
 
 from flask import Blueprint
 
@@ -17,7 +20,8 @@ def route_api_v1_nodes_list():
 
     .. :quickref: list all Slurm nodes
     """
-    filter = get_filter_from_request_args(["cluster_name"])
+
+    filter = get_filter_cluster_name(request.args.get("cluster_name", None))
 
     D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
     if D_user is None:
@@ -39,7 +43,10 @@ def route_api_v1_nodes_one():
 
     .. :quickref: list one Slurm node
     """
-    filter = get_filter_from_request_args(["cluster_name", "name"])
+
+    f0 = get_filter_name(request.args.get("name", None))
+    f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
+    filter = combine_all_mongodb_filters(f0, f1)
 
     D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
     if D_user is None:

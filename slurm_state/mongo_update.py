@@ -1,9 +1,9 @@
 import os, time
-from .mongo_client import get_mongo_client
+from slurm_state.mongo_client import get_mongo_client
 from pymongo import UpdateOne
 import json
 import zoneinfo
-from .extra_filters import (
+from slurm_state.extra_filters import (
     is_allocation_related_to_mila,
     extract_username_from_slurm_fields,
 )
@@ -58,7 +58,7 @@ def slurm_job_to_clockwork_job(slurm_job: dict):
         "slurm": slurm_job,
         "cw": {
             "cc_account_username": None,
-            "mila_account_username": None,
+            "mila_cluster_username": None,
             "mila_email_username": None,
         },
         "user": {},
@@ -83,19 +83,19 @@ def infer_user_accounts(clockwork_job: dict[dict]):
     # At that point in the postprocessing, we have stripped
     # away the "(428397423)" part.
     if clockwork_job["slurm"]["cluster_name"] == "mila" and clockwork_job["slurm"].get(
-        "mila_account_username", ""
+        "mila_cluster_username", ""
     ) in ["", "nobody"]:
         guessed = extract_username_from_slurm_fields(clockwork_job["slurm"])
         if guessed == "unknown":
             # let's set that as "nobody" to be more consistent
             guessed = "nobody"
-        clockwork_job["slurm"]["mila_account_username"] = guessed
+        clockwork_job["slurm"]["mila_cluster_username"] = guessed
 
     # At this point, `clockwork_job["cw"]` is a dict with three fields,
     # all of which are blank. We can fill in one of those blanks
     # based on the values from `clockwork_job["slurm"]`,
     # and leave the other ones empty for now.
-    for k in ["cc_account_username", "mila_account_username", "mila_email_username"]:
+    for k in ["cc_account_username", "mila_cluster_username", "mila_email_username"]:
         if clockwork_job["slurm"].get(k, "") not in ["", None]:
             clockwork_job["cw"][k] = clockwork_job["slurm"][k]
 

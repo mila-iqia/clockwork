@@ -13,15 +13,8 @@ def test_get_nodes_list(mtclient, fake_data):
 
     assert len(LD_nodes) == len(fake_data["nodes"])
 
-    S_names_A = set([D_node["name"] for D_node in LD_nodes])
-    S_names_B = set([D_node["name"] for D_node in fake_data["nodes"]])
-    # S_names_B = set([
-    #    'ci-computenode', 'cn-a001', 'cn-a002', 'cn-a003', 'cn-a004', 'cn-a005', 'cn-a006',
-    #    'cn-a007', 'cn-a008', 'cn-a009', 'blg4101', 'blg4102', 'blg4103', 'blg4104', 'blg4105',
-    #    'blg4106', 'blg4107', 'blg4108', 'blg4109', 'blg4110', 'gra1', 'gra2', 'gra3', 'gra4',
-    #    'gra5', 'gra6', 'gra7', 'gra8', 'gra9', 'gra10', 'cdr2', 'cdr3', 'cdr4', 'cdr5', 'cdr6',
-    #    'cdr25', 'cdr26', 'cdr27', 'cdr28', 'cdr29'])
-
+    S_names_A = set([D_node["slurm"]["name"] for D_node in LD_nodes])
+    S_names_B = set([D_node["slurm"]["name"] for D_node in fake_data["nodes"]])
     assert S_names_A == S_names_B
 
 
@@ -70,7 +63,7 @@ def test_get_nodes_with_filter(mtclient, fake_data, cluster_name):
     LD_original_nodes = [
         D_node
         for D_node in fake_data["nodes"]
-        if D_node["cluster_name"] == cluster_name
+        if D_node["slurm"]["cluster_name"] == cluster_name
     ]
 
     assert len(LD_nodes) == len(LD_original_nodes), (
@@ -80,15 +73,21 @@ def test_get_nodes_with_filter(mtclient, fake_data, cluster_name):
 
     # agree on some ordering so you can zip the lists and have
     # matching elements in the same order
-    LD_nodes = list(sorted(LD_nodes, key=lambda D_node: D_node["name"]))
+    LD_nodes = list(sorted(LD_nodes, key=lambda D_node: D_node["slurm"]["name"]))
     LD_original_nodes = list(
-        sorted(LD_original_nodes, key=lambda D_node: D_node["name"])
+        sorted(LD_original_nodes, key=lambda D_node: D_node["slurm"]["name"])
     )
 
     # compare all the dicts one by one
     for (D_node, D_original_node) in zip(LD_nodes, LD_original_nodes):
-        for k in D_original_node:
-            assert D_node[k] == D_original_node[k]
+        for k1 in D_original_node:
+            assert k1 in ["slurm", "cw"]
+            assert k1 in D_node, f"{D_node.keys()}"
+            for k2 in D_original_node[k1]:
+                assert k2 in D_node[k1], f"{D_node[k1].keys()}"
+                assert (
+                    D_node[k1][k2] == D_original_node[k1][k2]
+                ), f"{D_node}\n{D_original_node}"
 
     # S_names_A = set([D_node['name'] for D_node in LD_nodes])
     # S_names_B = set([D_node['name'] for D_node in fake_data['nodes'] if D_node["cluster_name"] == cluster_name])
@@ -113,13 +112,13 @@ def test_get_nodes_one(mtclient, fake_data, want_valid_name, want_valid_cluster_
     expected_match_to_be_found = True
     filter = {}
     if want_valid_name:
-        filter["name"] = valid_D_node["name"]
+        filter["name"] = valid_D_node["slurm"]["name"]
     else:
         filter["name"] = get_random_string()
         expected_match_to_be_found = False
     #
     if want_valid_cluster_name == True:
-        filter["cluster_name"] = valid_D_node["cluster_name"]
+        filter["cluster_name"] = valid_D_node["slurm"]["cluster_name"]
     elif want_valid_cluster_name is None:
         # we'll skip that argument so it doesn't influence
         # whether we'll find successfully or not
@@ -130,8 +129,12 @@ def test_get_nodes_one(mtclient, fake_data, want_valid_name, want_valid_cluster_
 
     found_D_node = mtclient.nodes_one(**filter)
     if expected_match_to_be_found:
-        for k in valid_D_node:
-            assert valid_D_node[k] == found_D_node[k]
+        for k1 in valid_D_node:
+            assert k1 in ["slurm", "cw"]
+            assert k1 in found_D_node, f"{found_D_node.keys()}"
+            for k2 in valid_D_node[k1]:
+                assert k2 in found_D_node[k1], f"{found_D_node[k2].keys()}"
+                assert valid_D_node[k1][k2] == found_D_node[k1][k2]
     else:
         # we expect an empty dict
         assert len(found_D_node) == 0

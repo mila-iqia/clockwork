@@ -14,7 +14,9 @@ def test_jobs_list_with_filter(mtclient, fake_data, cluster_name):
     """
     LD_jobs = mtclient.jobs_list(cluster_name=cluster_name)
     LD_original_jobs = [
-        D_job for D_job in fake_data["jobs"] if D_job["cluster_name"] == cluster_name
+        D_job
+        for D_job in fake_data["jobs"]
+        if D_job["slurm"]["cluster_name"] == cluster_name
     ]
 
     assert len(LD_jobs) == len(LD_original_jobs), (
@@ -24,15 +26,19 @@ def test_jobs_list_with_filter(mtclient, fake_data, cluster_name):
 
     # agree on some ordering so you can zip the lists and have
     # matching elements in the same order
-    LD_jobs = list(sorted(LD_jobs, key=lambda D_job: D_job["job_id"]))
-    LD_original_jobs = list(sorted(LD_original_jobs, key=lambda D_job: D_job["job_id"]))
+    LD_jobs = list(sorted(LD_jobs, key=lambda D_job: D_job["slurm"]["job_id"]))
+    LD_original_jobs = list(
+        sorted(LD_original_jobs, key=lambda D_job: D_job["slurm"]["job_id"])
+    )
 
     # compare all the dicts one by one
     for (D_job, D_original_job) in zip(LD_jobs, LD_original_jobs):
-        for k in D_original_job:
-            if k in ["grafana_helpers"]:  # ignore that one
-                continue
-            assert D_job[k] == D_original_job[k]
+        for k1 in D_original_job:
+            assert k1 in ["slurm", "cw", "user"]
+            for k2 in D_original_job[k1]:
+                if k2 in ["best_guess_for_username"]:
+                    continue
+                assert D_job[k1][k2] == D_original_job[k1][k2]
 
 
 def test_single_job_at_random(mtclient, fake_data):
@@ -45,15 +51,14 @@ def test_single_job_at_random(mtclient, fake_data):
     # the first one, but the non-deterministic aspect of it is not good
     original_D_job = random.choice(fake_data["jobs"])
 
-    D_job = mtclient.jobs_one(job_id=original_D_job["job_id"])
+    D_job = mtclient.jobs_one(job_id=original_D_job["slurm"]["job_id"])
 
-    for k in original_D_job:
-        # That "grafana_helpers" is just pollution in the original data,
-        # and we're stripping it automatically in clockwork_web, so this
-        # is why we won't see it here.
-        if k in ["grafana_helpers", "best_guess_for_username"]:
-            continue
-        assert D_job[k] == original_D_job[k], f"{D_job}\n{original_D_job}"
+    for k1 in original_D_job:
+        assert k1 in ["slurm", "cw", "user"]
+        for k2 in original_D_job[k1]:
+            if k2 in ["best_guess_for_username"]:
+                continue
+            assert D_job[k1][k2] == original_D_job[k1][k2], f"{D_job}\n{original_D_job}"
 
 
 def test_single_job_missing(mtclient, fake_data):
@@ -61,7 +66,7 @@ def test_single_job_missing(mtclient, fake_data):
     This job entry should be missing from the database.
     """
     # Make sure you pick a random job_id that's not in the database.
-    S_job_ids = set([D_job["job_id"] for D_job in fake_data["jobs"]])
+    S_job_ids = set([D_job["slurm"]["job_id"] for D_job in fake_data["jobs"]])
     while True:
         # let's move towards having all job_id be strings
         job_id = str(int(random.random() * 1e7))

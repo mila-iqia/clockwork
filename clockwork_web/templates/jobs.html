@@ -45,15 +45,15 @@
                 <tbody>
                     {% for D_job in LD_jobs %}
                     <tr>
-                        <td>{{D_job['cluster_name']}}</td>
-                        <td>{{D_job['best_guess_for_username']}}</td>
+                        <td>{{D_job['slurm']['cluster_name']}}</td>
+                        <td>{{D_job['cw']['best_guess_for_username']}}</td>
                         <td>
-                            <a href="/jobs/one?cluster_name={{D_job['cluster_name']}}&job_id={{D_job['job_id']}}">{{D_job['job_id']}}</a>
+                            <a href="/jobs/one?cluster_name={{D_job['slurm']['cluster_name']}}&job_id={{D_job['slurm']['job_id']}}">{{D_job['slurm']['job_id']}}</a>
                         </td>
-                        <td>{{D_job.get("name", "")[0:20]}}</td>
-                        <td>{{D_job["job_state"]}}</td>
-                        <td>{{D_job["start_time_str"]}}</td>
-                        <td>{{D_job["end_time_str"]}}</td>
+                        <td>{{D_job['slurm'].get("name", "")[0:20]}}</td>
+                        <td>{{D_job['slurm']["job_state"]}}</td>
+                        <td>{{D_job['slurm']["start_time"]}}</td>
+                        <td>{{D_job['slurm']["end_time"]}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

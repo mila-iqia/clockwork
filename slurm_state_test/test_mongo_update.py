@@ -57,19 +57,19 @@ def test_fetch_slurm_report():
 def test_slurm_job_to_clockwork_job():
     job = {
         "name": "sh",
-        "mila_account_username": "testuser",
+        "mila_cluster_username": "testuser",
         "cluster_name": "test_cluster",
     }
     cw_job = slurm_job_to_clockwork_job(job)
     assert cw_job == {
         "slurm": {
             "name": "sh",
-            "mila_account_username": "testuser",
+            "mila_cluster_username": "testuser",
             "cluster_name": "test_cluster",
         },
         "cw": {
             "cc_account_username": None,
-            "mila_account_username": "testuser",
+            "mila_cluster_username": "testuser",
             "mila_email_username": None,
         },
         "user": {},

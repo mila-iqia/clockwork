@@ -40,7 +40,7 @@ def authenticate_with_header_basic(s: str):
     # failed that might help attackers. That being said, most accounts aren't very secret
     # because students have their @mila.quebec emails listed online.
 
-    L = list(mc["users"].find({"email": E["email"]}))
+    L = list(mc["users"].find({"google_suite.email": E["email"]}))
     if L:
         # If the user is present, we expect only one entry, but it's not worth
         # shutting down the web server for such an error.
@@ -50,7 +50,7 @@ def authenticate_with_header_basic(s: str):
             )
 
         D_user = L[0]
-        if D_user["clockwork_api_key"] == E["clockwork_api_key"]:
+        if D_user["cw"]["clockwork_api_key"] == E["clockwork_api_key"]:
             # success
             return D_user
         else:

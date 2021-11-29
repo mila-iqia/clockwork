@@ -7,8 +7,6 @@ and rest_routes, which are just fronts for these functions here.
 from flask.globals import current_app
 from clockwork_web.db import get_db
 
-# from clockwork_web.core.jobs_helper import get_filter_cluster_name
-
 
 def get_filter_name(name):
     """
@@ -19,7 +17,7 @@ def get_filter_name(name):
     if name is None:
         return {}
     else:
-        return {"name": name}
+        return {"slurm.name": name}
 
 
 def get_nodes(mongodb_filter: dict = {}) -> list:
@@ -36,5 +34,5 @@ def get_nodes(mongodb_filter: dict = {}) -> list:
 def strip_artificial_fields_from_node(D_node):
     # Returns a copy. Does not mutate the original.
     # Useful because mongodb puts a non-json-serializable "_id" field.
-    fields_to_remove = ["_id"]  # , "grafana_helpers"]
+    fields_to_remove = ["_id"]
     return dict((k, v) for (k, v) in D_node.items() if k not in fields_to_remove)
