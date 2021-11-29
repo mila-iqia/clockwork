@@ -19,8 +19,8 @@ import json
                                 "name": "mario",
                                 "email": "mario@mila.quebec",
                                 "profile_pic": ""},
-            "clockwork": {  "status": "enabled",
-                            "clockwork_api_key": "000aaa"},
+            "cw": { "status": "enabled",
+                    "clockwork_api_key": "000aaa"},
             {"accounts_on_clusters":
                 {
                     "beluga":
@@ -40,6 +40,7 @@ import json
     ]
 """
 
+
 def get_predefined_fake_users(N=20):
     """
     Generate a complete description of users that
@@ -50,42 +51,44 @@ def get_predefined_fake_users(N=20):
     """
 
     L_cc_clusters = ["beluga", "graham", "cedar", "narval"]
-    L_cc_accounts = ["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg",]
+    L_cc_accounts = [
+        "def-patate-rrg",
+        "def-pomme-rrg",
+        "def-cerise-rrg",
+        "def-citron-rrg",
+    ]
 
     def gen_single_user(n):
         status = "disabled" if (n % 10 == 9) else "enabled"
         D_user = {
-            "google_suite": { "id": "%d" % (4000+n),
-                        "name": "google_suite_user%0.2d" % n,
-                        "email": "student%0.2d@mila.quebec" % n,
-                        "profile_pic": ""},
-            "clockwork": {  "status": status,
-                            "clockwork_api_key": "000aaa%0.2d" % n},
-            "accounts_on_clusters":
-                {"mila":
-                    {
-                        "username": "milauser%0.2d" % n,
-                        "uid": "%d" % (10000 + n),
-                        "account": "mila",
-                        "cluster_name": "mila",  # redundant
-                    }
+            "google_suite": {
+                "id": "%d" % (4000 + n),
+                "name": "google_suite_user%0.2d" % n,
+                "email": "student%0.2d@mila.quebec" % n,
+                "profile_pic": "",
+            },
+            "cw": {"status": status, "clockwork_api_key": "000aaa%0.2d" % n},
+            "accounts_on_clusters": {
+                "mila": {
+                    "username": "milauser%0.2d" % n,
+                    "uid": "%d" % (10000 + n),
+                    "account": "mila",
+                    "cluster_name": "mila",  # redundant
                 }
-            }
+            },
+        }
         # then add the entries for all the clusters on CC
-        account = L_cc_accounts[n%2]
+        account = L_cc_accounts[n % 2]
         for cluster_name in L_cc_clusters:
-            D_user["accounts_on_clusters"][cluster_name] = (
-                    {
-                        "username": "ccuser%0.2d" % n,
-                        "uid": "%d" % (10000 + n),
-                        "account": account,
-                        "cluster_name": cluster_name,
-                    })
+            D_user["accounts_on_clusters"][cluster_name] = {
+                "username": "ccuser%0.2d" % n,
+                "uid": "%d" % (10000 + n),
+                "account": account,
+                "cluster_name": cluster_name,
+            }
         return D_user
 
     return [gen_single_user(n) for n in range(N)]
-
-
 
 
 def get_predefined_fake_users_old():
@@ -115,7 +118,9 @@ def get_predefined_fake_users_old():
                 )
 
     for _ in range(M):
-        for __ in range(len(L_cc_clusters)):  # compensate for the other one getting 4x accounts
+        for __ in range(
+            len(L_cc_clusters)
+        ):  # compensate for the other one getting 4x accounts
             account = "mila"
             cluster_name = "mila"
             n = n + 1
@@ -148,5 +153,5 @@ def main(argv):
 
 if __name__ == "__main__":
     import sys
-    main(sys.argv)
 
+    main(sys.argv)

@@ -19,11 +19,19 @@ import json
 
 import numpy as np
 
+
 def get_random_job_name():
     return "somejobname_%d" % np.random.randint(low=0, high=1e6)
 
+
 def get_machine_name(cluster_name, n):
-    return {'mila': 'mil', 'beluga':'blg', 'graham':'grh', 'cedar':'ced', 'narval':'nar'}[cluster_name] + ("%0.4d" % int(n))
+    return {
+        "mila": "mil",
+        "beluga": "blg",
+        "graham": "grh",
+        "cedar": "ced",
+        "narval": "nar",
+    }[cluster_name] + ("%0.4d" % int(n))
 
 
 def get_random_path():
@@ -34,7 +42,7 @@ def get_random_path():
     )
 
 
-def process_line(line:str, D_cluster_account:dict) -> str:
+def process_line(line: str, D_cluster_account: dict) -> str:
     """
     Anonymize the lines from the report.
     This involves doing a hatchet job to some fields
@@ -68,7 +76,11 @@ def process_line(line:str, D_cluster_account:dict) -> str:
             D_cluster_account["uid"],
         )
     if m := re.match(r"(.+)(Account=.+?)\s(.+)", line):
-        return "%sAccount=%s %s\n" % (m.group(1), D_cluster_account["account"], m.group(3))
+        return "%sAccount=%s %s\n" % (
+            m.group(1),
+            D_cluster_account["account"],
+            m.group(3),
+        )
     if m := re.match(r"(\s*)(Command=.+?)\s*", line):
         return "%sCommand=%s\n" % (m.group(1), get_random_path())
     if m := re.match(r"(\s*)(WorkDir=.+?)\s*", line):
@@ -139,10 +151,11 @@ def main(argv):
 
     # Sanity check: let's make sure the cluster we're talking about
     # was mentioned in some of the users from LD_users.
-    LD_users_on_that_cluster = list(filter(
-        lambda D_user: args.cluster_name in D_user["accounts_on_clusters"],
-        LD_users
-    ))
+    LD_users_on_that_cluster = list(
+        filter(
+            lambda D_user: args.cluster_name in D_user["accounts_on_clusters"], LD_users
+        )
+    )
     assert len(LD_users_on_that_cluster)
     D_user = None
     nbr_processed = 0
@@ -153,7 +166,9 @@ def main(argv):
                 # pick a new user every time we hit an empty line
                 if D_user is None or re.match(r"^\s*$", line):
                     D_user = np.random.choice(LD_users_on_that_cluster)
-                    D_cluster_account = D_user["accounts_on_clusters"][args.cluster_name]
+                    D_cluster_account = D_user["accounts_on_clusters"][
+                        args.cluster_name
+                    ]
                     nbr_processed = nbr_processed + 1
                     if args.keep and (args.keep <= nbr_processed - 1):
                         quit()

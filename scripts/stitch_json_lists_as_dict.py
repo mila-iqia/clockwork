@@ -14,9 +14,10 @@ python3 stitch_json_lists_as_dict.py \
 import os, sys
 import json
 
+
 def main(argv):
 
-    assert 4 <= len(argv)    
+    assert 4 <= len(argv)
     assert len(argv[1:]) % 2 == 1
 
     D_results = {}
@@ -31,7 +32,8 @@ def main(argv):
         json.dump(D_results, f, indent=2)
         print(f"Wrote {output_path}.")
 
+
 if __name__ == "__main__":
     import sys
-    main(sys.argv)
 
+    main(sys.argv)

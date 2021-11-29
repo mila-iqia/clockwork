@@ -43,7 +43,6 @@ from clockwork_web.core.jobs_helper import (
     infer_best_guess_for_username,
 )
 from clockwork_web.core.common import (
-    get_filter_from_request_args,
     get_mila_email_username,
 )
 
@@ -92,7 +91,10 @@ def route_list():
 
     # TODO : You might want to stop doing the `infer_best_guess_for_username`
     # at some point to design something better. See CW-81.
-    LD_jobs = [infer_best_guess_for_username(strip_artificial_fields_from_job(D_job)) for D_job in LD_jobs]
+    LD_jobs = [
+        infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
+        for D_job in LD_jobs
+    ]
 
     for D_job in LD_jobs:
         if D_job is None:
@@ -113,7 +115,7 @@ def route_one():
     but otherwise it might require specifying the cluster name.
     Note that this returns a page with only the "slurm" component
     because we had troubles using the templates correctly with dicts.
-    
+
     Besides, it's unclear what we're supposed to do with the extra
     "cw" and "user" fields when it comes to displaying them as html.
     See CW-82.
@@ -143,7 +145,7 @@ def route_one():
         )
 
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
-    D_job = infer_best_guess_for_username(D_job) # see CW-81
+    D_job = infer_best_guess_for_username(D_job)  # see CW-81
 
     # let's sort alphabetically by keys
     LP_single_job = list(sorted(D_job["slurm"].items(), key=lambda e: e[0]))
@@ -175,6 +177,7 @@ def route_interactive():
 # does that.
 # Let's leave it for now and mark it for removal later.
 # See CW-83.
+
 
 @flask_api.route("/single_job/<job_id>")
 @login_required

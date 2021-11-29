@@ -83,13 +83,16 @@ def populate_fake_data(db_insertion_point, json_file=None):
         for (k, sub, id_field) in [
             ("users", "google_suite", "id"),
             ("jobs", "slurm", "job_id"),
-            ("nodes", "slurm", "name")]:
+            ("nodes", "slurm", "name"),
+        ]:
             if k in E:
                 for e in E[k]:
                     # This is complicated, but it's just about a way to say something like
                     # that we want to remove {"slurm.job_id", e["slurm"]["job_id"]},
                     # and the weird notation comes from the fact that mongodb filters use dots,
                     # but not the original python.
-                    db_insertion_point[k].delete_many({f"{sub}.{id_field}": e[sub][id_field]})
+                    db_insertion_point[k].delete_many(
+                        {f"{sub}.{id_field}": e[sub][id_field]}
+                    )
 
     return cleanup_function
