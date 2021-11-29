@@ -13,7 +13,8 @@ export EXTERNAL_FLASK_RUN_PORT=15000
 export CLOCKWORK_UID=$(id -u)
 export CLOCKWORK_GID=$(id -g)
 
-export clockwork_tools_test_EMAIL="mario@mila.quebec"
-export clockwork_tools_test_CLOCKWORK_API_KEY="000aaa"
+# Those hardcoded values are taken from test_common/fake_data.json.
+export clockwork_tools_test_EMAIL="student01@mila.quebec"
+export clockwork_tools_test_CLOCKWORK_API_KEY="000aaa01"
 export clockwork_tools_EMAIL=${clockwork_tools_test_EMAIL}
 export clockwork_tools_API_KEY=${clockwork_tools_test_CLOCKWORK_API_KEY}

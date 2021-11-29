@@ -15,12 +15,12 @@ import json
     leads to awkward/suboptimal requests for MongoDB.
     [
         {
-            "gsuite": { "id": "009643",
-                        "name": "mario",
-                        "email": "mario@mila.quebec",
-                        "profile_pic": ""},
-            "cw": { "status": "enabled",
-                    "clockwork_api_key": "000aaa"},
+            "google_suite": {   "id": "009643",
+                                "name": "mario",
+                                "email": "mario@mila.quebec",
+                                "profile_pic": ""},
+            "clockwork": {  "status": "enabled",
+                            "clockwork_api_key": "000aaa"},
             {"accounts_on_clusters":
                 {
                     "beluga":
@@ -44,19 +44,23 @@ def get_predefined_fake_users(N=20):
     """
     Generate a complete description of users that
     we will add to our db["users"] collection.
+
+    Every 10th user is going to have a disabled account
+    because that's something that we'll want to test.
     """
 
     L_cc_clusters = ["beluga", "graham", "cedar", "narval"]
     L_cc_accounts = ["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg",]
 
     def gen_single_user(n):
+        status = "disabled" if (n % 10 == 9) else "enabled"
         D_user = {
-            "gsuite": { "id": "%d" % (4000+n),
-                        "name": "gsuiteuser%0.2d" % n,
+            "google_suite": { "id": "%d" % (4000+n),
+                        "name": "google_suite_user%0.2d" % n,
                         "email": "student%0.2d@mila.quebec" % n,
                         "profile_pic": ""},
-            "cw": { "status": "enabled",
-                    "clockwork_api_key": "000aaa%0.2d" % n},
+            "clockwork": {  "status": status,
+                            "clockwork_api_key": "000aaa%0.2d" % n},
             "accounts_on_clusters":
                 {"mila":
                     {

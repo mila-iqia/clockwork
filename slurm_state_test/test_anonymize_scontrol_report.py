@@ -48,9 +48,9 @@ JobId=01234567 JobName=secret_01234567
 
 def test_process_line_node():
 
-    # somewhat irrelevant for nodes, but `process_line`
-    # doesn't really know what it's processing
-    D_user = {}
+    D_user = {
+        "cluster_name": "mila",
+    }
 
     L_lines = """
 NodeName=secret4104 Arch=x86_64 CoresPerSocket=2

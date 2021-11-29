@@ -32,23 +32,23 @@
         <div class="col s9" id="changeme">
 
             <!-- We clearly don't have half as much information as we might want to list here. -->
-            
+
             <table class="striped">
                 <thead>
                     <tr>
                         <th>cluster_name</th>
                         <th>name</th>
-                        <th>cpus</th>
-                        <th>gres</th>
+                        <th>alloc_tres</th>
+                        <th>cfg_tres</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for D_node in LD_nodes %}
                     <tr>
-                        <td>{{D_node['cluster_name']}}</td>
-                        <td>{{D_node['name']}}</td>
-                        <td>{{D_node['cpus']}}</td>
-                        <td>{{D_node['gres']}}</td>
+                        <td>{{D_node['slurm']['cluster_name']}}</td>
+                        <td>{{D_node['slurm']['name']}}</td>
+                        <td>{{D_node['slurm']['alloc_tres']}}</td>
+                        <td>{{D_node['slurm']['cfg_tres']}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
