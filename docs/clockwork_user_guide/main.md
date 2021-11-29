@@ -25,10 +25,28 @@ of the clusters.
 
 [todo : expand this section]
 
+## notebooks
+
+[TODO : Section on Jupyter Notebooks with ]
+
+## information on hardware
+
+The REST API exposes specs for the hardware installed on the clusters.
+This gives users quick access to basic back-of-the-envelope estimates
+about the hardware available. For example, we can estimate how many teraflops
+of FP32 we have for all our GPUs.
+
+There are also methods to expose some of the storage quotas on filesystems
+to allow Mila members to see if they are going to run out of space.
+That information is also available online at [docs.mila.quebec](https://docs.mila.quebec)
+but we exposed it through a programmatic interface through Clockwork's REST API.
+
+[TODO : Expand.]
+
 ## people
 
 The REST API also exposes information that's available publicly
 on the Mila web site in a way that's more convenient for python users.
 
-[todo : expand this section]
+[TODO : Expand.]
 
