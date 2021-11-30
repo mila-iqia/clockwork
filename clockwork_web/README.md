@@ -1,15 +1,8 @@
 # Clockwork cluster web server
 
-## How to deply to Google Cloud
-
-Create `app.yaml` from `missing_secrets_app.yaml`.
-Put the missing secrets in there, pertaining to Atlas Mongodb and OAuth.
-
-```bash
-gcloud app deploy gcloud_app.yaml
-```
-
 ## How to run locally (no authentication)
+
+[THIS IS OBSOLETE.]
 
 You can run this with your own python environment, either with
 your own instance of a mongodb server, or with the same one
@@ -41,13 +34,3 @@ export LOGIN_DISABLED=True
 # outside
 python3 -m flask run --host=0.0.0.0
 ```
-
-## How to run at Mila (with authentication)
-
-This is work in progress.
-
-- set up DNS server
-- set up nginx
-- set up Google authentication stuff
-- make decisions about your mongodb instance
-- make decisions about using Docker compose, running directly in the virtual machine, or maybe even having a Kubernetes setup
