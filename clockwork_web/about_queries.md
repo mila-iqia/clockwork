@@ -1,5 +1,6 @@
-
 # rules for queries in mongodb
+
+[TODO : We need to revisit the design around the timestamps in the database. See CW-86.]
 
 ## which timestamp to use
 
@@ -82,7 +83,6 @@ we're using an OR clause with the four tests.
 ```python
 {'$or': [   {'mila_cluster_username': user}, 
             {'cc_account_username': user}, 
-            {'mila_email_username': user}, 
-            {'mila_user_account': user}
+            {'mila_email_username': user}
 ]}
 ```

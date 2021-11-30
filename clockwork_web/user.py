@@ -1,6 +1,9 @@
 """
 Determines what the properties of the "User" are going to be.
 
+TODO : This is broken but we don't currently use the web interface
+so we don't interact with it that way. See CW-85.
+
 TODO : There are rough edges here because of decisions pertaining
 to the correct behavior to have when encountering errors.
 For example, what are we supposed to do when we find two instances
