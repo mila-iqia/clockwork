@@ -105,9 +105,10 @@ def test_list_invalid_time(client):
     """
     Make a request to /jobs/list.
     """
-    response = client.get(f"/jobs/list?time=this_is_not_a_valid_time")
+    response = client.get(f"/jobs/list?relative_time=this_is_not_a_valid_relative_time")
     assert "text/html" in response.content_type
 
     assert (
-        b"cannot be cast as a valid integer: this_is_not_a_valid_time" in response.data
+        b"cannot be cast as a valid integer: this_is_not_a_valid_relative_time"
+        in response.data
     )

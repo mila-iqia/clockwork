@@ -1,4 +1,5 @@
 import re
+import time
 
 from flask import request, make_response
 from flask.json import jsonify
@@ -6,12 +7,11 @@ from .authentication import authenticate_with_header_basic
 
 from clockwork_web.core.jobs_helper import (
     get_filter_user,
-    get_filter_time,
+    get_filter_after_end_time,
     get_filter_cluster_name,
     get_filter_job_id,
     combine_all_mongodb_filters,
     strip_artificial_fields_from_job,
-    get_mongodb_filter_from_query_filter,
     get_jobs,
     infer_best_guess_for_username,
 )
@@ -35,15 +35,21 @@ def route_api_v1_jobs_list():
 
     f0 = get_filter_user(request.args.get("user", None))
 
-    time1 = request.args.get("time", None)
-    try:
-        f1 = get_filter_time(time1)
-    except Exception as inst:
-        print(inst)
-        return (
-            jsonify(f"Field 'time' cannot be cast as a valid integer: {time1}."),
-            400,
-        )  # bad request
+    time1 = request.args.get("relative_time", None)
+    if time1 is None:
+        f1 = {}
+    else:
+        try:
+            time1 = float(time1)
+            f1 = get_filter_after_end_time(end_time=time.time() - time1)
+        except Exception as inst:
+            print(inst)
+            return (
+                jsonify(
+                    f"Field 'relative_time' cannot be cast as a valid float: {time1}."
+                ),
+                400,
+            )  # bad request
 
     f2 = get_filter_cluster_name(request.args.get("cluster_name", None))
 
