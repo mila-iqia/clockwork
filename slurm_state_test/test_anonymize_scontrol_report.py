@@ -5,7 +5,7 @@ def test_process_line_job():
 
     D_user = {
         "username": "some_user",
-        "uid": "10000",
+        "uid": 10000,
         "account": "mila",
         "cluster_name": "mila",
     }
