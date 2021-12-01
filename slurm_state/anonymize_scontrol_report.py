@@ -51,7 +51,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     D_cluster_account looks like
     {
         "username": "ccuser040",
-        "uid": "10040",
+        "uid": 10040,
         "account": "def-pomme-rrg",
         "cluster_name": "beluga",
     }
@@ -66,7 +66,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
             get_random_job_name(),
         )
     if m := re.match(r"(\s*)(UserId=.+?)\s(GroupId=.+?)\s(MCS_label=.+?)\s*", line):
-        return "%sUserId=%s(%s) GroupId=%s(%s) MCS_label=N/A\n" % (
+        return "%sUserId=%s(%d) GroupId=%s(%d) MCS_label=N/A\n" % (
             m.group(1),
             D_cluster_account["username"],
             D_cluster_account["uid"],

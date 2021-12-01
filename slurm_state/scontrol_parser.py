@@ -57,12 +57,17 @@ def user_id_splitting(f, ctx, res):
     # Note that `ctx["local_username_referenced_by_parent_as"]`
     # is something like "cc_account_username"
     res[ctx["local_username_referenced_by_parent_as"]] = m.group(1)
-    res["uid"] = m.group(2)
+    res["uid"] = int(m.group(2))
 
 
 def id(f, ctx):
     """Return the field as-is."""
     return f
+
+
+def id_int(f, ctx):
+    """Return the field after casting as integer."""
+    return int(f)
 
 
 def maybe_null_string_to_none_object(f, ctx):
@@ -92,10 +97,11 @@ def timelimit(f, ctx):
 def timestamp(f, ctx):
     # We add the timezone information for the timestamp
     if f == "Unknown":
-        return f
+        return None
     date_naive = datetime.datetime.strptime(f, "%Y-%m-%dT%H:%M:%S")
     date_aware = date_naive.replace(tzinfo=ctx["timezone"])
-    return date_aware.isoformat()
+    return date_aware.timestamp()
+    # return date_aware.isoformat()
 
 
 # This map should contain all the fields that come from parsing a job entry
@@ -140,6 +146,19 @@ JOB_FIELD_MAP = {
     "LastSchedEval": ignore,
     "Partition": rename(id, "partition"),
     "AllocNode:Sid": ignore,
+    # All the fields pertaining to hardware allocated,
+    # added with enthusiasm for CW-87. We can decide
+    # later to remove some of those.
+    "TRES": rename(id, "TRES"),
+    "NumNodes": rename(id, "num_nodes"),
+    "NumCPUs": rename(id, "num_cpus"),
+    "NumTasks": rename(id, "num_tasks"),
+    "CPUs/Task": rename(id, "cpus_per_task"),
+    "CpusPerTres": rename(id, "cpus_per_tres"),
+    "TresPerNode": rename(id, "tres_per_node"),
+    "TresPerJob": rename(id, "tres_per_job"),
+    "TresPerTask": rename(id, "tres_per_task"),
+    "MemPerTres": rename(id, "mem_per_tres"),
     # We can do these one maybe
     "ReqNodeList": ignore,
     "ExcNodeList": ignore,
@@ -147,13 +166,8 @@ JOB_FIELD_MAP = {
     "NodeList": rename(maybe_null_string_to_none_object, "nodes"),
     "SchedNodeList": ignore,
     "BatchHost": ignore,
-    "NumNodes": ignore,
-    "NumCPUs": ignore,
-    "NumTasks": ignore,
-    "CPUs/Task": ignore,
     "ReqB:S:C:T": ignore,
     # maybe not?
-    "TRES": ignore,
     "Socks/Node": ignore,
     "NtasksPerN:B:S:C": ignore,
     "CoreSpec": ignore,
@@ -163,30 +177,24 @@ JOB_FIELD_MAP = {
     "MinTmpDiskNode": ignore,
     "Features": ignore,
     "DelayBoot": ignore,
-    "Reservation": rename(id, "resv_name"),
+    "Reservation": rename(id, "reservation"),
     "OverSubscribe": ignore,
     "Contiguous": ignore,
     "Licenses": ignore,
     "Network": ignore,
-    # this is probably not right
     "Command": rename(maybe_null_string_to_none_object, "command"),
     "WorkDir": rename(id, "work_dir"),
     "StdErr": rename(id, "stderr"),
     "StdIn": rename(id, "stdin"),
     "StdOut": rename(id, "stdout"),
     "Power": ignore,
-    "CpusPerTres": ignore,
     # maybe not?
-    "TresPerNode": ignore,
     "MailUser": ignore,
     "MailType": ignore,
     # seems like "Comment" pops up on other clusters
     "Comment": rename(maybe_null_string_to_none_object, "comment"),
-    "TresPerJob": ignore,
-    "Switches": ignore,
-    "TresPerTask": ignore,
-    "MemPerTres": ignore,
     "CPU_max_freq": ignore,
+    "Switches": ignore,
 }
 
 
@@ -254,7 +262,7 @@ NODE_FIELD_MAP = {
     "NodeHostName": ignore,
     "Version": ignore,
     "OS": ignore,
-    "RealMemory": rename(id, "memory"),
+    "RealMemory": rename(id_int, "memory"),
     "AllocMem": ignore,
     "FreeMem": ignore,
     "Sockets": ignore,
