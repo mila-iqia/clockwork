@@ -45,7 +45,9 @@ def test_fetch_slurm_report():
             "job_state": "PENDING",
             "exit_code": "0:0",
             "time_limit": 604800,
-            "submit_time": datetime.fromisoformat("2020-12-15T16:44:08-05:00").timestamp(),
+            "submit_time": datetime.fromisoformat(
+                "2020-12-15T16:44:08-05:00"
+            ).timestamp(),
             "start_time": None,
             "end_time": None,
             "partition": "long",

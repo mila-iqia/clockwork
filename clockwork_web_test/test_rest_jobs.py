@@ -13,6 +13,7 @@ Lots of details about these tests depend on the particular values that we put in
 
 """
 
+import time
 from pprint import pprint
 import random
 import json
@@ -166,12 +167,12 @@ def test_api_list_invalid_username(client, valid_rest_auth_headers):
     assert len(LD_jobs) == 0
 
 
-def test_api_list_invalid_time(client, valid_rest_auth_headers):
+def test_api_list_invalid_relative_time(client, valid_rest_auth_headers):
     """
     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
     """
     response = client.get(
-        f"/api/v1/clusters/jobs/list?time=this_is_not_a_valid_time",
+        f"/api/v1/clusters/jobs/list?relative_time=this_is_not_a_valid_relative_time",
         headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
@@ -179,6 +180,64 @@ def test_api_list_invalid_time(client, valid_rest_auth_headers):
     error_msg = response.get_json()
 
     assert (
-        "Field 'time' cannot be cast as a valid integer: this_is_not_a_valid_time."
+        "Field 'relative_time' cannot be cast as a valid float: this_is_not_a_valid_relative_time."
         in error_msg
+    )
+
+
+def test_api_list_relative_time(client, fake_data, valid_rest_auth_headers):
+    """
+    Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
+
+    Make sure that the job entries returned are those that either than a `None`
+    "end_time" field, or those that have a value that's more recent than the
+    specified value.
+
+    Since we have access to the `fake_data` we can make sure that all the
+    corresponding entries are indeed returned. We can also use that to pick
+    a query value that's sure to return something, because the `fake_data`
+    contains jobs that are static and not very recent (i.e. asking for "everything
+    that ended earlier than an hour ago" would return nothing except jobs
+    that have "end_time" as `None`).
+    """
+
+    L_end_times = list(
+        sorted(
+            [
+                D_job["slurm"]["end_time"]
+                for D_job in fake_data["jobs"]
+                if D_job["slurm"]["end_time"] is not None
+            ]
+        )
+    )
+    N = len(L_end_times)
+    assert 10 <= N
+    # Adding a +1 second because we don't want to balance on the edge
+    # of whether $gt is inclusive or not in mongodb.
+    # This isn't the point, so we add a +1.
+    mid_end_time = L_end_times[N // 2] + 1
+
+    # now let's find the ground truth
+    LD_jobs_ground_truth = [
+        D_job
+        for D_job in fake_data["jobs"]
+        if (D_job["slurm"]["end_time"] is None)
+        or (mid_end_time <= D_job["slurm"]["end_time"])
+    ]
+
+    relative_mid_end_time = time.time() - mid_end_time
+    assert 0 < relative_mid_end_time
+
+    response = client.get(
+        f"/api/v1/clusters/jobs/list?relative_time={relative_mid_end_time}",
+        headers=valid_rest_auth_headers,
+    )
+    assert response.content_type == "application/json"
+    assert response.status_code == 200
+    LD_jobs_results = response.get_json()
+
+    # Compare with ground truth. Let's just compare the "job_id"
+    # of the jobs returned in both situations.
+    assert set([D_job["slurm"]["job_id"] for D_job in LD_jobs_ground_truth]) == set(
+        [D_job["slurm"]["job_id"] for D_job in LD_jobs_results]
     )
