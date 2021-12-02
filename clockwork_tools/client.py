@@ -87,7 +87,7 @@ class ClockworkTools:
     # For endpoints requiring `params` we could use **kwargs instead,
     # but let's use explicit arguments instead.
     def jobs_list(
-        self, user=None, time=None, cluster_name: str = None
+        self, user=None, relative_time=None, cluster_name: str = None
     ) -> list[dict[str, any]]:
         """REST call to api/v1/clusters/jobs/list.
 
@@ -96,7 +96,7 @@ class ClockworkTools:
 
         Args:
             user (str): Name of user. Matches any of the three possible kinds of usernames.
-            time (int): How many seconds to go back in time to list jobs.
+            relative_time (int): How many seconds to go back in time to list jobs.
             cluster_name (str): Name of cluster.
 
         Returns:
@@ -105,7 +105,11 @@ class ClockworkTools:
         """
         endpoint = "api/v1/clusters/jobs/list"
         params = {}
-        for (k, a) in [("user", user), ("time", time), ("cluster_name", cluster_name)]:
+        for (k, a) in [
+            ("user", user),
+            ("relative_time", relative_time),
+            ("cluster_name", cluster_name),
+        ]:
             if a is not None:
                 params[k] = a
         return self._request(endpoint, params)
