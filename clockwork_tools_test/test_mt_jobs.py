@@ -21,6 +21,7 @@ def test_jobs_list_with_filter(mtclient, fake_data, cluster_name):
     """
     validator = helper_jobs_list_with_filter(fake_data, cluster_name=cluster_name)
     LD_jobs = mtclient.jobs_list(cluster_name=cluster_name)
+    validator(LD_jobs)
 
 
 @pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
