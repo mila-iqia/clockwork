@@ -18,8 +18,9 @@ from logging import error
 import os
 import json
 import random
+import string
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for, session
 
 from oauthlib.oauth2 import WebApplicationClient
 import requests
@@ -72,13 +73,17 @@ def route_index():
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
+    state = ''.join(random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=20))
+
     # Use library to construct the request for login and provide
     # scopes that let you retrieve user's profile from Google
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
         redirect_uri=request.base_url + "callback",
         scope=["openid", "email", "profile"],
+        state=state
     )
+    session['state'] = state
     return redirect(request_uri)
 
 
@@ -98,6 +103,9 @@ def route_callback():
     Returns: Redirects the browser to the index of the page afterwards,
     which will now act differently facing an authenticated user.
     """
+
+    state = session['state']
+
     # Get authorization code Google sent back to you
     code = request.args.get("code")
 
@@ -112,6 +120,7 @@ def route_callback():
         authorization_response=request.url,
         redirect_url=request.base_url,
         code=code,
+        state=state,
     )
     token_response = requests.post(
         token_url,
