@@ -76,9 +76,6 @@ def create_app(extra_config: dict):
     def load_user(user_id):
         user = User.get(user_id)
         # When `user` is None, we return None and that's what `load_user` wants.
-        print(
-            f"In @login_manager.user_loader def load_user(user_id), we have that user.is_authenticated is {user.is_authenticated}. Also, `user is None` is {user is None}."
-        )
         return user
 
     @app.route("/")
