@@ -1,6 +1,8 @@
 from slurm_state.mongo_update import *
 from slurm_state.mongo_client import get_mongo_client
 
+from datetime import datetime
+
 import pytest
 
 
@@ -11,6 +13,7 @@ def test_fetch_slurm_report():
             "slurm_state_test/files/small_scontrol_node",
         )
     )
+
     assert res == [
         {
             "name": "test-node",
@@ -18,7 +21,7 @@ def test_fetch_slurm_report():
             "features": "x86_64,turing,48gb",
             "gres": "gpu:rtx8000:8(S:0-1)",
             "addr": "test-node",
-            "memory": "386619",
+            "memory": 386619,
             "state": "MIXED",
             "cfg_tres": "cpu=80,mem=386619M,billing=136,gres/gpu=8",
             "alloc_tres": "cpu=28,mem=192G,gres/gpu=8",
@@ -37,16 +40,24 @@ def test_fetch_slurm_report():
             "job_id": "1",
             "name": "sh",
             "test_cluster_username": "nobody",
-            "uid": "65535",
+            "uid": 65535,
             "account": "clustergroup",
             "job_state": "PENDING",
             "exit_code": "0:0",
             "time_limit": 604800,
-            "submit_time": "2020-12-15T16:44:08-05:00",
-            "start_time": "Unknown",
-            "end_time": "Unknown",
+            "submit_time": datetime.fromisoformat(
+                "2020-12-15T16:44:08-05:00"
+            ).timestamp(),
+            "start_time": None,
+            "end_time": None,
             "partition": "long",
             "nodes": None,
+            "num_nodes": "1",
+            "num_cpus": "1",
+            "num_tasks": "1",
+            "cpus_per_task": "1",
+            "TRES": "cpu=1,mem=2G,node=1,gres/gpu=1",
+            "tres_per_node": "gpu:titanxp:1",
             "command": None,
             "work_dir": "/home/user",
             "cluster_name": "test_cluster",

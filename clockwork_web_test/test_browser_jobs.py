@@ -16,6 +16,13 @@ Lots of details about these tests depend on the particular values that we put in
 import random
 import json
 import pytest
+from test_common.jobs_test_helpers import (
+    helper_list_relative_time,
+    helper_single_job_missing,
+    helper_single_job_at_random,
+    helper_list_jobs_for_a_given_random_user,
+    helper_jobs_list_with_filter,
+)
 
 
 def test_single_job(client, fake_data):
@@ -56,32 +63,8 @@ def test_list_jobs_for_a_given_random_user(client, fake_data):
     add some tests to make sure we are returning good values there.
     """
 
-    def get_ground_truth(username, LD_jobs):
-        return [
-            D_job
-            for D_job in LD_jobs
-            if username
-            in [
-                D_job["cw"].get("mila_cluster_username", None),
-                D_job["cw"].get("mila_email_username", None),
-                D_job["cw"].get("cc_account_username", None),
-            ]
-        ]
-
-    for retries in range(10):
-        # Select something at random from the database.
-        D_user = random.choice(fake_data["users"])
-        assert D_user["accounts_on_clusters"]
-        D_cluster_account = random.choice(list(D_user["accounts_on_clusters"].values()))
-        username = D_cluster_account["username"]
-        LD_jobs_ground_truth = get_ground_truth(username, fake_data["jobs"])
-        # pick something that's interesting, and not something that should
-        # return empty results, because then this test becomes vacuous
-        if LD_jobs_ground_truth:
-            break
-    assert (
-        LD_jobs_ground_truth
-    ), "Failed to get an interesting test candidate for test_list_jobs_for_a_given_random_user. We hit the safety valve."
+    # the usual validator doesn't work on the html contents
+    _, username = helper_list_jobs_for_a_given_random_user(fake_data)
 
     response = client.get(f"/jobs/list?user={username}")
 
@@ -105,9 +88,13 @@ def test_list_invalid_time(client):
     """
     Make a request to /jobs/list.
     """
-    response = client.get(f"/jobs/list?time=this_is_not_a_valid_time")
+    response = client.get(f"/jobs/list?relative_time=this_is_not_a_valid_relative_time")
     assert "text/html" in response.content_type
 
     assert (
-        b"cannot be cast as a valid integer: this_is_not_a_valid_time" in response.data
+        b"cannot be cast as a valid integer: this_is_not_a_valid_relative_time"
+        in response.data
     )
+
+
+# No equivalent of "test_jobs_list_with_filter" here.

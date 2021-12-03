@@ -33,12 +33,11 @@ flask_api = Blueprint("jobs", __name__)
 
 from clockwork_web.core.jobs_helper import (
     get_filter_user,
-    get_filter_time,
+    get_filter_after_end_time,
     get_filter_cluster_name,
     get_filter_job_id,
     combine_all_mongodb_filters,
     strip_artificial_fields_from_job,
-    get_mongodb_filter_from_query_filter,
     get_jobs,
     infer_best_guess_for_username,
 )
@@ -60,29 +59,33 @@ def route_index():
 @login_required
 def route_list():
     """
-    Can take optional args "cluster_name", "user", "time".
+    Can take optional args "cluster_name", "user", "relative_time".
 
     "user" refers to any of the three alternatives to identify a user,
     and it will many any of them.
-    "time" refers to how many seconds to go back in time to list jobs.
+    "relative_time" refers to how many seconds to go back in time to list jobs.
 
     .. :quickref: list all Slurm job as formatted html
     """
 
     f0 = get_filter_user(request.args.get("user", None))
 
-    time1 = request.args.get("time", None)
-    try:
-        f1 = get_filter_time(time1)
-    except Exception as inst:
-        print(inst)
-        return (
-            render_template(
-                "error.html",
-                error_msg=f"Field 'time' cannot be cast as a valid integer: {time1}.",
-            ),
-            400,
-        )  # bad request
+    time1 = request.args.get("relative_time", None)
+    if time1 is None:
+        f1 = {}
+    else:
+        try:
+            time1 = float(time1)
+            f1 = get_filter_after_end_time(end_time=time.time() - time1)
+        except Exception as inst:
+            print(inst)
+            return (
+                render_template(
+                    "error.html",
+                    error_msg=f"Field 'relative_time' cannot be cast as a valid integer: {time1}.",
+                ),
+                400,
+            )  # bad request
 
     filter = combine_all_mongodb_filters(f0, f1)
 
