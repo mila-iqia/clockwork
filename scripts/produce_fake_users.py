@@ -26,7 +26,7 @@ import json
                     "beluga":
                         {
                             "username": "ccuser040",
-                            "uid": "10040",
+                            "uid": 10040,
                             "account": "def-pomme-rrg",
                             "cluster_name": "beluga",
                         },
@@ -71,7 +71,7 @@ def get_predefined_fake_users(N=20):
             "accounts_on_clusters": {
                 "mila": {
                     "username": "milauser%0.2d" % n,
-                    "uid": "%d" % (10000 + n),
+                    "uid": 10000 + n,
                     "account": "mila",
                     "cluster_name": "mila",  # redundant
                 }
@@ -82,7 +82,7 @@ def get_predefined_fake_users(N=20):
         for cluster_name in L_cc_clusters:
             D_user["accounts_on_clusters"][cluster_name] = {
                 "username": "ccuser%0.2d" % n,
-                "uid": "%d" % (10000 + n),
+                "uid": 10000 + n,
                 "account": account,
                 "cluster_name": cluster_name,
             }
@@ -111,7 +111,7 @@ def get_predefined_fake_users_old():
                 LD_users.append(
                     {
                         "username": "ccuser%0.2d" % n,
-                        "uid": "%d" % (10000 + n),
+                        "uid": 10000 + n,
                         "account": account,
                         "cluster_name": cluster_name,
                     }
@@ -127,7 +127,7 @@ def get_predefined_fake_users_old():
             LD_users.append(
                 {
                     "username": "milauser%0.2d" % n,
-                    "uid": "%d" % (10000 + n),
+                    "uid": 10000 + n,
                     "account": "mila",
                     "cluster_name": "mila",
                 }

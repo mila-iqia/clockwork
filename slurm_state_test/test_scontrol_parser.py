@@ -2,6 +2,7 @@ import pytest
 from io import StringIO
 from slurm_state.scontrol_parser import *
 import zoneinfo
+from datetime import datetime
 
 
 def test_gen_dicts_2fields():
@@ -113,6 +114,10 @@ def test_id():
     assert id("1", None) == "1"
 
 
+def test_id_int():
+    assert id_int("1", None) == 1
+
+
 def test_user_id_splitting():
 
     d = {}
@@ -122,7 +127,7 @@ def test_user_id_splitting():
         d,
     )
     assert d["cc_account_username"] == "luigi"
-    assert d["uid"] == "633819"
+    assert d["uid"] == 633819
 
 
 def test_maybe_null_string():
@@ -144,14 +149,26 @@ def test_timestamp():
 
     ctx = {}
     ctx["timezone"] = zoneinfo.ZoneInfo("America/Montreal")
-    assert timestamp("2021-12-24T12:34:56", ctx) == "2021-12-24T12:34:56-05:00"
-    assert timestamp("2021-06-24T12:34:56", ctx) == "2021-06-24T12:34:56-04:00"
+    assert (
+        timestamp("2021-12-24T12:34:56", ctx)
+        == datetime.fromisoformat("2021-12-24T12:34:56-05:00").timestamp()
+    )
+    assert (
+        timestamp("2021-06-24T12:34:56", ctx)
+        == datetime.fromisoformat("2021-06-24T12:34:56-04:00").timestamp()
+    )
 
     ctx["timezone"] = zoneinfo.ZoneInfo("America/Vancouver")
-    assert timestamp("2021-12-24T12:34:56", ctx) == "2021-12-24T12:34:56-08:00"
-    assert timestamp("2021-06-24T12:34:56", ctx) == "2021-06-24T12:34:56-07:00"
+    assert (
+        timestamp("2021-12-24T12:34:56", ctx)
+        == datetime.fromisoformat("2021-12-24T12:34:56-08:00").timestamp()
+    )
+    assert (
+        timestamp("2021-06-24T12:34:56", ctx)
+        == datetime.fromisoformat("2021-06-24T12:34:56-07:00").timestamp()
+    )
 
-    assert timestamp("Unknown", ctx) == "Unknown"
+    assert timestamp("Unknown", ctx) == None
 
 
 def test_job_parser():

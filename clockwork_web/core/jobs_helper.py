@@ -51,19 +51,26 @@ def get_filter_user(user):
             return {}
 
 
-def get_filter_time(time0):
+def get_filter_after_end_time(end_time):
     """
-    We're calling the argument "time0" because "time" is already
-    a python module, and we're using it in this very function.
+    Returns all the matches that either don't have
+    an entry for "end_time" (i.e. they're waiting to be
+    scheduled or they're running now), or the ones
+    that have an "end_time" that's more recent than the
+    `end_time` argument.
+
+    The `end_time` argument is usually something like
+    `int(time.time() - 3600)` in order to get all the
+    entries dating from an hour ago or more recent than that.
     """
-    if time0 is None:
+    if end_time is None:
         return {}
     else:
-        # This can throw exceptions when "time0" is invalid.
+        # This can throw exceptions when "end_time" is invalid.
         return {
             "$or": [
-                {"slurm.end_time": {"$gt": int(time.time() - int(time0))}},
-                {"slurm.end_time": 0},
+                {"slurm.end_time": {"$gt": end_time}},
+                {"slurm.end_time": None},
             ]
         }
 
@@ -80,26 +87,6 @@ def combine_all_mongodb_filters(*mongodb_filters):
         return non_empty_mongodb_filters[0]
     else:
         return {"$and": list(non_empty_mongodb_filters)}
-
-
-def get_mongodb_filter_from_query_filter(query_filter):
-    """
-    This is the logic that goes from the minimalistic description
-    of what we want, coming from the web front, to produce
-    the specific dict that we send to mongodb in order to retrieve
-    exactly what we want.
-
-    `query_filter` looks like
-        {'time': 3600, 'user': 'all'}
-
-    Please refer to the document "about_queries.md" to read more about
-    the reasoning behing this function. It requires a document just by itself.
-    """
-
-    mongodb_filter_for_user = get_filter_user(query_filter.get("user", None))
-    mongodb_filter_for_time = get_filter_time(query_filter.get("time", None))
-
-    return combine_all_mongodb_filters(mongodb_filter_for_user, mongodb_filter_for_time)
 
 
 def get_jobs(mongodb_filter: dict = {}):
@@ -126,35 +113,37 @@ def infer_best_guess_for_username(D_job):
 
 def strip_artificial_fields_from_job(D_job):
     # Returns a copy. Does not mutate the original.
-    fields_to_remove = ["_id", "grafana_helpers"]
+    fields_to_remove = ["_id"]
     return dict((k, v) for (k, v) in D_job.items() if k not in fields_to_remove)
 
 
-def get_job_state_totals(
-    L_entries,
-    mapping={
-        "PENDING": "PENDING",
-        "RUNNING": "RUNNING",
-        "COMPLETING": "RUNNING",
-        "COMPLETED": "COMPLETED",
-        "OUT_OF_MEMORY": "ERROR",
-        "TIMEOUT": "ERROR",
-        "FAILED": "ERROR",
-        "CANCELLED": "ERROR",
-    },
-):
-    """
-    This function doesn't make much sense if you don't filter anything ahead of time.
-    Otherwise you'll get values for jobs that have been over for very long.
-    """
-
-    # create a table with one entry for each entry
-    mila_user_accounts = set(e["mila_user_account"] for e in L_entries)
-    DD_counts = dict(
-        (mila_user_account, {"PENDING": 0, "RUNNING": 0, "COMPLETED": 0, "ERROR": 0})
-        for mila_user_account in mila_user_accounts
-    )
-    for e in L_entries:
-        DD_counts[e["mila_user_account"]][mapping[e["job_state"]]] += 1
-
-    return DD_counts
+# def get_job_state_totals(
+#     L_entries,
+#     mapping={
+#         "PENDING": "PENDING",
+#         "RUNNING": "RUNNING",
+#         "COMPLETING": "RUNNING",
+#         "COMPLETED": "COMPLETED",
+#         "OUT_OF_MEMORY": "ERROR",
+#         "TIMEOUT": "ERROR",
+#         "FAILED": "ERROR",
+#         "CANCELLED": "ERROR",
+#     },
+# ):
+#     """
+#     This function doesn't make much sense if you don't filter anything ahead of time.
+#     Otherwise you'll get values for jobs that have been over for very long.
+#
+#     2021-12-01 : Note that this function is currently not being used anywhere.
+#     """
+#
+#     # create a table with one entry for each entry
+#     mila_cluster_usernames = set(e["cw"]["mila_cluster_username"] for e in L_entries)
+#     DD_counts = dict(
+#         (mila_cluster_username, {"PENDING": 0, "RUNNING": 0, "COMPLETED": 0, "ERROR": 0})
+#         for mila_cluster_username in mila_cluster_usernames
+#     )
+#     for e in L_entries:
+#         DD_counts[e["mila_cluster_username"]][mapping[e["job_state"]]] += 1
+#
+#     return DD_counts

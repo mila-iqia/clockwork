@@ -13,10 +13,18 @@ Lots of details about these tests depend on the particular values that we put in
 
 """
 
+import time
 from pprint import pprint
 import random
 import json
 import pytest
+from test_common.jobs_test_helpers import (
+    helper_list_relative_time,
+    helper_single_job_missing,
+    helper_single_job_at_random,
+    helper_list_jobs_for_a_given_random_user,
+    helper_jobs_list_with_filter,
+)
 
 
 @pytest.mark.parametrize("cluster_name", ("mila", "beluga", "cedar", "graham"))
@@ -31,34 +39,15 @@ def test_single_job_at_random(client, fake_data, valid_rest_auth_headers, cluste
     making sure that job_id stored as int vs strings doesn't cause issues).
     """
 
-    original_D_job = random.choice(
-        [
-            D_job
-            for D_job in fake_data["jobs"]
-            if D_job["slurm"]["cluster_name"] == cluster_name
-        ]
-    )
+    validator, job_id = helper_single_job_at_random(fake_data, cluster_name)
 
     response = client.get(
-        f"/api/v1/clusters/jobs/one?job_id={original_D_job['slurm']['job_id']}",
+        f"/api/v1/clusters/jobs/one?job_id={job_id}",
         headers=valid_rest_auth_headers,
     )
     assert "application/json" in response.content_type
     D_job = response.json
-
-    for k1 in original_D_job:
-        if k1 not in D_job:
-            print(f"Missing key {k1} from fetched D_job.")
-            pprint(original_D_job)
-            pprint(D_job)
-        else:
-            for k2 in original_D_job[k1]:
-                if k2 not in D_job:
-                    print(f"Missing key {k2} from fetched D_job[{k1}].")
-                    pprint(original_D_job)
-                    pprint(D_job)
-                else:
-                    assert D_job[k1][k2] == original_D_job[k1][k2], (k1, k2)
+    validator(D_job)
 
 
 def test_single_job_missing(client, fake_data, valid_rest_auth_headers):
@@ -68,19 +57,13 @@ def test_single_job_missing(client, fake_data, valid_rest_auth_headers):
     This job entry should be missing from the database.
     """
 
-    # Make sure you pick a random job_id that's not in the database.
-    S_job_ids = set([D_job["slurm"]["job_id"] for D_job in fake_data["jobs"]])
-    while True:
-        job_id = "absent_job_%d" % int(random.random() * 1e7)
-        if job_id not in S_job_ids:
-            break
-
+    validator, job_id = helper_single_job_missing(fake_data)
     response = client.get(
         f"/api/v1/clusters/jobs/one?job_id={job_id}", headers=valid_rest_auth_headers
     )
     assert "application/json" in response.content_type
     D_job = response.json  # no `json()` here, just `json`
-    assert D_job == {}
+    validator(D_job)
 
 
 def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_headers):
@@ -96,66 +79,21 @@ def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_he
     can list the jobs for that user.
     """
 
-    def get_ground_truth(username, LD_jobs):
-        return [
-            D_job
-            for D_job in LD_jobs
-            if username
-            in [
-                D_job["cw"].get("mila_cluster_username", None),
-                D_job["cw"].get("mila_email_username", None),
-                D_job["cw"].get("cc_account_username", None),
-            ]
-        ]
-
-    # Select something at random from the database, already populated
-    # by the fake_data, in order to construct a good request.
-
-    # let's avoid using a `while True` structure in a test
-    for attempts in range(10):
-        D_user = random.choice(fake_data["users"])
-        assert D_user["accounts_on_clusters"]
-        D_cluster_account = random.choice(list(D_user["accounts_on_clusters"].values()))
-        username = D_cluster_account["username"]
-        LD_jobs_ground_truth = get_ground_truth(username, fake_data["jobs"])
-        # pick something that's interesting, and not something that should
-        # return empty results, because then this test becomes vacuous
-        if LD_jobs_ground_truth:
-            break
-    assert (
-        LD_jobs_ground_truth
-    ), "Failed to get an interesting test candidate for test_api_list_jobs_for_a_given_random_user. We hit the safety valve."
+    validator, username = helper_list_jobs_for_a_given_random_user(fake_data)
 
     response = client.get(
         f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers
     )
     assert response.content_type == "application/json"
     LD_jobs = response.get_json()
-
-    # make sure that every job returned has that username somewhere
-    for D_job in LD_jobs:
-        assert username in [
-            D_job["cw"].get("mila_cluster_username", None),
-            D_job["cw"].get("mila_email_username", None),
-            D_job["cw"].get("cc_account_username", None),
-        ]
-
-    # Let's just make sure that the set of job_id match for both the returned
-    # results and the ground truth.
-    # We could do an in-depth comparison with all the fields, but that seems
-    # a bit zealous for now.
-    assert set(D_job["slurm"]["job_id"] for D_job in LD_jobs) == set(
-        D_job["slurm"]["job_id"] for D_job in LD_jobs_ground_truth
-    )
+    validator(LD_jobs)
 
 
-def test_api_list_invalid_username(client, valid_rest_auth_headers):
+@pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
+def test_api_list_invalid_username(client, valid_rest_auth_headers, username):
     """
     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
     """
-
-    username = "some_username_absent_from_the_data"
-
     response = client.get(
         f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers
     )
@@ -166,12 +104,12 @@ def test_api_list_invalid_username(client, valid_rest_auth_headers):
     assert len(LD_jobs) == 0
 
 
-def test_api_list_invalid_time(client, valid_rest_auth_headers):
+def test_api_list_invalid_relative_time(client, valid_rest_auth_headers):
     """
     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
     """
     response = client.get(
-        f"/api/v1/clusters/jobs/list?time=this_is_not_a_valid_time",
+        f"/api/v1/clusters/jobs/list?relative_time=this_is_not_a_valid_relative_time",
         headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
@@ -179,6 +117,46 @@ def test_api_list_invalid_time(client, valid_rest_auth_headers):
     error_msg = response.get_json()
 
     assert (
-        "Field 'time' cannot be cast as a valid integer: this_is_not_a_valid_time."
+        "Field 'relative_time' cannot be cast as a valid float: this_is_not_a_valid_relative_time."
         in error_msg
     )
+
+
+def test_api_list_relative_time(client, fake_data, valid_rest_auth_headers):
+    """
+    Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
+    """
+
+    validator, relative_mid_end_time = helper_list_relative_time(fake_data)
+
+    response = client.get(
+        f"/api/v1/clusters/jobs/list?relative_time={relative_mid_end_time}",
+        headers=valid_rest_auth_headers,
+    )
+    assert response.content_type == "application/json"
+    assert response.status_code == 200
+    LD_jobs_results = response.get_json()
+    validator(LD_jobs_results)
+
+
+@pytest.mark.parametrize(
+    "cluster_name", ("mila", "cedar", "graham", "beluga", "sephiroth")
+)
+def test_jobs_list_with_filter(
+    client, fake_data, valid_rest_auth_headers, cluster_name
+):
+    """
+    Test the `jobs_list` command. This is just to make sure that the filtering works
+    and the `cluster_name` argument is functional.
+
+    Note that "sephiroth" is not a valid cluster, so we will expect empty lists as results.
+    """
+    validator = helper_jobs_list_with_filter(fake_data, cluster_name=cluster_name)
+    response = client.get(
+        f"/api/v1/clusters/jobs/list?cluster_name={cluster_name}",
+        headers=valid_rest_auth_headers,
+    )
+    assert response.content_type == "application/json"
+    assert response.status_code == 200
+    LD_jobs_results = response.get_json()
+    validator(LD_jobs_results)
