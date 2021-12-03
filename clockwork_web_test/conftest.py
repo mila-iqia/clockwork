@@ -72,6 +72,42 @@ def client(app):
 
 
 @pytest.fixture
+def app_with_login():
+    """Create and configure a new app instance with local login enabled."""
+    app = create_app(
+        extra_config={
+            "TESTING": True,
+            "PREFERRED_URL_SCHEME": "https",
+            "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
+            "MONGODB_DATABASE_NAME": os.environ.get(
+                "MONGODB_DATABASE_NAME", "clockwork"
+            ),
+        }
+    )
+
+    # create the database and load test data
+    with app.app_context():
+        init_db()
+        db = get_db()
+        cleanup_function = populate_fake_data(
+            db[current_app.config["MONGODB_DATABASE_NAME"]]
+        )
+
+    yield app
+
+    # You can close file descriptors here and do other cleanup.
+    #
+    cleanup_function()
+
+
+@pytest.fixture
+def client_with_login(app_with_login):
+    """A test client for the app."""
+    with app_with_login.test_client() as client:
+        yield client
+
+
+@pytest.fixture
 def user(app):
     """
     Returns a test user that's present in the database.
