@@ -67,7 +67,7 @@ class User(UserMixin):
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
 
-        L = list(mc["users"].find({"id": id}))
+        L = list(mc["users"].find({"google_suite.id": id}))
         # This is not an error from which we expect to be able to recover gracefully.
         # It could happen if you copied data from your database directly
         # using an external script, and ended up with many instances of your users.
@@ -84,13 +84,15 @@ class User(UserMixin):
             e = L[0]
             user = User(
                 id=id,
-                name=e["name"],
-                email=e["email"],
-                profile_pic=e["profile_pic"],
-                status=e["status"],
-                clockwork_api_key=e["clockwork_api_key"],
+                name=e["google_suite"]["name"],
+                email=e["google_suite"]["email"],
+                profile_pic=e["google_suite"]["profile_pic"],
+                status=e["cw"]["status"],
+                clockwork_api_key=e["cw"]["clockwork_api_key"],
             )
-            print("Retrieved entry for user with email %s." % e["email"])
+            print(
+                "Retrieved entry for user with email %s." % e["google_suite"]["email"]
+            )
 
             # traceback.print_stack(file=sys.stdout)
 
@@ -126,16 +128,18 @@ class User(UserMixin):
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
         e = {
-            "id": id,
-            "name": name,
-            "email": email,
-            "profile_pic": profile_pic,
-            "status": status,
-            "clockwork_api_key": clockwork_api_key,
+            "google_suite": {
+                "id": id,
+                "name": name,
+                "email": email,
+                "profile_pic": profile_pic,
+            },
+            "cw": {"status": status, "clockwork_api_key": clockwork_api_key},
+            "accounts_on_clusters": {},
         }
-        mc["users"].update_one({"id": id}, {"$set": e}, upsert=True)
+        mc["users"].update_one({"google_suite.id": id}, {"$set": e}, upsert=True)
         # No need to do a "commit" operation or something like that.
-        print("Created entry for user with email %s." % e["email"])
+        print("Created entry for user with email %s." % e["google_suite"]["email"])
         return True, ""
 
     @staticmethod

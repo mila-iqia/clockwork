@@ -17,6 +17,7 @@ For the developers, this is a useful resource:
 from logging import error
 import os
 import json
+import random
 
 from flask import Flask, redirect, render_template, request, url_for
 
@@ -199,35 +200,70 @@ def route_logout():
 
 
 """
-When logins are disabled, we add the route /login/fake_user in order to be able
-to login easily to test out functionality locally (i.e. running on "deepgroove").
+When logins are disabled, we add the route /login/new_fake_user in order to be able
+to login easily to test out functionality locally.
 
 To be more precise, this piece of code is useful not when running pytest,
 but when poking around in the browser, with the web server running locally
 (thus being unable to test using https).
 
 Since the "LOGIN_DISABLED" environment variable is already being used,
-we might as well use it. Poking this URL logs the session as "fake_user@mila.quebec".
+we might as well use it.
 """
 
 if os.environ.get("LOGIN_DISABLED", "False") in ["True", "true", "1"]:
 
-    @flask_api.route("/fake_user")
-    def route_fake_user():
-        # This unique ID could be anything, and it's also not something private.
-        # Unless we deploy the app on Google Cloud with "LOGIN_DISABLED", or unless
-        # we leak the clockwork_api_key for that user (and forget to test that "LOGIN_DISABLED"
-        # in the REST API endpoints), this will not be a security issue.
-        #
-        # That being said, we will probably want to remove that user from the database
-        # when we deploy to production, just to avoid depending on a flag being set.
-        unique_id = "791083399710128078765"
+    @flask_api.route("/new_fake_user")
+    def route_new_fake_user():
+        """
+        Login as a fake user that's not present in the database yet.
+        This will cause the creation of that user entry in the database.
+        """
+        unique_id = str(random.randint(0, 1e12))
         user = User.get(unique_id)
         if user is None:
-            User.add_to_database(unique_id, "Fake User", "fake_user@mila.quebec", "")
+            User.add_to_database(
+                unique_id,
+                "Fake User %s" % unique_id,
+                "fake_user_%s@mila.quebec" % unique_id,
+                "",
+            )
         user = User.get(unique_id)
         assert (
             user is not None
-        ), "Failed to create a fake user with route /login/fake_user."
+        ), "Failed to create a fake user with route /login/new_fake_user."
         login_user(user)
         return redirect(url_for("index"))
+
+    # @flask_api.route("/fake_user")
+    # def route_fake_user():
+    #     """
+    #     This pertains to CW-90 which is not yet done.
+    #
+    #     Login as a fake user defined in the file "fake_data.json".
+    #     We hardcoded here its user id. This corresponds to the user
+    #     defined by
+    #     {
+    #         "google_suite": {
+    #             "id": "4000",
+    #             "name": "google_suite_user00",
+    #             "email": "student00@mila.quebec",
+    #             "profile_pic": ""},
+    #         "cw": {
+    #             "status": "enabled",
+    #             "clockwork_api_key": "000aaa00"
+    #         },
+    #         "accounts_on_clusters": {
+    #             "mila": {...},
+    #             "beluga": {...},
+    #             "graham": {...},
+    #             "cedar": {...},
+    #             "narval": {...}
+    #         }
+    #     }
+    #     """
+    #     unique_id = "4000"
+    #     user = User.get(unique_id)
+    #     assert user is not None
+    #     login_user(user)
+    #     return redirect(url_for("index"))
