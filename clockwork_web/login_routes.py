@@ -36,8 +36,8 @@ from .user import User
 
 
 # Configuration
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", '')
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", '')
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 
@@ -73,7 +73,11 @@ def route_index():
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-    state = ''.join(random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=20))
+    state = "".join(
+        random.choices(
+            string.ascii_lowercase + string.ascii_uppercase + string.digits, k=20
+        )
+    )
 
     # Use library to construct the request for login and provide
     # scopes that let you retrieve user's profile from Google
@@ -81,9 +85,9 @@ def route_index():
         authorization_endpoint,
         redirect_uri=request.base_url + "callback",
         scope=["openid", "email", "profile"],
-        state=state
+        state=state,
     )
-    session['state'] = state
+    session["state"] = state
     return redirect(request_uri)
 
 
@@ -104,7 +108,7 @@ def route_callback():
     which will now act differently facing an authenticated user.
     """
 
-    state = session['state']
+    state = session["state"]
 
     # Get authorization code Google sent back to you
     code = request.args.get("code")
