@@ -75,7 +75,7 @@ def create_app(extra_config: dict):
     @login_manager.user_loader
     def load_user(user_id):
         user = User.get(user_id)
-        # When `user` is None, we return None and that's what `load_user` wants.
+        # When `user` is None, we return None and that's what `load_user` wants
         return user
 
     @app.route("/")
