@@ -11,7 +11,12 @@
 
 
 //const refresh_endpoint = "/api/0/list_jobs"
-const refresh_endpoint = "/jobs/api/list"  // hardcoded into job_routes.py
+//const refresh_endpoint = "/jobs/api/list"  // hardcoded into job_routes.py (obsolete?)
+
+// This doesn't work because that endpoint returns HTML and not json.
+const refresh_endpoint = "/jobs/list"  // hardcoded into browser_routes/jobs.py
+// TODO : Find out what to call.
+
 
 const id_of_table_to_populate = "table_98429387" // hardcoded into jobs.html also
 
@@ -64,6 +69,9 @@ function launch_refresh_all_data(query_filter, display_filter) {
     */
     let url = refresh_endpoint;
     const request = new Request(url,
+        {"query_filter" : query_filter}, 'GET');
+    /*
+    const request = new Request(url,
         {   method: 'POST',
             body: JSON.stringify({
                     "query_filter" : query_filter,
@@ -72,6 +80,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
                 'Content-Type': 'application/json'
             }        
         });
+    */
     fetch(request)
     .then(response => {
         if (response.status === 200) {

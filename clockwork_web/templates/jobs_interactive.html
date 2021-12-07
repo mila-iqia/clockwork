@@ -26,8 +26,11 @@
             else if ( document.getElementById("time_option_1_day").checked ) {
                 query_filter["time"] = 3600 * 24;
             }
-            else if ( document.getElementById("time_option_1_week").checked ) {
-                query_filter["time"] = 3600 * 24 * 7;
+            //else if ( document.getElementById("time_option_1_week").checked ) {
+            //    query_filter["time"] = 3600 * 24 * 7;
+            //}
+            else if ( document.getElementById("time_option_1_eternity").checked ) {
+                delete query_filter.time;
             }
 
             if ( document.getElementById("user_option_all").checked ) {
@@ -144,10 +147,18 @@
                             <span>1 day</span>
                         </label>
                     </div>
+                    <!--
                     <div class="cc_toggle_zone_row">
                         <label>
                             <input id="time_option_1_week" name="group1" type="radio" onclick="server_refresh()" />
                             <span>1 week</span>
+                        </label>
+                    </div>
+                    -->
+                    <div class="cc_toggle_zone_row">
+                        <label>
+                            <input id="time_option_1_eternity" name="group1" type="radio" onclick="server_refresh()" />
+                            <span>eternity</span>
                         </label>
                     </div>
                 </form>

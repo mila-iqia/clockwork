@@ -95,6 +95,7 @@ services:
       - ../slurm_state:/clockwork/slurm_state
       - ../slurm_state_test:/clockwork/slurm_state_test
       - ../test_common:/clockwork/test_common
+      - ../scripts:/clockwork/scripts
     command: bash
     stdin_open: true
     tty: true

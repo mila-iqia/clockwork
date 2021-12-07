@@ -193,7 +193,7 @@ def route_single_job_p_job_id(job_id):
             "error.html", error_msg="job_id contains invalid characters"
         )
 
-    LD_jobs = get_jobs({"job_id": int(job_id)})
+    LD_jobs = get_jobs({"job_id": job_id})
 
     if len(LD_jobs) == 0:
         return render_template(
