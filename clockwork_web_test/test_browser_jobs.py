@@ -83,9 +83,7 @@ def test_list_jobs_invalid_username(client, username):
     Make a request to /jobs/list.
     """
     response = client.get(f"/jobs/list?user={username}")
-    response.status_code == 400
-    print(response.data)
-    # assert 'text/html' in response.content_type
+    assert 'text/html' in response.content_type
     assert username.encode("utf-8") not in response.data  # notice the NOT
 
 
@@ -94,7 +92,7 @@ def test_list_invalid_time(client):
     Make a request to /jobs/list.
     """
     response = client.get(f"/jobs/list?relative_time=this_is_not_a_valid_relative_time")
-    assert "text/html" in response.content_type
+    assert response.status_code == 400
 
     assert (
         b"cannot be cast as a valid integer: this_is_not_a_valid_relative_time"
