@@ -54,6 +54,11 @@ def test_single_job_missing_423908482367(client):
     assert b"Found no job with job_id 423908482367" in response.data
 
 
+def test_single_job_no_id(client):
+    response = client.get("/jobs/one")
+    assert response.status_code == 400
+
+
 def test_list_jobs_for_a_given_random_user(client, fake_data):
     """
     Make a request to /jobs/list.
