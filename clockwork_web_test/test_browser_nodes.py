@@ -53,10 +53,3 @@ def test_nodes_with_filter(client, fake_data: dict[list[dict]], cluster_name):
             # with some integer.
             assert D_node["slurm"]["name"].encode("utf-8") not in response.data
 
-
-# def test_single_job_missing_1111111(client):
-#     """
-#     This job entry should be missing from the database.
-#     """
-#     response = client.get("/jobs/single_job/1111111")
-#     assert b"Found no job with job_id 1111111" in response.data
