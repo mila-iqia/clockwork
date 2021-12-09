@@ -87,6 +87,15 @@ def test_list_jobs_invalid_username(client, username):
     assert username.encode("utf-8") not in response.data  # notice the NOT
 
 
+def test_list_time(client, fake_data):
+    _, relative_mid_end_time = helper_list_relative_time(fake_data)
+    response = client.get(f"/jobs/list?relative_time={relative_mid_end_time}")
+    assert response.status_code == 200
+    assert "text/html" in response.content_type
+    assert b"RUNNING" in response.data
+    assert b"PENDING" in response.data
+
+
 def test_list_invalid_time(client):
     """
     Make a request to /jobs/list.
