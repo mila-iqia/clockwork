@@ -63,17 +63,6 @@ def route_list():
 
     LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
 
-    # sanity check
-    for D_node in LD_nodes:
-        if D_node is None:
-            return (
-                render_template(
-                    "error.html",
-                    error_msg=f"nodes/list returned values from the data that include one empty dict.",
-                ),
-                400,
-            )  # bad request
-
     return render_template(
         "nodes.html", LD_nodes=LD_nodes, mila_email_username=get_mila_email_username()
     )
@@ -112,17 +101,6 @@ def route_one():
         )  # bad request
 
     LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
-
-    # sanity check
-    for D_node in LD_nodes:
-        if D_node is None:
-            return (
-                render_template(
-                    "error.html",
-                    error_msg=f"nodes/one returned values from the data that include one empty dict.",
-                ),
-                400,
-            )  # bad request
 
     D_node = LD_nodes[0]  # the one and only
     # need to format it as list of tuples for the template (unless I'm mistaken)
