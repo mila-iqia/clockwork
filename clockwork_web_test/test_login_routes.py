@@ -1,6 +1,13 @@
 from urllib.parse import urlparse, parse_qs
 from clockwork_web.login_routes import GOOGLE_DISCOVERY_URL
 
+# This file tests the OAuth workflow used for login to the site.
+
+# It uses requests_mock to fake responses from the google servers
+# without contacting any external servers. This allows us to test the
+# Flask code without access to the internet at all if needed and without
+# a specific "real" test user.
+
 
 def fake_endpoints(mock, userinfo_text):
     mock.get(
