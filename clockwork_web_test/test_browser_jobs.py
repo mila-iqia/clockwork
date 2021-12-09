@@ -89,7 +89,7 @@ def test_list_jobs_invalid_username(client, username):
     Make a request to /jobs/list.
     """
     response = client.get(f"/jobs/list?user={username}")
-    assert 'text/html' in response.content_type
+    assert "text/html" in response.content_type
     assert username.encode("utf-8") not in response.data  # notice the NOT
 
 
