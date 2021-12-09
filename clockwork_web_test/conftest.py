@@ -66,9 +66,8 @@ def app():
 @pytest.fixture
 def client(app):
     """A test client for the app."""
-    # The `test_client` method comes from Flask. Not us.
-    # https://github.com/pallets/flask/blob/93dd1709d05a1cf0e886df6223377bdab3b077fb/src/flask/app.py#L997
-    return app.test_client()
+    with app.test_client() as client:
+        yield client
 
 
 @pytest.fixture
