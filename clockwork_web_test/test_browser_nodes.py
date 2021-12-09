@@ -53,3 +53,21 @@ def test_nodes_with_filter(client, fake_data: dict[list[dict]], cluster_name):
             # with some integer.
             assert D_node["slurm"]["name"].encode("utf-8") not in response.data
 
+
+def test_single_node(client, fake_data):
+    node = fake_data["nodes"][0]["slurm"]
+    response = client.get(
+        f"/nodes/one?name={node['name']}&cluster_name={node['cluster_name']}"
+    )
+    assert response.status_code == 200
+    assert b"mem=125168M" in response.data
+
+
+def test_single_node_not_found(client):
+    response = client.get("/nodes/one?name=patate009")
+    assert response.status_code == 400
+
+
+def test_single_node_cluster_only(client):
+    response = client.get("/nodes/one?cluster_name=mila")
+    assert response.status_code == 400

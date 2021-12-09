@@ -102,7 +102,7 @@ def route_one():
     # need to format it as list of tuples for the template (unless I'm mistaken)
     LP_single_node = list(sorted(D_node.items(), key=lambda e: e[0]))
     return render_template(
-        "single_nodes.html",
+        "single_node.html",
         LP_single_node=LP_single_node,
         mila_email_username=get_mila_email_username(),
     )
