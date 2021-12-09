@@ -25,6 +25,12 @@ from test_common.jobs_test_helpers import (
 )
 
 
+def test_redirect_index(client):
+    response = client.get("/jobs/")
+    assert response.status_code == 302
+    assert response.headers["Location"] == "http://localhost/jobs/interactive"
+
+
 def test_single_job(client, fake_data):
     """
     Obviously, we need to compare the hardcoded fields with the values
