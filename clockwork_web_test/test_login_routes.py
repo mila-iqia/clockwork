@@ -6,20 +6,20 @@ def fake_endpoints(mock, userinfo_text):
     mock.get(
         GOOGLE_DISCOVERY_URL,
         text="""{
-        "authorization_endpoint": "https://localhost:8080/authorize",
-        "token_endpoint": "https://localhost:8080/token",
-        "userinfo_endpoint": "https://localhost:8080/userinfo"
+        "authorization_endpoint": "https://oauth.google.com/authorize",
+        "token_endpoint": "https://oauth.google.com/token",
+        "userinfo_endpoint": "https://oauth.google.com/userinfo"
         }""",
     )
     mock.register_uri(
         "POST",
-        "https://localhost:8080/token",
+        "https://oauth.google.com/token",
         additional_matcher=lambda req: req.body
         == "grant_type=authorization_code&client_id=&code=patate32&redirect_uri=https%3A%2F%2Flocalhost%2Flogin%2Fcallback",
         text='{"access_token": "this_is_access_token"}',
     )
     mock.get(
-        "https://localhost:8080/userinfo",
+        "https://oauth.google.com/userinfo",
         request_headers={"Authorization": "Bearer this_is_access_token"},
         text=userinfo_text,
     )
@@ -30,7 +30,7 @@ def test_login(client_with_login, requests_mock):
     resp = client_with_login.get("/login/")
     assert resp.status_code == 302
     assert resp.headers["Location"].startswith(
-        "https://localhost:8080/authorize?response_type=code&client_id=&redirect_uri=https%3A%2F%2Flocalhost%2Flogin%2Fcallback&scope=openid+email+profile&state="
+        "https://oauth.google.com/authorize?response_type=code&client_id=&redirect_uri=https%3A%2F%2Flocalhost%2Flogin%2Fcallback&scope=openid+email+profile&state="
     )
 
 
