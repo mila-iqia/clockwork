@@ -168,7 +168,7 @@ function populate_table(response_contents) {
 
             <td>{{e['cluster_name']}}</td>
             <td><a href="/jobs/list/{{e['best_guess_for_username']}}"> {{e['best_guess_for_username']}} </a></td>
-            <td><a href="/jobs/single_job/{{e['job_id']}}"> {{e['job_id']}} </a></td>
+            <td><a href="/jobs/one?job_id={{e['job_id']}}"> {{e['job_id']}} </a></td>
             <td>{{e.get('name', "")[:32]}}</td> <!-- truncate after 32 chars -->
             <td>{{e['job_state']}}</td>
     */
@@ -198,7 +198,7 @@ function populate_table(response_contents) {
         td = document.createElement('td'); td.innerHTML = D_job["cluster_name"]; tr.appendChild(td);
         td = document.createElement('td'); td.innerHTML = D_job["best_guess_for_username"]; tr.appendChild(td); // TODO : add href for meaningful people pertaining to single user ?
         td = document.createElement('td'); td.innerHTML = (
-            "<a href=\"" + "/jobs/single_job/" + D_job["job_id"] + "\">" + D_job["job_id"] + "</a>"); tr.appendChild(td);
+            "<a href=\"" + "/jobs/one?job_id=" + D_job["job_id"] + "\">" + D_job["job_id"] + "</a>"); tr.appendChild(td);
         //td = document.createElement('td'); td.innerHTML = D_job["job_id"]; tr.appendChild(td);
         td = document.createElement('td'); td.innerHTML = (D_job["name"] ? D_job["name"] : "").substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
         td = document.createElement('td'); td.innerHTML = D_job["job_state"]; tr.appendChild(td);
