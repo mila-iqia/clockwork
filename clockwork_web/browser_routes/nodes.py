@@ -85,17 +85,13 @@ def route_one():
 
     if len(LD_nodes) == 0:
         return (
-            render_template(
-                "error.html",
-                error_msg=f"Failed to find that node in the database with name {filter['name']} and cluster_name {filter['cluster_name']}.",
-            ),
+            render_template("error.html", error_msg=f"Node not found"),
             400,
         )  # bad request
     elif len(LD_nodes) > 1:
         return (
             render_template(
-                "error.html",
-                error_msg=f"Found more than one entry for that node in the database with name {filter['name']} and cluster_name {filter['cluster_name']}.",
+                "error.html", error_msg=f"Found more than one matching node"
             ),
             400,
         )  # bad request
