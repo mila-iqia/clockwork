@@ -32,6 +32,8 @@ def fake_endpoints(mock, userinfo_text):
     )
 
 
+# requests_mock is magically available because the package is installed,
+# there is no import anywhere (except possibly in the pytest code)
 def test_login(client_with_login, requests_mock):
     fake_endpoints(requests_mock, "")
     resp = client_with_login.get("/login/")
@@ -41,6 +43,8 @@ def test_login(client_with_login, requests_mock):
     )
 
 
+# requests_mock is magically available because the package is installed,
+# there is no import anywhere (except possibly in the pytest code)
 def test_login_noemail(client_with_login, requests_mock):
     fake_endpoints(requests_mock, "{}")
     resp = client_with_login.get("/login/")
@@ -56,6 +60,8 @@ def test_login_noemail(client_with_login, requests_mock):
     assert b"User email not available or not verified by Google." in resp.data
 
 
+# requests_mock is magically available because the package is installed,
+# there is no import anywhere (except possibly in the pytest code)
 def test_login_nomila(client_with_login, requests_mock):
     fake_endpoints(
         requests_mock,
@@ -73,6 +79,8 @@ def test_login_nomila(client_with_login, requests_mock):
     assert b"We accept only accounts @mila.quebec" in resp.data
 
 
+# requests_mock is magically available because the package is installed,
+# there is no import anywhere (except possibly in the pytest code)
 def test_login_new(client_with_login, requests_mock):
     fake_endpoints(
         requests_mock,
@@ -95,6 +103,8 @@ def test_login_new(client_with_login, requests_mock):
     assert resp.headers["Location"] == "https://localhost/jobs/"
 
 
+# requests_mock is magically available because the package is installed,
+# there is no import anywhere (except possibly in the pytest code)
 def test_login_disabled(client_with_login, requests_mock):
     fake_endpoints(
         requests_mock,
@@ -117,6 +127,8 @@ def test_login_disabled(client_with_login, requests_mock):
     )
 
 
+# requests_mock is magically available because the package is installed,
+# there is no import anywhere (except possibly in the pytest code)
 def test_logout(client_with_login, requests_mock):
     fake_endpoints(
         requests_mock,
