@@ -17,14 +17,7 @@ about these things.
 from flask.globals import current_app
 from flask_login import UserMixin
 
-# Numpy used to generate random `clockwork_api_key` for users.
-# This feels like an unjustified use of numpy.
-# TODO : Rethink this and harmonize with the random strings
-#        generated for unit tests, through a similar function
-#        than this `get_new_clockwork_api_key` at the end of this file.
-import numpy as np
-
-# import sys, traceback  # debugging
+import secrets
 
 from .db import get_db
 
@@ -124,7 +117,7 @@ class User(UserMixin):
             return False, f"Failed to validate the user. {error_msg}"
 
         if clockwork_api_key is None or len(clockwork_api_key) == 0:
-            clockwork_api_key = get_new_clockwork_api_key()
+            clockwork_api_key = secrets.token_hex(32)
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
         e = {
@@ -157,13 +150,3 @@ class User(UserMixin):
             return False, "We accept only accounts @mila.quebec ."
 
         return True, ""
-
-
-def get_new_clockwork_api_key(nbr_of_hex_characters=32):
-    """
-    Creates a string with 32 hex characters one after the other.
-    """
-    return "".join(
-        "%0.2x" % np.random.randint(low=0, high=256)
-        for _ in range(nbr_of_hex_characters // 2)
-    )
