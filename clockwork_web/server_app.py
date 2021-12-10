@@ -89,10 +89,7 @@ def create_app(extra_config: dict):
 
         if current_user.is_authenticated:
             print("in route for '/'; redirecting to jobs/")
-            # This works.
             return redirect("jobs/")
-            # This fails. Not sure why. Not worth spending too much time on organizing this thing.
-            # return redirect(redirect(url_for('jobs.route_index')))
         else:
             print("in route for '/'; render_template('index_outside.html')")
             return render_template("index_outside.html")
