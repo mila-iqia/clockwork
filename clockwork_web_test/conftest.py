@@ -76,6 +76,7 @@ def app_with_login():
     app = create_app(
         extra_config={
             "TESTING": True,
+            "LOGIN_DISABLED": False,
             "PREFERRED_URL_SCHEME": "https",
             "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
             "MONGODB_DATABASE_NAME": os.environ.get(
