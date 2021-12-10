@@ -22,7 +22,7 @@ from .browser_routes.jobs import flask_api as jobs_routes_flask_api
 # from .jobs_routes import flask_api as jobs_routes_flask_api  # TODO: this will be updated as well with new pattern
 from .browser_routes.settings import flask_api as settings_routes_flask_api
 from .login_routes import flask_api as login_routes_flask_api
-from .user import User
+from .user import User, AnonUser
 from .rest_routes.jobs import flask_api as rest_jobs_flask_api
 from .rest_routes.nodes import flask_api as rest_nodes_flask_api
 
@@ -77,6 +77,8 @@ def create_app(extra_config: dict):
         user = User.get(user_id)
         # When `user` is None, we return None and that's what `load_user` wants
         return user
+
+    login_manager.anonymous_user = AnonUser
 
     @app.route("/")
     def index():

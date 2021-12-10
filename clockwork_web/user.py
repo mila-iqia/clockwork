@@ -15,7 +15,7 @@ about these things.
 """
 
 from flask.globals import current_app
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 
 import secrets
 
@@ -165,3 +165,17 @@ class User(UserMixin):
             return False, "We accept only accounts @mila.quebec ."
 
         return True, ""
+
+
+class AnonUser(AnonymousUserMixin):
+    def __init__(self):
+        self.id = 0
+        self.name = "Anonymous"
+        self.email = "anonymous@mila.quebec"
+        self.profile_pic = ""
+        self.status = "enabled"
+        self.clockwork_api_key = "deadbeef"
+
+    def update(self):
+        # We don't want to touch the database for this.
+        pass
