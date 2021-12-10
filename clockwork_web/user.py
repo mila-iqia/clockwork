@@ -135,6 +135,21 @@ class User(UserMixin):
         print("Created entry for user with email %s." % e["google_suite"]["email"])
         return True, ""
 
+    def update(self):
+        """
+        Update the current user in the database with the properties iof this object.
+
+        Note that if you changed the id then another user will be updated or created.
+        """
+        self.add_to_database(
+            self.id,
+            self.name,
+            self.email,
+            self.profile_pic,
+            self.status,
+            self.clockwork_api_key,
+        )
+
     @staticmethod
     def validate_before_creation(id, name, email):
         """
