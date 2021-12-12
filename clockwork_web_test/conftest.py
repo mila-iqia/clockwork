@@ -60,27 +60,51 @@ def app():
 
     # You can close file descriptors here and do other cleanup.
     #
-    # 2021-08-11 : Okay, so we have important decisions to make here,
-    #              because it's pretty hard to test clockwork_tools without
-    #              fake data in the database, but the fake_data.json lives
-    #              in clockword_web_test. Maybe we can remove the cleanup step
-    #              from those tests and rely on side-effects from pytest
-    #              running the clockwork_web_test first.
-    #              This is not nice, but on the flipside, we might need
-    #              to rethink how those tests are written to begin with,
-    #              and possibly add the fake data as part of the mongodb
-    #              component of Docker Compose when running in test mode.
-    #              Tests from clockwork_tools aren't supposed to muck with the database.
-    #
     cleanup_function()
 
 
 @pytest.fixture
 def client(app):
     """A test client for the app."""
-    # The `test_client` method comes from Flask. Not us.
-    # https://github.com/pallets/flask/blob/93dd1709d05a1cf0e886df6223377bdab3b077fb/src/flask/app.py#L997
-    return app.test_client()
+    with app.test_client() as client:
+        yield client
+
+
+@pytest.fixture
+def app_with_login():
+    """Create and configure a new app instance with local login enabled."""
+    app = create_app(
+        extra_config={
+            "TESTING": True,
+            "LOGIN_DISABLED": False,
+            "PREFERRED_URL_SCHEME": "https",
+            "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
+            "MONGODB_DATABASE_NAME": os.environ.get(
+                "MONGODB_DATABASE_NAME", "clockwork"
+            ),
+        }
+    )
+
+    # create the database and load test data
+    with app.app_context():
+        init_db()
+        db = get_db()
+        cleanup_function = populate_fake_data(
+            db[current_app.config["MONGODB_DATABASE_NAME"]]
+        )
+
+    yield app
+
+    # You can close file descriptors here and do other cleanup.
+    #
+    cleanup_function()
+
+
+@pytest.fixture
+def client_with_login(app_with_login):
+    """A test client for the app."""
+    with app_with_login.test_client() as client:
+        yield client
 
 
 @pytest.fixture
