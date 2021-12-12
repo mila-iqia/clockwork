@@ -18,8 +18,9 @@ from logging import error
 import os
 import json
 import random
+import string
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for, session
 
 from oauthlib.oauth2 import WebApplicationClient
 import requests
@@ -35,8 +36,8 @@ from .user import User
 
 
 # Configuration
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 
@@ -72,13 +73,21 @@ def route_index():
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
+    state = "".join(
+        random.choices(
+            string.ascii_lowercase + string.ascii_uppercase + string.digits, k=20
+        )
+    )
+
     # Use library to construct the request for login and provide
     # scopes that let you retrieve user's profile from Google
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
         redirect_uri=request.base_url + "callback",
         scope=["openid", "email", "profile"],
+        state=state,
     )
+    session["state"] = state
     return redirect(request_uri)
 
 
@@ -98,6 +107,9 @@ def route_callback():
     Returns: Redirects the browser to the index of the page afterwards,
     which will now act differently facing an authenticated user.
     """
+
+    state = session["state"]
+
     # Get authorization code Google sent back to you
     code = request.args.get("code")
 
@@ -112,6 +124,7 @@ def route_callback():
         authorization_response=request.url,
         redirect_url=request.base_url,
         code=code,
+        state=state,
     )
     token_response = requests.post(
         token_url,
@@ -121,7 +134,7 @@ def route_callback():
     )
 
     # Parse the tokens!
-    client.parse_request_body_response(json.dumps(token_response.json()))
+    client.parse_request_body_response(token_response.text)
 
     # Now that we have tokens (yay) let's find and hit URL
     # from Google that gives you user's profile information,
@@ -133,11 +146,12 @@ def route_callback():
     # We want to make sure their email is verified.
     # The user authenticated with Google, authorized our
     # app, and now we've verified their email through Google!
-    if userinfo_response.json().get("email_verified"):
-        unique_id = userinfo_response.json()["sub"]
-        users_email = userinfo_response.json()["email"]
-        picture = userinfo_response.json()["picture"]
-        users_name = userinfo_response.json()["given_name"]
+    userinfo = userinfo_response.json()
+    if userinfo.get("email_verified"):
+        unique_id = userinfo["sub"]
+        users_email = userinfo["email"]
+        picture = userinfo["picture"]
+        users_name = userinfo["given_name"]
     else:
         return render_template(
             "error.html",
@@ -181,7 +195,7 @@ def route_callback():
 
     login_user(user)
     print(
-        f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated}"
+        f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated()}"
     )
     # Send user back to homepage
     return redirect(url_for("index"))

@@ -19,7 +19,7 @@ services:
       - mongodb
     working_dir: /clockwork
     volumes:
-      - ../clockwork_web:/clockwork/clockwork_web
+      - ./clockwork_web:/clockwork/clockwork_web
     ports:
       - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
     environment:
@@ -36,9 +36,9 @@ services:
     user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     volumes:
-      - ../clockwork_web:/clockwork/clockwork_web
-      - ../clockwork_web_test:/clockwork/clockwork_web_test
-      - ../test_common:/clockwork/test_common
+      - ./clockwork_web:/clockwork/clockwork_web
+      - ./clockwork_web_test:/clockwork/clockwork_web_test
+      - ./test_common:/clockwork/test_common
     environment:
       LOGIN_DISABLED: "True"
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
@@ -54,9 +54,9 @@ services:
     user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     volumes:
-      - ../clockwork_tools:/clockwork/clockwork_tools
-      - ../clockwork_tools_test:/clockwork/clockwork_tools_test
-      - ../test_common:/clockwork/test_common
+      - ./clockwork_tools:/clockwork/clockwork_tools
+      - ./clockwork_tools_test:/clockwork/clockwork_tools_test
+      - ./test_common:/clockwork/test_common
     environment:
       MONGODB_DATABASE_NAME: "clockwork"
       MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
@@ -72,8 +72,8 @@ services:
     user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     volumes:
-      - ../slurm_state:/clockwork/slurm_state
-      - ../slurm_state_test:/clockwork/slurm_state_test
+      - ./slurm_state:/clockwork/slurm_state
+      - ./slurm_state_test:/clockwork/slurm_state_test
     environment:
       MONGODB_DATABASE_NAME: "clockwork"
       MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
@@ -88,13 +88,13 @@ services:
     ports:
       - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
     volumes:
-      - ../clockwork_tools:/clockwork/clockwork_tools
-      - ../clockwork_tools_test:/clockwork/clockwork_tools_test
-      - ../clockwork_web:/clockwork/clockwork_web
-      - ../clockwork_web_test:/clockwork/clockwork_web_test
-      - ../slurm_state:/clockwork/slurm_state
-      - ../slurm_state_test:/clockwork/slurm_state_test
-      - ../test_common:/clockwork/test_common
+      - ./clockwork_tools:/clockwork/clockwork_tools
+      - ./clockwork_tools_test:/clockwork/clockwork_tools_test
+      - ./clockwork_web:/clockwork/clockwork_web
+      - ./clockwork_web_test:/clockwork/clockwork_web_test
+      - ./slurm_state:/clockwork/slurm_state
+      - ./slurm_state_test:/clockwork/slurm_state_test
+      - ./test_common:/clockwork/test_common
     command: bash
     stdin_open: true
     tty: true
