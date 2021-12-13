@@ -60,7 +60,7 @@ def test_single_node(client, fake_data):
         f"/nodes/one?name={node['name']}&cluster_name={node['cluster_name']}"
     )
     assert response.status_code == 200
-    assert b"mem=125168M" in response.data
+    assert node["alloc_tres"].encode("ascii") in response.data
 
 
 def test_single_node_not_found(client):
