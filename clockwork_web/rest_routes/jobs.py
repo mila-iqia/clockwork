@@ -3,7 +3,7 @@ import time
 
 from flask import request, make_response
 from flask.json import jsonify
-from .authentication import authenticate_with_header_basic
+from .authentication import authenticate_with_header_basic, authentication_required
 
 from clockwork_web.core.jobs_helper import (
     get_filter_user,
@@ -23,16 +23,12 @@ flask_api = Blueprint("rest_jobs", __name__)
 
 
 @flask_api.route("/jobs/list")
+@authentication_required
 def route_api_v1_jobs_list():
     """
 
     .. :quickref: list all Slurm jobs
     """
-
-    D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
-    if D_user is None:
-        return jsonify("Authorization error."), 401  # unauthorized
-
     f0 = get_filter_user(request.args.get("user", None))
 
     time1 = request.args.get("relative_time", None)
