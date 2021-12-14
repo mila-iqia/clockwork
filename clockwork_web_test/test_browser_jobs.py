@@ -25,6 +25,12 @@ from test_common.jobs_test_helpers import (
 )
 
 
+def test_redirect_index(client):
+    response = client.get("/jobs/")
+    assert response.status_code == 302
+    assert response.headers["Location"] == "http://localhost/jobs/interactive"
+
+
 def test_single_job(client, fake_data):
     """
     Obviously, we need to compare the hardcoded fields with the values
@@ -54,6 +60,11 @@ def test_single_job_missing_423908482367(client):
     assert b"Found no job with job_id 423908482367" in response.data
 
 
+def test_single_job_no_id(client):
+    response = client.get("/jobs/one")
+    assert response.status_code == 400
+
+
 def test_list_jobs_for_a_given_random_user(client, fake_data):
     """
     Make a request to /jobs/list.
@@ -78,10 +89,17 @@ def test_list_jobs_invalid_username(client, username):
     Make a request to /jobs/list.
     """
     response = client.get(f"/jobs/list?user={username}")
-    response.status_code == 400
-    print(response.data)
-    # assert 'text/html' in response.content_type
+    assert "text/html" in response.content_type
     assert username.encode("utf-8") not in response.data  # notice the NOT
+
+
+def test_list_time(client, fake_data):
+    _, relative_mid_end_time = helper_list_relative_time(fake_data)
+    response = client.get(f"/jobs/list?relative_time={relative_mid_end_time}")
+    assert response.status_code == 200
+    assert "text/html" in response.content_type
+    assert b"RUNNING" in response.data
+    assert b"PENDING" in response.data
 
 
 def test_list_invalid_time(client):
@@ -89,7 +107,7 @@ def test_list_invalid_time(client):
     Make a request to /jobs/list.
     """
     response = client.get(f"/jobs/list?relative_time=this_is_not_a_valid_relative_time")
-    assert "text/html" in response.content_type
+    assert response.status_code == 400
 
     assert (
         b"cannot be cast as a valid integer: this_is_not_a_valid_relative_time"

@@ -22,7 +22,7 @@ from .browser_routes.jobs import flask_api as jobs_routes_flask_api
 # from .jobs_routes import flask_api as jobs_routes_flask_api  # TODO: this will be updated as well with new pattern
 from .browser_routes.settings import flask_api as settings_routes_flask_api
 from .login_routes import flask_api as login_routes_flask_api
-from .user import User
+from .user import User, AnonUser
 from .rest_routes.jobs import flask_api as rest_jobs_flask_api
 from .rest_routes.nodes import flask_api as rest_nodes_flask_api
 
@@ -78,6 +78,8 @@ def create_app(extra_config: dict):
         # When `user` is None, we return None and that's what `load_user` wants
         return user
 
+    login_manager.anonymous_user = AnonUser
+
     @app.route("/")
     def index():
         """
@@ -87,10 +89,7 @@ def create_app(extra_config: dict):
 
         if current_user.is_authenticated:
             print("in route for '/'; redirecting to jobs/")
-            # This works.
             return redirect("jobs/")
-            # This fails. Not sure why. Not worth spending too much time on organizing this thing.
-            # return redirect(redirect(url_for('jobs.route_index')))
         else:
             print("in route for '/'; render_template('index_outside.html')")
             return render_template("index_outside.html")

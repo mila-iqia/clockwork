@@ -108,66 +108,8 @@ def client_with_login(app_with_login):
 
 
 @pytest.fixture
-def user(app):
-    """
-    Returns a test user that's present in the database.
-
-    The notion of whether this user is "authenticated" with flask_login
-    or not is not relevant, because when config['TESTING'] is set
-    it disables everything from flask_login.
-    No need to bother with LoginManager and such.
-    """
-
-    with app.app_context():
-        # we need an app context because we'll be contacting the database,
-        # and the database deals with "g" which is in the app context
-
-        user_desc = {
-            "id": "135798713318272451447",
-            "name": "test",
-            "email": "test@mila.quebec",
-            "profile_pic": "",
-            "clockwork_api_key": "000aaa",
-        }
-        user = User.get(user_desc["id"])
-        # Doesn't exist? Add to database.
-        if not user:
-            User.add_to_database(**user_desc)
-            user = User.get(user_desc["id"])
-
-        # login_user(user)  # error : working outside of context
-        return user
-
-    # Why not something like this?
-    # login_user(user)
-    # yield user
-    # logout_user(user)
-
-
-@pytest.fixture
 def valid_rest_auth_headers():
     s = f"{os.environ['clockwork_tools_test_EMAIL']}:{os.environ['clockwork_tools_test_CLOCKWORK_API_KEY']}"
     encoded_bytes = base64.b64encode(s.encode("utf-8"))
     encoded_s = str(encoded_bytes, "utf-8")
     return {"Authorization": f"Basic {encoded_s}"}
-
-
-# How do we do something like that, but using Google OAuth instead?
-# Maybe we don't need any of the following lines commented out.
-
-# class AuthActions(object):
-#     def __init__(self, client):
-#         self._client = client
-
-#     def login(self, username="test", password="test"):
-#         return self._client.post(
-#             "/auth/login", data={"username": username, "password": password}
-#         )
-
-#     def logout(self):
-#         return self._client.get("/auth/logout")
-
-
-# @pytest.fixture
-# def auth(client):
-#     return AuthActions(client)
