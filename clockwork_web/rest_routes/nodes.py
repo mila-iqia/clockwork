@@ -1,6 +1,6 @@
 from flask import request, make_response
 from flask.json import jsonify
-from .authentication import authenticate_with_header_basic
+from .authentication import authentication_required
 
 from clockwork_web.core.nodes_helper import get_nodes, get_filter_name
 from clockwork_web.core.jobs_helper import (
@@ -14,27 +14,19 @@ flask_api = Blueprint("rest_nodes", __name__)
 
 
 @flask_api.route("/nodes/list")
+@authentication_required
 def route_api_v1_nodes_list():
     """
     Take one optional args "cluster_name", as in "/nodes/list?cluster_name=beluga".
 
     .. :quickref: list all Slurm nodes
     """
-
     filter = get_filter_cluster_name(request.args.get("cluster_name", None))
-
-    D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
-    if D_user is None:
-        resp = jsonify("Authorization error.")
-        resp.status_code = 401  # unauthorized
-        return resp
-
-    resp = jsonify(get_nodes(filter))
-    resp.status_code = 200
-    return resp
+    return jsonify(get_nodes(filter))
 
 
 @flask_api.route("/nodes/one")
+@authentication_required
 def route_api_v1_nodes_one():
     """
     Takes one mandatory args "name", as in "/nodes/one?name=cn-a003".
@@ -43,34 +35,24 @@ def route_api_v1_nodes_one():
 
     .. :quickref: list one Slurm node
     """
-
     f0 = get_filter_name(request.args.get("name", None))
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
-
-    D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
-    if D_user is None:
-        resp = jsonify("Authorization error.")
-        resp.status_code = 401  # unauthorized
-        return resp
 
     LD_nodes = get_nodes(filter)
 
     if len(LD_nodes) == 0:
         # Not a great when missing the value we want, but it's an acceptable answer.
-        resp = jsonify({})
-        resp.status_code = 200
-        return resp
+        return jsonify({})
     if len(LD_nodes) > 1:
         # This is not a situation that should even happen, and it's a sign of data corruption.
-        resp = jsonify(
-            f"Found {len(LD_nodes)} nodes with filter {filter}. Not sure what to do about these cases."
+        return (
+            jsonify(
+                f"Found {len(LD_nodes)} nodes with filter {filter}. Not sure what to do about these cases."
+            ),
+            500,
         )
-        resp.status_code = 500  # server error
-        return resp
 
     D_node = LD_nodes[0]
 
-    resp = jsonify(D_node)
-    resp.status_code = 200
-    return resp
+    return jsonify(D_node)

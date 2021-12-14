@@ -3,7 +3,7 @@ import time
 
 from flask import request, make_response
 from flask.json import jsonify
-from .authentication import authenticate_with_header_basic, authentication_required
+from .authentication import authentication_required
 
 from clockwork_web.core.jobs_helper import (
     get_filter_user,
@@ -62,16 +62,12 @@ def route_api_v1_jobs_list():
 
 
 @flask_api.route("/jobs/one")
+@authentication_required
 def route_api_v1_jobs_one():
     """
 
     .. :quickref: list one Slurm job
     """
-
-    D_user = authenticate_with_header_basic(request.headers.get("Authorization"))
-    if D_user is None:
-        return jsonify("Authorization error."), 401  # unauthorized
-
     job_id = request.args.get("job_id", None)
     if job_id is None:
         return jsonify("Missing argument job_id."), 400  # bad request
@@ -97,5 +93,3 @@ def route_api_v1_jobs_one():
     D_job = infer_best_guess_for_username(D_job)
 
     return jsonify(D_job)
-    # resp.status_code = 200  # success
-    # return resp
