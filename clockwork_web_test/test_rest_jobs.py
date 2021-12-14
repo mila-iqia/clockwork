@@ -66,6 +66,11 @@ def test_single_job_missing(client, fake_data, valid_rest_auth_headers):
     validator(D_job)
 
 
+def test_single_job_no_id(client, valid_rest_auth_headers):
+    response = client.get("/api/v1/clusters/jobs/one", headers=valid_rest_auth_headers)
+    assert response.status_code == 400
+
+
 def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_headers):
     """
     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
