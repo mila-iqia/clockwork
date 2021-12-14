@@ -81,12 +81,14 @@ def route_api_v1_jobs_one():
         # Not a great when missing the value we want, but it's an acceptable answer.
         return jsonify({}), 200
     if len(LD_jobs) > 1:
-        # This is not a situation that should even happen, and it's a sign of data corruption.
-        resp = jsonify(
-            f"Found {len(LD_jobs)} jobs with job_id {filter['job_id']}. Not sure what to do about these cases."
+        # This can actually happen if two clusters use the same id
+        # Perhaps the rest API should always return a list?
+        resp = (
+            jsonify(
+                f"Found {len(LD_jobs)} jobs with job_id {filter['job_id']}. Not sure what to do about these cases."
+            ),
+            500,
         )
-        resp.status_code = 500  # server error
-        return resp
 
     # TODO : Potential redesign. See CW-81.
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
