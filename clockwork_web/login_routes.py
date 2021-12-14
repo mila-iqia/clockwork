@@ -248,36 +248,3 @@ if os.environ.get("LOGIN_DISABLED", "False") in ["True", "true", "1"]:
         ), "Failed to create a fake user with route /login/new_fake_user."
         login_user(user)
         return redirect(url_for("index"))
-
-    # @flask_api.route("/fake_user")
-    # def route_fake_user():
-    #     """
-    #     This pertains to CW-90 which is not yet done.
-    #
-    #     Login as a fake user defined in the file "fake_data.json".
-    #     We hardcoded here its user id. This corresponds to the user
-    #     defined by
-    #     {
-    #         "google_suite": {
-    #             "id": "4000",
-    #             "name": "google_suite_user00",
-    #             "email": "student00@mila.quebec",
-    #             "profile_pic": ""},
-    #         "cw": {
-    #             "status": "enabled",
-    #             "clockwork_api_key": "000aaa00"
-    #         },
-    #         "accounts_on_clusters": {
-    #             "mila": {...},
-    #             "beluga": {...},
-    #             "graham": {...},
-    #             "cedar": {...},
-    #             "narval": {...}
-    #         }
-    #     }
-    #     """
-    #     unique_id = "4000"
-    #     user = User.get(unique_id)
-    #     assert user is not None
-    #     login_user(user)
-    #     return redirect(url_for("index"))

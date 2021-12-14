@@ -1,6 +1,5 @@
 """
 This file contains a lot of arbitrary decisions that could change in the future.
-
 """
 
 import re
@@ -24,10 +23,7 @@ def get_filter_job_id(job_id):
     if job_id is None:
         return {}
     else:
-        if re.match(r"^(\d*)$", job_id):
-            return {"$or": [{"slurm.job_id": job_id}, {"slurm.job_id": int(job_id)}]}
-        else:
-            return {"slurm.job_id": job_id}
+        return {"slurm.job_id": job_id}
 
 
 def get_filter_user(user):
@@ -36,19 +32,16 @@ def get_filter_user(user):
     that looks into the "cw" part of the entries in order to
     retrieve the
     """
-    if user is None:
-        return {}
+    if user not in ["all", "*", "", None]:
+        return {
+            "$or": [
+                {"cw.mila_cluster_username": user},
+                {"cw.cc_account_username": user},
+                {"cw.mila_email_username": user},
+            ]
+        }
     else:
-        if user not in ["all", "*", ""]:
-            return {
-                "$or": [
-                    {"cw.mila_cluster_username": user},
-                    {"cw.cc_account_username": user},
-                    {"cw.mila_email_username": user},
-                ]
-            }
-        else:
-            return {}
+        return {}
 
 
 def get_filter_after_end_time(end_time):
@@ -86,7 +79,7 @@ def combine_all_mongodb_filters(*mongodb_filters):
     elif len(non_empty_mongodb_filters) == 1:
         return non_empty_mongodb_filters[0]
     else:
-        return {"$and": list(non_empty_mongodb_filters)}
+        return {"$and": non_empty_mongodb_filters}
 
 
 def get_jobs(mongodb_filter: dict = {}):

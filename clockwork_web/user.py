@@ -15,16 +15,9 @@ about these things.
 """
 
 from flask.globals import current_app
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 
-# Numpy used to generate random `clockwork_api_key` for users.
-# This feels like an unjustified use of numpy.
-# TODO : Rethink this and harmonize with the random strings
-#        generated for unit tests, through a similar function
-#        than this `get_new_clockwork_api_key` at the end of this file.
-import numpy as np
-
-# import sys, traceback  # debugging
+import secrets
 
 from .db import get_db
 
@@ -124,7 +117,7 @@ class User(UserMixin):
             return False, f"Failed to validate the user. {error_msg}"
 
         if clockwork_api_key is None or len(clockwork_api_key) == 0:
-            clockwork_api_key = get_new_clockwork_api_key()
+            clockwork_api_key = secrets.token_hex(32)
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
         e = {
@@ -141,6 +134,21 @@ class User(UserMixin):
         # No need to do a "commit" operation or something like that.
         print("Created entry for user with email %s." % e["google_suite"]["email"])
         return True, ""
+
+    def update(self):
+        """
+        Update the current user in the database with the properties iof this object.
+
+        Note that if you changed the id then another user will be updated or created.
+        """
+        self.add_to_database(
+            self.id,
+            self.name,
+            self.email,
+            self.profile_pic,
+            self.status,
+            self.clockwork_api_key,
+        )
 
     @staticmethod
     def validate_before_creation(id, name, email):
@@ -159,11 +167,15 @@ class User(UserMixin):
         return True, ""
 
 
-def get_new_clockwork_api_key(nbr_of_hex_characters=32):
-    """
-    Creates a string with 32 hex characters one after the other.
-    """
-    return "".join(
-        "%0.2x" % np.random.randint(low=0, high=256)
-        for _ in range(nbr_of_hex_characters // 2)
-    )
+class AnonUser(AnonymousUserMixin):
+    def __init__(self):
+        self.id = 0
+        self.name = "Anonymous"
+        self.email = "anonymous@mila.quebec"
+        self.profile_pic = ""
+        self.status = "enabled"
+        self.clockwork_api_key = "deadbeef"
+
+    def update(self):
+        # We don't want to touch the database for this.
+        pass

@@ -63,17 +63,6 @@ def route_list():
 
     LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
 
-    # sanity check
-    for D_node in LD_nodes:
-        if D_node is None:
-            return (
-                render_template(
-                    "error.html",
-                    error_msg=f"nodes/list returned values from the data that include one empty dict.",
-                ),
-                400,
-            )  # bad request
-
     return render_template(
         "nodes.html", LD_nodes=LD_nodes, mila_email_username=get_mila_email_username()
     )
@@ -96,39 +85,24 @@ def route_one():
 
     if len(LD_nodes) == 0:
         return (
-            render_template(
-                "error.html",
-                error_msg=f"Failed to find that node in the database with name {filter['name']} and cluster_name {filter['cluster_name']}.",
-            ),
+            render_template("error.html", error_msg=f"Node not found"),
             400,
         )  # bad request
     elif len(LD_nodes) > 1:
         return (
             render_template(
-                "error.html",
-                error_msg=f"Found more than one entry for that node in the database with name {filter['name']} and cluster_name {filter['cluster_name']}.",
+                "error.html", error_msg=f"Found more than one matching node"
             ),
             400,
         )  # bad request
 
     LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
 
-    # sanity check
-    for D_node in LD_nodes:
-        if D_node is None:
-            return (
-                render_template(
-                    "error.html",
-                    error_msg=f"nodes/one returned values from the data that include one empty dict.",
-                ),
-                400,
-            )  # bad request
-
     D_node = LD_nodes[0]  # the one and only
     # need to format it as list of tuples for the template (unless I'm mistaken)
     LP_single_node = list(sorted(D_node.items(), key=lambda e: e[0]))
     return render_template(
-        "single_nodes.html",
+        "single_node.html",
         LP_single_node=LP_single_node,
         mila_email_username=get_mila_email_username(),
     )
