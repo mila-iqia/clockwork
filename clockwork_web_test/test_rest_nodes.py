@@ -1,7 +1,3 @@
-"""
-
-"""
-
 from pprint import pprint
 import random
 import json
@@ -27,25 +23,14 @@ def test_single_node_at_random(
     )
 
     response = client.get(
-        f"/api/v1/clusters/nodes/one?job_id={original_D_node['slurm']['name']}",
+        f"/api/v1/clusters/nodes/one?name={original_D_node['slurm']['name']}",
         headers=valid_rest_auth_headers,
     )
+    assert response.status_code == 200
     assert "application/json" in response.content_type
     D_node = response.json
 
-    for k1 in original_D_node:
-        if k1 not in D_node:
-            print(f"Missing key {k1} from fetched D_node.")
-            pprint(original_D_node)
-            pprint(D_node)
-        else:
-            for k2 in original_D_node[k1]:
-                if k2 not in D_node:
-                    print(f"Missing key {k2} from fetched D_node[{k1}].")
-                    pprint(original_D_node)
-                    pprint(D_node)
-                else:
-                    assert D_node[k1][k2] == original_D_node[k1][k2], (k1, k2)
+    assert original_D_node == D_node
 
 
 def test_single_node_missing(client, fake_data, valid_rest_auth_headers):
@@ -65,6 +50,15 @@ def test_single_node_missing(client, fake_data, valid_rest_auth_headers):
     response = client.get(
         f"/api/v1/clusters/nodes/one?name={node_name}", headers=valid_rest_auth_headers
     )
+    assert response.status_code == 200
     assert "application/json" in response.content_type
     D_node = response.json  # no `json()` here, just `json`
     assert D_node == {}
+
+
+def test_node_list(client, valid_rest_auth_headers):
+    response = client.get(
+        f"/api/v1/clusters/nodes/list", headers=valid_rest_auth_headers
+    )
+    assert response.status_code == 200
+    assert "application/json" in response.content_type
