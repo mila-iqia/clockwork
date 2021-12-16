@@ -26,29 +26,10 @@ made for that purpose.
 
 |cluster | automation account | who has access at the moment |
 |--------|--------------------|------------------------------|
-| mila   | ???                | guillaume alain |
-| cedar  | mila-automation    | guillaume alain |
-| beluga | mila-automation    | guillaume alain |
-| graham | mila-automation    | guillaume alain |
-
-## dev notes
-
-- Voir comment je gère mongoclient dans le web, et faire ça dans slurm_scan.
-
-## TODO:
-
-- Remove "alaingui" from the "remote_clusters_info.json".
-
-- One of the important things for clockwork_web_test is the fake_data.json.
-However, when we update "slurm_state" according to a certain structure for
-the slurm data, as returned by sacct/sinfo instead of pyslurm, then we
-should update fake_data.json to reflect that structure.
-This isn't hard, but it requires diligence.
-
-- Share the access to "mila-automation" with Arnaud.
-This should also be documented better in terms of which account should be
-used for tools on what cluster.
-
+| mila   | mila-automation    | guillaume alain, arnaud bergeron |
+| cedar  | mila-automation    | guillaume alain, arnaud bergeron |
+| beluga | mila-automation    | guillaume alain, arnaud bergeron |
+| graham | mila-automation    | guillaume alain, arnaud bergeron |
 
 
 # Compute Canada giving us stdout
