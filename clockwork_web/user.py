@@ -127,8 +127,9 @@ class User(UserMixin):
                 "email": email,
                 "profile_pic": profile_pic,
             },
-            "cw": {"status": status, "clockwork_api_key": clockwork_api_key},
-            "accounts_on_clusters": {},
+            "cw": {"status": status, "clockwork_api_key": clockwork_api_key,
+                   # TODO fetch the actual accounts for these
+                   "cc_account_username": None, "mila_account_username": None},
         }
         mc["users"].update_one({"google_suite.id": id}, {"$set": e}, upsert=True)
         # No need to do a "commit" operation or something like that.
