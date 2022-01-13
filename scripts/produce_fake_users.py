@@ -54,20 +54,22 @@ def get_predefined_fake_users(N=20):
                 "email": "student%0.2d@mila.quebec" % n,
                 "profile_pic": "",
             },
-            "cw": {"status": status, "clockwork_api_key": "000aaa%0.2d" % n},
-            "accounts_on_clusters": {
+            "cw": {"status": status, "clockwork_api_key": "000aaa%0.2d" % n
+                   "mila_cluster_username": "milauser%0.2d" % n,
+                   "cc_account_username": "ccuser%0.2d" % n,},
+            "_extra": {
                 "mila": {
                     "username": "milauser%0.2d" % n,
                     "uid": 10000 + n,
                     "account": "mila",
-                    "cluster_name": "mila",  # redundant
+                    "cluster_name": "mila",
                 }
             },
         }
         # then add the entries for all the clusters on CC
         account = L_cc_accounts[n % 2]
         for cluster_name in L_cc_clusters:
-            D_user["accounts_on_clusters"][cluster_name] = {
+            D_user["_extra"][cluster_name] = {
                 "username": "ccuser%0.2d" % n,
                 "uid": 10000 + n,
                 "account": account,
