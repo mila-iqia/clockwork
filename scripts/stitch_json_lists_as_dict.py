@@ -26,6 +26,9 @@ def main(argv):
         print((k, v_path))
         with open(v_path, "r") as f:
             v = json.load(f)
+            # extra data useful for processing but that should be stripped.
+            if "_extra" in d:
+                del v["_extra"]
             D_results[k] = v
 
     with open(output_path, "w") as f:

@@ -11,8 +11,6 @@ import json
 
 """
     The "fake users" are going to have the following structure.
-    The "accounts_on_clusters" might have to be revised if it
-    leads to awkward/suboptimal requests for MongoDB.
     [
         {
             "google_suite": {   "id": "009643",
@@ -20,20 +18,9 @@ import json
                                 "email": "mario@mila.quebec",
                                 "profile_pic": ""},
             "cw": { "status": "enabled",
-                    "clockwork_api_key": "000aaa"},
-            {"accounts_on_clusters":
-                {
-                    "beluga":
-                        {
-                            "username": "ccuser040",
-                            "uid": 10040,
-                            "account": "def-pomme-rrg",
-                            "cluster_name": "beluga",
-                        },
-                    "cedar: { ... }
-                    "graham: { ... }
-                    "mila: { ... }
-                }
+                    "clockwork_api_key": "000aaa"
+                    "cc_account_username": "ccuser040",
+                    "mila_cluster_username": milauser040"},
         },
         { ... },
         ...
