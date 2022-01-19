@@ -1,284 +1,144 @@
 {
   "users": [
     {
-      "google_suite": {
-        "id": "4000",
-        "name": "google_suite_user00",
-        "email": "student00@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa00",
-        "mila_cluster_username": "milauser00",
-        "cc_account_username": "ccuser00"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa00",
+      "mila_cluster_username": "milauser00",
+      "cc_account_username": "ccuser00",
+      "email": "student00@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4001",
-        "name": "google_suite_user01",
-        "email": "student01@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa01",
-        "mila_cluster_username": "milauser01",
-        "cc_account_username": "ccuser01"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa01",
+      "mila_cluster_username": "milauser01",
+      "cc_account_username": "ccuser01",
+      "email": "student01@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4002",
-        "name": "google_suite_user02",
-        "email": "student02@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa02",
-        "mila_cluster_username": "milauser02",
-        "cc_account_username": "ccuser02"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa02",
+      "mila_cluster_username": "milauser02",
+      "cc_account_username": "ccuser02",
+      "email": "student02@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4003",
-        "name": "google_suite_user03",
-        "email": "student03@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa03",
-        "mila_cluster_username": "milauser03",
-        "cc_account_username": "ccuser03"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa03",
+      "mila_cluster_username": "milauser03",
+      "cc_account_username": "ccuser03",
+      "email": "student03@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4004",
-        "name": "google_suite_user04",
-        "email": "student04@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa04",
-        "mila_cluster_username": "milauser04",
-        "cc_account_username": "ccuser04"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa04",
+      "mila_cluster_username": "milauser04",
+      "cc_account_username": "ccuser04",
+      "email": "student04@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4005",
-        "name": "google_suite_user05",
-        "email": "student05@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa05",
-        "mila_cluster_username": "milauser05",
-        "cc_account_username": "ccuser05"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa05",
+      "mila_cluster_username": "milauser05",
+      "cc_account_username": "ccuser05",
+      "email": "student05@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4006",
-        "name": "google_suite_user06",
-        "email": "student06@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa06",
-        "mila_cluster_username": "milauser06",
-        "cc_account_username": "ccuser06"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa06",
+      "mila_cluster_username": "milauser06",
+      "cc_account_username": "ccuser06",
+      "email": "student06@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4007",
-        "name": "google_suite_user07",
-        "email": "student07@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa07",
-        "mila_cluster_username": "milauser07",
-        "cc_account_username": "ccuser07"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa07",
+      "mila_cluster_username": "milauser07",
+      "cc_account_username": "ccuser07",
+      "email": "student07@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4008",
-        "name": "google_suite_user08",
-        "email": "student08@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa08",
-        "mila_cluster_username": "milauser08",
-        "cc_account_username": "ccuser08"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa08",
+      "mila_cluster_username": "milauser08",
+      "cc_account_username": "ccuser08",
+      "email": "student08@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4009",
-        "name": "google_suite_user09",
-        "email": "student09@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "disabled",
-        "clockwork_api_key": "000aaa09",
-        "mila_cluster_username": "milauser09",
-        "cc_account_username": "ccuser09"
-      }
+      "status": "disabled",
+      "clockwork_api_key": "000aaa09",
+      "mila_cluster_username": "milauser09",
+      "cc_account_username": "ccuser09",
+      "email": "student09@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4010",
-        "name": "google_suite_user10",
-        "email": "student10@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa10",
-        "mila_cluster_username": "milauser10",
-        "cc_account_username": "ccuser10"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa10",
+      "mila_cluster_username": "milauser10",
+      "cc_account_username": "ccuser10",
+      "email": "student10@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4011",
-        "name": "google_suite_user11",
-        "email": "student11@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa11",
-        "mila_cluster_username": "milauser11",
-        "cc_account_username": "ccuser11"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa11",
+      "mila_cluster_username": "milauser11",
+      "cc_account_username": "ccuser11",
+      "email": "student11@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4012",
-        "name": "google_suite_user12",
-        "email": "student12@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa12",
-        "mila_cluster_username": "milauser12",
-        "cc_account_username": "ccuser12"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa12",
+      "mila_cluster_username": "milauser12",
+      "cc_account_username": "ccuser12",
+      "email": "student12@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4013",
-        "name": "google_suite_user13",
-        "email": "student13@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa13",
-        "mila_cluster_username": "milauser13",
-        "cc_account_username": "ccuser13"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa13",
+      "mila_cluster_username": "milauser13",
+      "cc_account_username": "ccuser13",
+      "email": "student13@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4014",
-        "name": "google_suite_user14",
-        "email": "student14@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa14",
-        "mila_cluster_username": "milauser14",
-        "cc_account_username": "ccuser14"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa14",
+      "mila_cluster_username": "milauser14",
+      "cc_account_username": "ccuser14",
+      "email": "student14@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4015",
-        "name": "google_suite_user15",
-        "email": "student15@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa15",
-        "mila_cluster_username": "milauser15",
-        "cc_account_username": "ccuser15"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa15",
+      "mila_cluster_username": "milauser15",
+      "cc_account_username": "ccuser15",
+      "email": "student15@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4016",
-        "name": "google_suite_user16",
-        "email": "student16@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa16",
-        "mila_cluster_username": "milauser16",
-        "cc_account_username": "ccuser16"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa16",
+      "mila_cluster_username": "milauser16",
+      "cc_account_username": "ccuser16",
+      "email": "student16@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4017",
-        "name": "google_suite_user17",
-        "email": "student17@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa17",
-        "mila_cluster_username": "milauser17",
-        "cc_account_username": "ccuser17"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa17",
+      "mila_cluster_username": "milauser17",
+      "cc_account_username": "ccuser17",
+      "email": "student17@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4018",
-        "name": "google_suite_user18",
-        "email": "student18@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa18",
-        "mila_cluster_username": "milauser18",
-        "cc_account_username": "ccuser18"
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa18",
+      "mila_cluster_username": "milauser18",
+      "cc_account_username": "ccuser18",
+      "email": "student18@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4019",
-        "name": "google_suite_user19",
-        "email": "student19@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "disabled",
-        "clockwork_api_key": "000aaa19",
-        "mila_cluster_username": "milauser19",
-        "cc_account_username": "ccuser19"
-      }
+      "status": "disabled",
+      "clockwork_api_key": "000aaa19",
+      "mila_cluster_username": "milauser19",
+      "cc_account_username": "ccuser19",
+      "email": "student19@mila.quebec"
     }
   ],
   "jobs": [

@@ -30,18 +30,22 @@ class User(UserMixin):
     """
 
     def __init__(
-        self, id, name, email, profile_pic, status="enabled", clockwork_api_key=None
+        self,
+        email,
+        status,
+        clockwork_api_key=None,
+        mila_cluster_username=None,
+        cc_account_username=None,
     ):
         """
         This constructor is called only by the `get` method.
         We never call it directly.
         """
-        self.id = id
-        self.name = name
         self.email = email
-        self.profile_pic = profile_pic
         self.status = status
         self.clockwork_api_key = clockwork_api_key
+        self.mila_cluster_username = mila_cluster_username
+        self.cc_account_username = cc_account_username
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -52,15 +56,18 @@ class User(UserMixin):
     def is_active(self):
         return self.status == "enabled"
 
+    def get_id(self):
+        return self.email
+
     @staticmethod
-    def get(id: str):
+    def get(email: str):
         """
-        Returns a tuple (user:User or None, error_msg:str).
+        Returns the user with the specified email or None
         """
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
 
-        L = list(mc["users"].find({"google_suite.id": id}))
+        L = list(mc["users"].find({"email": email}))
         # This is not an error from which we expect to be able to recover gracefully.
         # It could happen if you copied data from your database directly
         # using an external script, and ended up with many instances of your users.
@@ -68,115 +75,51 @@ class User(UserMixin):
         # to just return the first instance of that user (ignoring the rest),
         # because that might hide more problems downstream.
         if len(L) not in [0, 1]:
-            print("Found %d users with id %s. This can't happen." % (len(L), id))
+            print("Found %d users with email %s. This can't happen." % (len(L), email))
             return None
-        # this is fine, and the user will just get created by the parent code
         elif len(L) == 0:
-            return None  # , f"Found no user in the database for id {id}."
+            return None
         else:
             e = L[0]
             user = User(
-                id=id,
-                name=e["google_suite"]["name"],
-                email=e["google_suite"]["email"],
-                profile_pic=e["google_suite"]["profile_pic"],
-                status=e["cw"]["status"],
-                clockwork_api_key=e["cw"]["clockwork_api_key"],
+                email=e["email"],
+                status=e["status"],
+                clockwork_api_key=e["clockwork_api_key"],
+                mila_cluster_username=e["mila_cluster_username"],
+                cc_account_username=e["cc_account_username"],
             )
-            print(
-                "Retrieved entry for user with email %s." % e["google_suite"]["email"]
-            )
-
-            # traceback.print_stack(file=sys.stdout)
+            print("Retrieved entry for user with email %s." % user.email)
 
             # Note that, at this point, it might be the case that the returned
             # user has status "disabled". The parent code will have to refrain
             # from continuing further if that's the case.
             return user
 
-    @staticmethod
-    def add_to_database(
-        id, name, email, profile_pic, status="enabled", clockwork_api_key=None
-    ):
+    def new_api_key(self):
         """
-        Create the entry in the database.
-        Note that this method does not return the actual instance of User,
-        but it just returns None.
-
-        Returns a tuple (success:bool, error_msg:str).
+        Create a new API key and save it to the database.
         """
-
-        if status not in ["enabled", "disabled"]:
-            # Note that testing that the status is contained in the list enum values
-            # is NOT the same as testing that the user's status is equal to "enabled".
-            # Those are two different things entirely.
-            return False, f"Invalid status {status}."
-
-        user_is_valid, error_msg = User.validate_before_creation(id, name, email)
-        if not user_is_valid:
-            return False, f"Failed to validate the user. {error_msg}"
-
-        if clockwork_api_key is None or len(clockwork_api_key) == 0:
-            clockwork_api_key = secrets.token_hex(32)
-
+        old_key = self.clockwork_api_key
+        self.clockwork_api_key = secrets.token_hex(32)
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
-        e = {
-            "google_suite": {
-                "id": id,
-                "name": name,
-                "email": email,
-                "profile_pic": profile_pic,
-            },
-            "cw": {"status": status, "clockwork_api_key": clockwork_api_key,
-                   # TODO fetch the actual accounts for these
-                   "cc_account_username": None, "mila_account_username": None},
-        }
-        mc["users"].update_one({"google_suite.id": id}, {"$set": e}, upsert=True)
-        # No need to do a "commit" operation or something like that.
-        print("Created entry for user with email %s." % e["google_suite"]["email"])
-        return True, ""
-
-    def update(self):
-        """
-        Update the current user in the database with the properties iof this object.
-
-        Note that if you changed the id then another user will be updated or created.
-        """
-        self.add_to_database(
-            self.id,
-            self.name,
-            self.email,
-            self.profile_pic,
-            self.status,
-            self.clockwork_api_key,
+        res = mc["users"].update_one(
+            {"email": self.email},
+            {"$set": {"clockwork_api_key": self.clockwork_api_key}},
         )
-
-    @staticmethod
-    def validate_before_creation(id, name, email):
-        """
-        This is where you can add conditions to restrict the users being created.
-        Otherwise, the system will create any user that gets authenticated by Google.
-
-        Returns a tuple (success:bool, error_msg:str).
-        """
-        # There are already mechanisms in place to that login
-        # is restricted to users within the organization only,
-        # but let's add this check on top of it.
-        if not email.endswith("@mila.quebec"):
-            return False, "We accept only accounts @mila.quebec ."
-
-        return True, ""
+        if res.modified_count != 1:
+            self.clockwork_api_key = old_key
+            raise ValueError("could not modify api key")
 
 
 class AnonUser(AnonymousUserMixin):
     def __init__(self):
-        self.id = 0
         self.name = "Anonymous"
         self.email = "anonymous@mila.quebec"
-        self.profile_pic = ""
         self.status = "enabled"
         self.clockwork_api_key = "deadbeef"
+        self.cc_account_username = None
+        self.mila_cluster_username = None
 
-    def update(self):
+    def new_api_key(self):
         # We don't want to touch the database for this.
-        pass
+        self.clockwork_api_key = secrets.token_hex(32)
