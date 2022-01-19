@@ -47,6 +47,5 @@ def route_key():
     """
     Generate a new API key, invalidating the old one.
     """
-    current_user.clockwork_api_key = secrets.token_hex(32)
-    current_user.update()
+    current_user.new_api_key()
     return redirect("/settings/")

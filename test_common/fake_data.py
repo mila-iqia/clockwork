@@ -62,6 +62,7 @@ def populate_fake_data(db_insertion_point, json_file=None):
         [("slurm.name", 1), ("slurm.cluster_name", 1)],
         name="name_and_cluster_name",
     )
+    db_insertion_point["users"].create_index([("email", 1)], name="users_email_index")
 
     for k in ["users", "jobs", "nodes"]:
         if k in E:
@@ -80,8 +81,10 @@ def populate_fake_data(db_insertion_point, json_file=None):
         and not affect the real data. If we cleared the tables completely,
         then we'd be affecting the real data in a bad way.
         """
+        for e in E["users"]:
+            db_insertion_point["users"].delete_many({"email": e["email"]})
+
         for (k, sub, id_field) in [
-            ("users", "google_suite", "id"),
             ("jobs", "slurm", "job_id"),
             ("nodes", "slurm", "name"),
         ]:

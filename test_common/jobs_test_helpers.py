@@ -143,7 +143,9 @@ def helper_list_jobs_for_a_given_random_user(fake_data):
     # let's avoid using a `while True` structure in a test
     for attempts in range(10):
         D_user = random.choice(fake_data["users"])
-        username = random.choice([D_user["cw"]["mila_cluster_username"], D_user["cw"]["cc_account_username"]])
+        username = random.choice(
+            [D_user["mila_cluster_username"], D_user["cc_account_username"]]
+        )
         LD_jobs_ground_truth = get_ground_truth(username, fake_data["jobs"])
         # pick something that's interesting, and not something that should
         # return empty results, because then this test becomes vacuous
