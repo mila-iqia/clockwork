@@ -150,9 +150,7 @@ def main(argv):
     # Sanity check: let's make sure the cluster we're talking about
     # was mentioned in some of the users from LD_users.
     LD_users_on_that_cluster = list(
-        filter(
-            lambda D_user: args.cluster_name in D_user["_extra"], LD_users
-        )
+        filter(lambda D_user: args.cluster_name in D_user["_extra"], LD_users)
     )
     assert len(LD_users_on_that_cluster)
     D_user = None
@@ -164,9 +162,7 @@ def main(argv):
                 # pick a new user every time we hit an empty line
                 if D_user is None or re.match(r"^\s*$", line):
                     D_user = np.random.choice(LD_users_on_that_cluster)
-                    D_cluster_account = D_user["_extra"][
-                        args.cluster_name
-                    ]
+                    D_cluster_account = D_user["_extra"][args.cluster_name]
                     nbr_processed = nbr_processed + 1
                     if args.keep and (args.keep <= nbr_processed - 1):
                         quit()

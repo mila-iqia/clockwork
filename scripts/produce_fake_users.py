@@ -54,9 +54,12 @@ def get_predefined_fake_users(N=20):
                 "email": "student%0.2d@mila.quebec" % n,
                 "profile_pic": "",
             },
-            "cw": {"status": status, "clockwork_api_key": "000aaa%0.2d" % n
-                   "mila_cluster_username": "milauser%0.2d" % n,
-                   "cc_account_username": "ccuser%0.2d" % n,},
+            "cw": {
+                "status": status,
+                "clockwork_api_key": "000aaa%0.2d" % n,
+                "mila_cluster_username": "milauser%0.2d" % n,
+                "cc_account_username": "ccuser%0.2d" % n,
+            },
             "_extra": {
                 "mila": {
                     "username": "milauser%0.2d" % n,
