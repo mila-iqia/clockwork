@@ -14,6 +14,7 @@ from clockwork_web.core.jobs_helper import (
     strip_artificial_fields_from_job,
     get_jobs,
     infer_best_guess_for_username,
+    update_job_user_dict
 )
 
 
@@ -95,3 +96,91 @@ def route_api_v1_jobs_one():
     D_job = infer_best_guess_for_username(D_job)
 
     return jsonify(D_job)
+
+
+@flask_api.route("/jobs/user_dict_update", methods = ['PUT'])
+@authentication_required
+def route_api_v1_jobs_user_dict_update():
+    """
+        Performs an update to the user dict for a given job.
+        The request needs to contain "job_id" and "cluster_name"
+        to identify the job to be updated, and then it needs to contain
+        "update_pairs" which is a list of (k, v) that we should
+        update in the `job["user"]` dict.
+
+    .. :quickref: update the user dict for a given Slurm job that belongs to the user
+    """
+    # A 'PUT' method is generally to modify resources.
+    # We access arguments with `request.json.get(...)`.
+    # See p215 of "Flask Web Development" by Michael Grinberg.
+    job_id = request.json.get("job_id", None)
+    if job_id is None:
+        return jsonify("Missing argument job_id."), 400  # bad request
+    f0 = get_filter_job_id(job_id)
+    f1 = get_filter_cluster_name(request.json.get("cluster_name", None))
+    filter = combine_all_mongodb_filters(f0, f1)
+    # Note that we'll have to add some more fields when we make progress in CW-93.
+    # We are going to have to check for "array_job_id" and "array_task_id"
+    # if those are supplied to identify jobs in situations where the "job_id"
+    # are "cluster_name" are insufficient.
+    LD_jobs = get_jobs(filter)
+    # Note that `filter` gets reused later to commit again to the database.
+
+    if len(LD_jobs) == 0:
+        # Note that, if we wanted to have "phantom entries" in some other collection,
+        # before the the jobs are present in the database, then we would need to adjust
+        # this code branch to allow for updates even when no such jobs are currently found.
+        return jsonify("Job not found in database."), 404
+    if len(LD_jobs) > 1:
+        resp = (
+            jsonify(
+                f"Found more than one job matching the criteria. This is probably not what was intended."
+            ),
+            500,
+        )
+        return resp
+
+    # TODO : Test if the person requesting the update is the owner.
+    #        We authenticated this method with a decorator, but are
+    #        we passing the authentication information in any way
+    #        to the routes being decorated?
+    #
+    #        If the user requesting the update is not the owner, then
+    #        we want to refuse the update.
+
+    update_pairs = request.json.get("update_pairs", None)
+    if update_pairs is None:
+        return jsonify(
+                f"Missing 'update_pairs' from arguments."
+            ), 500
+
+    D_job = LD_jobs[0]
+
+    new_user_dict = D_job["user"]
+    # We do an update even if we have an empty list for `update_pairs`,
+    # for the sake of more predictable behavior.
+    for (k, v) in update_pairs:
+        new_user_dict[k] = v
+
+    # We could reuse `filter` because we might as well refer to the job
+    # by its "_id" instead since we have it. Maybe this can mitigate the
+    # unlikely risk of `filter`` returning more matches than a moment ago
+    # because updates were made in-between.
+    # In any case, with the current setup we are still exposed to the
+    # possibility that rapid updates to the same job could compete with
+    # each other (and that's kinda fine).
+    result = update_job_user_dict({"_id": D_job["_id"]}, new_user_dict)
+
+    # See "https://pymongo.readthedocs.io/en/stable/api/pymongo/collection.html"
+    # for the properties of the returned object.
+    if result.modified_count == 1:
+        return jsonify(
+            f"Successfully updated the user dict of the target job."
+        ), 200
+    else:
+        # Will that return a useful string as an error?
+        return jsonify(
+            f"Problem during update of the user dict. {result}"
+        ), 500        
+
+
