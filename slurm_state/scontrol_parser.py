@@ -110,9 +110,9 @@ def timestamp(f, ctx):
 # assigning them to 'ignore'
 JOB_FIELD_MAP = {
     "JobId": rename(id, "job_id"),
+    "ArrayJobId": rename(id, "array_job_id"),
+    "ArrayTaskId": rename(id, "array_task_id"),
     # maybe we shouldn't ignore
-    "ArrayJobId": ignore,
-    "ArrayTaskId": ignore,
     "ArrayTaskThrottle": ignore,
     "JobName": rename(id, "name"),
     "UserId": user_id_splitting,
