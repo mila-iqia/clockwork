@@ -87,9 +87,7 @@ def get_jobs(mongodb_filter: dict = {}):
     return list(mc["jobs"].find(mongodb_filter))
 
 
-def update_job_user_dict(
-    mongodb_filter: dict,
-    new_user_dict: dict):
+def update_job_user_dict(mongodb_filter: dict, new_user_dict: dict):
     """
     This is a step that happens after every checks have been made.
     It's the "now we actually do it" part of the sequence of operations.
@@ -98,7 +96,7 @@ def update_job_user_dict(
     `new_user_dict` is the value to replace the "user" field with
     """
     mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
-    return mc["jobs"].update_one(mongodb_filter, {'user': new_user_dict})
+    return mc["jobs"].update_one(mongodb_filter, {"user": new_user_dict})
 
 
 def infer_best_guess_for_username(D_job):
