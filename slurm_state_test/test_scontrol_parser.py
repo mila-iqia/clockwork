@@ -248,3 +248,18 @@ def test_node_parser_error():
     p = node_parser(f, None)
     with pytest.raises(ValueError):
         list(p)
+
+def test_job_parser_job_array_ids():
+    f = StringIO(
+        """
+            JobId=135 ArrayJobId=246 ArrayTaskId=3 JobName=simplescript
+        """
+    )
+    assert list(job_parser(f, None)) == [
+        {
+            "job_id": "135",
+            "array_job_id": "246",
+            "array_task_id": "3",
+            "name": "simplescript"
+        },
+    ]
