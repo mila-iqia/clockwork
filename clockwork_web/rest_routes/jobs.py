@@ -14,7 +14,7 @@ from clockwork_web.core.jobs_helper import (
     strip_artificial_fields_from_job,
     get_jobs,
     infer_best_guess_for_username,
-    update_job_user_dict
+    update_job_user_dict,
 )
 
 
@@ -64,8 +64,10 @@ def route_api_v1_jobs_list():
 
 @flask_api.route("/jobs/one")
 @authentication_required
-def route_api_v1_jobs_one():
+def route_api_v1_jobs_one(user_with_rest_auth: dict):
     """
+
+    `user_with_rest_auth` is unused
 
     .. :quickref: list one Slurm job
     """
@@ -98,9 +100,9 @@ def route_api_v1_jobs_one():
     return jsonify(D_job)
 
 
-@flask_api.route("/jobs/user_dict_update", methods = ['PUT'])
+@flask_api.route("/jobs/user_dict_update", methods=["PUT"])
 @authentication_required
-def route_api_v1_jobs_user_dict_update():
+def route_api_v1_jobs_user_dict_update(user_with_rest_auth: dict):
     """
         Performs an update to the user dict for a given job.
         The request needs to contain "job_id" and "cluster_name"
@@ -140,21 +142,43 @@ def route_api_v1_jobs_user_dict_update():
         )
         return resp
 
-    # TODO : Test if the person requesting the update is the owner.
-    #        We authenticated this method with a decorator, but are
-    #        we passing the authentication information in any way
-    #        to the routes being decorated?
+    D_job = LD_jobs[0]
+
+    # Make use of `user_with_rest_auth`.
+    # If the user requesting the update is not the owner,
+    # then we refuse the update and return an error
+    # that describes the problem.
     #
-    #        If the user requesting the update is not the owner, then
-    #        we want to refuse the update.
+    # It would have been possible to do this check in
+    # the `filter` for the request to MongoDB, but then
+    # we would forego the possibility of telling the user
+    # that the job exists; it simply isn't theirs.
+    #
+    # Note that this is affected by PR#23.
+    # https://github.com/mila-iqia/clockwork/pull/23
+    for (user_key, job_cw_key) in [
+        ("email", "mila_email_username"),
+        ("mila_cluster_username", "mila_cluster_username"),
+        ("cc_account_username", "cc_account_username"),
+    ]:
+
+        # Be as strict as possible here. If the job entry
+        # contains any of the three types of usernames,
+        # than it must be matched against that of the user
+        # authenticated and submitting the request to modify
+        # the user_dict.
+        if D_job["cw"].get("job_cw_key", None):
+            if D_job["cw"]["job_cw_key"] != user_with_rest_auth["user_key"]:
+                return (
+                    jsonify(
+                        f'This job belongs to {D_job["cw"]["job_cw_key"]} and not {user_with_rest_auth["user_key"]}.'
+                    ),
+                    500,
+                )
 
     update_pairs = request.json.get("update_pairs", None)
     if update_pairs is None:
-        return jsonify(
-                f"Missing 'update_pairs' from arguments."
-            ), 500
-
-    D_job = LD_jobs[0]
+        return jsonify(f"Missing 'update_pairs' from arguments."), 500
 
     new_user_dict = D_job["user"]
     # We do an update even if we have an empty list for `update_pairs`,
@@ -174,13 +198,7 @@ def route_api_v1_jobs_user_dict_update():
     # See "https://pymongo.readthedocs.io/en/stable/api/pymongo/collection.html"
     # for the properties of the returned object.
     if result.modified_count == 1:
-        return jsonify(
-            f"Successfully updated the user dict of the target job."
-        ), 200
+        return jsonify(f"Successfully updated the user dict of the target job."), 200
     else:
         # Will that return a useful string as an error?
-        return jsonify(
-            f"Problem during update of the user dict. {result}"
-        ), 500        
-
-
+        return jsonify(f"Problem during update of the user dict. {result}"), 500

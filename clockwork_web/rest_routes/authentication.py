@@ -39,7 +39,7 @@ def authentication_required(f):
 
         D_user = L[0]
         if secrets.compare_digest(D_user["cw"]["clockwork_api_key"], auth["password"]):
-            return f(*args, **kwargs)
+            return f(*args, **kwargs, user_with_rest_auth=D_user)
         else:
             return jsonify("Authorization error."), 401
 
