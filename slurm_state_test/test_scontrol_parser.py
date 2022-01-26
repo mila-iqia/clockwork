@@ -249,6 +249,7 @@ def test_node_parser_error():
     with pytest.raises(ValueError):
         list(p)
 
+
 def test_job_parser_job_array_ids():
     f = StringIO(
         """
@@ -260,6 +261,6 @@ def test_job_parser_job_array_ids():
             "job_id": "135",
             "array_job_id": "246",
             "array_task_id": "3",
-            "name": "simplescript"
+            "name": "simplescript",
         },
     ]
