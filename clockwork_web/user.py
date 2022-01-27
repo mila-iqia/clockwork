@@ -67,7 +67,7 @@ class User(UserMixin):
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
 
-        L = list(mc["users"].find({"email": email}))
+        L = list(mc["users"].find({"mila_email_username": email}))
         # This is not an error from which we expect to be able to recover gracefully.
         # It could happen if you copied data from your database directly
         # using an external script, and ended up with many instances of your users.
@@ -82,7 +82,7 @@ class User(UserMixin):
         else:
             e = L[0]
             user = User(
-                email=e["email"],
+                email=e["mila_email_username"],
                 status=e["status"],
                 clockwork_api_key=e["clockwork_api_key"],
                 mila_cluster_username=e["mila_cluster_username"],
@@ -103,7 +103,7 @@ class User(UserMixin):
         self.clockwork_api_key = secrets.token_hex(32)
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
         res = mc["users"].update_one(
-            {"email": self.email},
+            {"mila_email_username": self.email},
             {"$set": {"clockwork_api_key": self.clockwork_api_key}},
         )
         if res.modified_count != 1:

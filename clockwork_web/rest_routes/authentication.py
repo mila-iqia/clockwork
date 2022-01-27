@@ -30,7 +30,7 @@ def authentication_required(f):
             return jsonify("Authorization error."), 401
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
-        L = list(mc["users"].find({"email": auth["username"]}))
+        L = list(mc["users"].find({"mila_email_username": auth["username"]}))
 
         if not L:
             return jsonify("Authorization error."), 401
