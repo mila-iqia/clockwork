@@ -13,7 +13,7 @@ import json
     The "fake users" are going to have the following structure.
     [
         {
-            "email": "mario@mila.quebec",
+            "mila_email_username": "mario@mila.quebec",
             "status": "enabled",
             "clockwork_api_key": "000aaa"
             "cc_account_username": "ccuser040",
@@ -45,7 +45,7 @@ def get_predefined_fake_users(N=20):
     def gen_single_user(n):
         status = "disabled" if (n % 10 == 9) else "enabled"
         D_user = {
-            "email": "student%0.2d@mila.quebec" % n,
+            "mila_email_username": "student%0.2d@mila.quebec" % n,
             "status": status,
             "clockwork_api_key": "000aaa%0.2d" % n,
             "mila_cluster_username": "milauser%0.2d" % n,

@@ -62,7 +62,9 @@ def populate_fake_data(db_insertion_point, json_file=None):
         [("slurm.name", 1), ("slurm.cluster_name", 1)],
         name="name_and_cluster_name",
     )
-    db_insertion_point["users"].create_index([("email", 1)], name="users_email_index")
+    db_insertion_point["users"].create_index(
+        [("mila_email_username", 1)], name="users_email_index"
+    )
 
     for k in ["users", "jobs", "nodes"]:
         if k in E:
@@ -82,7 +84,7 @@ def populate_fake_data(db_insertion_point, json_file=None):
         then we'd be affecting the real data in a bad way.
         """
         for e in E["users"]:
-            db_insertion_point["users"].delete_many({"email": e["email"]})
+            db_insertion_point["users"].delete_many({"mila_email_username": e["mila_email_username"]})
 
         for (k, sub, id_field) in [
             ("jobs", "slurm", "job_id"),
