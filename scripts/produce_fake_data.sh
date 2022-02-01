@@ -7,10 +7,12 @@
 # ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_jobs_anonymized.json
 # ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json
 
+set -eu
 
 # let's anchor things with a proper parent directory
 export CLOCKWORK_ROOT=..
 export slurm_state_ALLOCATIONS_RELATED_TO_MILA=${CLOCKWORK_ROOT}/slurm_state_test/fake_allocations_related_to_mila.json
+export PYTHONPATH="..:${PYTHONPATH:-}"
 
 export FAKE_USERS_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/fake_users.json
 python3 produce_fake_users.py --output_file=${FAKE_USERS_FILE}
