@@ -177,7 +177,7 @@ def route_callback():
 
     login_user(user)
     print(
-        f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated()}"
+        f"called login_user(user) for user with email {user.mila_email_username}, user.is_authenticated is {user.is_authenticated()}"
     )
     # Send user back to homepage
     return redirect(url_for("index"))
