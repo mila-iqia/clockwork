@@ -30,7 +30,7 @@ def authentication_required(f):
             return jsonify("Authorization error."), 401
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
-        L = list(mc["users"].find({"google_suite.email": auth["username"]}))
+        L = list(mc["users"].find({"mila_email_username": auth["username"]}))
 
         if not L:
             return jsonify("Authorization error."), 401
@@ -38,7 +38,7 @@ def authentication_required(f):
             return jsonify("Database error."), 500
 
         D_user = L[0]
-        if secrets.compare_digest(D_user["cw"]["clockwork_api_key"], auth["password"]):
+        if secrets.compare_digest(D_user["clockwork_api_key"], auth["password"]):
             return f(*args, **kwargs)
         else:
             return jsonify("Authorization error."), 401

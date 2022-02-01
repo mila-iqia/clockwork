@@ -11,29 +11,13 @@ import json
 
 """
     The "fake users" are going to have the following structure.
-    The "accounts_on_clusters" might have to be revised if it
-    leads to awkward/suboptimal requests for MongoDB.
     [
         {
-            "google_suite": {   "id": "009643",
-                                "name": "mario",
-                                "email": "mario@mila.quebec",
-                                "profile_pic": ""},
-            "cw": { "status": "enabled",
-                    "clockwork_api_key": "000aaa"},
-            {"accounts_on_clusters":
-                {
-                    "beluga":
-                        {
-                            "username": "ccuser040",
-                            "uid": 10040,
-                            "account": "def-pomme-rrg",
-                            "cluster_name": "beluga",
-                        },
-                    "cedar: { ... }
-                    "graham: { ... }
-                    "mila: { ... }
-                }
+            "mila_email_username": "mario@mila.quebec",
+            "status": "enabled",
+            "clockwork_api_key": "000aaa"
+            "cc_account_username": "ccuser040",
+            "mila_cluster_username": milauser040"
         },
         { ... },
         ...
@@ -61,26 +45,24 @@ def get_predefined_fake_users(N=20):
     def gen_single_user(n):
         status = "disabled" if (n % 10 == 9) else "enabled"
         D_user = {
-            "google_suite": {
-                "id": "%d" % (4000 + n),
-                "name": "google_suite_user%0.2d" % n,
-                "email": "student%0.2d@mila.quebec" % n,
-                "profile_pic": "",
-            },
-            "cw": {"status": status, "clockwork_api_key": "000aaa%0.2d" % n},
-            "accounts_on_clusters": {
+            "mila_email_username": "student%0.2d@mila.quebec" % n,
+            "status": status,
+            "clockwork_api_key": "000aaa%0.2d" % n,
+            "mila_cluster_username": "milauser%0.2d" % n,
+            "cc_account_username": "ccuser%0.2d" % n,
+            "_extra": {
                 "mila": {
                     "username": "milauser%0.2d" % n,
                     "uid": 10000 + n,
                     "account": "mila",
-                    "cluster_name": "mila",  # redundant
+                    "cluster_name": "mila",
                 }
             },
         }
         # then add the entries for all the clusters on CC
         account = L_cc_accounts[n % 2]
         for cluster_name in L_cc_clusters:
-            D_user["accounts_on_clusters"][cluster_name] = {
+            D_user["_extra"][cluster_name] = {
                 "username": "ccuser%0.2d" % n,
                 "uid": 10000 + n,
                 "account": account,
