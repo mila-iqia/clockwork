@@ -31,7 +31,7 @@ class User(UserMixin):
 
     def __init__(
         self,
-        email,
+        mila_email_username,
         status,
         clockwork_api_key=None,
         mila_cluster_username=None,
@@ -41,7 +41,7 @@ class User(UserMixin):
         This constructor is called only by the `get` method.
         We never call it directly.
         """
-        self.email = email
+        self.mila_email_username = mila_email_username
         self.status = status
         self.clockwork_api_key = clockwork_api_key
         self.mila_cluster_username = mila_cluster_username
@@ -57,17 +57,17 @@ class User(UserMixin):
         return self.status == "enabled"
 
     def get_id(self):
-        return self.email
+        return self.mila_email_username
 
     @staticmethod
-    def get(email: str):
+    def get(mila_email_username: str):
         """
         Returns the user with the specified email or None
         """
 
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
 
-        L = list(mc["users"].find({"mila_email_username": email}))
+        L = list(mc["users"].find({"mila_email_username": mila_email_username}))
         # This is not an error from which we expect to be able to recover gracefully.
         # It could happen if you copied data from your database directly
         # using an external script, and ended up with many instances of your users.
@@ -82,13 +82,13 @@ class User(UserMixin):
         else:
             e = L[0]
             user = User(
-                email=e["mila_email_username"],
+                mila_email_username=e["mila_email_username"],
                 status=e["status"],
                 clockwork_api_key=e["clockwork_api_key"],
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
             )
-            print("Retrieved entry for user with email %s." % user.email)
+            print("Retrieved entry for user with email %s." % user.mila_email_username)
 
             # Note that, at this point, it might be the case that the returned
             # user has status "disabled". The parent code will have to refrain
@@ -103,7 +103,7 @@ class User(UserMixin):
         self.clockwork_api_key = secrets.token_hex(32)
         mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
         res = mc["users"].update_one(
-            {"mila_email_username": self.email},
+            {"mila_email_username": self.mila_email_username},
             {"$set": {"clockwork_api_key": self.clockwork_api_key}},
         )
         if res.modified_count != 1:
@@ -113,8 +113,7 @@ class User(UserMixin):
 
 class AnonUser(AnonymousUserMixin):
     def __init__(self):
-        self.name = "Anonymous"
-        self.email = "anonymous@mila.quebec"
+        self.mila_email_username = "anonymous@mila.quebec"
         self.status = "enabled"
         self.clockwork_api_key = "deadbeef"
         self.cc_account_username = None

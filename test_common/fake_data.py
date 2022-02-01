@@ -84,7 +84,9 @@ def populate_fake_data(db_insertion_point, json_file=None):
         then we'd be affecting the real data in a bad way.
         """
         for e in E["users"]:
-            db_insertion_point["users"].delete_many({"mila_email_username": e["mila_email_username"]})
+            db_insertion_point["users"].delete_many(
+                {"mila_email_username": e["mila_email_username"]}
+            )
 
         for (k, sub, id_field) in [
             ("jobs", "slurm", "job_id"),

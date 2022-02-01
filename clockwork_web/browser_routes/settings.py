@@ -36,7 +36,7 @@ def route_index():
     """
     return render_template(
         "settings.html",
-        mila_email_username=current_user.email.split("@")[0],
+        mila_email_username=current_user.mila_email_username,
         clockwork_api_key=current_user.clockwork_api_key,
     )
 
