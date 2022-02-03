@@ -32,9 +32,6 @@ from flask import Blueprint
 flask_api = Blueprint("nodes", __name__)
 
 from clockwork_web.core.nodes_helper import get_nodes
-from clockwork_web.core.common import (
-    get_mila_email_username,
-)
 from clockwork_web.core.jobs_helper import (
     get_filter_cluster_name,
     combine_all_mongodb_filters,
@@ -64,7 +61,9 @@ def route_list():
     LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
 
     return render_template(
-        "nodes.html", LD_nodes=LD_nodes, mila_email_username=get_mila_email_username()
+        "nodes.html",
+        LD_nodes=LD_nodes,
+        mila_email_username=current_user.mila_email_username,
     )
 
 
@@ -104,5 +103,5 @@ def route_one():
     return render_template(
         "single_node.html",
         LP_single_node=LP_single_node,
-        mila_email_username=get_mila_email_username(),
+        mila_email_username=current_user.mila_email_username,
     )
