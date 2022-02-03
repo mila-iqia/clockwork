@@ -1,884 +1,144 @@
 {
   "users": [
     {
-      "google_suite": {
-        "id": "4000",
-        "name": "google_suite_user00",
-        "email": "student00@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa00"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser00",
-          "uid": 10000,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser00",
-          "uid": 10000,
-          "account": "def-patate-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser00",
-          "uid": 10000,
-          "account": "def-patate-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser00",
-          "uid": 10000,
-          "account": "def-patate-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser00",
-          "uid": 10000,
-          "account": "def-patate-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa00",
+      "mila_cluster_username": "milauser00",
+      "cc_account_username": "ccuser00",
+      "mila_email_username": "student00@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4001",
-        "name": "google_suite_user01",
-        "email": "student01@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa01"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser01",
-          "uid": 10001,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser01",
-          "uid": 10001,
-          "account": "def-pomme-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser01",
-          "uid": 10001,
-          "account": "def-pomme-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser01",
-          "uid": 10001,
-          "account": "def-pomme-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser01",
-          "uid": 10001,
-          "account": "def-pomme-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa01",
+      "mila_cluster_username": "milauser01",
+      "cc_account_username": "ccuser01",
+      "mila_email_username": "student01@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4002",
-        "name": "google_suite_user02",
-        "email": "student02@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa02"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser02",
-          "uid": 10002,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser02",
-          "uid": 10002,
-          "account": "def-patate-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser02",
-          "uid": 10002,
-          "account": "def-patate-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser02",
-          "uid": 10002,
-          "account": "def-patate-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser02",
-          "uid": 10002,
-          "account": "def-patate-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa02",
+      "mila_cluster_username": "milauser02",
+      "cc_account_username": "ccuser02",
+      "mila_email_username": "student02@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4003",
-        "name": "google_suite_user03",
-        "email": "student03@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa03"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser03",
-          "uid": 10003,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser03",
-          "uid": 10003,
-          "account": "def-pomme-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser03",
-          "uid": 10003,
-          "account": "def-pomme-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser03",
-          "uid": 10003,
-          "account": "def-pomme-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser03",
-          "uid": 10003,
-          "account": "def-pomme-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa03",
+      "mila_cluster_username": "milauser03",
+      "cc_account_username": "ccuser03",
+      "mila_email_username": "student03@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4004",
-        "name": "google_suite_user04",
-        "email": "student04@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa04"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser04",
-          "uid": 10004,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser04",
-          "uid": 10004,
-          "account": "def-patate-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser04",
-          "uid": 10004,
-          "account": "def-patate-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser04",
-          "uid": 10004,
-          "account": "def-patate-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser04",
-          "uid": 10004,
-          "account": "def-patate-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa04",
+      "mila_cluster_username": "milauser04",
+      "cc_account_username": "ccuser04",
+      "mila_email_username": "student04@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4005",
-        "name": "google_suite_user05",
-        "email": "student05@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa05"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser05",
-          "uid": 10005,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser05",
-          "uid": 10005,
-          "account": "def-pomme-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser05",
-          "uid": 10005,
-          "account": "def-pomme-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser05",
-          "uid": 10005,
-          "account": "def-pomme-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser05",
-          "uid": 10005,
-          "account": "def-pomme-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa05",
+      "mila_cluster_username": "milauser05",
+      "cc_account_username": "ccuser05",
+      "mila_email_username": "student05@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4006",
-        "name": "google_suite_user06",
-        "email": "student06@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa06"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser06",
-          "uid": 10006,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser06",
-          "uid": 10006,
-          "account": "def-patate-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser06",
-          "uid": 10006,
-          "account": "def-patate-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser06",
-          "uid": 10006,
-          "account": "def-patate-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser06",
-          "uid": 10006,
-          "account": "def-patate-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa06",
+      "mila_cluster_username": "milauser06",
+      "cc_account_username": "ccuser06",
+      "mila_email_username": "student06@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4007",
-        "name": "google_suite_user07",
-        "email": "student07@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa07"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser07",
-          "uid": 10007,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser07",
-          "uid": 10007,
-          "account": "def-pomme-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser07",
-          "uid": 10007,
-          "account": "def-pomme-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser07",
-          "uid": 10007,
-          "account": "def-pomme-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser07",
-          "uid": 10007,
-          "account": "def-pomme-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa07",
+      "mila_cluster_username": "milauser07",
+      "cc_account_username": "ccuser07",
+      "mila_email_username": "student07@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4008",
-        "name": "google_suite_user08",
-        "email": "student08@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa08"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser08",
-          "uid": 10008,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser08",
-          "uid": 10008,
-          "account": "def-patate-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser08",
-          "uid": 10008,
-          "account": "def-patate-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser08",
-          "uid": 10008,
-          "account": "def-patate-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser08",
-          "uid": 10008,
-          "account": "def-patate-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa08",
+      "mila_cluster_username": "milauser08",
+      "cc_account_username": "ccuser08",
+      "mila_email_username": "student08@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4009",
-        "name": "google_suite_user09",
-        "email": "student09@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "disabled",
-        "clockwork_api_key": "000aaa09"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser09",
-          "uid": 10009,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser09",
-          "uid": 10009,
-          "account": "def-pomme-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser09",
-          "uid": 10009,
-          "account": "def-pomme-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser09",
-          "uid": 10009,
-          "account": "def-pomme-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser09",
-          "uid": 10009,
-          "account": "def-pomme-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "disabled",
+      "clockwork_api_key": "000aaa09",
+      "mila_cluster_username": "milauser09",
+      "cc_account_username": "ccuser09",
+      "mila_email_username": "student09@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4010",
-        "name": "google_suite_user10",
-        "email": "student10@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa10"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser10",
-          "uid": 10010,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser10",
-          "uid": 10010,
-          "account": "def-patate-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser10",
-          "uid": 10010,
-          "account": "def-patate-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser10",
-          "uid": 10010,
-          "account": "def-patate-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser10",
-          "uid": 10010,
-          "account": "def-patate-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa10",
+      "mila_cluster_username": "milauser10",
+      "cc_account_username": "ccuser10",
+      "mila_email_username": "student10@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4011",
-        "name": "google_suite_user11",
-        "email": "student11@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa11"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser11",
-          "uid": 10011,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser11",
-          "uid": 10011,
-          "account": "def-pomme-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser11",
-          "uid": 10011,
-          "account": "def-pomme-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser11",
-          "uid": 10011,
-          "account": "def-pomme-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser11",
-          "uid": 10011,
-          "account": "def-pomme-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa11",
+      "mila_cluster_username": "milauser11",
+      "cc_account_username": "ccuser11",
+      "mila_email_username": "student11@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4012",
-        "name": "google_suite_user12",
-        "email": "student12@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa12"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser12",
-          "uid": 10012,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser12",
-          "uid": 10012,
-          "account": "def-patate-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser12",
-          "uid": 10012,
-          "account": "def-patate-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser12",
-          "uid": 10012,
-          "account": "def-patate-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser12",
-          "uid": 10012,
-          "account": "def-patate-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa12",
+      "mila_cluster_username": "milauser12",
+      "cc_account_username": "ccuser12",
+      "mila_email_username": "student12@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4013",
-        "name": "google_suite_user13",
-        "email": "student13@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa13"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser13",
-          "uid": 10013,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser13",
-          "uid": 10013,
-          "account": "def-pomme-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser13",
-          "uid": 10013,
-          "account": "def-pomme-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser13",
-          "uid": 10013,
-          "account": "def-pomme-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser13",
-          "uid": 10013,
-          "account": "def-pomme-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa13",
+      "mila_cluster_username": "milauser13",
+      "cc_account_username": "ccuser13",
+      "mila_email_username": "student13@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4014",
-        "name": "google_suite_user14",
-        "email": "student14@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa14"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser14",
-          "uid": 10014,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser14",
-          "uid": 10014,
-          "account": "def-patate-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser14",
-          "uid": 10014,
-          "account": "def-patate-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser14",
-          "uid": 10014,
-          "account": "def-patate-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser14",
-          "uid": 10014,
-          "account": "def-patate-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa14",
+      "mila_cluster_username": "milauser14",
+      "cc_account_username": "ccuser14",
+      "mila_email_username": "student14@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4015",
-        "name": "google_suite_user15",
-        "email": "student15@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa15"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser15",
-          "uid": 10015,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser15",
-          "uid": 10015,
-          "account": "def-pomme-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser15",
-          "uid": 10015,
-          "account": "def-pomme-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser15",
-          "uid": 10015,
-          "account": "def-pomme-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser15",
-          "uid": 10015,
-          "account": "def-pomme-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa15",
+      "mila_cluster_username": "milauser15",
+      "cc_account_username": "ccuser15",
+      "mila_email_username": "student15@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4016",
-        "name": "google_suite_user16",
-        "email": "student16@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa16"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser16",
-          "uid": 10016,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser16",
-          "uid": 10016,
-          "account": "def-patate-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser16",
-          "uid": 10016,
-          "account": "def-patate-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser16",
-          "uid": 10016,
-          "account": "def-patate-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser16",
-          "uid": 10016,
-          "account": "def-patate-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa16",
+      "mila_cluster_username": "milauser16",
+      "cc_account_username": "ccuser16",
+      "mila_email_username": "student16@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4017",
-        "name": "google_suite_user17",
-        "email": "student17@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa17"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser17",
-          "uid": 10017,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser17",
-          "uid": 10017,
-          "account": "def-pomme-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser17",
-          "uid": 10017,
-          "account": "def-pomme-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser17",
-          "uid": 10017,
-          "account": "def-pomme-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser17",
-          "uid": 10017,
-          "account": "def-pomme-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa17",
+      "mila_cluster_username": "milauser17",
+      "cc_account_username": "ccuser17",
+      "mila_email_username": "student17@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4018",
-        "name": "google_suite_user18",
-        "email": "student18@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "enabled",
-        "clockwork_api_key": "000aaa18"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser18",
-          "uid": 10018,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser18",
-          "uid": 10018,
-          "account": "def-patate-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser18",
-          "uid": 10018,
-          "account": "def-patate-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser18",
-          "uid": 10018,
-          "account": "def-patate-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser18",
-          "uid": 10018,
-          "account": "def-patate-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "enabled",
+      "clockwork_api_key": "000aaa18",
+      "mila_cluster_username": "milauser18",
+      "cc_account_username": "ccuser18",
+      "mila_email_username": "student18@mila.quebec"
     },
     {
-      "google_suite": {
-        "id": "4019",
-        "name": "google_suite_user19",
-        "email": "student19@mila.quebec",
-        "profile_pic": ""
-      },
-      "cw": {
-        "status": "disabled",
-        "clockwork_api_key": "000aaa19"
-      },
-      "accounts_on_clusters": {
-        "mila": {
-          "username": "milauser19",
-          "uid": 10019,
-          "account": "mila",
-          "cluster_name": "mila"
-        },
-        "beluga": {
-          "username": "ccuser19",
-          "uid": 10019,
-          "account": "def-pomme-rrg",
-          "cluster_name": "beluga"
-        },
-        "graham": {
-          "username": "ccuser19",
-          "uid": 10019,
-          "account": "def-pomme-rrg",
-          "cluster_name": "graham"
-        },
-        "cedar": {
-          "username": "ccuser19",
-          "uid": 10019,
-          "account": "def-pomme-rrg",
-          "cluster_name": "cedar"
-        },
-        "narval": {
-          "username": "ccuser19",
-          "uid": 10019,
-          "account": "def-pomme-rrg",
-          "cluster_name": "narval"
-        }
-      }
+      "status": "disabled",
+      "clockwork_api_key": "000aaa19",
+      "mila_cluster_username": "milauser19",
+      "cc_account_username": "ccuser19",
+      "mila_email_username": "student19@mila.quebec"
     }
   ],
   "jobs": [
