@@ -79,6 +79,7 @@ def main(argv):
             )
         main_read_jobs_and_update_collection(
             client[collection_name]["jobs"] if client else None,
+            client[collection_name]["users"] if client else None,
             args.cluster_desc,
             args.jobs_file,
             want_commit_to_db=want_commit_to_db,
