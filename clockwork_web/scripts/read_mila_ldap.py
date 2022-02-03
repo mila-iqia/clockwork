@@ -215,7 +215,7 @@ def process_user(user_raw: dict) -> dict:
     Note that all entries from `user_raw` are lists, and we expect
     them to contain only one element at [0].
 
-    mail[0]        -> mila_email_username  (but cut out the "@mila.quebec" suffix)
+    mail[0]        -> mila_email_username  (includes the "@mila.quebec")
     posixUid[0]    -> mila_cluster_username
     uidNumber[0]   -> mila_cluster_uid
     gidNumber[0]   -> mila_cluster_gid
@@ -226,8 +226,8 @@ def process_user(user_raw: dict) -> dict:
     the "@mila.quebec" suffix).
     """
     user = {
-        # leave out the suffix "@mila.quebec"
-        "mila_email_username": user_raw["mail"][0].split("@")[0],
+        # include the suffix "@mila.quebec"
+        "mila_email_username": user_raw["mail"][0],
         "mila_cluster_username": user_raw["posixUid"][0],
         "mila_cluster_uid": user_raw["uidNumber"][0],
         "mila_cluster_gid": user_raw["gidNumber"][0],
