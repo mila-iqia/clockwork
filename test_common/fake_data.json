@@ -5,140 +5,160 @@
       "clockwork_api_key": "000aaa00",
       "mila_cluster_username": "milauser00",
       "cc_account_username": "ccuser00",
-      "mila_email_username": "student00@mila.quebec"
+      "mila_email_username": "student00@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa01",
       "mila_cluster_username": "milauser01",
       "cc_account_username": "ccuser01",
-      "mila_email_username": "student01@mila.quebec"
+      "mila_email_username": "student01@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa02",
       "mila_cluster_username": "milauser02",
       "cc_account_username": "ccuser02",
-      "mila_email_username": "student02@mila.quebec"
+      "mila_email_username": "student02@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa03",
       "mila_cluster_username": "milauser03",
       "cc_account_username": "ccuser03",
-      "mila_email_username": "student03@mila.quebec"
+      "mila_email_username": "student03@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa04",
       "mila_cluster_username": "milauser04",
       "cc_account_username": "ccuser04",
-      "mila_email_username": "student04@mila.quebec"
+      "mila_email_username": "student04@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa05",
       "mila_cluster_username": "milauser05",
       "cc_account_username": "ccuser05",
-      "mila_email_username": "student05@mila.quebec"
+      "mila_email_username": "student05@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa06",
       "mila_cluster_username": "milauser06",
       "cc_account_username": "ccuser06",
-      "mila_email_username": "student06@mila.quebec"
+      "mila_email_username": "student06@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa07",
       "mila_cluster_username": "milauser07",
       "cc_account_username": "ccuser07",
-      "mila_email_username": "student07@mila.quebec"
+      "mila_email_username": "student07@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa08",
       "mila_cluster_username": "milauser08",
       "cc_account_username": "ccuser08",
-      "mila_email_username": "student08@mila.quebec"
+      "mila_email_username": "student08@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "disabled",
       "clockwork_api_key": "000aaa09",
       "mila_cluster_username": "milauser09",
       "cc_account_username": "ccuser09",
-      "mila_email_username": "student09@mila.quebec"
+      "mila_email_username": "student09@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa10",
       "mila_cluster_username": "milauser10",
       "cc_account_username": "ccuser10",
-      "mila_email_username": "student10@mila.quebec"
+      "mila_email_username": "student10@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa11",
       "mila_cluster_username": "milauser11",
       "cc_account_username": "ccuser11",
-      "mila_email_username": "student11@mila.quebec"
+      "mila_email_username": "student11@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa12",
       "mila_cluster_username": "milauser12",
       "cc_account_username": "ccuser12",
-      "mila_email_username": "student12@mila.quebec"
+      "mila_email_username": "student12@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa13",
       "mila_cluster_username": "milauser13",
       "cc_account_username": "ccuser13",
-      "mila_email_username": "student13@mila.quebec"
+      "mila_email_username": "student13@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa14",
       "mila_cluster_username": "milauser14",
       "cc_account_username": "ccuser14",
-      "mila_email_username": "student14@mila.quebec"
+      "mila_email_username": "student14@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa15",
       "mila_cluster_username": "milauser15",
       "cc_account_username": "ccuser15",
-      "mila_email_username": "student15@mila.quebec"
+      "mila_email_username": "student15@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa16",
       "mila_cluster_username": "milauser16",
       "cc_account_username": "ccuser16",
-      "mila_email_username": "student16@mila.quebec"
+      "mila_email_username": "student16@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa17",
       "mila_cluster_username": "milauser17",
       "cc_account_username": "ccuser17",
-      "mila_email_username": "student17@mila.quebec"
+      "mila_email_username": "student17@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "enabled",
       "clockwork_api_key": "000aaa18",
       "mila_cluster_username": "milauser18",
       "cc_account_username": "ccuser18",
-      "mila_email_username": "student18@mila.quebec"
+      "mila_email_username": "student18@mila.quebec",
+      "cc_account_update_key": null
     },
     {
       "status": "disabled",
       "clockwork_api_key": "000aaa19",
       "mila_cluster_username": "milauser19",
       "cc_account_username": "ccuser19",
-      "mila_email_username": "student19@mila.quebec"
+      "mila_email_username": "student19@mila.quebec",
+      "cc_account_update_key": null
     }
   ],
   "jobs": [
