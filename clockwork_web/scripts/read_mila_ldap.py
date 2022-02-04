@@ -21,6 +21,13 @@ Two ways to output the data, that can be used together:
    2) to a MongoDB instance
 
 
+## Useful note for later about "clockwork_api_key"
+
+The two extra fields "clockwork_api_key" and "cc_account_username"
+are added when the entries are committed to the database,
+but not when they are read or written to a json file.
+
+
 ## Sample uses
 
 python3 read_mila_ldap.py \
@@ -170,6 +177,12 @@ parser.add_argument(
     type=str,
     help="(optional) Write results to json file.",
 )
+parser.add_argument(
+    "--output_raw_LDAP_json_file",
+    default=None,
+    type=str,
+    help="(optional) Write results of the raw LDAP query to json file.",
+)
 
 
 def query_ldap(local_private_key_file, local_certificate_file, ldap_service_uri):
@@ -220,6 +233,7 @@ def process_user(user_raw: dict) -> dict:
     uidNumber[0]   -> mila_cluster_uid
     gidNumber[0]   -> mila_cluster_gid
     displayName[0] -> display_name
+    suspended[0]   -> status  (as string "enabled" or "disabled")
 
     It also asserts, as sanity check, that the entries for
     "googleUid" and "uid" match that of "mail" (except for
@@ -232,7 +246,9 @@ def process_user(user_raw: dict) -> dict:
         "mila_cluster_uid": user_raw["uidNumber"][0],
         "mila_cluster_gid": user_raw["gidNumber"][0],
         "display_name": user_raw["displayName"][0],
-        "status": "disabled" if user_raw["suspended"][0] else "enabled",
+        "status": "disabled"
+            if (user_raw["suspended"][0] in ["True", "true", True])
+            else "enabled",
     }
     assert user_raw["mail"][0].startswith(user_raw["googleUid"][0])
     assert user_raw["mail"][0].startswith(user_raw["uid"][0])
@@ -254,8 +270,8 @@ def client_side_user_updates(LD_users_DB, LD_users_LDAP):
     # the "mila_email_username". This is because we'll be matching
     # entries from both lists and we want to avoid N^2 performance.
 
-    DD_users_DB = dict( (e["mila_email_username"], e) for e in LD_users_DB )
-    DD_users_LDAP = dict( (e["mila_email_username"], e) for e in LD_users_LDAP )
+    DD_users_DB = dict((e["mila_email_username"], e) for e in LD_users_DB)
+    DD_users_LDAP = dict((e["mila_email_username"], e) for e in LD_users_LDAP)
 
     LD_users_to_update_or_insert = []
     for meu in set(list(DD_users_DB.keys()) + list(DD_users_LDAP.keys())):
@@ -284,7 +300,7 @@ def client_side_user_updates(LD_users_DB, LD_users_LDAP):
                 # We wouldn't do the same thing with "enabled" in the LDAP, though.
                 entry["status"] = "disabled"
             assert "cc_account_username" in entry  # sanity check
-            assert "clockwork_api_key" in entry    # sanity check
+            assert "clockwork_api_key" in entry  # sanity check
 
         LD_users_to_update_or_insert.append(entry)
     return LD_users_to_update_or_insert
@@ -299,6 +315,7 @@ def run(
     mongodb_collection=None,
     input_json_file=None,
     output_json_file=None,
+    output_raw_LDAP_json_file=None,
     LD_users=None,  # for external testing purposes
 ):
 
@@ -317,6 +334,11 @@ def run(
         LD_users_raw = query_ldap(
             local_private_key_file, local_certificate_file, ldap_service_uri
         )
+        if output_raw_LDAP_json_file:
+            with open(output_raw_LDAP_json_file, "w") as f_out:
+                json.dump(LD_users_raw, f_out, indent=4)
+                print(f"Wrote {output_raw_LDAP_json_file}.")
+
         LD_users = [process_user(D_user_raw) for D_user_raw in LD_users_raw]
 
     if mongodb_connection_string and mongodb_database and mongodb_collection:
@@ -335,7 +357,9 @@ def run(
 
         LD_users_DB = list(users_collection.find())
 
-        L_updated_users = client_side_user_updates(LD_users_DB=LD_users_DB, LD_users_LDAP=LD_users)
+        L_updated_users = client_side_user_updates(
+            LD_users_DB=LD_users_DB, LD_users_LDAP=LD_users
+        )
 
         L_updates_to_do = [
             UpdateOne(
@@ -346,7 +370,8 @@ def run(
                     # the fields in the database that are already present for that user.
                     "$set": updated_user,
                 },
-                upsert=True)
+                upsert=True,
+            )
             for updated_user in L_updated_users
         ]
 
@@ -359,6 +384,7 @@ def run(
     if output_json_file:
         with open(output_json_file, "w") as f_out:
             json.dump(LD_users, f_out, indent=4)
+            print(f"Wrote {output_json_file}.")
 
 
 if __name__ == "__main__":
@@ -373,4 +399,5 @@ if __name__ == "__main__":
         mongodb_collection=args.mongodb_collection,
         input_json_file=args.input_json_file,
         output_json_file=args.output_json_file,
+        output_raw_LDAP_json_file=args.output_raw_LDAP_json_file,
     )
