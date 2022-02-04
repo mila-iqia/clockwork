@@ -247,8 +247,8 @@ def process_user(user_raw: dict) -> dict:
         "mila_cluster_gid": user_raw["gidNumber"][0],
         "display_name": user_raw["displayName"][0],
         "status": "disabled"
-            if (user_raw["suspended"][0] in ["True", "true", True])
-            else "enabled",
+        if (user_raw["suspended"][0] in ["True", "true", True])
+        else "enabled",
     }
     assert user_raw["mail"][0].startswith(user_raw["googleUid"][0])
     assert user_raw["mail"][0].startswith(user_raw["uid"][0])
