@@ -36,7 +36,7 @@ def route_index():
     """
     return render_template(
         "settings.html",
-        mila_email_username=current_user.email.split("@")[0],
+        mila_email_username=current_user.mila_email_username,
         clockwork_api_key=current_user.clockwork_api_key,
     )
 
@@ -47,6 +47,5 @@ def route_key():
     """
     Generate a new API key, invalidating the old one.
     """
-    current_user.clockwork_api_key = secrets.token_hex(32)
-    current_user.update()
+    current_user.new_api_key()
     return redirect("/settings/")
