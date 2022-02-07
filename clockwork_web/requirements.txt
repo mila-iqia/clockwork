@@ -6,3 +6,4 @@ Flask-Login
 pymongo
 dnspython
 
+ldap3

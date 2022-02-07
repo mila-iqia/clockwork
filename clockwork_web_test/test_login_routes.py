@@ -76,12 +76,12 @@ def test_login_nomila(client_with_login, requests_mock):
         "/login/callback", query_string=dict(code=code, state=args["state"][0])
     )
 
-    assert b"We accept only accounts @mila.quebec" in resp.data
+    assert b"We accept only accounts from @mila.quebec" in resp.data
 
 
 # requests_mock is magically available because the package is installed,
 # there is no import anywhere (except possibly in the pytest code)
-def test_login_new(client_with_login, requests_mock):
+def test_login_nodb(client_with_login, requests_mock):
     fake_endpoints(
         requests_mock,
         '{"email_verified": true, "sub": "1234", "email": "user@mila.quebec", "picture": "", "given_name": "User"}',
@@ -95,12 +95,8 @@ def test_login_new(client_with_login, requests_mock):
         "/login/callback", query_string=dict(code=code, state=args["state"][0])
     )
 
-    assert resp.status_code == 302
-    assert resp.headers["Location"] == "https://localhost/"
-
-    resp = client_with_login.get("/")
-    assert resp.status_code == 302
-    assert resp.headers["Location"] == "https://localhost/jobs/"
+    assert resp.status_code == 200
+    assert b"contact support" in resp.data
 
 
 # requests_mock is magically available because the package is installed,
@@ -132,7 +128,7 @@ def test_login_disabled(client_with_login, requests_mock):
 def test_logout(client_with_login, requests_mock):
     fake_endpoints(
         requests_mock,
-        '{"email_verified": true, "sub": "1234", "email": "user@mila.quebec", "picture": "", "given_name": "User"}',
+        '{"email_verified": true, "sub": "1234", "email": "student01@mila.quebec", "picture": "", "given_name": "User"}',
     )
     resp = client_with_login.get("/login/")
     res = urlparse(resp.headers["Location"])

@@ -41,9 +41,6 @@ from clockwork_web.core.jobs_helper import (
     get_jobs,
     infer_best_guess_for_username,
 )
-from clockwork_web.core.common import (
-    get_mila_email_username,
-)
 
 
 @flask_api.route("/")
@@ -100,7 +97,9 @@ def route_list():
     ]
 
     return render_template(
-        "jobs.html", LD_jobs=LD_jobs, mila_email_username=get_mila_email_username()
+        "jobs.html",
+        LD_jobs=LD_jobs,
+        mila_email_username=current_user.mila_email_username,
     )
 
 
@@ -152,7 +151,7 @@ def route_one():
         "single_job.html",
         LP_single_job=LP_single_job,
         job_id=job_id,
-        mila_email_username=get_mila_email_username(),
+        mila_email_username=current_user.mila_email_username,
     )
 
 
@@ -166,5 +165,6 @@ def route_interactive():
     Not implemented.
     """
     return render_template(
-        "jobs_interactive.html", mila_email_username=get_mila_email_username()
+        "jobs_interactive.html",
+        mila_email_username=current_user.get_mila_email_username,
     )

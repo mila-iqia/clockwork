@@ -148,42 +148,25 @@ def route_callback():
     # app, and now we've verified their email through Google!
     userinfo = userinfo_response.json()
     if userinfo.get("email_verified"):
-        unique_id = userinfo["sub"]
         users_email = userinfo["email"]
-        picture = userinfo["picture"]
-        users_name = userinfo["given_name"]
     else:
         return render_template(
             "error.html",
             error_msg="User email not available or not verified by Google.",
         )
 
-    user = User.get(unique_id)
-    # The first time around, if user is None, it's either
-    # because of a corrupted database (should not happen, worth investigating),
-    # or because it simply was never created.
-    if user is None:
-        success, error_msg = User.add_to_database(
-            unique_id, users_name, users_email, picture
+    if not users_email.endswith("@mila.quebec"):
+        return render_template(
+            "error.html", error_msg="We accept only accounts from @mila.quebec"
         )
-        if not success:
-            return render_template(
-                "error.html",
-                error_msg=f"Failed to add a user to the database. {error_msg}",
-            )
-        else:
-            # We successfully added the user to the database,
-            # so we should be able to retrieve it now.
-            user = User.get(unique_id)
-            if user is None:
-                # If we still have a `None`, then it means that we really have an error.
-                # Again, if we had a database corruption, then this should have been
-                # detected earlier, but let's test anyway.
-                return render_template(
-                    "error.html",
-                    error_msg="We tried to create an account for {users_email} but it failed.",
-                )
 
+    user = User.get(users_email)
+
+    if user is None:
+        return render_template(
+            "error.html",
+            error_msg=f"User not available, contact support for more information",
+        )
     # At this point in the code, the user cannot possibly be `None`.
 
     if user.status != "enabled":
@@ -191,11 +174,10 @@ def route_callback():
             "error.html",
             error_msg="The user retrieved does not have its status as 'enabled'.",
         )
-        # return f"The user retrieved does not have its status as 'enabled'.", 400
 
     login_user(user)
     print(
-        f"called login_user(user) for user with email {user.email}, user.is_authenticated is {user.is_authenticated()}"
+        f"called login_user(user) for user with email {user.mila_email_username}, user.is_authenticated is {user.is_authenticated()}"
     )
     # Send user back to homepage
     return redirect(url_for("index"))
@@ -211,40 +193,3 @@ def route_logout():
     """
     logout_user()
     return redirect(url_for("index"))
-
-
-"""
-When logins are disabled, we add the route /login/new_fake_user in order to be able
-to login easily to test out functionality locally.
-
-To be more precise, this piece of code is useful not when running pytest,
-but when poking around in the browser, with the web server running locally
-(thus being unable to test using https).
-
-Since the "LOGIN_DISABLED" environment variable is already being used,
-we might as well use it.
-"""
-
-if os.environ.get("LOGIN_DISABLED", "False") in ["True", "true", "1"]:
-
-    @flask_api.route("/new_fake_user")
-    def route_new_fake_user():
-        """
-        Login as a fake user that's not present in the database yet.
-        This will cause the creation of that user entry in the database.
-        """
-        unique_id = str(random.randint(0, 1e12))
-        user = User.get(unique_id)
-        if user is None:
-            User.add_to_database(
-                unique_id,
-                "Fake User %s" % unique_id,
-                "fake_user_%s@mila.quebec" % unique_id,
-                "",
-            )
-        user = User.get(unique_id)
-        assert (
-            user is not None
-        ), "Failed to create a fake user with route /login/new_fake_user."
-        login_user(user)
-        return redirect(url_for("index"))
