@@ -165,3 +165,22 @@ def test_jobs_list_with_filter(
     assert response.status_code == 200
     LD_jobs_results = response.get_json()
     validator(LD_jobs_results)
+
+
+def test_jobs_user_dict_update_successful_update(
+    client, fake_data, valid_rest_auth_headers
+):
+    """
+    Test the `user_dict_update` command with a successful update.
+    """
+    # fake_data["jobs"]
+
+    # validator = helper_jobs_list_with_filter(fake_data, cluster_name=cluster_name)
+    # response = client.get(
+    #     f"/api/v1/clusters/jobs/list?cluster_name={cluster_name}",
+    #     headers=valid_rest_auth_headers,
+    # )
+    # assert response.content_type == "application/json"
+    # assert response.status_code == 200
+    # LD_jobs_results = response.get_json()
+    # validator(LD_jobs_results)

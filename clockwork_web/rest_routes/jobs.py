@@ -1,6 +1,7 @@
 import re
 import time
 
+from flask import g
 from flask import request, make_response
 from flask.json import jsonify
 from .authentication import authentication_required
@@ -64,10 +65,8 @@ def route_api_v1_jobs_list():
 
 @flask_api.route("/jobs/one")
 @authentication_required
-def route_api_v1_jobs_one(user_with_rest_auth: dict):
+def route_api_v1_jobs_one():
     """
-
-    `user_with_rest_auth` is unused
 
     .. :quickref: list one Slurm job
     """
@@ -102,13 +101,15 @@ def route_api_v1_jobs_one(user_with_rest_auth: dict):
 
 @flask_api.route("/jobs/user_dict_update", methods=["PUT"])
 @authentication_required
-def route_api_v1_jobs_user_dict_update(user_with_rest_auth: dict):
+def route_api_v1_jobs_user_dict_update():
     """
         Performs an update to the user dict for a given job.
         The request needs to contain "job_id" and "cluster_name"
         to identify the job to be updated, and then it needs to contain
         "update_pairs" which is a list of (k, v) that we should
         update in the `job["user"]` dict.
+
+        User info is in `g.user_with_rest_auth`.
 
     .. :quickref: update the user dict for a given Slurm job that belongs to the user
     """
@@ -144,6 +145,10 @@ def route_api_v1_jobs_user_dict_update(user_with_rest_auth: dict):
 
     D_job = LD_jobs[0]
 
+    assert (hasattr(g, "user_with_rest_auth") and 
+            g.user_with_rest_auth is not None), (
+        "Authentication should have failed much earlier than this.")
+
     # Make use of `user_with_rest_auth`.
     # If the user requesting the update is not the owner,
     # then we refuse the update and return an error
@@ -168,10 +173,10 @@ def route_api_v1_jobs_user_dict_update(user_with_rest_auth: dict):
         # authenticated and submitting the request to modify
         # the user_dict.
         if D_job["cw"].get("job_cw_key", None):
-            if D_job["cw"]["job_cw_key"] != user_with_rest_auth["user_key"]:
+            if D_job["cw"]["job_cw_key"] != g.user_with_rest_auth["user_key"]:
                 return (
                     jsonify(
-                        f'This job belongs to {D_job["cw"]["job_cw_key"]} and not {user_with_rest_auth["user_key"]}.'
+                        f'This job belongs to {D_job["cw"]["job_cw_key"]} and not {g.user_with_rest_auth["user_key"]}.'
                     ),
                     500,
                 )
