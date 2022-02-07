@@ -210,7 +210,7 @@ def main_read_jobs_and_update_collection(
 
     if want_commit_to_db:
         result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
-        if L_user_udpates:
+        if L_user_updates:
             users_collection.bulk_write(L_user_updates)
 
         mongo_update_duration = time.time() - timestamp_start
