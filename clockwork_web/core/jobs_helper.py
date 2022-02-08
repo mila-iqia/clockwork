@@ -96,7 +96,9 @@ def update_job_user_dict(mongodb_filter: dict, new_user_dict: dict):
     `new_user_dict` is the value to replace the "user" field with
     """
     mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
-    return mc["jobs"].update_one(mongodb_filter, {"user": new_user_dict})
+    return mc["jobs"].update_one(
+        mongodb_filter, {"$set": {"user": new_user_dict}}, upsert=False
+    )
 
 
 def infer_best_guess_for_username(D_job):

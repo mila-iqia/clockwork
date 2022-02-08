@@ -1,6 +1,7 @@
 import re
 import time
 
+import json
 from flask import g
 from flask import request, make_response
 from flask.json import jsonify
@@ -106,21 +107,22 @@ def route_api_v1_jobs_user_dict_update():
         Performs an update to the user dict for a given job.
         The request needs to contain "job_id" and "cluster_name"
         to identify the job to be updated, and then it needs to contain
-        "update_pairs" which is a list of (k, v) that we should
-        update in the `job["user"]` dict.
+        "update_pairs" which is a list of (k, v), as a json string,
+        that we should update in the `job["user"]` dict.
+        The reason for passing "update_pairs" as a string is that
+        Flask received it as `werkzeug.datastructures.FileStorage`
+        when it was sent as a dict instead of a string.
 
-        User info is in `g.user_with_rest_auth`.
+        User info is in `g.current_user_with_rest_auth`.
 
     .. :quickref: update the user dict for a given Slurm job that belongs to the user
     """
     # A 'PUT' method is generally to modify resources.
-    # We access arguments with `request.json.get(...)`.
-    # See p215 of "Flask Web Development" by Michael Grinberg.
-    job_id = request.json.get("job_id", None)
+    job_id = request.values.get("job_id", None)
     if job_id is None:
         return jsonify("Missing argument job_id."), 400  # bad request
     f0 = get_filter_job_id(job_id)
-    f1 = get_filter_cluster_name(request.json.get("cluster_name", None))
+    f1 = get_filter_cluster_name(request.values.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
     # Note that we'll have to add some more fields when we make progress in CW-93.
     # We are going to have to check for "array_job_id" and "array_task_id"
@@ -145,50 +147,52 @@ def route_api_v1_jobs_user_dict_update():
 
     D_job = LD_jobs[0]
 
-    assert (hasattr(g, "user_with_rest_auth") and 
-            g.user_with_rest_auth is not None), (
-        "Authentication should have failed much earlier than this.")
+    assert (
+        hasattr(g, "current_user_with_rest_auth")
+        and g.current_user_with_rest_auth is not None
+    ), "Authentication should have failed much earlier than this."
 
-    # Make use of `user_with_rest_auth`.
+    # Make use of `current_user_with_rest_auth`.
     # If the user requesting the update is not the owner,
     # then we refuse the update and return an error
     # that describes the problem.
-    #
-    # It would have been possible to do this check in
-    # the `filter` for the request to MongoDB, but then
-    # we would forego the possibility of telling the user
-    # that the job exists; it simply isn't theirs.
-    #
-    # Note that this is affected by PR#23.
-    # https://github.com/mila-iqia/clockwork/pull/23
-    for (user_key, job_cw_key) in [
-        ("email", "mila_email_username"),
-        ("mila_cluster_username", "mila_cluster_username"),
-        ("cc_account_username", "cc_account_username"),
-    ]:
 
+    for key in ["mila_email_username", "mila_cluster_username", "cc_account_username"]:
         # Be as strict as possible here. If the job entry
-        # contains any of the three types of usernames,
+        # contains any of the three types of usernames (and it's not `None`),
         # than it must be matched against that of the user
         # authenticated and submitting the request to modify
-        # the user_dict.
-        if D_job["cw"].get("job_cw_key", None):
-            if D_job["cw"]["job_cw_key"] != g.user_with_rest_auth["user_key"]:
+        # the user_dict. Usernames that are `None` but disagree
+        # with each other will not cause failed matches.
+        if D_job["cw"].get(key, None):
+            if D_job["cw"][key] != g.current_user_with_rest_auth[key]:
                 return (
                     jsonify(
-                        f'This job belongs to {D_job["cw"]["job_cw_key"]} and not {g.user_with_rest_auth["user_key"]}.'
+                        f'This job belongs to {D_job["cw"][key]} and not {g.current_user_with_rest_auth[key]}.'
                     ),
-                    500,
+                    500,  ## response code for an error
                 )
 
-    update_pairs = request.json.get("update_pairs", None)
+    update_pairs = request.values.get("update_pairs", None)
     if update_pairs is None:
         return jsonify(f"Missing 'update_pairs' from arguments."), 500
+    elif isinstance(update_pairs, str):
+        try:
+            update_pairs = json.loads(update_pairs)
+        except Exception as inst:
+            return jsonify(f"Failed to json.loads(update_pairs). \n{inst}."), 500
+    else:
+        return (
+            jsonify(
+                f"Field 'update_pairs' was not a string (encoding a json structure). {update_pairs}"
+            ),
+            500,
+        )
 
     new_user_dict = D_job["user"]
     # We do an update even if we have an empty list for `update_pairs`,
     # for the sake of more predictable behavior.
-    for (k, v) in update_pairs:
+    for (k, v) in update_pairs.items():
         new_user_dict[k] = v
 
     # We could reuse `filter` because we might as well refer to the job

@@ -150,7 +150,7 @@ def helper_list_jobs_for_a_given_random_user(fake_data):
         # pick something that's interesting, and not something that should
         # return empty results, because then this test becomes vacuous
         if LD_jobs_ground_truth:
-            break
+            continue
     assert (
         LD_jobs_ground_truth
     ), "Failed to get an interesting test candidate for helper_list_jobs_for_a_given_random_user. We hit the safety valve."
@@ -215,3 +215,55 @@ def helper_jobs_list_with_filter(fake_data, cluster_name):
                     assert D_job[k1][k2] == D_original_job[k1][k2]
 
     return validator
+
+
+def helper_user_dict_update(fake_data):
+
+    """
+    Helper function to make a request to the REST API
+    endpoint /api/v1/clusters/jobs/user_dict_update, and to mtclient.jobs_user_dict_update.
+
+    We pick a user at random from our fake_data, making sure they
+    have at least one jobs. We also return a job that is not theirs.
+    """
+
+    def get_jobs_for_user(username, LD_jobs):
+        return [D_job for D_job in LD_jobs if username == D_job["mila_email_username"]]
+
+    # Let's avoid using a `while True` structure in a test.
+    # Try things until we get our requirements satisfied. Simpler code.
+    for attempts in range(10):
+        D_user = random.choice(fake_data["users"])
+        LD_jobs = get_jobs_for_user(D_user["mila_email_username"], fake_data["jobs"])
+        # pick something that's interesting, and not something that should
+        # return empty results, because then this test becomes vacuous
+        if LD_jobs:
+            continue
+
+        D_user_other = random.choice(fake_data["users"])
+        if D_user["mila_email_username"] == D_user_other["mila_email_username"]:
+            # nope, it's the same person
+            continue
+        LD_jobs_other = get_jobs_for_user(
+            D_user_other["mila_email_username"], fake_data["jobs"]
+        )
+        if LD_jobs:
+            continue
+
+        # three quantites of interest
+        mila_email_username = D_user["mila_email_username"]
+        D_job_that_can_be_updated_by_user = LD_jobs[0]
+        D_job_that_cannot_be_updated_by_user = LD_jobs_other[0]
+
+    assert (
+        D_job_that_can_be_updated_by_user
+    ), "Failed to get an interesting test candidate for helper_user_dict_update. We hit the safety valve."
+    assert (
+        D_job_that_cannot_be_updated_by_user
+    ), "Failed to get an interesting test candidate for helper_user_dict_update. We hit the safety valve."
+
+    return (
+        mila_email_username,
+        D_job_that_can_be_updated_by_user,
+        D_job_that_cannot_be_updated_by_user,
+    )
