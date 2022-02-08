@@ -5,7 +5,7 @@
 * The final layout/functionality of this repo are not known yet, so that
 makes it hard to document properly
 * The most relevant Readme file is
-[docker-compose.yml](https://https://github.com/mila-iqia/clockwork/blob/master/docker-compose.yml)
+[docker-compose.yml](docker-compose.yml)
 and we can see how to use it by looking at the various `.sh` files
 in the top level of this repo.
 
@@ -37,7 +37,7 @@ The other Markdown files of this Git are the following:
   * [Tests information](clockwork_web_test/README.md)
 * Slurm state
   * [Global information](slurm_state/README.md)
-  * [CRON scripts information](slurm_state/cron_scripts/README.md)
+  * [CRON scripts information](slurm_state/cron_scripts/readme.md)
 
 ## Global architecture
 
