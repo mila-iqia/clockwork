@@ -13,17 +13,20 @@ Lots of details about these tests depend on the particular values that we put in
 
 """
 
+import os
 import time
 from pprint import pprint
 import random
 import json
 import pytest
+from clockwork_web.db import get_db
 from test_common.jobs_test_helpers import (
     helper_list_relative_time,
     helper_single_job_missing,
     helper_single_job_at_random,
     helper_list_jobs_for_a_given_random_user,
     helper_jobs_list_with_filter,
+    helper_user_dict_update,
 )
 
 
@@ -167,20 +170,107 @@ def test_jobs_list_with_filter(
     validator(LD_jobs_results)
 
 
+@pytest.mark.parametrize("cluster_name", ("mila", "cedar", "graham", "beluga"))
+@pytest.mark.parametrize("update_allowed", (True, False))
 def test_jobs_user_dict_update_successful_update(
-    client, fake_data, valid_rest_auth_headers
+    app, client, fake_data, valid_rest_auth_headers, cluster_name, update_allowed
 ):
     """
     Test the `user_dict_update` command with a successful update.
-    """
-    # fake_data["jobs"]
 
-    # validator = helper_jobs_list_with_filter(fake_data, cluster_name=cluster_name)
-    # response = client.get(
-    #     f"/api/v1/clusters/jobs/list?cluster_name={cluster_name}",
-    #     headers=valid_rest_auth_headers,
-    # )
-    # assert response.content_type == "application/json"
-    # assert response.status_code == 200
-    # LD_jobs_results = response.get_json()
-    # validator(LD_jobs_results)
+    """
+
+    with app.app_context():
+        mc = get_db()[app.config["MONGODB_DATABASE_NAME"]]
+
+        # retrieve the user in the database in order to know its three usernames
+        LD_users = list(
+            mc["users"].find(
+                {"mila_email_username": os.environ["clockwork_tools_test_EMAIL"]}
+            )
+        )
+        assert len(LD_users) == 1
+        D_user = LD_users[0]
+
+        # it so happens that the "test user" doesn't have any job on the mila cluster
+        # so we'll just bypass all of that by insert new jobs
+        D_updates_to_user_dict = {
+            "nbr_dinosaurs": 10,
+            "train_loss": 0.23,
+            "test_loss": 0.40,
+            "experiment_name": "save the planet",
+        }
+
+        D_job = {
+            "slurm": {
+                "job_id": str(int(random.random() * 1e8)),
+                "cluster_name": cluster_name,
+            },
+            "cw": {
+                "cc_account_username": None,
+                "mila_cluster_username": None,
+                "mila_email_username": None,
+            },
+            "user": {
+                "nbr_dinosaurs": 0,  # some field that will be updated
+                "to_be_left_untouched": "can't touch this",
+            },
+        }
+        if cluster_name in ["cedar", "graham", "beluga"]:
+            if update_allowed:
+                D_job["cw"]["cc_account_username"] = D_user["cc_account_username"]
+            else:
+                D_job["cw"]["cc_account_username"] = (
+                    "NOT_" + D_user["cc_account_username"]
+                )
+        elif cluster_name in ["mila"]:
+            if update_allowed:
+                D_job["cw"]["mila_cluster_username"] = D_user["mila_cluster_username"]
+            else:
+                D_job["cw"]["mila_cluster_username"] = (
+                    "NOT_" + D_user["mila_cluster_username"]
+                )
+        else:
+            raise Exception("You're not handling properly the cluster_name parameter.")
+
+        mc["jobs"].insert_one(D_job)
+
+        response = client.put(
+            "/api/v1/clusters/jobs/user_dict_update",
+            data={
+                "job_id": D_job["slurm"]["job_id"],
+                "cluster_name": D_job["slurm"]["cluster_name"],
+                "update_pairs": json.dumps(D_updates_to_user_dict),
+            },
+            headers=valid_rest_auth_headers,
+        )
+        assert response.content_type == "application/json"
+        if update_allowed:
+            print(response.json)
+            assert response.status_code == 200
+            # Now check that our update was done properly.
+            L = list(
+                mc["jobs"].find(
+                    {
+                        "slurm.job_id": D_job["slurm"]["job_id"],
+                        "slurm.cluster_name": D_job["slurm"]["cluster_name"],
+                    }
+                )
+            )
+            assert len(L) == 1, f"We should have one entry but we have {len(L)}."
+            D_job_retrieved = L[0]
+            # Check that all the keys in the "user" field are indeed updated.
+            for (k, v) in D_updates_to_user_dict.items():
+                assert D_job_retrieved["user"][k] == v
+            # That value should not have been updated.
+            assert (
+                D_job_retrieved["user"]["to_be_left_untouched"]
+                == D_job["user"]["to_be_left_untouched"]
+            )
+        else:
+            assert response.status_code == 500
+
+        # Note that we haven't tested for a 404 error when the job doesn't exist.
+
+        # cleanup after your test
+        mc["jobs"].delete_many({"slurm.job_id": D_job["slurm"]["job_id"]})
