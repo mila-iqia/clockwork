@@ -25,7 +25,7 @@ from test_common.jobs_test_helpers import (
     helper_single_job_missing,
     helper_single_job_at_random,
     helper_list_jobs_for_a_given_random_user,
-    helper_jobs_list_with_filter
+    helper_jobs_list_with_filter,
 )
 
 
