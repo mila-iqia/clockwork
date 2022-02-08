@@ -1,6 +1,12 @@
 # Slurm Scan
 
-## intention
+## Overview
+
+The Slurm state functions are used to populate the database with jobs and nodes
+information. This repository gathers the scripts used to generate the information
+through Slurm commands, and scripts to parse it and store it into the database.
+
+## Intention
 
 This is a rewrite of "slurm_monitor", which was itself based on the "sinfo.py" script.
 Many factors have lead me to think that parsing the output of "sacct" and "sinfo" commands
@@ -32,9 +38,9 @@ made for that purpose.
 | graham | mila-automation    | guillaume alain, arnaud bergeron |
 
 
-# Compute Canada giving us stdout
+## Compute Canada giving us stdout
 
-## cached results
+### Cached results
 
 Tyler Collin discussed with us the possible ways to
 make our requests as light as possible on their servers.
@@ -52,7 +58,7 @@ on the login nodes).
 | beluga | /lustre04/cc/slurm |
 | graham | /opt/software/slurm/clusterstats_cache |
 
-## scripts run
+### Scripts run
 
 The scripts run periodically (by the people at Compute Canada) are the following.
 One of the reasons to care about this is that, if we're going to be writing
@@ -78,25 +84,25 @@ SSHARE_DEST="sshare_plan"
   mv "${TARGET_DIR}/${SSHARE_DEST}.tmp" "${TARGET_DIR}/${SSHARE_DEST}"
 ```
 
-## stdout format
+### Stdout format
 
 We show here examples of some lines from the files collected by Compute Canada.
 Instead of serializing all the fields on a single line, individual entries
 are broken into many lines, with empty lines between each entries.
 
-### head -n 36 scontrol_show_node
+#### head -n 36 scontrol_show_node
 
 ```
-NodeName=cdr2 Arch=x86_64 CoresPerSocket=16 
+NodeName=cdr2 Arch=x86_64 CoresPerSocket=16
    CPUAlloc=32 CPUTot=32 CPULoad=56.14
    AvailableFeatures=broadwell
    ActiveFeatures=broadwell
    Gres=(null)
    NodeAddr=cdr2 NodeHostName=cdr2 Version=20.11.7
-   OS=Linux 3.10.0-1160.36.2.el7.x86_64 #1 SMP Wed Jul 21 11:57:15 UTC 2021 
+   OS=Linux 3.10.0-1160.36.2.el7.x86_64 #1 SMP Wed Jul 21 11:57:15 UTC 2021
    RealMemory=128000 AllocMem=117188 FreeMem=44208 Sockets=2 Boards=1
    State=ALLOCATED ThreadsPerCore=1 TmpDisk=864097 Weight=114 Owner=N/A MCS_label=N/A
-   Partitions=cpubase_bycore_b4,cpubase_bycore_b3,cpubase_bycore_b2,cpubase_bycore_b1,cpubase_bynode_b4,cpubase_bynode_b3,cpubase_bynode_b2,cpubase_bynode_b1,cpubackfill,c12hbackfill,cpupreempt 
+   Partitions=cpubase_bycore_b4,cpubase_bycore_b3,cpubase_bycore_b2,cpubase_bycore_b1,cpubase_bynode_b4,cpubase_bynode_b3,cpubase_bynode_b2,cpubase_bynode_b1,cpubackfill,c12hbackfill,cpupreempt
    BootTime=2021-08-30T10:39:25 SlurmdStartTime=2021-08-30T10:46:39
    CfgTRES=cpu=32,mem=125G,billing=32
    AllocTRES=cpu=32,mem=117188M
@@ -105,16 +111,16 @@ NodeName=cdr2 Arch=x86_64 CoresPerSocket=16
    ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s
    Comment=(null)
 
-NodeName=cdr3 Arch=x86_64 CoresPerSocket=16 
+NodeName=cdr3 Arch=x86_64 CoresPerSocket=16
    CPUAlloc=32 CPUTot=32 CPULoad=26.92
    AvailableFeatures=broadwell
    ActiveFeatures=broadwell
    Gres=(null)
    NodeAddr=cdr3 NodeHostName=cdr3 Version=20.11.7
-   OS=Linux 3.10.0-1160.36.2.el7.x86_64 #1 SMP Wed Jul 21 11:57:15 UTC 2021 
+   OS=Linux 3.10.0-1160.36.2.el7.x86_64 #1 SMP Wed Jul 21 11:57:15 UTC 2021
    RealMemory=128000 AllocMem=110451 FreeMem=43820 Sockets=2 Boards=1
    State=ALLOCATED ThreadsPerCore=1 TmpDisk=864097 Weight=114 Owner=N/A MCS_label=N/A
-   Partitions=cpubase_bycore_b4,cpubase_bycore_b3,cpubase_bycore_b2,cpubase_bycore_b1,cpubase_bynode_b4,cpubase_bynode_b3,cpubase_bynode_b2,cpubase_bynode_b1,cpubackfill,c12hbackfill,cpupreempt 
+   Partitions=cpubase_bycore_b4,cpubase_bycore_b3,cpubase_bycore_b2,cpubase_bycore_b1,cpubase_bynode_b4,cpubase_bynode_b3,cpubase_bynode_b2,cpubase_bynode_b1,cpubackfill,c12hbackfill,cpupreempt
    BootTime=2021-07-29T04:21:00 SlurmdStartTime=2021-07-29T04:28:49
    CfgTRES=cpu=32,mem=125G,billing=32
    AllocTRES=cpu=32,mem=110451M
@@ -124,7 +130,7 @@ NodeName=cdr3 Arch=x86_64 CoresPerSocket=16
    Comment=(null)
 ```
 
-### head -n 55 scontrol_show_job
+#### head -n 55 scontrol_show_job
 
 ```
 JobId=57663829 JobName=slurm_run.sh
@@ -182,10 +188,10 @@ JobId=2574367 JobName=ph11_mm_ext3_dpl
    NtasksPerTRES:0
 ```
 
-### head sshare_plan
+#### head sshare_plan
 
 ```
-[alaingui@cedar1 slurm]$ head sshare_plan 
+[alaingui@cedar1 slurm]$ head sshare_plan
 def-arasmus_cpu|blm708|1|0.000000|0||0.000000|0.000000|0.000000||cpu=0,mem=0,energy=0,node=0,billing=0,fs/disk=0,vmem=0,pages=0,gres/gpu=0
 def-arasmus_gpu|blm708|1|0.000000|0||0.000000|0.000000|0.000000||cpu=0,mem=0,energy=0,node=0,billing=0,fs/disk=0,vmem=0,pages=0,gres/gpu=0
 def-ranil-ab_gpu|cooko|1|0.166667|0|0.000000|0.000000|0.695677|inf||cpu=0,mem=0,energy=0,node=0,billing=0,fs/disk=0,vmem=0,pages=0,gres/gpu=0
@@ -197,3 +203,20 @@ root|root|0|0.000000|0|0.000000|0.000000|0.186134|0.000000||cpu=0,mem=0,energy=0
   aiuo-wa_gpu|gpsingh|1|0.047619|0|0.000000|0.000000|0.186134|inf||cpu=0,mem=0,energy=0,node=0,billing=0,fs/disk=0,vmem=0,pages=0,gres/gpu=0
   aiuo-wa_gpu|guest107|1|0.047619|0|0.000000|0.000000|0.186134|inf||cpu=0,mem=0,energy=0,node=0,billing=0,fs/disk=0,vmem=0,pages=0,gres/gpu=0
 ```
+
+## Structure
+
+| Folder | Content |
+| -- | -- |
+| cluster_desc | Gathers JSON description of the existing clusters |
+| cron_scripts | Scripts cron in order to retrieve the jobs and nodes information from ComputeCanada by generating scontrol reports |
+
+| File | Use |
+| -- | -- |
+| anonymize_scontrol_report.py | Produces an anonymized version of the scontrol reports (presented as input of the script) |
+| extra_filters.py | Defines additional filters to be applied to the job and node entries |
+| mongo_client.py | Connects to the MongoDB database |
+| mongo_updates.py | Gathers functions to update jobs and nodes in the database |
+| read_report_commit_to_db.py | Orchestrates the update of jobs and nodes |
+| requirements.txt |  |
+| scontrol_parser.py | Parses the scontrol reports in order to return information as dictionaries |
