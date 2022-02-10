@@ -115,6 +115,8 @@ def route_api_v1_jobs_user_dict_update():
 
         User info is in `g.current_user_with_rest_auth`.
 
+        Returns the updated user dict.
+
     .. :quickref: update the user dict for a given Slurm job that belongs to the user
     """
     # A 'PUT' method is generally to modify resources.
@@ -174,7 +176,11 @@ def route_api_v1_jobs_user_dict_update():
                 )
 
     update_pairs = request.values.get("update_pairs", None)
-    if update_pairs is None:
+    if isinstance(update_pairs, dict):
+        # This won't happen, but it would be nice if that were possible
+        # instead of getting a `FileStorage` in Flask.
+        pass
+    elif update_pairs is None:
         return jsonify(f"Missing 'update_pairs' from arguments."), 500
     elif isinstance(update_pairs, str):
         try:
@@ -207,7 +213,7 @@ def route_api_v1_jobs_user_dict_update():
     # See "https://pymongo.readthedocs.io/en/stable/api/pymongo/collection.html"
     # for the properties of the returned object.
     if result.modified_count == 1:
-        return jsonify(f"Successfully updated the user dict of the target job."), 200
+        return jsonify(new_user_dict), 200
     else:
         # Will that return a useful string as an error?
         return jsonify(f"Problem during update of the user dict. {result}"), 500
