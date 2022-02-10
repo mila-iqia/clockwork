@@ -136,6 +136,19 @@ def test_maybe_null_string():
     assert maybe_null_string_to_none_object("name", None) == "name"
 
 
+def test_get_gres_dict():
+    assert get_gres_dict("(null)", None) == {}
+    assert get_gres_dict("gpu:rtx8000:4(S:0-1)", None) == {
+        "gpu_name": "rtx8000",
+        "gpu_number": 4,
+        "associated_sockets": "0-1",
+    }
+    assert get_gres_dict("gpu:v100:5", None) == {"gpu_name": "v100", "gpu_number": 5}
+    assert get_gres_dict("gpu:rtx8000:bla(S:0-1)", None) == {}
+    assert get_gres_dict("ab:rtx8000:4", None) == {}
+    assert get_gres_dict("aa:bbbb", None) == {}
+
+
 def test_timelimit():
     assert timelimit("7-00:00:00", None) == 604800
     assert timelimit("12:00:00", None) == 43200
