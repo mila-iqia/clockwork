@@ -97,9 +97,10 @@ def mtclient_student01(db_with_fake_data):
     but we need something like that to test `jobs_user_dict_update`.
     """
     return clockwork_tools.client.ClockworkTools(
-        config = {
-        "host": os.environ["clockwork_tools_test_HOST"],
-        "port": os.environ["clockwork_tools_test_PORT"],
-        "email": "student01@mila.quebec",
-        "clockwork_api_key": "000aaa01"
-        })
+        config={
+            "host": os.environ["clockwork_tools_test_HOST"],
+            "port": os.environ["clockwork_tools_test_PORT"],
+            "email": "student01@mila.quebec",
+            "clockwork_api_key": "000aaa01",
+        }
+    )

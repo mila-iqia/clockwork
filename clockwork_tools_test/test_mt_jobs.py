@@ -81,21 +81,24 @@ def test_jobs_user_dict_update(mtclient_student01):
     expected = {"pet_name": "fido", "nbr_cats": 10}
     #
     updated_user_dict = mtclient_student01.jobs_user_dict_update(
-        job_id="284357", cluster_name="graham", update_pairs={"pet_name": "fido", "nbr_cats": 10})
+        job_id="284357",
+        cluster_name="graham",
+        update_pairs={"pet_name": "fido", "nbr_cats": 10},
+    )
     assert updated_user_dict == expected
     #
-    D_job = mtclient_student01.jobs_one(
-        job_id="284357", cluster_name="graham")
+    D_job = mtclient_student01.jobs_one(job_id="284357", cluster_name="graham")
     assert D_job["user"] == expected
-    
 
     # update one field and add a new one, then make sure all three are as expected
     expected = {"pet_name": "garfield", "nbr_cats": 10, "nbr_dinosaurs": 42}
     #
     updated_user_dict = mtclient_student01.jobs_user_dict_update(
-        job_id="284357", cluster_name="graham", update_pairs={"pet_name": "garfield", "nbr_dinosaurs": 42})
+        job_id="284357",
+        cluster_name="graham",
+        update_pairs={"pet_name": "garfield", "nbr_dinosaurs": 42},
+    )
     assert updated_user_dict == expected
     #
-    D_job = mtclient_student01.jobs_one(
-        job_id="284357", cluster_name="graham")
+    D_job = mtclient_student01.jobs_one(job_id="284357", cluster_name="graham")
     assert D_job["user"] == expected

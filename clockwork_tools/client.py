@@ -3,6 +3,7 @@ import requests
 import base64
 import json
 
+
 class ClockworkTools:
     """
     Implements the client to a "Clockwork" web server already running.
@@ -121,7 +122,6 @@ class ClockworkTools:
                 params[k] = a
         return self._request(endpoint, params)
 
-
     def jobs_one(self, job_id: str = None, cluster_name: str = None) -> dict[str, any]:
         """REST call to api/v1/clusters/jobs/one.
 
@@ -146,17 +146,15 @@ class ClockworkTools:
             params["job_id"] = job_id
         return self._request(endpoint, params)
 
-
-    def jobs_user_dict_update(self,
-        job_id: str = None,
-        cluster_name: str = None,
-        update_pairs: dict = {}) -> dict[str, any]:
+    def jobs_user_dict_update(
+        self, job_id: str = None, cluster_name: str = None, update_pairs: dict = {}
+    ) -> dict[str, any]:
         """REST call to api/v1/clusters/jobs/user_dict_update.
 
         Updates the "user" component of a job that belongs to
         the user calling this function. Allows for any number
         of fields to be set.
-        
+
         If there is no ambiguity with the job_id,
         the cluster_name argument is not required.
 
@@ -184,7 +182,6 @@ class ClockworkTools:
         params["update_pairs"] = json.dumps(update_pairs)
         return self._request(endpoint, params, method="PUT")
 
-
     def nodes_list(self, cluster_name: str = None) -> list[dict[str, any]]:
         """REST call to api/v1/clusters/nodes/list.
 
@@ -203,7 +200,6 @@ class ClockworkTools:
         if cluster_name is not None:
             params["cluster_name"] = cluster_name
         return self._request(endpoint, params)
-
 
     def nodes_one(self, name: str = None, cluster_name: str = None) -> dict[str, any]:
         """REST call to api/v1/clusters/nodes/one.
