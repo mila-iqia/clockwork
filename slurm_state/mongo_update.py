@@ -194,7 +194,7 @@ def main_read_jobs_and_update_collection(
         if comment is not None and comment.startswith(marker):
             key = comment[len(marker) :]
             # Make sure this is not a job from mila
-            if D_job["slurm"]["cluster_name"] is not "mila":
+            if D_job["slurm"]["cluster_name"] in ["beluga", "cedar", "graham"]:
                 cc_account_username = D_job["slurm"]["cc_account_username"]
                 L_user_updates.append(
                     UpdateOne(

@@ -40,7 +40,7 @@
             <a href="new_key">change key</a>
         </div>
         <div class="col s9">
-        {% if cc_account_update_key is not None %}
+        {% if cc_account_update_key is not none %}
           Run this command to register your account: sbatch --time=1 --wrap=true --comment=clockwork_register_accout:{{ cc_account_update_key }}
         {% else %}
           <a href="new_update_key">Get update account key</a>
