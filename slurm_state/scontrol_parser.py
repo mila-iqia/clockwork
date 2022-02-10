@@ -49,6 +49,7 @@ def dynrename(fn, ctx_key):
 
     return dynrenamer
 
+
 # Instead of having something too convoluted,
 # we'll just write this specific example.
 def user_id_splitting(f, ctx, res):
@@ -79,6 +80,7 @@ def maybe_null_string_to_none_object(f, ctx):
     else:
         return f
 
+
 def get_gres_dict(f, ctx):
     """
     Converts "(null)" into an empty dictionary.
@@ -98,27 +100,23 @@ def get_gres_dict(f, ctx):
         # The Gres field has the following format: "gpu:<gpu_name>:<gpu_number>"
         # with, optionally, at the end: "(S:0)" if the GPU are associated with
         # socket 0, "(S:0-1)" for instance if associated to sockets 0 and 1
-        split_f = re.split("\(|\)",f)
+        split_f = re.split("\(|\)", f)
         gres_info = split_f[0].split(":")
 
-        if (gres_info[0] == "gpu"):
-            if (len(gres_info) == 3):
-                # Get the gpu_name
-                gres_dict["gpu_name"] = gres_info[1]
-                # Get the number of gpus
-                gres_dict["gpu_number"] = int(gres_info[2]) # TODOSo: raise exception
+        if gres_info[0] == "gpu" and len(gres_info) == 3:
+            # Get the gpu_name
+            gres_dict["gpu_name"] = gres_info[1]
+            # Get the number of gpus
+            try:
+                gres_dict["gpu_number"] = int(gres_info[2])
+            except Exception as e:
+                return {}
 
             # Get the associated sockets if there are
-            if (len(split_f) > 1):
+            if len(split_f) > 1:
                 gpu_config = split_f[1].split(":")
-                if (len(gpu_config) == 2 and gpu_config[0] == "S"):
+                if len(gpu_config) == 2 and gpu_config[0] == "S":
                     gres_dict["associated_sockets"] = gpu_config[1]
-
-        # TODOSo: tests
-        # - mauvais format
-        # - format "gpu:rtx8000:4(S:0-1)"
-        # - format "gpu:rtx8000:4"
-        # - number of gpus : not an int
 
         return gres_dict
 
