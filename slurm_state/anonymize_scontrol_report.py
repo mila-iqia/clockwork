@@ -9,6 +9,7 @@ This script is not expected to be run automatically as part
 of the regular pipeline, but can be run once in a while
 when we want to refresh our fake data to reflect potentially
 a new configuration of the cluster.
+
 """
 
 import re

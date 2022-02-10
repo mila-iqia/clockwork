@@ -87,3 +87,19 @@ def unauthorized_mtclient_00(invalid_config_00, db_with_fake_data):
 @pytest.fixture
 def unauthorized_mtclient_01(invalid_config_01, db_with_fake_data):
     return clockwork_tools.client.ClockworkTools(invalid_config_01)
+
+
+@pytest.fixture
+def mtclient_student01(db_with_fake_data):
+    """
+    This is a little too "hardcoded" in terms of featuring
+    data straight from fake_data.json added manually here,
+    but we need something like that to test `jobs_user_dict_update`.
+    """
+    return clockwork_tools.client.ClockworkTools(
+        config = {
+        "host": os.environ["clockwork_tools_test_HOST"],
+        "port": os.environ["clockwork_tools_test_PORT"],
+        "email": "student01@mila.quebec",
+        "clockwork_api_key": "000aaa01"
+        })

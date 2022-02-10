@@ -68,3 +68,34 @@ def test_list_jobs_for_a_given_random_user(mtclient, fake_data):
     validator, username = helper_list_jobs_for_a_given_random_user(fake_data)
     LD_jobs = mtclient.jobs_list(user=username)
     validator(LD_jobs)
+
+
+def test_jobs_user_dict_update(mtclient_student01):
+    """
+    Verify that we can modify that particular job for that user.
+    We omit the `fake_data` test fixture because we hardcode
+    certain details by hand.
+    """
+
+    # set two fields and make sure they are read back properly
+    expected = {"pet_name": "fido", "nbr_cats": 10}
+    #
+    updated_user_dict = mtclient_student01.jobs_user_dict_update(
+        job_id="284357", cluster_name="graham", update_pairs={"pet_name": "fido", "nbr_cats": 10})
+    assert updated_user_dict == expected
+    #
+    D_job = mtclient_student01.jobs_one(
+        job_id="284357", cluster_name="graham")
+    assert D_job["user"] == expected
+    
+
+    # update one field and add a new one, then make sure all three are as expected
+    expected = {"pet_name": "garfield", "nbr_cats": 10, "nbr_dinosaurs": 42}
+    #
+    updated_user_dict = mtclient_student01.jobs_user_dict_update(
+        job_id="284357", cluster_name="graham", update_pairs={"pet_name": "garfield", "nbr_dinosaurs": 42})
+    assert updated_user_dict == expected
+    #
+    D_job = mtclient_student01.jobs_one(
+        job_id="284357", cluster_name="graham")
+    assert D_job["user"] == expected
