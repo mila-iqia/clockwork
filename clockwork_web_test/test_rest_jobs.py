@@ -267,7 +267,7 @@ def test_jobs_user_dict_update_successful_update(
                 == D_job["user"]["to_be_left_untouched"]
             )
         else:
-            assert response.status_code == 500
+            assert response.status_code == 403
 
         # Note that we haven't tested for a 404 error when the job doesn't exist.
 

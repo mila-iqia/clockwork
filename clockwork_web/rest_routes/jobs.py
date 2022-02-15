@@ -5,7 +5,9 @@ import json
 from flask import g
 from flask import request, make_response
 from flask.json import jsonify
+from flask.globals import current_app
 from .authentication import authentication_required
+from ..db import get_db
 
 from clockwork_web.core.jobs_helper import (
     get_filter_user,
@@ -16,7 +18,6 @@ from clockwork_web.core.jobs_helper import (
     strip_artificial_fields_from_job,
     get_jobs,
     infer_best_guess_for_username,
-    update_job_user_dict,
 )
 
 
@@ -172,7 +173,7 @@ def route_api_v1_jobs_user_dict_update():
                     jsonify(
                         f'This job belongs to {D_job["cw"][key]} and not {g.current_user_with_rest_auth[key]}.'
                     ),
-                    500,  ## response code for an error
+                    403,  ## response code for "authorization denied"
                 )
 
     update_pairs = request.values.get("update_pairs", None)
@@ -208,7 +209,10 @@ def route_api_v1_jobs_user_dict_update():
     # In any case, with the current setup we are still exposed to the
     # possibility that rapid updates to the same job could compete with
     # each other (and that's kinda fine).
-    result = update_job_user_dict({"_id": D_job["_id"]}, new_user_dict)
+    mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+    result = mc["jobs"].update_one(
+        {"_id": D_job["_id"]}, {"$set": {"user": new_user_dict}}, upsert=False
+    )
 
     # See "https://pymongo.readthedocs.io/en/stable/api/pymongo/collection.html"
     # for the properties of the returned object.
