@@ -196,11 +196,11 @@ def route_api_v1_jobs_user_dict_update():
             500,
         )
 
-    new_user_dict = D_job["user"]
-    # We do an update even if we have an empty list for `update_pairs`,
-    # for the sake of more predictable behavior.
-    for (k, v) in update_pairs.items():
-        new_user_dict[k] = v
+    new_user_dict = {}
+    new_user_dict.update(D_job["user"])
+    new_user_dict.update(update_pairs)
+    # We do an update with the database if we have an empty list
+    # for `update_pairs`, for the sake of more predictable behavior.
 
     # We could reuse `filter` because we might as well refer to the job
     # by its "_id" instead since we have it. Maybe this can mitigate the
