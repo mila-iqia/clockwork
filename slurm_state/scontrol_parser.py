@@ -80,47 +80,6 @@ def maybe_null_string_to_none_object(f, ctx):
     else:
         return f
 
-
-def get_gres_dict(f, ctx):
-    """
-    Converts "(null)" into an empty dictionary.
-    Otherwise, parse the Gres value to a dictionary presenting the following
-    format:
-        {
-            "gpu_name": "<name>",
-            "gpu_number": <number>,
-            "associated_sockets": "<sockets_numbers>" (optional)
-        }
-    """
-    if f == "(null)":
-        return {}
-    else:
-        gres_dict = {}
-
-        # The Gres field has the following format: "gpu:<gpu_name>:<gpu_number>"
-        # with, optionally, at the end: "(S:0)" if the GPU are associated with
-        # socket 0, "(S:0-1)" for instance if associated to sockets 0 and 1
-        split_f = re.split("\(|\)", f)
-        gres_info = split_f[0].split(":")
-
-        if gres_info[0] == "gpu" and len(gres_info) == 3:
-            # Get the gpu_name
-            gres_dict["gpu_name"] = gres_info[1]
-            # Get the number of gpus
-            try:
-                gres_dict["gpu_number"] = int(gres_info[2])
-            except Exception as e:
-                return {}
-
-            # Get the associated sockets if there are
-            if len(split_f) > 1:
-                gpu_config = split_f[1].split(":")
-                if len(gpu_config) == 2 and gpu_config[0] == "S":
-                    gres_dict["associated_sockets"] = gpu_config[1]
-
-        return gres_dict
-
-
 TIMELIMIT = re.compile(r"(?:(?:(?:(\d+)-)?(\d\d):)?(\d\d):)?(\d\d)", re.ASCII)
 
 
@@ -132,7 +91,6 @@ def timelimit(f, ctx):
         lambda t: 0 if t is None else int(t), m.groups()
     )
     return seconds + 60 * minutes + 3600 * hours + 86400 * days
-
 
 def timestamp(f, ctx):
     # We add the timezone information for the timestamp
@@ -297,7 +255,7 @@ NODE_FIELD_MAP = {
     "CPULoad": ignore,
     "AvailableFeatures": rename(id, "features"),
     "ActiveFeatures": ignore,
-    "Gres": rename(get_gres_dict, "gres"),
+    "Gres": rename(id, "gres"),
     "NodeAddr": rename(id, "addr"),
     "NodeHostName": ignore,
     "Version": ignore,
