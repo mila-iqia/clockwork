@@ -135,20 +135,6 @@ def test_maybe_null_string():
     assert maybe_null_string_to_none_object("(null", None) == "(null"
     assert maybe_null_string_to_none_object("name", None) == "name"
 
-
-def test_get_gres_dict():
-    assert get_gres_dict("(null)", None) == {}
-    assert get_gres_dict("gpu:rtx8000:4(S:0-1)", None) == {
-        "gpu_name": "rtx8000",
-        "gpu_number": 4,
-        "associated_sockets": "0-1",
-    }
-    assert get_gres_dict("gpu:v100:5", None) == {"gpu_name": "v100", "gpu_number": 5}
-    assert get_gres_dict("gpu:rtx8000:bla(S:0-1)", None) == {}
-    assert get_gres_dict("ab:rtx8000:4", None) == {}
-    assert get_gres_dict("aa:bbbb", None) == {}
-
-
 def test_timelimit():
     assert timelimit("7-00:00:00", None) == 604800
     assert timelimit("12:00:00", None) == 43200
@@ -240,14 +226,14 @@ def test_job_parser_command_hack_end():
 
 def test_node_parser():
     f = StringIO(
-        """NodeName=abc1 Arch=x86_64
+        """NodeName=abc1 Arch=x86_64 Gres=gpu:rtx8000:8(S:0-1)
 
 NodeName=abc2 Arch=power9
 
 """
     )
     assert list(node_parser(f, None)) == [
-        {"name": "abc1", "arch": "x86_64"},
+        {"name": "abc1", "arch": "x86_64", "gres": "gpu:rtx8000:8(S:0-1)"},
         {"name": "abc2", "arch": "power9"},
     ]
 
