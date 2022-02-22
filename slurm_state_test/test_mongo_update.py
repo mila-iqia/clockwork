@@ -20,9 +20,12 @@ def test_fetch_slurm_report():
             "arch": "x86_64",
             "features": "x86_64,turing,48gb",
             "gres": {
-                "gpu_name": "rtx8000",
-                "gpu_number": 8,
-                "associated_sockets": "0-1",
+                "raw": "gpu:rtx8000:8(S:0-1)",
+                "parsed": {
+                    "gpu_name": "rtx8000",
+                    "gpu_number": 8,
+                    "associated_sockets": "0-1",
+                }
             },
             "addr": "test-node",
             "memory": 386619,
