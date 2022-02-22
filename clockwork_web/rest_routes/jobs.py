@@ -196,9 +196,7 @@ def route_api_v1_jobs_user_dict_update():
             500,
         )
 
-    new_user_dict = {}
-    new_user_dict.update(D_job["user"])
-    new_user_dict.update(update_pairs)
+    new_user_dict = D_job["user"] | update_pairs
     # We do an update with the database if we have an empty list
     # for `update_pairs`, for the sake of more predictable behavior.
 
