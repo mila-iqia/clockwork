@@ -139,14 +139,17 @@ def test_maybe_null_string():
 def test_get_gres_dict():
     assert get_gres_dict("(null)", None) == {}
     assert get_gres_dict("gpu:rtx8000:4(S:0-1)", None) == {
-        "gpu_name": "rtx8000",
-        "gpu_number": 4,
-        "associated_sockets": "0-1",
+        "raw": "gpu:rtx8000:4(S:0-1)",
+        "parsed": {
+            "gpu_name": "rtx8000",
+            "gpu_number": 4,
+            "associated_sockets": "0-1",
+        }
     }
-    assert get_gres_dict("gpu:v100:5", None) == {"gpu_name": "v100", "gpu_number": 5}
-    assert get_gres_dict("gpu:rtx8000:bla(S:0-1)", None) == {}
-    assert get_gres_dict("ab:rtx8000:4", None) == {}
-    assert get_gres_dict("aa:bbbb", None) == {}
+    assert get_gres_dict("gpu:v100:5", None) == {"raw": "gpu:v100:5", "parsed": {"gpu_name": "v100", "gpu_number": 5}}
+    assert get_gres_dict("gpu:rtx8000:bla(S:0-1)", None) == {"raw": "gpu:rtx8000:bla(S:0-1)"}
+    assert get_gres_dict("ab:rtx8000:4", None) == {"raw": "ab:rtx8000:4"}
+    assert get_gres_dict("aa:bbbb", None) == {"raw": "aa:bbbb"}
 
 
 def test_timelimit():

@@ -87,9 +87,12 @@ def get_gres_dict(f, ctx):
     Otherwise, parse the Gres value to a dictionary presenting the following
     format:
         {
-            "gpu_name": "<name>",
-            "gpu_number": <number>,
-            "associated_sockets": "<sockets_numbers>" (optional)
+            "raw": "<slurm_report_Gres_value>",
+            "parsed": {
+                "gpu_name": "<name>",
+                "gpu_number": <number>,
+                "associated_sockets": "<sockets_numbers>" (optional)
+            }
         }
     """
     if f == "(null)":
@@ -97,6 +100,11 @@ def get_gres_dict(f, ctx):
     else:
         gres_dict = {}
 
+        # Add the unparsed field
+        gres_dict["raw"] = f
+
+        # Parse the Gres field
+        gres_dict_parsed = {}
         # The Gres field has the following format: "gpu:<gpu_name>:<gpu_number>"
         # with, optionally, at the end: "(S:0)" if the GPU are associated with
         # socket 0, "(S:0-1)" for instance if associated to sockets 0 and 1
@@ -105,18 +113,19 @@ def get_gres_dict(f, ctx):
 
         if gres_info[0] == "gpu" and len(gres_info) == 3:
             # Get the gpu_name
-            gres_dict["gpu_name"] = gres_info[1]
+            gres_dict_parsed["gpu_name"] = gres_info[1]
             # Get the number of gpus
             try:
-                gres_dict["gpu_number"] = int(gres_info[2])
+                gres_dict_parsed["gpu_number"] = int(gres_info[2])
+                # Get the associated sockets if there are
+                if len(split_f) > 1:
+                    gpu_config = split_f[1].split(":")
+                    if len(gpu_config) == 2 and gpu_config[0] == "S":
+                        gres_dict_parsed["associated_sockets"] = gpu_config[1]
             except Exception as e:
-                return {}
+                gres_dict_parsed = {}
 
-            # Get the associated sockets if there are
-            if len(split_f) > 1:
-                gpu_config = split_f[1].split(":")
-                if len(gpu_config) == 2 and gpu_config[0] == "S":
-                    gres_dict["associated_sockets"] = gpu_config[1]
+        gres_dict["parsed"] = gres_dict_parsed
 
         return gres_dict
 
