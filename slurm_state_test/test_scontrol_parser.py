@@ -144,12 +144,18 @@ def test_get_gres_dict():
             "gpu_name": "rtx8000",
             "gpu_number": 4,
             "associated_sockets": "0-1",
-        }
+        },
     }
-    assert get_gres_dict("gpu:v100:5", None) == {"raw": "gpu:v100:5", "parsed": {"gpu_name": "v100", "gpu_number": 5}}
-    assert get_gres_dict("gpu:rtx8000:bla(S:0-1)", None) == {"raw": "gpu:rtx8000:bla(S:0-1)"}
-    assert get_gres_dict("ab:rtx8000:4", None) == {"raw": "ab:rtx8000:4"}
-    assert get_gres_dict("aa:bbbb", None) == {"raw": "aa:bbbb"}
+    assert get_gres_dict("gpu:v100:5", None) == {
+        "raw": "gpu:v100:5",
+        "parsed": {"gpu_name": "v100", "gpu_number": 5},
+    }
+    assert get_gres_dict("gpu:rtx8000:bla(S:0-1)", None) == {
+        "raw": "gpu:rtx8000:bla(S:0-1)",
+        "parsed": {},
+    }
+    assert get_gres_dict("ab:rtx8000:4", None) == {"raw": "ab:rtx8000:4", "parsed": {}}
+    assert get_gres_dict("aa:bbbb", None) == {"raw": "aa:bbbb", "parsed": {}}
 
 
 def test_timelimit():
@@ -243,14 +249,25 @@ def test_job_parser_command_hack_end():
 
 def test_node_parser():
     f = StringIO(
-        """NodeName=abc1 Arch=x86_64
+        """NodeName=abc1 Arch=x86_64 Gres=gpu:rtx8000:8(S:0-1)
 
 NodeName=abc2 Arch=power9
 
 """
     )
     assert list(node_parser(f, None)) == [
-        {"name": "abc1", "arch": "x86_64"},
+        {
+            "name": "abc1",
+            "arch": "x86_64",
+            "gres": {
+                "raw": "gpu:rtx8000:8(S:0-1)",
+                "parsed": {
+                    "gpu_name": "rtx8000",
+                    "gpu_number": 8,
+                    "associated_sockets": "0-1",
+                },
+            },
+        },
         {"name": "abc2", "arch": "power9"},
     ]
 
