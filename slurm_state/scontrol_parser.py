@@ -108,7 +108,7 @@ def get_gres_dict(f, ctx):
         # The Gres field has the following format: "gpu:<gpu_name>:<gpu_number>"
         # with, optionally, at the end: "(S:0)" if the GPU are associated with
         # socket 0, "(S:0-1)" for instance if associated to sockets 0 and 1
-        split_f = re.split("\(|\)", f)
+        split_f = re.split(r"\(|\)", f)
         gres_info = split_f[0].split(":")
 
         if gres_info[0] == "gpu" and len(gres_info) == 3:

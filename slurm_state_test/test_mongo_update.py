@@ -25,7 +25,7 @@ def test_fetch_slurm_report():
                     "gpu_name": "rtx8000",
                     "gpu_number": 8,
                     "associated_sockets": "0-1",
-                }
+                },
             },
             "addr": "test-node",
             "memory": 386619,
