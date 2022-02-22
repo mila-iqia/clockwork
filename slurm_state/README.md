@@ -51,6 +51,7 @@ on the login nodes).
 | cedar | /project/cc/slurm |
 | beluga | /lustre04/cc/slurm |
 | graham | /opt/software/slurm/clusterstats_cache |
+| narval | /lustre07/cc/slurm |
 
 ## scripts run
 
