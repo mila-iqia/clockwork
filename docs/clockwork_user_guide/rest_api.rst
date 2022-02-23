@@ -134,30 +134,29 @@ jobs
     :statuscode 500: more than one entries were found
 
 
-.. http:get:: /api/v1/cluster/jobs/user_dict_update
+.. http:put:: /api/v1/cluster/jobs/user_dict_update
 
-    [NOT IMPLEMENTED YET]
-    [DEV NOTE: Is it even possible to transfer a dict with GET instead of POST?
-    Try that out and see how it affects design.]
-
-    Update the `user_dict` portion of an entry in the database.
+    Update the "user" portion of a job entry in the database.
     This can be used to build a lot of functionality on top of Clockwork
     and it does not conflict with the attributes read from Slurm.
 
-    A user can only affect the `user_dict` on jobs that they own.
+    A user can only affect the "user" dict on jobs that they own.
     This means that the server will validate that the user issuing
     the call, as identified by the `Authorization` header, is the owner
     of the job being described uniquely by the arguments `job_id` and
     `cluster_name`.
     
-    A dict `update` argument is required and its key-values
+    A dict `update_pairs` argument is required and its key-values
     will be merged with the target entry from the database.
+
+    On a succesful call, the value returned is the new updated
+    user dict (not the complete job entry).
 
    **Example request**:
 
    .. sourcecode:: http
 
-        GET /api/v1/cluster/jobs/user_dict_update
+        PUT /api/v1/cluster/jobs/user_dict_update
         Host: clockwork.mila.quebec
         Accept: application/json
 
@@ -169,14 +168,14 @@ jobs
         Content-Type: application/json
 
         {
-            "slurm": {},
-            "cw": {},
-            "user": {}
+            "train_loss": 0.20,
+            "valid_loss": 0.30,
+            "nbr_dinosaurs": 10
         }
 
    :query job_id: string containing the job_id as defined by Slurm
    :query cluster_name: (optional) "mila" or any cluster name from Compute Canada
-   :query update: dict with key-values to update in the database
+   :query update_pairs: dict with key-values to update in the database
    :reqheader Authorization: bearer token to authenticate
    :statuscode 200: success
    :statuscode 400: missing `job_id`
