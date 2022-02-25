@@ -83,7 +83,7 @@ def combine_all_mongodb_filters(*mongodb_filters):
 
 
 def get_jobs(mongodb_filter: dict = {}):
-    mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+    mc = get_db()
     return list(mc["jobs"].find(mongodb_filter))
 
 
