@@ -15,17 +15,9 @@ import clockwork_web
 from clockwork_web.server_app import create_app
 from clockwork_web.db import get_db, init_db
 from clockwork_web.user import User
+from clockwork_web.config import get_config
 
 from test_common.fake_data import fake_data, populate_fake_data
-
-
-assert "MONGODB_CONNECTION_STRING" in os.environ, (
-    "Error. Cannot proceed when missing the value of MONGODB_CONNECTION_STRING from environment.\n"
-    "This represents the connection string to be used by pymongo.\n"
-    "\n"
-    "It doesn't need to be the production database, but it does need to be\n"
-    "some instance of mongodb."
-)
 
 
 @pytest.fixture
@@ -36,10 +28,6 @@ def app():
         extra_config={
             "TESTING": True,
             "LOGIN_DISABLED": True,
-            "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
-            "MONGODB_DATABASE_NAME": os.environ.get(
-                "MONGODB_DATABASE_NAME", "clockwork"
-            ),
         }
     )
 
@@ -52,9 +40,7 @@ def app():
     with app.app_context():
         init_db()
         db = get_db()
-        cleanup_function = populate_fake_data(
-            db[current_app.config["MONGODB_DATABASE_NAME"]]
-        )
+        cleanup_function = populate_fake_data(db)
 
     yield app
 
@@ -78,10 +64,6 @@ def app_with_login():
             "TESTING": True,
             "LOGIN_DISABLED": False,
             "PREFERRED_URL_SCHEME": "https",
-            "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
-            "MONGODB_DATABASE_NAME": os.environ.get(
-                "MONGODB_DATABASE_NAME", "clockwork"
-            ),
         }
     )
 
@@ -89,9 +71,7 @@ def app_with_login():
     with app.app_context():
         init_db()
         db = get_db()
-        cleanup_function = populate_fake_data(
-            db[current_app.config["MONGODB_DATABASE_NAME"]]
-        )
+        cleanup_function = populate_fake_data(db)
 
     yield app
 
