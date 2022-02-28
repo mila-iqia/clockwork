@@ -33,6 +33,10 @@ app = create_app(
     }
 )
 
+# Add a way to load extra settings or override config
+if "CLOCKWORK_SETTINGS" in os.environ:
+    app.config.from_envvar("CLOCKWORK_SETTINGS")
+
 # If you call `app.run()` on the code that goes to gcloud, it causes problems.
 # If you don't, then it's fine.
 # app.run()
