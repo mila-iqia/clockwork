@@ -180,7 +180,7 @@ def test_jobs_user_dict_update_successful_update(
     """
 
     with app.app_context():
-        mc = get_db()[app.config["MONGODB_DATABASE_NAME"]]
+        mc = get_db()
 
         # retrieve the user in the database in order to know its three usernames
         LD_users = list(

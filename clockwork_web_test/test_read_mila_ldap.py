@@ -3,6 +3,7 @@ from flask import current_app
 import pytest
 from clockwork_web.db import get_db, init_db
 from clockwork_web.scripts import read_mila_ldap
+from clockwork_web.config import get_config
 
 import string
 import random
@@ -61,78 +62,77 @@ def test_database_update_users(app):
     # It should also contain some extra fields
     # such as "cc_account_username" which should be `None`.
     with app.app_context():
-
-        mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+        mc = get_db()
         mc[collection_name].delete_many({})
 
-        ####
-        ## The first part of the test is to populate the collection initially.
-        ####
+    ####
+    ## The first part of the test is to populate the collection initially.
+    ####
 
-        read_mila_ldap.run(
-            mongodb_connection_string=current_app.config["MONGODB_CONNECTION_STRING"],
-            mongodb_database=current_app.config["MONGODB_DATABASE_NAME"],
-            mongodb_collection=collection_name,
-            LD_users=LD_users,
-        )
+    read_mila_ldap.run(
+        mongodb_connection_string=get_config("mongo.connection_string"),
+        mongodb_database=get_config("mongo.database_name"),
+        mongodb_collection=collection_name,
+        LD_users=LD_users,
+    )
 
-        for D_user in LD_users:
+    for D_user in LD_users:
 
-            LD_found_user = list(
-                mc[collection_name].find(
-                    {"mila_email_username": D_user["mila_email_username"]}
-                )
-            )
-            assert len(LD_found_user) == 1
-            D_found_user = LD_found_user[0]
-            for k in D_user:
-                assert D_found_user[k] == D_user[k]
-            assert D_found_user["cc_account_username"] is None
-            assert D_found_user["status"] == D_user["status"]
-            assert D_found_user["clockwork_api_key"] is None
-
-        ####
-        ## The second part of the test involves updating existing values.
-        ####
-
-        # Just set "cc_account_username" to anything so that we can make sure
-        # that it wasn't accidentally set to `None` when performing the updates.
-        for D_user in LD_users:
-            mc[collection_name].update_one(
-                {"mila_email_username": D_user["mila_email_username"]},
-                {
-                    "$set": {
-                        "cc_account_username": (
-                            "cc_" + D_user["mila_email_username"].split("@")[0]
-                        ),
-                        "clockwork_api_key": "0300whatever813817",
-                    }
-                },
-            )
-
-        read_mila_ldap.run(
-            mongodb_connection_string=current_app.config["MONGODB_CONNECTION_STRING"],
-            mongodb_database=current_app.config["MONGODB_DATABASE_NAME"],
-            mongodb_collection=collection_name,
-            LD_users=LD_users_updates,
-        )
-
-        for D_user in LD_users_updates:
-            D_found_user = mc[collection_name].find(
+        LD_found_user = list(
+            mc[collection_name].find(
                 {"mila_email_username": D_user["mila_email_username"]}
-            )[0]
-            for k in D_user:
-                if k == "status":
-                    # This is something specific that we test.
-                    # They should both end up being "disabled".
-                    assert D_found_user[k] == "disabled"
-                elif k in ["cc_account_username", "clockwork_api_key"]:
-                    assert D_found_user[k] is not None
-                else:
-                    assert D_found_user[k] == D_user[k]
+            )
+        )
+        assert len(LD_found_user) == 1
+        D_found_user = LD_found_user[0]
+        for k in D_user:
+            assert D_found_user[k] == D_user[k]
+        assert D_found_user["cc_account_username"] is None
+        assert D_found_user["status"] == D_user["status"]
+        assert D_found_user["clockwork_api_key"] is None
 
-        # clear out what you put in the db for this test
-        mc[collection_name].delete_many({})
+    ####
+    ## The second part of the test involves updating existing values.
+    ####
+
+    # Just set "cc_account_username" to anything so that we can make sure
+    # that it wasn't accidentally set to `None` when performing the updates.
+    for D_user in LD_users:
+        mc[collection_name].update_one(
+            {"mila_email_username": D_user["mila_email_username"]},
+            {
+                "$set": {
+                    "cc_account_username": (
+                        "cc_" + D_user["mila_email_username"].split("@")[0]
+                    ),
+                    "clockwork_api_key": "0300whatever813817",
+                }
+            },
+        )
+
+    read_mila_ldap.run(
+        mongodb_connection_string=get_config("mongo.connection_string"),
+        mongodb_database=get_config("mongo.database_name"),
+        mongodb_collection=collection_name,
+        LD_users=LD_users_updates,
+    )
+
+    for D_user in LD_users_updates:
+        D_found_user = mc[collection_name].find(
+            {"mila_email_username": D_user["mila_email_username"]}
+        )[0]
+        for k in D_user:
+            if k == "status":
+                # This is something specific that we test.
+                # They should both end up being "disabled".
+                assert D_found_user[k] == "disabled"
+            elif k in ["cc_account_username", "clockwork_api_key"]:
+                assert D_found_user[k] is not None
+            else:
+                assert D_found_user[k] == D_user[k]
+
+    # clear out what you put in the db for this test
+    mc[collection_name].delete_many({})
 
 
 def test_client_side_user_updates():
