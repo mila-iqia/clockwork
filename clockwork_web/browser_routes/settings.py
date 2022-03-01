@@ -38,6 +38,7 @@ def route_index():
         "settings.html",
         mila_email_username=current_user.mila_email_username,
         clockwork_api_key=current_user.clockwork_api_key,
+        cc_account_update_key=current_user.cc_account_update_key,
     )
 
 
@@ -48,4 +49,14 @@ def route_key():
     Generate a new API key, invalidating the old one.
     """
     current_user.new_api_key()
+    return redirect("/settings/")
+
+
+@flask_api.route("/new_update_key")
+@fresh_login_required
+def route_update_key():
+    """
+    Generate a new account update key.
+    """
+    current_user.new_update_key()
     return redirect("/settings/")
