@@ -36,6 +36,7 @@ class User(UserMixin):
         clockwork_api_key=None,
         mila_cluster_username=None,
         cc_account_username=None,
+        cc_account_update_key=None,
     ):
         """
         This constructor is called only by the `get` method.
@@ -46,6 +47,7 @@ class User(UserMixin):
         self.clockwork_api_key = clockwork_api_key
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
+        self.cc_account_update_key = cc_account_update_key
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -87,6 +89,7 @@ class User(UserMixin):
                 clockwork_api_key=e["clockwork_api_key"],
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
+                cc_account_update_key=e["cc_account_update_key"],
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
@@ -110,6 +113,19 @@ class User(UserMixin):
             self.clockwork_api_key = old_key
             raise ValueError("could not modify api key")
 
+    def new_update_key(self):
+        """
+        Create a new API key and save it to the database.
+        """
+        self.cc_account_update_key = secrets.token_hex(32)
+        mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+        res = mc["users"].update_one(
+            {"mila_email_username": self.mila_email_username},
+            {"$set": {"cc_account_update_key": self.cc_account_update_key}},
+        )
+        if res.modified_count != 1:
+            raise ValueError("could not modify update key")
+
 
 class AnonUser(AnonymousUserMixin):
     def __init__(self):
@@ -118,6 +134,7 @@ class AnonUser(AnonymousUserMixin):
         self.clockwork_api_key = "deadbeef"
         self.cc_account_username = None
         self.mila_cluster_username = None
+        self.cc_account_update_key = None
 
     def new_api_key(self):
         # We don't want to touch the database for this.
