@@ -18,6 +18,7 @@ the information.
 
 import random
 import time
+import copy
 
 
 def helper_single_job_at_random(fake_data, cluster_name):
@@ -140,20 +141,41 @@ def helper_list_jobs_for_a_given_random_user(fake_data):
     # Select something at random from the database, already populated
     # by the fake_data, in order to construct a good request.
 
-    # let's avoid using a `while True` structure in a test
-    for attempts in range(10):
-        D_user = random.choice(fake_data["users"])
-        username = random.choice(
-            [D_user["mila_cluster_username"], D_user["cc_account_username"]]
-        )
-        LD_jobs_ground_truth = get_ground_truth(username, fake_data["jobs"])
-        # pick something that's interesting, and not something that should
-        # return empty results, because then this test becomes vacuous
+    # Instead of drawing a random user with replacements until
+    # we hit a good one, we'll just shuffle the list and iterate
+    # until we hit a good one.
+
+    LD_users = copy.copy(fake_data["users"])
+    # Let's run a sanity check to make sure that there are jobs in there,
+    # and that the jobs have some username that isn't `None`.
+    assert LD_users
+    S = set(
+        [D_job["cw"]["mila_cluster_username"] for D_job in fake_data["jobs"]]
+        # + [D_job["cw"]["mila_email_username"]   for D_job in fake_data["jobs"]]
+        + [D_job["cw"]["cc_account_username"] for D_job in fake_data["jobs"]]
+    )
+    if None in S:
+        # this is what we generally expect as prerequisite for this test
+        assert 1 < len(S)
+    else:
+        # surprizing but okay,
+        assert S
+
+    random.shuffle(LD_users)
+    for D_user in LD_users:
+        L_username = [D_user["mila_cluster_username"], D_user["cc_account_username"]]
+        random.shuffle(L_username)
+        for username in L_username:
+            LD_jobs_ground_truth = get_ground_truth(username, fake_data["jobs"])
+            # pick something that's interesting, and not something that should
+            # return empty results, because then this test becomes vacuous
+            if LD_jobs_ground_truth:
+                break
         if LD_jobs_ground_truth:
             break
     assert (
         LD_jobs_ground_truth
-    ), "Failed to get an interesting test candidate for helper_list_jobs_for_a_given_random_user. We hit the safety valve."
+    ), f"Failed to get an interesting test candidate for helper_list_jobs_for_a_given_random_user. We hit the safety valve."
 
     # response = client.get(
     #    f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers

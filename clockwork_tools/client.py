@@ -1,6 +1,7 @@
 from __future__ import annotations
 import requests
 import base64
+import json
 
 
 class ClockworkTools:
@@ -53,7 +54,7 @@ class ClockworkTools:
         encoded_s = str(encoded_bytes, "utf-8")
         return {"Authorization": f"Basic {encoded_s}"}
 
-    def _request(self, endpoint, params):
+    def _request(self, endpoint, params, method="GET"):
         """Helper method for REST API calls.
 
         Internal helper method to make the calls to the REST API endpoints
@@ -71,10 +72,17 @@ class ClockworkTools:
         else:
             middle_slash = "/"
 
+        assert method in ["GET", "PUT"]
+
         complete_address = f"{self.complete_base_address}{middle_slash}{endpoint}"
-        response = requests.get(
-            complete_address, params=params, headers=self._get_headers()
-        )
+        if method == "GET":
+            response = requests.get(
+                complete_address, params=params, headers=self._get_headers()
+            )
+        elif method == "PUT":
+            response = requests.put(
+                complete_address, data=params, headers=self._get_headers()
+            )
         print(response)
         # Check code instead and raise exception if it's the wrong one.
         if response.status_code == 200:
@@ -137,6 +145,42 @@ class ClockworkTools:
         if job_id is not None:
             params["job_id"] = job_id
         return self._request(endpoint, params)
+
+    def jobs_user_dict_update(
+        self, job_id: str = None, cluster_name: str = None, update_pairs: dict = {}
+    ) -> dict[str, any]:
+        """REST call to api/v1/clusters/jobs/user_dict_update.
+
+        Updates the "user" component of a job that belongs to
+        the user calling this function. Allows for any number
+        of fields to be set.
+
+        If there is no ambiguity with the job_id,
+        the cluster_name argument is not required.
+
+        Fails when the job does not belong to the user,
+        or when the job is not yet in the database
+        (such as during delays between the creation of the job
+        and its presence in the database).
+
+        Args:
+            job_id (str): job_id to be described (in terms of Slurm terminology)
+            cluster_name (str): Name of cluster where that job is running.
+            update_pairs (dict): Updates to perform to the user dict.
+
+        Returns:
+            dict[any,any]: Returns the updated user dict.
+        """
+        endpoint = "api/v1/clusters/jobs/user_dict_update"
+        params = {}
+        if cluster_name is not None:
+            params["cluster_name"] = cluster_name
+        if job_id is not None:
+            params["job_id"] = job_id
+        # Due to current constraints, we have to pass "update_pairs"
+        # as a string representing a structure in json.
+        params["update_pairs"] = json.dumps(update_pairs)
+        return self._request(endpoint, params, method="PUT")
 
     def nodes_list(self, cluster_name: str = None) -> list[dict[str, any]]:
         """REST call to api/v1/clusters/nodes/list.

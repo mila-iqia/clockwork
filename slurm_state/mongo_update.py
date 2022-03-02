@@ -122,6 +122,7 @@ def slurm_node_to_clockwork_node(slurm_node: dict):
 
 def main_read_jobs_and_update_collection(
     jobs_collection,
+    users_collection,
     cluster_desc_path,
     scontrol_show_job_path,
     want_commit_to_db=True,
@@ -139,6 +140,7 @@ def main_read_jobs_and_update_collection(
 
     timestamp_start = time.time()
     L_updates_to_do = []
+    L_user_updates = []
     L_data_for_dump_file = []
 
     for D_job in map(
@@ -186,9 +188,34 @@ def main_read_jobs_and_update_collection(
             )
         )
 
+        # Register accounts from job keys
+        comment = D_job["slurm"].get("comment", None)
+        marker = "clockwork_register_account:"
+        if comment is not None and comment.startswith(marker):
+            key = comment[len(marker) :]
+            # Make sure this is not a job from mila
+            if D_job["slurm"]["cluster_name"] in ["beluga", "cedar", "graham"]:
+                cc_account_username = D_job["slurm"]["cc_account_username"]
+                L_user_updates.append(
+                    UpdateOne(
+                        {"cc_account_update_key": key},
+                        {
+                            "$set": {
+                                "cc_account_username": cc_account_username,
+                                "cc_account_update_key": None,
+                            }
+                        },
+                    )
+                )
+
     if want_commit_to_db:
         result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
-        # print(result.bulk_api_result)
+        if L_user_updates:
+            users_collection.bulk_write(
+                L_user_updates,
+                upsert=False,  # this should never create new users.
+            )
+
         mongo_update_duration = time.time() - timestamp_start
         print(
             f"Bulk write for {len(L_updates_to_do)} job entries in mongodb took {mongo_update_duration} seconds."

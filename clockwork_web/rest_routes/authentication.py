@@ -13,6 +13,7 @@ import base64
 from functools import wraps
 import secrets
 
+from flask import g
 from flask.globals import current_app
 from flask import request
 from flask.json import jsonify
@@ -39,7 +40,10 @@ def authentication_required(f):
 
         D_user = L[0]
         if secrets.compare_digest(D_user["clockwork_api_key"], auth["password"]):
+            g.current_user_with_rest_auth = D_user
             return f(*args, **kwargs)
+            # no need to manually clear `g.current_user_with_rest_auth` because
+            # it gets cleared when the app context pops
         else:
             return jsonify("Authorization error."), 401
 

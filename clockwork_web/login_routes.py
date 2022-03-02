@@ -20,7 +20,7 @@ import json
 import random
 import string
 
-from flask import Flask, redirect, render_template, request, url_for, session
+from flask import redirect, render_template, request, url_for, session, current_app
 
 from oauthlib.oauth2 import WebApplicationClient
 import requests
@@ -193,3 +193,21 @@ def route_logout():
     """
     logout_user()
     return redirect(url_for("index"))
+
+
+if os.environ.get("CLOCKWORK_ENABLE_TESTING_LOGIN", "") == "True":
+    # This can be used to login as anyone with no password when
+    # the app is run in testing mode.
+    @flask_api.route("/testing")
+    def route_test_login():
+        assert current_app.testing
+
+        user_id = request.args.get("user_id")
+        user = Users.get(user_id)
+        if user is None or user.status != "enabled":
+            return render_template(
+                "error.html",
+                error_msg=f"Invalid user",
+            )
+        login_user(user)
+        return redirect(url_for("index"))

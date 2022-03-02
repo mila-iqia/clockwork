@@ -1,5 +1,6 @@
 """
-## What this script does
+What this script does
+=====================
 
 This script runs locally every day on a machine at Mila.
 It queries our LDAP service for all users and it updates
@@ -21,96 +22,106 @@ Two ways to output the data, that can be used together:
    2) to a MongoDB instance
 
 
-## Useful note for later about "clockwork_api_key"
+Useful note for later about "clockwork_api_key"
+===============================================
 
 The two extra fields "clockwork_api_key" and "cc_account_username"
 are added when the entries are committed to the database,
 but not when they are read or written to a json file.
 
 
-## Sample uses
+Sample uses
+===========
 
-python3 read_mila_ldap.py \
-    --local_private_key_file mila_ldap_readonly_credentials/Google_2025_01_26_68154.key \
-    --local_certificate_file mila_ldap_readonly_credentials/Google_2025_01_26_68154.crt \
-    --ldap_service_uri ldaps://ldap.google.com \
-    --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \
-    --output_json_file mila_users.json
+Two ways this can be used:
 
-python3 read_mila_ldap.py \
-    --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \
-    --input_json_file mila_users.json
+::
+
+    python3 read_mila_ldap.py \\
+        --local_private_key_file mila_ldap_readonly_credentials/Google_2025_01_26_68154.key \\
+        --local_certificate_file mila_ldap_readonly_credentials/Google_2025_01_26_68154.crt \\
+        --ldap_service_uri ldaps://ldap.google.com \\
+        --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \\
+        --output_json_file mila_users.json
+
+    python3 read_mila_ldap.py \\
+        --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \\
+        --input_json_file mila_users.json
 
 
-## LDAP data structure
+LDAP data structure
+===================
 
 When it comes to the LDAP entries that we get (and need to process),
-they are structured as follows.
-{
-    "attributes": {
-        "apple-generateduid": [
-            "AF54098F-29AE-990A-B1AC-F63F5A89B89"
-        ],
-        "cn": [
-            "john.smith",
-            "John Smith"
-        ],
-        "departmentNumber": [],
-        "displayName": [
-            "John Smith"
-        ],
-        "employeeNumber": [],
-        "employeeType": [],
-        "gecos": [
-            ""
-        ],
-        "gidNumber": [
-            "1500000001"
-        ],
-        "givenName": [
-            "John"
-        ],
-        "googleUid": [
-            "john.smith"
-        ],
-        "homeDirectory": [
-            "/home/john.smith"
-        ],
-        "loginShell": [
-            "/bin/bash"
-        ],
-        "mail": [
-            "john.smith@mila.quebec"
-        ],
-        "memberOf": [],
-        "objectClass": [
-            "top",
-            "person",
-            "organizationalPerson",
-            "inetOrgPerson",
-            "posixAccount"
-        ],
-        "physicalDeliveryOfficeName": [],
-        "posixUid": [
-            "smithj"
-        ],
-        "sn": [
-            "Smith"
-        ],
-        "suspended": [
-            "false"
-        ],
-        "telephoneNumber": [],
-        "title": [],
-        "uid": [
-            "john.smith"
-        ],
-        "uidNumber": [
-            "1500000001"
-        ]
-    },
-    "dn": "uid=john.smith,ou=IDT,ou=STAFF,ou=Users,dc=mila,dc=quebec"
-}
+they are structured as follows:
+
+::
+
+    {
+        "attributes": {
+            "apple-generateduid": [
+                "AF54098F-29AE-990A-B1AC-F63F5A89B89"
+            ],
+            "cn": [
+                "john.smith",
+                "John Smith"
+            ],
+            "departmentNumber": [],
+            "displayName": [
+                "John Smith"
+            ],
+            "employeeNumber": [],
+            "employeeType": [],
+            "gecos": [
+                ""
+            ],
+            "gidNumber": [
+                "1500000001"
+            ],
+            "givenName": [
+                "John"
+            ],
+            "googleUid": [
+                "john.smith"
+            ],
+            "homeDirectory": [
+                "/home/john.smith"
+            ],
+            "loginShell": [
+                "/bin/bash"
+            ],
+            "mail": [
+                "john.smith@mila.quebec"
+            ],
+            "memberOf": [],
+            "objectClass": [
+                "top",
+                "person",
+                "organizationalPerson",
+                "inetOrgPerson",
+                "posixAccount"
+            ],
+            "physicalDeliveryOfficeName": [],
+            "posixUid": [
+                "smithj"
+            ],
+            "sn": [
+                "Smith"
+            ],
+            "suspended": [
+                "false"
+            ],
+            "telephoneNumber": [],
+            "title": [],
+            "uid": [
+                "john.smith"
+            ],
+            "uidNumber": [
+                "1500000001"
+            ]
+        },
+        "dn": "uid=john.smith,ou=IDT,ou=STAFF,ou=Users,dc=mila,dc=quebec"
+    }
 
 """
 

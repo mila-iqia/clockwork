@@ -19,6 +19,9 @@ Note the different paths based on decisions made by people at CC.
 - `rsync -av mila-automation@beluga.computecanada.ca:/lustre04/cc/slurm/* ${HOME}/slurm_report/beluga`
 - `rsync -av mila-automation@cedar.computecanada.ca:/project/cc/slurm/* ${HOME}/slurm_report/cedar`
 - `rsync -av mila-automation@graham.computecanada.ca:/opt/software/slurm/clusterstats_cache/* ${HOME}/slurm_report/graham`
+- `rsync -av mila-automation@narval.computecanada.ca:/lustre07/cc/slurm/* ${HOME}/slurm_report/narval`
+
+
 
 
 ## the crontab file for mila-automation@blink
