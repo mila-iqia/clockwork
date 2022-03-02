@@ -11,6 +11,11 @@ _defaults = {}
 _config_file = os.environ.get("CLOCKWORK_CONFIG", None)
 
 
+# Placeholder for validation
+def anything(value):
+    return value
+
+
 def register_config(key, default=_NoDefault, validator=anything):
     """Register a configuration key.
 
@@ -60,11 +65,6 @@ def _get_dict(d, key, create=False):
         else:
             d = d[k]
     return d, keys[-1]
-
-
-# Placeholder for validation
-def anything(value):
-    return value
 
 
 # This should use the logger at the warning level
