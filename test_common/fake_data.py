@@ -65,8 +65,9 @@ def populate_fake_data(db_insertion_point, json_file=None):
     db_insertion_point["users"].create_index(
         [("mila_email_username", 1)], name="users_email_index"
     )
+    db_insertion_point["hardware"].create_index([("name", 1)], name="hardware_name")
 
-    for k in ["users", "jobs", "nodes"]:
+    for k in ["users", "jobs", "nodes", "hardware"]:
         if k in E:
             for e in E[k]:
                 db_insertion_point[k].insert_one(e)
@@ -87,6 +88,9 @@ def populate_fake_data(db_insertion_point, json_file=None):
             db_insertion_point["users"].delete_many(
                 {"mila_email_username": e["mila_email_username"]}
             )
+
+        for e in E["hardware"]:
+            db_insertion_point["hardware"].delete_many({"name": e["name"]})
 
         for (k, sub, id_field) in [
             ("jobs", "slurm", "job_id"),
