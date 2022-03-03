@@ -12,22 +12,20 @@ import pymongo
 
 from slurm_state.mongo_client import get_mongo_client
 
+
 def main(argv):
 
     # Retrieve the GPU information
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--json_input",
-                           type = argparse.FileType("r"),
-                           help = "JSON file containing"
-   )
     parser.add_argument(
-        "--mongodb_connection_string",
-        help="Connection string used by MongoClient"
+        "-i", "--json_input", type=argparse.FileType("r"), help="JSON file containing"
+    )
+    parser.add_argument(
+        "--mongodb_connection_string", help="Connection string used by MongoClient"
     )
 
     parser.add_argument(
-        "--mongodb_database_name",
-        help="Name of the database we want to access to"
+        "--mongodb_database_name", help="Name of the database we want to access to"
     )
 
     args = parser.parse_args(argv[1:])
@@ -38,7 +36,9 @@ def main(argv):
     mongodb_database_name = args.mongodb_database_name
 
     # Connect to the database
-    hardware_collection = get_mongo_client(mongodb_connection_string)[mongodb_database_name]["hardware"]
+    hardware_collection = get_mongo_client(mongodb_connection_string)[
+        mongodb_database_name
+    ]["hardware"]
 
     # Update or insert the gpu information
     for gpu_info in gpu_infos["gpu_infos"]:
@@ -53,11 +53,12 @@ def main(argv):
                     "$set": gpu_info,
                 },
                 # Create if missing, update if present
-                upsert=True
+                upsert=True,
             )
         except Exception as e:
             print(f"An error occurred while inserting the GPU: {gpu_info['name']}")
             print(e)
+
 
 if __name__ == "__main__":
     main(sys.argv)
