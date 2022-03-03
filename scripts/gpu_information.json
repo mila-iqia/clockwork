@@ -1,0 +1,22 @@
+{ "gpu_infos":
+  [
+    {
+      "name": "rtx8000",
+      "type": "gpu",
+      "vendor": "nvidia",
+      "ram": 48,
+      "cuda_cores": 4608,
+      "tensor_cores": 576,
+      "tflops_fp32": 16.3
+    },
+    {
+      "name": "v100",
+      "type": "gpu",
+      "vendor": "nvidia",
+      "ram": 0,
+      "cuda_cores": 5120,
+      "tensor_cores": 640,
+      "tflops_fp32": 0
+    }
+  ]
+}
