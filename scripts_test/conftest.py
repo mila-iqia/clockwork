@@ -15,6 +15,7 @@ assert "MONGODB_CONNECTION_STRING" in os.environ, (
     "some instance of mongodb."
 )
 
+
 @pytest.fixture
 def app():
     """Create and configure a new app instance for each test."""
@@ -33,12 +34,12 @@ def app():
     # create the database and load test data
     with app.app_context():
         init_db()
-    
+
     yield app
 
     # You can close file descriptors here and do other cleanup.
     #
-    #cleanup_function()
+    # cleanup_function()
 
 
 @pytest.fixture
