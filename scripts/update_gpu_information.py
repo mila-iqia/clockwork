@@ -35,7 +35,13 @@ def main(argv):
 
     update_gpu_information(gpu_infos, mongodb_connection_string, mongodb_database_name)
 
-def update_gpu_information(gpu_infos, mongodb_connection_string, mongodb_database_name, mongodb_collection_name="hardware"):
+
+def update_gpu_information(
+    gpu_infos,
+    mongodb_connection_string,
+    mongodb_database_name,
+    mongodb_collection_name="hardware",
+):
     """
     Update the GPU information in the 'hardware' collection of the database.
 
@@ -47,9 +53,9 @@ def update_gpu_information(gpu_infos, mongodb_connection_string, mongodb_databas
             }
     """
     # Connect to the database
-    hardware_collection = MongoClient(mongodb_connection_string)[
-        mongodb_database_name
-    ][mongodb_collection_name]
+    hardware_collection = MongoClient(mongodb_connection_string)[mongodb_database_name][
+        mongodb_collection_name
+    ]
 
     # Update or insert the gpu information
     for gpu_info in gpu_infos["gpu_infos"]:
