@@ -107,3 +107,15 @@ services:
       clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
       # note that this file is not included in the repository under normal circumstances
       slurm_state_ALLOCATIONS_RELATED_TO_MILA: "/clockwork/slurm_state/allocations_related_to_mila.json"
+
+  scripts_test:
+    image: scripts_test
+    depends_on:
+      - mongodb
+    working_dir: /clockwork
+    volumes:
+      - ./scripts:/clockwork/scripts
+      - ./scripts_test:/clockwork/scripts_test
+    environment:
+      MONGODB_DATABASE_NAME: "clockwork"
+      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}

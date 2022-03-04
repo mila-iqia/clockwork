@@ -8,9 +8,7 @@ about the GPU.
 import argparse
 import json
 import sys
-import pymongo
-
-from slurm_state.mongo_client import get_mongo_client
+from pymongo import MongoClient
 
 
 def main(argv):
@@ -35,10 +33,23 @@ def main(argv):
     mongodb_connection_string = args.mongodb_connection_string
     mongodb_database_name = args.mongodb_database_name
 
+    update_gpu_information(gpu_infos, mongodb_connection_string, mongodb_database_name)
+
+def update_gpu_information(gpu_infos, mongodb_connection_string, mongodb_database_name, mongodb_collection_name="hardware"):
+    """
+    Update the GPU information in the 'hardware' collection of the database.
+
+    Parameters:
+        gpu_infos: JSON dictionary containing the GPU informations to insert
+            or update. It format is the following:
+            {
+                "gpu_infos": <list of dictionaries presenting each a GPU>
+            }
+    """
     # Connect to the database
-    hardware_collection = get_mongo_client(mongodb_connection_string)[
+    hardware_collection = MongoClient(mongodb_connection_string)[
         mongodb_database_name
-    ]["hardware"]
+    ][mongodb_collection_name]
 
     # Update or insert the gpu information
     for gpu_info in gpu_infos["gpu_infos"]:
