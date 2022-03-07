@@ -1,5 +1,5 @@
 """
-Helper functions in order to handle hardware data.
+Helper functions in order to handle GPU information.
 """
 
 from flask.globals import current_app
@@ -9,31 +9,31 @@ from ..db import get_db
 from enum import Enum
 
 
-def get_hardware_info(hardware_name):
+def get_gpu_info(gpu_name):
     """
-    Get information on a specific hardware defined by its name.
+    Get information on a specific gpu defined by its name.
 
     Parameters:
-        hardware_name   Name of the requested hardware
+        gpu_name   Name of the requested gpu
 
     Returns:
-        A dictionary describing the requested hardware if it has been found.
+        A dictionary describing the requested gpu if it has been found.
         An empty dictionary otherwise
     """
     # Check the gpu_name type
-    if isinstance(hardware_name, str) and len(hardware_name) > 0:
+    if isinstance(gpu_name, str) and len(gpu_name) > 0:
         db = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
         # Find one entry presenting the name corresponding to gpu_name
-        requested_hardware = db["hardware"].find_one(
-            {"name": hardware_name}, {"_id": 0}
+        requested_gpu = db["gpu"].find_one(
+            {"name": gpu_name}, {"_id": 0}
         )
-        if requested_hardware is not None:
-            return requested_hardware
+        if requested_gpu is not None:
+            return requested_gpu
 
     return {}
 
 
-def get_hardwares():
+def get_gpu():
     """
     Get a list of the different known GPUs.
 
@@ -41,11 +41,11 @@ def get_hardwares():
         A list of dictionaries describing the requested GPUs
     """
     db = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
-    return {"hardware_list": list(db["hardware"].find({}, {"_id": 0}))}
+    return {"gpu_list": list(db["gpu"].find({}, {"_id": 0}))}
     return {}
 
 
-def get_all_hardwares():
+def get_gpu_list():
     """
     Get a list of the different known GPUs.
 
@@ -53,4 +53,4 @@ def get_all_hardwares():
         A list of dictionaries describing the different GPUs.
     """
     db = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
-    return {"hardware_list": list(db["hardware"].find({}, {"_id": 0}))}
+    return {"gpu_list": list(db["gpu"].find({}, {"_id": 0}))}

@@ -1,12 +1,12 @@
 """
-Set of functions to test the API request regarding hardware
+Set of functions to test the API request regarding the GPUs
 """
 
 
-def test_hardware_gpu_one_fail(client, valid_rest_auth_headers):
-    hardware_name = "rtx"
+def test_gpu_one_fail(client, valid_rest_auth_headers):
+    gpu_name = "rtx"
     response = client.get(
-        f"/api/v1/clusters/hardware/gpu/one?gpu_name={hardware_name}",
+        f"/api/v1/clusters/gpu/one?gpu_name={gpu_name}",
         headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
@@ -15,17 +15,17 @@ def test_hardware_gpu_one_fail(client, valid_rest_auth_headers):
     assert gpu_result == {}
 
 
-def test_hardware_gpu_one_no_name(client, valid_rest_auth_headers):
+def test_gpu_one_no_name(client, valid_rest_auth_headers):
     response = client.get(
-        "/api/v1/clusters/hardware/gpu/one", headers=valid_rest_auth_headers
+        "/api/v1/clusters/gpu/one", headers=valid_rest_auth_headers
     )
     assert response.status_code == 400
 
 
-def test_hardware_gpu_one_success(client, valid_rest_auth_headers):
-    hardware_name = "rtx8000"
+def test_gpu_one_success(client, valid_rest_auth_headers):
+    gpu_name = "rtx8000"
     response = client.get(
-        f"/api/v1/clusters/hardware/gpu/one?gpu_name={hardware_name}",
+        f"/api/v1/clusters/gpu/one?gpu_name={gpu_name}",
         headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
@@ -41,16 +41,16 @@ def test_hardware_gpu_one_success(client, valid_rest_auth_headers):
     }
 
 
-def test_hardware_gpu_list_success(client, valid_rest_auth_headers):
+def test_gpu_list_success(client, valid_rest_auth_headers):
     response = client.get(
-        f"/api/v1/clusters/hardware/gpu/list",
+        f"/api/v1/clusters/gpu/list",
         headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
     assert response.status_code == 200
     gpu_results = response.json
     assert gpu_results == {
-        "hardware_list": [
+        "gpu_list": [
             {
                 "name": "rtx8000",
                 "vendor": "nvidia",

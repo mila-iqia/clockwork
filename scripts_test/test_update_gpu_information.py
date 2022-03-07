@@ -13,7 +13,7 @@ def test_insertion_from_an_empty_collection():
     # Initialization
     mongodb_connection_string = os.environ["MONGODB_CONNECTION_STRING"]
     mongodb_database_name = os.environ["MONGODB_DATABASE_NAME"]
-    mongodb_collection_name = "test_hardware"
+    mongodb_collection_name = "test_gpu"
 
     # GPU information to insert the first time in the database
     gpu_infos_insert = {
@@ -81,7 +81,7 @@ def test_insertion_from_an_empty_collection():
     client = MongoClient(mongodb_connection_string)
     db = client[mongodb_database_name]
 
-    # Clean the hardware collection
+    # Clean the 'gpu' collection
     db.drop_collection(mongodb_collection_name)
 
     # Launch the script the first time to insert information
