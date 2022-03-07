@@ -20,7 +20,6 @@ def test_insertion_from_an_empty_collection():
         "gpu_infos": [
             {
                 "name": "rtx8000",
-                "type": "gpu",
                 "vendor": "nvidia",
                 "ram": 48,
                 "cuda_cores": 4608,
@@ -29,7 +28,6 @@ def test_insertion_from_an_empty_collection():
             },
             {
                 "name": "test",
-                "type": "gpu",
                 "vendor": "test_vendor",
                 "ram": 56,
                 "cuda_cores": 6200,
@@ -50,7 +48,6 @@ def test_insertion_from_an_empty_collection():
         "gpu_infos": [
             {
                 "name": first_insert_example["name"],
-                "type": "gpu",
                 "vendor": "other vendor",
                 "ram": first_insert_example["ram"]
                 + 1,  # to be sure that the information are different
@@ -60,7 +57,6 @@ def test_insertion_from_an_empty_collection():
             },
             {
                 "name": "other_name",
-                "type": "gpu",
                 "vendor": "other vendor",
                 "ram": 36,
                 "cuda_cores": 6200,
@@ -69,7 +65,6 @@ def test_insertion_from_an_empty_collection():
             },
             {
                 "name": "still another name",
-                "type": "gpu",
                 "vendor": "other vendor",
                 "ram": 54,
                 "cuda_cores": 7895,

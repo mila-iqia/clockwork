@@ -17,12 +17,12 @@ def route_api_v1_hardware_gpu_one():
     gpu_name = request.args.get("gpu_name", None)
     if gpu_name is None:
         return jsonify("Missing argument gpu_name."), 400
-    return get_hardware_info(gpu_name, "gpu")
+    return get_hardware_info(gpu_name)
 
 
 @flask_api.route("/hardware/gpu/list")
 def route_api_v1_hardware_gpu_list():
     """
-    .. :quickref: lists all the GPU used
+    .. :quickref: lists all the GPUs used
     """
-    return get_hardwares("gpu")
+    return get_hardwares()
