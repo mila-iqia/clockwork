@@ -4,8 +4,13 @@ from flask import current_app
 from flask import g
 from flask.cli import with_appcontext
 
+from clockwork_web.config import get_config, register_config
 
-def get_db():
+register_config("mongo.connection_string", "")
+register_config("mongo.database_name", "clockwork")
+
+
+def _get_db():
     """Connect to the application's configured database.
 
     The connection is unique for each request and will be reused
@@ -15,9 +20,13 @@ def get_db():
         MongoClient: a client to the mongodb server (but not a specific collection)
     """
     if "db" not in g:
-        g.db = MongoClient(current_app.config["MONGODB_CONNECTION_STRING"])
+        g.db = MongoClient(get_config("mongo.connection_string"))
 
     return g.db
+
+
+def get_db():
+    return _get_db()[get_config("mongo.database_name")]
 
 
 def close_db(e=None):
@@ -30,14 +39,6 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
-
-
-# def get_mc():
-#     """
-#     Since we are going to use this shortcut many many times,
-#     we might as well provide it here.
-#     """
-#     return get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
 
 
 # Note that all the `init_db` and `init_app` code were
@@ -63,11 +64,11 @@ def init_db():
     Some better design is needed here to have a better strategy
     that allows proper testing, development and deployment.
     """
-    db = get_db()
+    db = _get_db()
 
     # Clear out everything, in case there's stuff leftover from a previous run.
     for collection in ["jobs", "nodes", "users"]:
-        db[current_app.config["MONGODB_DATABASE_NAME"]][collection].delete_many({})
+        db[get_config("mongo.database_name")][collection].delete_many({})
 
     # TODO : We may have some minor things to do here
     #        to setup some basic information in the database.
