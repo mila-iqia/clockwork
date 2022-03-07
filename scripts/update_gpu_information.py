@@ -1,5 +1,5 @@
 """
-Update the GPU information in the 'hardware' collection of the database.
+Update the GPU information in the 'gpu' collection of the database.
 
 This script uses a JSON file as input, presenting the known information
 about the GPU.
@@ -40,10 +40,10 @@ def update_gpu_information(
     gpu_infos,
     mongodb_connection_string,
     mongodb_database_name,
-    mongodb_collection_name="hardware",
+    mongodb_collection_name="gpu",
 ):
     """
-    Update the GPU information in the 'hardware' collection of the database.
+    Update the GPUs information in the 'gpu' collection of the database.
 
     Parameters:
         gpu_infos: JSON dictionary containing the GPU informations to insert
@@ -53,14 +53,14 @@ def update_gpu_information(
             }
     """
     # Connect to the database
-    hardware_collection = MongoClient(mongodb_connection_string)[mongodb_database_name][
+    gpu_collection = MongoClient(mongodb_connection_string)[mongodb_database_name][
         mongodb_collection_name
     ]
 
     # Update or insert the gpu information
     for gpu_info in gpu_infos["gpu_infos"]:
         try:
-            hardware_collection.update_one(
+            gpu_collection.update_one(
                 # Rule to match if already present in collection
                 {
                     "name": gpu_info["name"],

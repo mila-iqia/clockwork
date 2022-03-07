@@ -7,7 +7,7 @@ from clockwork_web.core.jobs_helper import (
     combine_all_mongodb_filters,
     get_filter_cluster_name,
 )
-from clockwork_web.core.hardware_helper import get_hardware_info
+from clockwork_web.core.gpu_helper import get_gpu_info
 
 from flask import Blueprint
 
@@ -86,7 +86,7 @@ def route_api_v1_nodes_one_gpu():
         except:
             return {}
         # Retrieve the GPU information
-        return get_hardware_info(gpu_name)
+        return get_gpu_info(gpu_name)
 
     # Otherwise
     return {}
