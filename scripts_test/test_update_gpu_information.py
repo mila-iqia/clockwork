@@ -50,7 +50,7 @@ def test_insertion_from_an_empty_collection():
                 "name": first_insert_example["name"],
                 "vendor": "other vendor",
                 "ram": first_insert_example["ram"]
-                + 1,  # to be sure that the information are different
+                + 1,  # to be sure that the values differ
                 "cuda_cores": 5000,
                 "tensor_cores": 425,
                 "tflops_fp32": 14,
@@ -95,13 +95,19 @@ def test_insertion_from_an_empty_collection():
     # Check the content of the database
     assert (
         db[mongodb_collection_name].find_one(
-            {"name": first_insert_example["name"]}, {"_id": 0}
+            # Filter to find the entry (by checking its `name` attribute)
+            {"name": first_insert_example["name"]},
+            # The result does not contain the field `_id`
+            {"_id": 0},
         )
         == first_insert_example
     )
     assert (
         db[mongodb_collection_name].find_one(
-            {"name": last_insert_example["name"]}, {"_id": 0}
+            # Filter to find the entry (by checking its `name` attribute)
+            {"name": last_insert_example["name"]},
+            # The result does not contain the field `_id`
+            {"_id": 0},
         )
         == last_insert_example
     )
@@ -117,13 +123,19 @@ def test_insertion_from_an_empty_collection():
     # Check the content of the database
     assert (
         db[mongodb_collection_name].find_one(
-            {"name": first_update_example["name"]}, {"_id": 0}
+            # Filter to find the entry (by checking its `name` attribute)
+            {"name": first_update_example["name"]},
+            # The result does not contain the field `_id`
+            {"_id": 0},
         )
         == first_update_example
     )
     assert (
         db[mongodb_collection_name].find_one(
-            {"name": last_update_example["name"]}, {"_id": 0}
+            # Filter to find the entry (by checking its `name` attribute)
+            {"name": last_update_example["name"]},
+            # The result does not contain the field `_id`
+            {"_id": 0},
         )
         == last_update_example
     )
