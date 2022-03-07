@@ -33,7 +33,6 @@ def test_hardware_gpu_one_success(client, valid_rest_auth_headers):
     gpu_result = response.json
     assert gpu_result == {
         "name": "rtx8000",
-        "type": "gpu",
         "vendor": "nvidia",
         "ram": 48,
         "cuda_cores": 4608,
@@ -54,7 +53,6 @@ def test_hardware_gpu_list_success(client, valid_rest_auth_headers):
         "hardware_list": [
             {
                 "name": "rtx8000",
-                "type": "gpu",
                 "vendor": "nvidia",
                 "ram": 48,
                 "cuda_cores": 4608,
@@ -63,7 +61,6 @@ def test_hardware_gpu_list_success(client, valid_rest_auth_headers):
             },
             {
                 "name": "v100",
-                "type": "gpu",
                 "vendor": "nvidia",
                 "ram": 0,
                 "cuda_cores": 5120,
@@ -72,7 +69,6 @@ def test_hardware_gpu_list_success(client, valid_rest_auth_headers):
             },
             {
                 "name": "a100",
-                "type": "gpu",
                 "vendor": "nvidia",
                 "ram": 0,
                 "cuda_cores": 0,
