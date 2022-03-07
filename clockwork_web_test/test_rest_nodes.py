@@ -62,3 +62,30 @@ def test_node_list(client, valid_rest_auth_headers):
     )
     assert response.status_code == 200
     assert "application/json" in response.content_type
+
+
+def test_single_node_gpu(client, fake_data, valid_rest_auth_headers):
+    # Get if no parsed gpu
+    response = client.get(
+        f"/api/v1/clusters/nodes/one/gpu?name=ced0065", headers=valid_rest_auth_headers
+    )
+    assert response.status_code == 200
+    assert "application/json" in response.content_type
+    gpu_information = response.json
+    assert gpu_information == {}
+
+    # Get if a parsed gpu
+    response = client.get(
+        f"/api/v1/clusters/nodes/one/gpu?name=cn-c023", headers=valid_rest_auth_headers
+    )
+    assert response.status_code == 200
+    assert "application/json" in response.content_type
+    gpu_information = response.json
+    assert gpu_information == {
+        "name": "rtx8000",
+        "vendor": "nvidia",
+        "ram": 48,
+        "cuda_cores": 4608,
+        "tensor_cores": 576,
+        "tflops_fp32": 16.3,
+    }
