@@ -7,6 +7,7 @@ from clockwork_web.core.jobs_helper import (
     combine_all_mongodb_filters,
     get_filter_cluster_name,
 )
+from clockwork_web.core.hardware_helper import get_hardware_info
 
 from flask import Blueprint
 
@@ -56,3 +57,36 @@ def route_api_v1_nodes_one():
     D_node = LD_nodes[0]
 
     return jsonify(D_node)
+
+
+@flask_api.route("/nodes/one/gpu")
+@authentication_required
+def route_api_v1_nodes_one_gpu():
+    """
+    Takes one mandatory "name", as in "/nodes/one/gpu?name=cn-a003". The name
+    is the node's one, as its GPU information are requested. This could also
+    take a "cluster_name" args if we have two clusters that have clashes with
+    their host names.
+
+    .. :quickref: describe the GPU of a node
+    """
+    # Retrieve the node's information
+    name_filter = get_filter_name(request.args.get("name", None))
+    cluster_filter = get_filter_cluster_name(request.args.get("cluster_name", None))
+
+    filter = combine_all_mongodb_filters(name_filter, cluster_filter)
+
+    node_information = get_nodes(filter)
+
+    # Check if the node has been correctly retrieved
+    if len(node_information) == 1:
+        # Get the GPU name
+        try:
+            gpu_name = node_information[0]["slurm"]["gres"]["parsed"]["gpu_name"]
+        except:
+            return {}
+        # Retrieve the GPU information
+        return get_hardware_info(gpu_name)
+
+    # Otherwise
+    return {}
