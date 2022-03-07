@@ -23,9 +23,8 @@ services:
     ports:
       - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
     environment:
-      LOGIN_DISABLED: "True"
+      CLOCKWORK_CONFIG: /dev_config.toml
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
-      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
     command:
       flask run --host=0.0.0.0
 
@@ -40,9 +39,8 @@ services:
       - ./clockwork_web_test:/clockwork/clockwork_web_test
       - ./test_common:/clockwork/test_common
     environment:
-      LOGIN_DISABLED: "True"
+      CLOCKWORK_CONFIG: /dev_config.toml
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
-      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
       clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
       clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
 
@@ -99,8 +97,7 @@ services:
     stdin_open: true
     tty: true
     environment:
-      MONGODB_DATABASE_NAME: "clockwork"
-      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
+      CLOCKWORK_CONFIG: /dev_config.toml
       clockwork_tools_test_HOST: "localhost"
       clockwork_tools_test_PORT: ${FLASK_RUN_PORT}
       clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}

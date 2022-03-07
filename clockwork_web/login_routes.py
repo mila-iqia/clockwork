@@ -33,13 +33,15 @@ from flask_login import (
 )
 
 from .user import User
+from clockwork_web.config import register_config, get_config
 
 
-# Configuration
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
-GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
-
+register_config("google.client_id", "")
+register_config("google.client_secret", "")
+register_config(
+    "google.discovery_url",
+    "https://accounts.google.com/.well-known/openid-configuration",
+)
 
 # As described on
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
@@ -50,12 +52,21 @@ flask_api = Blueprint("login", __name__)
 
 
 def get_google_provider_cfg():
-    return requests.get(GOOGLE_DISCOVERY_URL).json()
+    return requests.get(get_config("google.discovery_url")).json()
 
 
 # TODO : Does this go here? Is it just needed in one function only?
 # OAuth2 client setup
-client = WebApplicationClient(GOOGLE_CLIENT_ID)
+_client = None
+
+
+def get_client():
+    global _client
+    if _client is None:
+        _client = WebApplicationClient(get_config("google.client_id"))
+    return _client
+
+
 #############################################
 
 
@@ -81,7 +92,7 @@ def route_index():
 
     # Use library to construct the request for login and provide
     # scopes that let you retrieve user's profile from Google
-    request_uri = client.prepare_request_uri(
+    request_uri = get_client().prepare_request_uri(
         authorization_endpoint,
         redirect_uri=request.base_url + "callback",
         scope=["openid", "email", "profile"],
@@ -119,7 +130,7 @@ def route_callback():
     token_endpoint = google_provider_cfg["token_endpoint"]
 
     # Prepare and send request to get tokens! Yay tokens!
-    token_url, headers, body = client.prepare_token_request(
+    token_url, headers, body = get_client().prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
         redirect_url=request.base_url,
@@ -130,17 +141,17 @@ def route_callback():
         token_url,
         headers=headers,
         data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+        auth=(get_config("google.client_id"), get_config("google.client_secret")),
     )
 
     # Parse the tokens!
-    client.parse_request_body_response(token_response.text)
+    get_client().parse_request_body_response(token_response.text)
 
     # Now that we have tokens (yay) let's find and hit URL
     # from Google that gives you user's profile information,
     # including their Google Profile Image and Email
     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token(userinfo_endpoint)
+    uri, headers, body = get_client().add_token(userinfo_endpoint)
     userinfo_response = requests.get(uri, headers=headers, data=body)
 
     # We want to make sure their email is verified.

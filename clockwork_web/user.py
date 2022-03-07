@@ -67,7 +67,7 @@ class User(UserMixin):
         Returns the user with the specified email or None
         """
 
-        mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+        mc = get_db()
 
         L = list(mc["users"].find({"mila_email_username": mila_email_username}))
         # This is not an error from which we expect to be able to recover gracefully.
@@ -104,7 +104,7 @@ class User(UserMixin):
         """
         old_key = self.clockwork_api_key
         self.clockwork_api_key = secrets.token_hex(32)
-        mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+        mc = get_db()
         res = mc["users"].update_one(
             {"mila_email_username": self.mila_email_username},
             {"$set": {"clockwork_api_key": self.clockwork_api_key}},
