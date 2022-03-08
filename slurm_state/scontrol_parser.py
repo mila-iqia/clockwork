@@ -98,35 +98,32 @@ def get_gres_dict(f, ctx):
     if f == "(null)":
         return {}
     else:
+        # Initialize
         gres_dict = {}
-
-        # Add the unparsed field
-        gres_dict["raw"] = f
-
-        # Parse the Gres field
         gres_dict_parsed = {}
+
         # The Gres field has the following format: "gpu:<gpu_name>:<gpu_number>"
         # with, optionally, at the end: "(S:0)" if the GPU are associated with
-        # socket 0, "(S:0-1)" for instance if associated to sockets 0 and 1
-        split_f = re.split(r"\(|\)", f)
-        gres_info = split_f[0].split(":")
+        # socket 0, "(S:0-1)" for instance if associated to sockets 0 and 1.
+        prog1 = re.compile(r"gpu:(\w*?):(\d+)$")
+        prog2 = re.compile(r"gpu:(\w*?):(\d+)\(S:(.*)\)")
 
-        if gres_info[0] == "gpu" and len(gres_info) == 3:
-            # Get the gpu_name
-            gres_dict_parsed["gpu_name"] = gres_info[1]
-            # Get the number of gpus
-            try:
-                gres_dict_parsed["gpu_number"] = int(gres_info[2])
-                # Get the associated sockets if there are
-                if len(split_f) > 1:
-                    gpu_config = split_f[1].split(":")
-                    if len(gpu_config) == 2 and gpu_config[0] == "S":
-                        gres_dict_parsed["associated_sockets"] = gpu_config[1]
-            except Exception as e:
-                gres_dict_parsed = {}
+        if m := prog1.match(f):
+            # Get the gpu_name and number.
+            gres_dict_parsed = {"gpu_name": m.group(1), "gpu_number": int(m.group(2))}
+        elif m := prog2.match(f):
+            # Get the gpu_name and number, as well as associated sockets
+            # if there are any.
+            gres_dict_parsed = {
+                "gpu_name": m.group(1),
+                "gpu_number": int(m.group(2)),
+                "associated_sockets": m.group(3),
+            }
+        else:
+            # We encountered an unexpected expression.
+            gres_dict_parsed = {}
 
-        gres_dict["parsed"] = gres_dict_parsed
-
+        gres_dict = {"raw": f, "parsed": gres_dict_parsed}  # the unparsed field
         return gres_dict
 
 
