@@ -1,4 +1,3 @@
-
 # Don't forget to sync changes with slurm_state/config.py
 
 import os

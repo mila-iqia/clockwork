@@ -20,10 +20,11 @@ services:
     working_dir: /clockwork
     volumes:
       - ./clockwork_web:/clockwork/clockwork_web
+      - ./test_config.toml:/clockwork/test_config.toml
     ports:
       - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
     environment:
-      CLOCKWORK_CONFIG: /dev_config.toml
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
     command:
       flask run --host=0.0.0.0
@@ -38,11 +39,10 @@ services:
       - ./clockwork_web:/clockwork/clockwork_web
       - ./clockwork_web_test:/clockwork/clockwork_web_test
       - ./test_common:/clockwork/test_common
+      - ./test_config.toml:/clockwork/test_config.toml
     environment:
-      CLOCKWORK_CONFIG: /dev_config.toml
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
-      clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
-      clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
 
   clockwork_tools_test:
     image: clockwork_tools_test
@@ -55,7 +55,9 @@ services:
       - ./clockwork_tools:/clockwork/clockwork_tools
       - ./clockwork_tools_test:/clockwork/clockwork_tools_test
       - ./test_common:/clockwork/test_common
+      - ./test_config.toml:/clockwork/test_config.toml
     environment:
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml
       MONGODB_DATABASE_NAME: "clockwork"
       MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
       clockwork_tools_test_HOST: "clockwork_web-dev"
@@ -72,10 +74,9 @@ services:
     volumes:
       - ./slurm_state:/clockwork/slurm_state
       - ./slurm_state_test:/clockwork/slurm_state_test
+      - ./test_config.toml:/clockwork/test_config.toml
     environment:
-      MONGODB_DATABASE_NAME: "clockwork"
-      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
-      slurm_state_ALLOCATIONS_RELATED_TO_MILA: "/clockwork/slurm_state_test/fake_allocations_related_to_mila.json"
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml
 
   clockwork_dev:
     image: clockwork_dev
@@ -93,14 +94,14 @@ services:
       - ./slurm_state:/clockwork/slurm_state
       - ./slurm_state_test:/clockwork/slurm_state_test
       - ./test_common:/clockwork/test_common
+      - ./test_config.toml:/clockwork/test_config.toml
     command: bash
     stdin_open: true
     tty: true
     environment:
-      CLOCKWORK_CONFIG: /dev_config.toml
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml
       clockwork_tools_test_HOST: "localhost"
       clockwork_tools_test_PORT: ${FLASK_RUN_PORT}
       clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
       clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
-      # note that this file is not included in the repository under normal circumstances
-      slurm_state_ALLOCATIONS_RELATED_TO_MILA: "/clockwork/slurm_state/allocations_related_to_mila.json"
+

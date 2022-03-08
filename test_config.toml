@@ -1,0 +1,43 @@
+[flask]
+testing=true
+login_disabled=true
+
+[google]
+client_id=""
+client_secret=""
+
+[mongo]
+initdb_root_username="mongoadmin"
+initdb_root_password="secret_passowrd_okay"
+connection_string="mongodb://mongoadmin:secret_passowrd_okay@mongodb:27017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false"
+
+
+[clusters.test_cluster]
+account_key="test_cluster_username"
+allocations=["valid_fake_allocation_name", "clustergroup"]
+timezone="America/Montreal"
+
+[clusters.mila]
+account_key="mila_cluster_username"
+allocations="*"
+timezone="America/Montreal"
+
+[clusters.beluga]
+account_key="cc_account_username"
+allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
+timezone=""
+
+[clusters.graham]
+account_key="cc_account_username"
+allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
+timezone=""
+
+[clusters.cedar]
+account_key="cc_account_username"
+allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
+timezone=""
+
+
+[clockwork.test]
+email="student01@mila.quebec"
+api_key="000aaa01"
