@@ -118,7 +118,7 @@ class User(UserMixin):
         Create a new API key and save it to the database.
         """
         self.cc_account_update_key = secrets.token_hex(32)
-        mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+        mc = get_db()
         res = mc["users"].update_one(
             {"mila_email_username": self.mila_email_username},
             {"$set": {"cc_account_update_key": self.cc_account_update_key}},
