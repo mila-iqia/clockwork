@@ -14,11 +14,9 @@ import re
 import os
 import json
 from collections import defaultdict
+from .config import get_config, register_config
 
-assert os.environ.get(
-    "slurm_state_ALLOCATIONS_RELATED_TO_MILA", ""
-), "Missing the environment variable 'slurm_state_ALLOCATIONS_RELATED_TO_MILA'."
-assert os.path.exists(os.environ["slurm_state_ALLOCATIONS_RELATED_TO_MILA"])
+register_config("clusters")
 
 
 def is_allocation_related_to_mila(D_job: dict[dict]):
@@ -30,23 +28,14 @@ def is_allocation_related_to_mila(D_job: dict[dict]):
 
     Return True when we want to keep the entry.
     """
-    return (
-        D_job["slurm"].get("account", "") in _get_mila_allocations_for_compute_canada()
-    )
-
-
-def _get_mila_allocations_for_compute_canada():
-    if _get_mila_allocations_for_compute_canada.allocations is None:
-        json_file = os.environ["slurm_state_ALLOCATIONS_RELATED_TO_MILA"]
-        with open(json_file, "r") as f:
-            E = json.load(f)
-            return E
-    else:
-        return _get_mila_allocations_for_compute_canada.allocations
-
-
-# a trick to load that file only once
-_get_mila_allocations_for_compute_canada.allocations = None
+    cluster_name = D_job["slurm"]["cluster_name"]
+    cluster_info = get_config("clusters").get(cluster_name, None)
+    if cluster_info is None:
+        return False
+    allocations = cluster_info["allocations"]
+    if allocations == "*":
+        return True
+    return D_job["slurm"].get("account", "") in allocations
 
 
 def extract_username_from_slurm_fields(D_slurm):
