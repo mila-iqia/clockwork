@@ -2,17 +2,15 @@
 Test functions of the script allowing to update the GPU information.
 """
 
-import os
 import pytest
 from pymongo import MongoClient
 
 from scripts.update_gpu_information import update_gpu_information
+from scripts_test.config import get_config
 
 
 def test_insertion_from_an_empty_collection():
     # Initialization
-    mongodb_connection_string = os.environ["MONGODB_CONNECTION_STRING"]
-    mongodb_database_name = os.environ["MONGODB_DATABASE_NAME"]
     mongodb_collection_name = "test_gpu"
 
     # GPU information to insert the first time in the database
@@ -78,8 +76,8 @@ def test_insertion_from_an_empty_collection():
     last_update_example = gpu_infos_update["gpu_infos"][-1]
 
     # Connect to MongoDB
-    client = MongoClient(mongodb_connection_string)
-    db = client[mongodb_database_name]
+    client = MongoClient(get_config("mongo.connection_string"))
+    db = client[get_config("mongo.database_name")]
 
     # Clean the 'gpu' collection
     db.drop_collection(mongodb_collection_name)
@@ -87,8 +85,8 @@ def test_insertion_from_an_empty_collection():
     # Launch the script the first time to insert information
     update_gpu_information(
         gpu_infos_insert,
-        mongodb_connection_string,
-        mongodb_database_name,
+        get_config("mongo.connection_string"),
+        get_config("mongo.database_name"),
         mongodb_collection_name,
     )
 
@@ -115,8 +113,8 @@ def test_insertion_from_an_empty_collection():
     # Launch the script again, with different values
     update_gpu_information(
         gpu_infos_update,
-        mongodb_connection_string,
-        mongodb_database_name,
+        get_config("mongo.connection_string"),
+        get_config("mongo.database_name"),
         mongodb_collection_name,
     )
 

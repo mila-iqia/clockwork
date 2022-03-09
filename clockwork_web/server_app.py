@@ -27,6 +27,11 @@ from .rest_routes.jobs import flask_api as rest_jobs_flask_api
 from .rest_routes.nodes import flask_api as rest_nodes_flask_api
 from .rest_routes.gpu import flask_api as rest_gpu_flask_api
 
+from .config import register_config, get_config
+
+register_config("flask.secret_key")
+
+
 
 def create_app(extra_config: dict):
     """Creates the Flask app with everything wired up.
@@ -40,7 +45,10 @@ def create_app(extra_config: dict):
         A Flask app ready to be used.
     """
     app = Flask(__name__)
-    app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+    try:
+        app.secret_key = get_config("flask.secret_key")
+    except KeyError:
+        app.secret_key = os.urandom(24)
 
     for (k, v) in extra_config.items():
         app.config[k] = v

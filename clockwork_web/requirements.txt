@@ -5,5 +5,5 @@ pyOpenSSL
 Flask-Login
 pymongo
 dnspython
-
+toml
 ldap3

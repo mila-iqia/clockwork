@@ -5,8 +5,7 @@ Helper functions in order to handle GPU information.
 from flask.globals import current_app
 from flask.json import jsonify
 
-from ..db import get_db
-from enum import Enum
+from clockwork_web.db import get_db
 
 
 def get_gpu_info(gpu_name):
@@ -22,7 +21,7 @@ def get_gpu_info(gpu_name):
     """
     # Check the gpu_name type
     if isinstance(gpu_name, str) and len(gpu_name) > 0:
-        db = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+        db = get_db()
         # Find one entry presenting the name corresponding to gpu_name
         requested_gpu = db["gpu"].find_one(
             {"name": gpu_name}, {"_id": 0}
@@ -40,7 +39,7 @@ def get_gpu():
     Returns:
         A list of dictionaries describing the requested GPUs
     """
-    db = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+    db = get_db()
     return {"gpu_list": list(db["gpu"].find({}, {"_id": 0}))}
     return {}
 
@@ -52,5 +51,5 @@ def get_gpu_list():
     Returns:
         A list of dictionaries describing the different GPUs.
     """
-    db = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+    db = get_db()
     return {"gpu_list": list(db["gpu"].find({}, {"_id": 0}))}

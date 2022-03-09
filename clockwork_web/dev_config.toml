@@ -1,0 +1,12 @@
+[flask]
+testing=true
+login_disabled=true
+
+[google]
+client_id=""
+client_secret=""
+
+[mongo]
+initdb_root_username="mongoadmin"
+initdb_root_password="secret_passowrd_okay"
+connection_string="mongodb://mongoadmin:secret_passowrd_okay@mongodb:27017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false"
