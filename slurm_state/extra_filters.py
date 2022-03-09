@@ -5,28 +5,35 @@ of node entries of the form {"slurm" :..., "cw": ...}.
 
 These can be a little messy, but they are meant to encapsulate
 a collection of ugly hacks and manually-crafted tables.
-
-This file requires the environment variable
-slurm_state_ALLOCATIONS_RELATED_TO_MILA.
 """
 
 import re
 import os
 import json
 from collections import defaultdict
-from .config import get_config, register_config
+from .config import get_config, register_config, SubdictValidator, string_list
 
-register_config("clusters")
+clusters_valid = SubdictValidator({})
+
+
+def alloc_valid(value):
+    if value == "*":
+        return value
+    return string_list(value)
+
+
+clusters_valid.add_field("allocations", alloc_valid)
+
+register_config("clusters", validator=clusters_valid)
 
 
 def is_allocation_related_to_mila(D_job: dict[dict]):
     """
     Usually used with a `filter` operation in order to let only
     the jobs that pertain to Mila, either because they are on our own
-    Slurm cluster or because they are on allocations associated with us
-    (as defined by the "mila_allocations_for_compute_canada.json" file).
+    Slurm cluster or because they are on allocations associated with us.
 
-    Return True when we want to keep the entry.
+    Returns True when we want to keep the entry.
     """
     cluster_name = D_job["slurm"]["cluster_name"]
     cluster_info = get_config("clusters").get(cluster_name, None)

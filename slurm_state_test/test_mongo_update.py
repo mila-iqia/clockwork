@@ -10,7 +10,7 @@ import pytest
 def test_fetch_slurm_report():
     res = list(
         fetch_slurm_report_nodes(
-            "slurm_state_test/files/test_cluster.json",
+            "test_cluster",
             "slurm_state_test/files/small_scontrol_node",
         )
     )
@@ -32,7 +32,7 @@ def test_fetch_slurm_report():
     ]
     res = list(
         fetch_slurm_report_jobs(
-            "slurm_state_test/files/test_cluster.json",
+            "test_cluster",
             "slurm_state_test/files/small_scontrol_job",
         )
     )
@@ -103,7 +103,7 @@ def test_main_read_jobs_and_update_collection():
     main_read_jobs_and_update_collection(
         db.test_jobs,
         db.test_users,
-        "slurm_state_test/files/test_cluster.json",
+        "test_cluster",
         "slurm_state_test/files/small_scontrol_job",
     )
 
@@ -112,7 +112,7 @@ def test_main_read_jobs_and_update_collection():
     main_read_jobs_and_update_collection(
         db.test_jobs,
         db.test_users,
-        "slurm_state_test/files/test_cluster.json",
+        "test_cluster",
         "slurm_state_test/files/scontrol_job_2",
     )
 
@@ -129,7 +129,7 @@ def test_main_read_nodes_and_update_collection():
 
     main_read_nodes_and_update_collection(
         db.test_nodes,
-        "slurm_state_test/files/test_cluster.json",
+        "test_cluster",
         "slurm_state_test/files/small_scontrol_node",
     )
 
@@ -137,7 +137,7 @@ def test_main_read_nodes_and_update_collection():
 
     main_read_nodes_and_update_collection(
         db.test_nodes,
-        "slurm_state_test/files/test_cluster.json",
+        "test_cluster",
         "slurm_state_test/files/scontrol_node_2",
     )
 
