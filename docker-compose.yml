@@ -20,12 +20,12 @@ services:
     working_dir: /clockwork
     volumes:
       - ./clockwork_web:/clockwork/clockwork_web
+      - ./test_config.toml:/clockwork/test_config.toml
     ports:
       - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
     environment:
-      LOGIN_DISABLED: "True"
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
-      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
     command:
       flask run --host=0.0.0.0
 
@@ -39,10 +39,10 @@ services:
       - ./clockwork_web:/clockwork/clockwork_web
       - ./clockwork_web_test:/clockwork/clockwork_web_test
       - ./test_common:/clockwork/test_common
+      - ./test_config.toml:/clockwork/test_config.toml
     environment:
-      LOGIN_DISABLED: "True"
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml
       FLASK_RUN_PORT: ${FLASK_RUN_PORT}
-      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
       clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
       clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
 
@@ -94,13 +94,15 @@ services:
       - ./clockwork_web_test:/clockwork/clockwork_web_test
       - ./slurm_state:/clockwork/slurm_state
       - ./slurm_state_test:/clockwork/slurm_state_test
+      - ./scripts:/clockwork/scripts
+      - ./scripts_test:/clockwork/scripts_test
       - ./test_common:/clockwork/test_common
+      - ./test_config.toml:/clockwork/test_config.toml
     command: bash
     stdin_open: true
     tty: true
     environment:
-      MONGODB_DATABASE_NAME: "clockwork"
-      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml
       clockwork_tools_test_HOST: "localhost"
       clockwork_tools_test_PORT: ${FLASK_RUN_PORT}
       clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
@@ -116,6 +118,6 @@ services:
     volumes:
       - ./scripts:/clockwork/scripts
       - ./scripts_test:/clockwork/scripts_test
+      - ./test_config.toml:/clockwork/test_config.toml
     environment:
-      MONGODB_DATABASE_NAME: "clockwork"
-      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml

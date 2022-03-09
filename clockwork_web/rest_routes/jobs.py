@@ -207,7 +207,7 @@ def route_api_v1_jobs_user_dict_update():
     # In any case, with the current setup we are still exposed to the
     # possibility that rapid updates to the same job could compete with
     # each other (and that's kinda fine).
-    mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+    mc = get_db()
     result = mc["jobs"].update_one(
         {"_id": D_job["_id"]}, {"$set": {"user": new_user_dict}}, upsert=False
     )

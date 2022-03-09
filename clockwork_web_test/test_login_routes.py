@@ -1,5 +1,5 @@
 from urllib.parse import urlparse, parse_qs
-from clockwork_web.login_routes import GOOGLE_DISCOVERY_URL
+from clockwork_web.login_routes import get_config
 
 # This file tests the OAuth workflow used for login to the site.
 
@@ -11,7 +11,7 @@ from clockwork_web.login_routes import GOOGLE_DISCOVERY_URL
 
 def fake_endpoints(mock, userinfo_text):
     mock.get(
-        GOOGLE_DISCOVERY_URL,
+        get_config("google.discovery_url"),
         text="""{
         "authorization_endpoint": "https://oauth.google.com/authorize",
         "token_endpoint": "https://oauth.google.com/token",

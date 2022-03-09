@@ -11,7 +11,7 @@ def test_insert_and_retrieve(app):
     """
 
     with app.app_context():
-        mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
+        mc = get_db()
 
         job_id = 4872438  # just a meaningless random number
         # delete any remaining elements from a previous test first

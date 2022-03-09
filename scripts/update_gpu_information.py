@@ -51,6 +51,12 @@ def update_gpu_information(
             {
                 "gpu_infos": <list of dictionaries presenting each a GPU>
             }
+        mongodb_connection_string: Connection string to connect to the MongoDB
+            client
+        mongodb_database_name: Name of the MongoDB database
+        mongodb_collection_name: Name of the collection to insert the gpu data
+            in (by default, it is 'gpu', but it could change, for tests for
+            instance)
     """
     # Connect to the database
     gpu_collection = MongoClient(mongodb_connection_string)[mongodb_database_name][

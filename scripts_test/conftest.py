@@ -2,19 +2,13 @@
 This is a special file that pytest will find first.
 """
 
-import os
 import pytest
 
 import scripts
+from scripts_test.config import register_config
 
-assert "MONGODB_CONNECTION_STRING" in os.environ, (
-    "Error. Cannot proceed when missing the value of MONGODB_CONNECTION_STRING from environment.\n"
-    "This represents the connection string to be used by pymongo.\n"
-    "\n"
-    "It doesn't need to be the production database, but it does need to be\n"
-    "some instance of mongodb."
-)
-
+register_config("mongo.connection_string", "")
+register_config("mongo.database_name", "clockwork")
 
 @pytest.fixture
 def app():
@@ -23,11 +17,7 @@ def app():
     app = create_app(
         extra_config={
             "TESTING": True,
-            "LOGIN_DISABLED": True,
-            "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
-            "MONGODB_DATABASE_NAME": os.environ.get(
-                "MONGODB_DATABASE_NAME", "clockwork"
-            ),
+            "LOGIN_DISABLED": True
         }
     )
 

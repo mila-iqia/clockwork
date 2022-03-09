@@ -8,11 +8,8 @@ ENV PYTHONPATH=${PYTHONPATH}:${CLOCKWORK_ROOT}
 WORKDIR ${CLOCKWORK_ROOT}
 
 ENV FLASK_APP=clockwork_web.main:app
-ENV CLOCKWORK_SETTINGS=/clockwork/testing.cfg
 ENV CLOCKWORK_ENABLE_TESTING_LOGIN=True
 ENV MONGODB_DATABASE_NAME="clockwork"
-
-RUN echo "TESTING=True" > /clockwork/testing.cfg
 
 RUN pip install --upgrade pip
 
@@ -33,3 +30,5 @@ RUN pip install -r /requirements_state.txt && rm -rf /root/.cache
 
 COPY slurm_state_test/requirements.txt /requirements_state_test.txt
 RUN pip install -r /requirements_state_test.txt && rm -rf /root/.cache
+
+COPY clockwork_web/dev_config.toml /dev_config.toml

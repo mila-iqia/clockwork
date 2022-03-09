@@ -10,6 +10,7 @@ That leads here, to this file, which is just a barebone launcher.
 """
 
 import os
+from .config import get_config, register_config
 from .server_app import create_app
 
 """
@@ -23,20 +24,13 @@ wanted to avoid authenticating with Google every time we relaunch.
 We should pick some kind of convention by which, when we disable
 the login, we set the user to be "mario" or something like that.
 """
+
+register_config("flask.testing", False)
+register_config("flask.login_disabled", False)
+
 app = create_app(
     extra_config={
-        "TESTING": False,
-        "LOGIN_DISABLED": os.environ.get("LOGIN_DISABLED", "False")
-        in ["True", "true", "1"],
-        "MONGODB_CONNECTION_STRING": os.environ["MONGODB_CONNECTION_STRING"],
-        "MONGODB_DATABASE_NAME": os.environ.get("MONGODB_DATABASE_NAME", "clockwork"),
+        "TESTING": get_config("flask.testing"),
+        "LOGIN_DISABLED": get_config("flask.login_disabled"),
     }
 )
-
-# Add a way to load extra settings or override config
-if "CLOCKWORK_SETTINGS" in os.environ:
-    app.config.from_envvar("CLOCKWORK_SETTINGS")
-
-# If you call `app.run()` on the code that goes to gcloud, it causes problems.
-# If you don't, then it's fine.
-# app.run()
