@@ -25,17 +25,17 @@ timezone="America/Montreal"
 [clusters.beluga]
 account_key="cc_account_username"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
-timezone=""
+timezone="America/Montreal"
 
 [clusters.graham]
 account_key="cc_account_username"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
-timezone=""
+timezone="America/Toronto"
 
 [clusters.cedar]
 account_key="cc_account_username"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
-timezone=""
+timezone="America/Vancouver"
 
 
 [clockwork.test]

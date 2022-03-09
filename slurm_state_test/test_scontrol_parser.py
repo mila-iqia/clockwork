@@ -123,7 +123,7 @@ def test_user_id_splitting():
     d = {}
     user_id_splitting(
         "luigi(633819)",
-        {"local_username_referenced_by_parent_as": "cc_account_username"},
+        {"account_key": "cc_account_username"},
         d,
     )
     assert d["cc_account_username"] == "luigi"

@@ -1,29 +1,29 @@
 import os, time
-from slurm_state.mongo_client import get_mongo_client
 from pymongo import UpdateOne
 import json
-import zoneinfo
 from slurm_state.extra_filters import (
     is_allocation_related_to_mila,
     extract_username_from_slurm_fields,
+    clusters_valid,
 )
+from slurm_state.config import get_config, timezone, string
 
 from .scontrol_parser import job_parser, node_parser
 
 
-def fetch_slurm_report_jobs(cluster_desc_path, scontrol_report_path):
-    return _fetch_slurm_report_helper(
-        job_parser, cluster_desc_path, scontrol_report_path
-    )
+clusters_valid.add_field("timezone", timezone)
+clusters_valid.add_field("account_key", string)
 
 
-def fetch_slurm_report_nodes(cluster_desc_path, scontrol_report_path):
-    return _fetch_slurm_report_helper(
-        node_parser, cluster_desc_path, scontrol_report_path
-    )
+def fetch_slurm_report_jobs(cluster_name, scontrol_report_path):
+    return _fetch_slurm_report_helper(job_parser, cluster_name, scontrol_report_path)
 
 
-def _fetch_slurm_report_helper(parser, cluster_desc_path, scontrol_report_path):
+def fetch_slurm_report_nodes(cluster_name, scontrol_report_path):
+    return _fetch_slurm_report_helper(node_parser, cluster_name, scontrol_report_path)
+
+
+def _fetch_slurm_report_helper(parser, cluster_name, scontrol_report_path):
     """
 
     Yields elements ready to be slotted into the "slurm" field,
@@ -31,19 +31,15 @@ def _fetch_slurm_report_helper(parser, cluster_desc_path, scontrol_report_path):
     """
 
     assert os.path.exists(
-        cluster_desc_path
-    ), f"cluster_desc_path {cluster_desc_path} is missing."
-    assert os.path.exists(
         scontrol_report_path
     ), f"scontrol_report_path {scontrol_report_path} is missing."
 
-    with open(cluster_desc_path, "r") as f:
-        ctx = json.load(f)
-        ctx["timezone"] = zoneinfo.ZoneInfo(ctx["timezone"])
+    ctx = get_config("clusters").get(cluster_name, None)
+    assert ctx is not None, f"{cluster_name} not configured"
 
     with open(scontrol_report_path, "r") as f:
         for e in parser(f, ctx):
-            e["cluster_name"] = ctx["name"]
+            e["cluster_name"] = cluster_name
             yield e
 
 
@@ -123,7 +119,7 @@ def slurm_node_to_clockwork_node(slurm_node: dict):
 def main_read_jobs_and_update_collection(
     jobs_collection,
     users_collection,
-    cluster_desc_path,
+    cluster_name,
     scontrol_show_job_path,
     want_commit_to_db=True,
     dump_file="",
@@ -149,7 +145,7 @@ def main_read_jobs_and_update_collection(
             is_allocation_related_to_mila,
             map(
                 slurm_job_to_clockwork_job,
-                fetch_slurm_report_jobs(cluster_desc_path, scontrol_show_job_path),
+                fetch_slurm_report_jobs(cluster_name, scontrol_show_job_path),
             ),
         ),
     ):
