@@ -32,6 +32,18 @@ def anything(value):
     return value
 
 
+def string(value):
+    if not isinstance(value, str):
+        raise ConfigError("expected string")
+    return value
+
+
+def optional_string(value):
+    if value is False:
+        return value
+    return string(value)
+
+
 def string_list(value):
     if not isinstance(value, list):
         raise ConfigError("expected list")

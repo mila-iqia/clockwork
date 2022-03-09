@@ -6,13 +6,14 @@ from slurm_state.extra_filters import (
     extract_username_from_slurm_fields,
     clusters_valid,
 )
-from slurm_state.config import get_config, timezone, string
+from slurm_state.config import get_config, timezone, string, optional_string
 
 from .scontrol_parser import job_parser, node_parser
 
 
 clusters_valid.add_field("timezone", timezone)
-clusters_valid.add_field("account_key", string)
+clusters_valid.add_field("account_field", string)
+clusters_valid.add_field("update_field", optional_string)
 
 
 def fetch_slurm_report_jobs(cluster_name, scontrol_report_path):
@@ -53,52 +54,32 @@ def slurm_job_to_clockwork_job(slurm_job: dict):
     clockwork_job = {
         "slurm": slurm_job,
         "cw": {
-            "cc_account_username": None,
-            "mila_cluster_username": None,
             "mila_email_username": None,
         },
         "user": {},
     }
-    infer_user_accounts(clockwork_job)  # mutates argument
     return clockwork_job
 
 
-def infer_user_accounts(clockwork_job: dict[dict]):
+def lookup_user_account(users_collection):
     """
     Mutates the argument in order to fill in the
-    fields for "cw" pertaining to the user accounts.
+    field for "cw" pertaining to the user account.
     Returns the mutated value to facilitate a `map` call.
-
-    Later on, this function can be expanded to include
-    correspondances between usernames on different clusters.
     """
 
-    # On the Compute Canada clusters, we get the usernames.
-    # It's on the Mila cluster that we have guesswork to do
-    # because we get "nobody(428397423)" with some UID.
-    # At that point in the postprocessing, we have stripped
-    # away the "(428397423)" part.
-    if clockwork_job["slurm"]["cluster_name"] == "mila" and clockwork_job["slurm"].get(
-        "mila_cluster_username", ""
-    ) in ["", "nobody"]:
-        guessed = extract_username_from_slurm_fields(clockwork_job["slurm"])
-        if guessed == "unknown":
-            # let's set that as "nobody" to be more consistent
-            guessed = "nobody"
-        clockwork_job["slurm"]["mila_cluster_username"] = guessed
+    def _lookup_user_account(clockwork_job: dict[dict]):
+        cluster_name = clockwork_job["slurm"]["cluster_name"]
+        cluster = get_config("clusters")[cluster_name]
+        username = clockwork_job["slurm"][cluster["account_field"]]
 
-    # At this point, `clockwork_job["cw"]` is a dict with three fields,
-    # all of which are blank. We can fill in one of those blanks
-    # based on the values from `clockwork_job["slurm"]`,
-    # and leave the other ones empty for now.
-    for k in ["cc_account_username", "mila_cluster_username", "mila_email_username"]:
-        if clockwork_job["slurm"].get(k, "") not in ["", None]:
-            clockwork_job["cw"][k] = clockwork_job["slurm"][k]
+        result = users_collection.find_one({cluster["account_field"]: cluster_name})
+        if result is not None:
+            clockwork_job["cw"]["mila_email_username"] = result["mila_email_username"]
 
-    # At the end of it all, it's still possible to have "unknown" as
-    # our username. This isn't great, but it's hard to do better
-    # without some manual LDAP translations.
-    return clockwork_job
+        return clockwork_job
+
+    return _lookup_user_account
 
 
 def slurm_node_to_clockwork_node(slurm_node: dict):
@@ -139,8 +120,10 @@ def main_read_jobs_and_update_collection(
     L_user_updates = []
     L_data_for_dump_file = []
 
+    clusters = get_config("clusters")
+
     for D_job in map(
-        infer_user_accounts,
+        lookup_user_account(users_collection),
         filter(
             is_allocation_related_to_mila,
             map(
@@ -178,7 +161,12 @@ def main_read_jobs_and_update_collection(
                     "slurm.cluster_name": D_job["slurm"]["cluster_name"],
                 },
                 # the data that we write in the collection
-                {"$set": {"cw.last_slurm_update": time.time()}},
+                {
+                    "$set": {
+                        "cw.last_slurm_update": time.time(),
+                        "cw.mila_email_username": D_job["cw"]["mila_email_username"],
+                    }
+                },
                 # create if missing, update if present
                 upsert=False,
             )
@@ -189,16 +177,19 @@ def main_read_jobs_and_update_collection(
         marker = "clockwork_register_account:"
         if comment is not None and comment.startswith(marker):
             key = comment[len(marker) :]
-            # Make sure this is not a job from mila
-            if D_job["slurm"]["cluster_name"] in ["beluga", "cedar", "graham"]:
-                cc_account_username = D_job["slurm"]["cc_account_username"]
+            cluster_info = clusters[D_job["slurm"]["cluster_name"]]
+            account_field = cluster_info["account_field"]
+            update_field = cluster_info["update_field"]
+
+            if update_field:
+                username = D_job["slurm"][account_field]
                 L_user_updates.append(
                     UpdateOne(
-                        {"cc_account_update_key": key},
+                        {update_field: key},
                         {
                             "$set": {
-                                "cc_account_username": cc_account_username,
-                                "cc_account_update_key": None,
+                                account_field: username,
+                                update_field: None,
                             }
                         },
                     )
