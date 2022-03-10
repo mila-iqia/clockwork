@@ -32,7 +32,6 @@ from .config import register_config, get_config
 register_config("flask.secret_key")
 
 
-
 def create_app(extra_config: dict):
     """Creates the Flask app with everything wired up.
 

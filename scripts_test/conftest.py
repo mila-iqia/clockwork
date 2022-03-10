@@ -10,16 +10,12 @@ from scripts_test.config import register_config
 register_config("mongo.connection_string", "")
 register_config("mongo.database_name", "clockwork")
 
+
 @pytest.fixture
 def app():
     """Create and configure a new app instance for each test."""
     # create the app with common test config
-    app = create_app(
-        extra_config={
-            "TESTING": True,
-            "LOGIN_DISABLED": True
-        }
-    )
+    app = create_app(extra_config={"TESTING": True, "LOGIN_DISABLED": True})
 
     # create the database and load test data
     with app.app_context():

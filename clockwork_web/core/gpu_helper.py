@@ -23,9 +23,7 @@ def get_gpu_info(gpu_name):
     if isinstance(gpu_name, str) and len(gpu_name) > 0:
         db = get_db()
         # Find one entry presenting the name corresponding to gpu_name
-        requested_gpu = db["gpu"].find_one(
-            {"name": gpu_name}, {"_id": 0}
-        )
+        requested_gpu = db["gpu"].find_one({"name": gpu_name}, {"_id": 0})
         if requested_gpu is not None:
             return requested_gpu
 

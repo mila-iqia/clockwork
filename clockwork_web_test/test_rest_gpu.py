@@ -16,9 +16,7 @@ def test_gpu_one_fail(client, valid_rest_auth_headers):
 
 
 def test_gpu_one_no_name(client, valid_rest_auth_headers):
-    response = client.get(
-        "/api/v1/clusters/gpu/one", headers=valid_rest_auth_headers
-    )
+    response = client.get("/api/v1/clusters/gpu/one", headers=valid_rest_auth_headers)
     assert response.status_code == 400
 
 
