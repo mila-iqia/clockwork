@@ -44,6 +44,22 @@ def optional_string(value):
     return string(value)
 
 
+def boolean(value):
+    if isinstance(value, bool):
+        return value
+    elif isinstance(value, str):
+        if value in ["True", "true"]:
+            return True
+        elif value in ["False", "false"]:
+            return False
+    elif isinstance(value, int):
+        if value == 1:
+            return True
+        elif value == 0:
+            return False
+    raise ConfigError("expected boolean")
+
+
 def string_list(value):
     if not isinstance(value, list):
         raise ConfigError("expected list")
