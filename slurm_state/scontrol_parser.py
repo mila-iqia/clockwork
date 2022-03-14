@@ -54,8 +54,7 @@ def dynrename(fn, ctx_key):
 # we'll just write this specific example.
 def user_id_splitting(f, ctx, res):
     m = re.match(r"^(\w+)\((\d+)\)$", f)
-    # Note that `ctx["account_field"]` is something like "cc_account_username"
-    res[ctx["account_field"]] = m.group(1)
+    res["username"] = m.group(1)
     res["uid"] = int(m.group(2))
 
 
