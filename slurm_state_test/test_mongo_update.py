@@ -40,7 +40,7 @@ def test_fetch_slurm_report():
         {
             "job_id": "1",
             "name": "sh",
-            "test_cluster_username": "nobody",
+            "username": "nobody",
             "uid": 65535,
             "account": "clustergroup",
             "job_state": "PENDING",
@@ -69,14 +69,14 @@ def test_fetch_slurm_report():
 def test_slurm_job_to_clockwork_job():
     job = {
         "name": "sh",
-        "test_cluster_username": "testuser",
+        "username": "testuser",
         "cluster_name": "test_cluster",
     }
     cw_job = slurm_job_to_clockwork_job(job)
     assert cw_job == {
         "slurm": {
             "name": "sh",
-            "test_cluster_username": "testuser",
+            "username": "testuser",
             "cluster_name": "test_cluster",
         },
         "cw": {

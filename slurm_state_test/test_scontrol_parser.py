@@ -123,10 +123,10 @@ def test_user_id_splitting():
     d = {}
     user_id_splitting(
         "luigi(633819)",
-        {"account_field": "cc_account_username"},
+        None,
         d,
     )
-    assert d["cc_account_username"] == "luigi"
+    assert d["username"] == "luigi"
     assert d["uid"] == 633819
 
 

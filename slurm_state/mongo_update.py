@@ -3,7 +3,6 @@ from pymongo import UpdateOne
 import json
 from slurm_state.extra_filters import (
     is_allocation_related_to_mila,
-    extract_username_from_slurm_fields,
     clusters_valid,
 )
 from slurm_state.config import get_config, timezone, string, optional_string
@@ -70,10 +69,10 @@ def lookup_user_account(users_collection):
 
     def _lookup_user_account(clockwork_job: dict[dict]):
         cluster_name = clockwork_job["slurm"]["cluster_name"]
-        cluster = get_config("clusters")[cluster_name]
-        username = clockwork_job["slurm"][cluster["account_field"]]
+        cluster_username = clockwork_job["slurm"]["username"]
 
-        result = users_collection.find_one({cluster["account_field"]: cluster_name})
+        account_field = get_config("clusters")[cluster_name]["account_field"]
+        result = users_collection.find_one({account_field: cluster_username})
         if result is not None:
             clockwork_job["cw"]["mila_email_username"] = result["mila_email_username"]
 
