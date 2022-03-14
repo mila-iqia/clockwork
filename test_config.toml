@@ -1,6 +1,7 @@
 [flask]
 testing=true
 login_disabled=true
+secret_key="testing_secret_key"
 
 [google]
 client_id=""
@@ -17,7 +18,6 @@ account_field="test_cluster_username"
 update_field=false
 allocations=["valid_fake_allocation_name", "clustergroup"]
 timezone="America/Montreal"
-
 
 [clusters.mila]
 account_field="mila_cluster_username"
