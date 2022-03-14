@@ -20,6 +20,7 @@ import random
 import json
 import pytest
 from clockwork_web.db import get_db
+from clockwork_web.config import get_config
 from test_common.jobs_test_helpers import (
     helper_list_relative_time,
     helper_single_job_missing,
@@ -79,8 +80,8 @@ def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_he
 
     Note that the users for whom we list the jobs is probably not
     going to be the user encoded in the auth_headers, which we get
-    from the environment variables "clockwork_tools_test_EMAIL"
-    and "clockwork_tools_test_CLOCKWORK_API_KEY".
+    from the configuration variables "clockwork.test.email"
+    and "clockwork.test.api_key".
 
     We pick a user at random from our fake_data, and we see if we
     can list the jobs for that user.
@@ -185,7 +186,7 @@ def test_jobs_user_dict_update_successful_update(
         # retrieve the user in the database in order to know its three usernames
         LD_users = list(
             mc["users"].find(
-                {"mila_email_username": os.environ["clockwork_tools_test_EMAIL"]}
+                {"mila_email_username": get_config("clockwork.test.email")}
             )
         )
         assert len(LD_users) == 1

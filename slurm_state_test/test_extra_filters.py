@@ -15,22 +15,38 @@ def test_filtering_allocations():
     """
     LD_jobs = [
         {
-            "slurm": {"account": "some_invalid_string1", "job_id": "0000"},
+            "slurm": {
+                "account": "some_invalid_string1",
+                "job_id": "0000",
+                "cluster_name": "test_cluster",
+            },
             "cw": {},
             "user": {},
         },
         {
-            "slurm": {"account": "valid_fake_allocation_name", "job_id": "1111"},
+            "slurm": {
+                "account": "valid_fake_allocation_name",
+                "job_id": "1111",
+                "cluster_name": "test_cluster",
+            },
             "cw": {},
             "user": {},
         },
         {
-            "slurm": {"account": "valid_fake_allocation_name", "job_id": "2222"},
+            "slurm": {
+                "account": "some_arbitrary_string",
+                "job_id": "2222",
+                "cluster_name": "mila",
+            },
             "cw": {},
             "user": {},
         },
         {
-            "slurm": {"account": "some_invalid_string2", "job_id": "4444"},
+            "slurm": {
+                "account": "some_invalid_string2",
+                "job_id": "4444",
+                "cluster_name": "test_cluster",
+            },
             "cw": {},
             "user": {},
         },

@@ -1,5 +1,6 @@
 from slurm_state.mongo_update import *
 from slurm_state.mongo_client import get_mongo_client
+from slurm_state.config import get_config
 
 from datetime import datetime
 
@@ -94,8 +95,8 @@ def test_slurm_node_to_clockwork_node():
 
 
 def test_main_read_jobs_and_update_collection():
-    client = get_mongo_client(os.environ["MONGODB_CONNECTION_STRING"])
-    db = client[os.environ["MONGODB_DATABASE_NAME"]]
+    client = get_mongo_client()
+    db = client[get_config("mongo.database_name")]
 
     db.drop_collection("test_jobs")
 
@@ -121,8 +122,8 @@ def test_main_read_jobs_and_update_collection():
 
 
 def test_main_read_nodes_and_update_collection():
-    client = get_mongo_client(os.environ["MONGODB_CONNECTION_STRING"])
-    db = client[os.environ["MONGODB_DATABASE_NAME"]]
+    client = get_mongo_client()
+    db = client[get_config("mongo.database_name")]
 
     db.drop_collection("test_nodes")
 

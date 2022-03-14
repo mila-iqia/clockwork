@@ -1,4 +1,6 @@
-# Don't forget to sync changes with slurm_state/config.py
+#######################################################################
+# Don't edit this file, edit clockwork_web/config.py and copy it back #
+#######################################################################
 
 import os
 import copy
