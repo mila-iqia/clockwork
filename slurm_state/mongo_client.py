@@ -1,9 +1,9 @@
 from pymongo import MongoClient
-from .config import get_config, register_config
+from .config import get_config, register_config, string
 
-register_config("mongo.connection_string")
+register_config("mongo.connection_string", validator=string)
 # This is not used here, but by clients
-register_config("mongo.database_name", "clockwork")
+register_config("mongo.database_name", "clockwork", validator=string)
 
 
 def get_mongo_client():
