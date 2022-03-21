@@ -1,6 +1,7 @@
 [flask]
 testing=true
 login_disabled=true
+secret_key="testing_secret_key"
 
 [google]
 client_id=""
@@ -13,29 +14,34 @@ connection_string="mongodb://mongoadmin:secret_passowrd_okay@mongodb:27017/?auth
 
 
 [clusters.test_cluster]
-account_key="test_cluster_username"
+account_field="test_cluster_username"
+update_field=false
 allocations=["valid_fake_allocation_name", "clustergroup"]
 timezone="America/Montreal"
 
 [clusters.mila]
-account_key="mila_cluster_username"
+account_field="mila_cluster_username"
+update_field=false
 allocations="*"
 timezone="America/Montreal"
 
 [clusters.beluga]
-account_key="cc_account_username"
+account_field="cc_account_username"
+update_field="cc_account_update_key"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
-timezone=""
+timezone="America/Montreal"
 
 [clusters.graham]
-account_key="cc_account_username"
+account_field="cc_account_username"
+update_field="cc_account_update_key"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
-timezone=""
+timezone="America/Toronto"
 
 [clusters.cedar]
-account_key="cc_account_username"
+account_field="cc_account_username"
+update_field="cc_account_update_key"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
-timezone=""
+timezone="America/Vancouver"
 
 
 [clockwork.test]
