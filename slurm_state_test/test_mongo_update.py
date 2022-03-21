@@ -19,14 +19,7 @@ def test_fetch_slurm_report():
             "name": "test-node",
             "arch": "x86_64",
             "features": "x86_64,turing,48gb",
-            "gres": {
-                "raw": "gpu:rtx8000:8(S:0-1)",
-                "parsed": {
-                    "gpu_name": "rtx8000",
-                    "gpu_number": 8,
-                    "associated_sockets": "0-1",
-                },
-            },
+            "gres": "gpu:rtx8000:8(S:0-1)",
             "addr": "test-node",
             "memory": 386619,
             "state": "MIXED",
@@ -95,10 +88,75 @@ def test_slurm_job_to_clockwork_job():
 
 
 def test_slurm_node_to_clockwork_node():
+    """
+    Test the function slurm_node_to_clockwork_node.
+    """
+
+    # Check a minimalist node
     node = {"name": "testnode"}
     cw_node = slurm_node_to_clockwork_node(node)
-    assert cw_node == {"slurm": {"name": "testnode"}, "cw": {}}
+    assert cw_node == {"slurm": {"name": "testnode"}, "cw": {"gpu":{}}}
 
+    # Check a complete node
+    node = {
+        "name": "test-node",
+        "arch": "x86_64",
+        "features": "x86_64,turing,48gb",
+        "gres": "gpu:rtx8000:8(S:0-1)",
+        "addr": "test-node",
+        "memory": 386619,
+        "state": "MIXED",
+        "cfg_tres": "cpu=80,mem=386619M,billing=136,gres/gpu=8",
+        "alloc_tres": "cpu=28,mem=192G,gres/gpu=8",
+        "comment": None,
+        "cluster_name": "test_cluster",
+    }
+    cw_node = slurm_node_to_clockwork_node(node)
+    assert cw_node == {"slurm": {
+                            "name": "test-node",
+                            "arch": "x86_64",
+                            "features": "x86_64,turing,48gb",
+                            "gres": "gpu:rtx8000:8(S:0-1)",
+                            "addr": "test-node",
+                            "memory": 386619,
+                            "state": "MIXED",
+                            "cfg_tres": "cpu=80,mem=386619M,billing=136,gres/gpu=8",
+                            "alloc_tres": "cpu=28,mem=192G,gres/gpu=8",
+                            "comment": None,
+                            "cluster_name": "test_cluster",
+                        },
+                        "cw": {
+                            "gpu": {
+                                "cw_name": "rtx8000",
+                                "name": "rtx8000",
+                                "number": 8,
+                                "associated_sockets": "0-1"
+                            }
+                        }
+                    }
+
+    # Check a node for which the GPU name is not the same in the Slurm report
+    # than in the Clockwork convention
+    node = {
+        "name": "test2",
+        "features": "x86_64,volta,32gb",
+        "gres": "gpu:v100:4"
+    }
+    cw_node = slurm_node_to_clockwork_node(node)
+    assert cw_node == {
+        "slurm": {
+            "name": "test2",
+            "features": "x86_64,volta,32gb",
+            "gres": "gpu:v100:4"
+        },
+        "cw": {
+            "gpu": {
+                "cw_name": "v100l",
+                "name": "v100",
+                "number": 4
+            }
+        }
+    }
 
 def test_main_read_jobs_and_update_collection():
     client = get_mongo_client(os.environ["MONGODB_CONNECTION_STRING"])
@@ -148,5 +206,17 @@ def test_main_read_nodes_and_update_collection():
     )
 
     assert db.test_nodes.count_documents({}) == 2
+
+    db.drop_collection("test_nodes")
+
+    # Check for a list of different cases regarding the 'Gres' and
+    # 'AvailableFeatures' elements
+    main_read_nodes_and_update_collection(
+        db.test_nodes,
+        "slurm_state_test/files/test_cluster.json",
+        "slurm_state_test/files/scontrol_node_3",
+    )
+
+    assert db.test_nodes.count_documents({}) == 5
 
     db.drop_collection("test_nodes")

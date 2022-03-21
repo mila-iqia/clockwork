@@ -81,52 +81,6 @@ def maybe_null_string_to_none_object(f, ctx):
         return f
 
 
-def get_gres_dict(f, ctx):
-    """
-    Convert "(null)" into an empty dictionary.
-    Otherwise, parse the Gres value to a dictionary presenting the following
-    format:
-        {
-            "raw": "<slurm_report_Gres_value>",
-            "parsed": {
-                "gpu_name": "<name>",
-                "gpu_number": <number>,
-                "associated_sockets": "<sockets_numbers>" (optional)
-            }
-        }
-    """
-    if f == "(null)":
-        return {}
-    else:
-        # Initialize
-        gres_dict = {}
-        gres_dict_parsed = {}
-
-        # The Gres field has the following format: "gpu:<gpu_name>:<gpu_number>"
-        # with, optionally, at the end: "(S:0)" if the GPU are associated with
-        # socket 0, "(S:0-1)" for instance if associated to sockets 0 and 1.
-        prog1 = re.compile(r"gpu:(\w*?):(\d+)$")
-        prog2 = re.compile(r"gpu:(\w*?):(\d+)\(S:(.*)\)")
-
-        if m := prog1.match(f):
-            # Get the gpu_name and number.
-            gres_dict_parsed = {"gpu_name": m.group(1), "gpu_number": int(m.group(2))}
-        elif m := prog2.match(f):
-            # Get the gpu_name and number, as well as associated sockets
-            # if there are any.
-            gres_dict_parsed = {
-                "gpu_name": m.group(1),
-                "gpu_number": int(m.group(2)),
-                "associated_sockets": m.group(3),
-            }
-        else:
-            # We encountered an unexpected expression.
-            gres_dict_parsed = {}
-
-        gres_dict = {"raw": f, "parsed": gres_dict_parsed}  # the unparsed field
-        return gres_dict
-
-
 TIMELIMIT = re.compile(r"(?:(?:(?:(\d+)-)?(\d\d):)?(\d\d):)?(\d\d)", re.ASCII)
 
 
@@ -303,7 +257,7 @@ NODE_FIELD_MAP = {
     "CPULoad": ignore,
     "AvailableFeatures": rename(id, "features"),
     "ActiveFeatures": ignore,
-    "Gres": rename(get_gres_dict, "gres"),
+    "Gres": rename(maybe_null_string_to_none_object, "gres"),
     "NodeAddr": rename(id, "addr"),
     "NodeHostName": ignore,
     "Version": ignore,
