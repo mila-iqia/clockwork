@@ -86,7 +86,7 @@ def route_api_v1_nodes_one_gpu():
     with:
         - <gpu_name> a string presenting the GPU name as described in the Slurm report
         - <gpu_vendor> a string containing the name of the GPU's vendor
-        - <ram_in_gb> an integer which is the number of GB of the GPU's RAM
+        - <ram_in_gb> a float which is the number of GB of the GPU's RAM
         - <cuda_cores> an integer presenting the number of CUDA cores of the GPU
         - <tensor_cores> an integer presenting the number of tensor cores of the GPU
         - <tflops_fp32> a float presenting the number of TFLOPS for a FP32 performance
