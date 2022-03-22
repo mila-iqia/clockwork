@@ -7,8 +7,6 @@ ENV PYTHONPATH=${PYTHONPATH}:${CLOCKWORK_ROOT}
 
 WORKDIR ${CLOCKWORK_ROOT}
 
-ENV MONGODB_DATABASE_NAME="clockwork"
-
 RUN pip install --upgrade pip
 
 COPY slurm_state/requirements.txt /requirements_state.txt

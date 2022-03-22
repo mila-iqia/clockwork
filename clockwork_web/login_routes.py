@@ -33,14 +33,15 @@ from flask_login import (
 )
 
 from .user import User
-from clockwork_web.config import register_config, get_config
+from clockwork_web.config import register_config, get_config, string as valid_string
 
 
-register_config("google.client_id", "")
-register_config("google.client_secret", "")
+register_config("google.client_id", "", validator=valid_string)
+register_config("google.client_secret", "", validator=valid_string)
 register_config(
     "google.discovery_url",
     "https://accounts.google.com/.well-known/openid-configuration",
+    validator=valid_string,
 )
 
 # As described on

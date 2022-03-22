@@ -1,4 +1,6 @@
-# Don't forget to sync changes with slurm_state/config.py
+#######################################################################
+# Don't edit this file, edit clockwork_web/config.py and copy it back #
+#######################################################################
 
 import os
 import copy
@@ -42,22 +44,6 @@ def optional_string(value):
     if value is False:
         return value
     return string(value)
-
-
-def boolean(value):
-    if isinstance(value, bool):
-        return value
-    elif isinstance(value, str):
-        if value in ["True", "true"]:
-            return True
-        elif value in ["False", "false"]:
-            return False
-    elif isinstance(value, int):
-        if value == 1:
-            return True
-        elif value == 0:
-            return False
-    raise ConfigError("expected boolean")
 
 
 def string_list(value):

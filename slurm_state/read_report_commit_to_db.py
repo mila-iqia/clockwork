@@ -32,9 +32,9 @@ def main(argv):
     parser.add_argument("-n", "--nodes_file", help="The nodes file.")
     parser.add_argument(
         "-c",
-        "--cluster_desc",
+        "--cluster_name",
         required=True,
-        help="Path to a cluster description file (json format).",
+        help="Name of the cluster that produced the file",
     )
 
     parser.add_argument(
@@ -68,7 +68,7 @@ def main(argv):
 
     if args.jobs_file:
         assert os.path.exists(args.jobs_file)
-        assert os.path.exists(args.cluster_desc)
+        assert os.path.exists(args.cluster_name)
 
         # https://stackoverflow.com/questions/33541290/how-can-i-create-an-index-with-pymongo
         # Apparently "ensure_index" is deprecated, and we should always call "create_index".
@@ -80,7 +80,7 @@ def main(argv):
         main_read_jobs_and_update_collection(
             client[collection_name]["jobs"] if client else None,
             client[collection_name]["users"] if client else None,
-            args.cluster_desc,
+            args.cluster_name,
             args.jobs_file,
             want_commit_to_db=want_commit_to_db,
             dump_file=args.dump_file,
@@ -88,7 +88,7 @@ def main(argv):
 
     if args.nodes_file:
         assert os.path.exists(args.nodes_file)
-        assert os.path.exists(args.cluster_desc)
+        assert os.path.exists(args.cluster_name)
 
         if client:
             client[collection_name]["nodes"].create_index(
@@ -97,7 +97,7 @@ def main(argv):
             )
         main_read_nodes_and_update_collection(
             client[collection_name]["nodes"] if client else None,
-            args.cluster_desc,
+            args.cluster_name,
             args.nodes_file,
             want_commit_to_db=want_commit_to_db,
             dump_file=args.dump_file,
@@ -117,20 +117,20 @@ export MONGODB_DATABASE_NAME="clockwork"
 export slurm_state_ALLOCATIONS_RELATED_TO_MILA="./allocations_related_to_mila.json"
 
 python3 read_report_commit_to_db.py \
-    --cluster_desc cluster_desc/beluga.json \
+    --cluster_name beluga \
     --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job \
     --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \
     --mongodb_collection ${MONGODB_DATABASE_NAME}
 
 python3 read_report_commit_to_db.py \
-    --cluster_desc cluster_desc/beluga.json \
+    --cluster_name beluga \
     --nodes_file ../tmp/slurm_report/beluga/scontrol_show_node \
     --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \
     --mongodb_collection ${MONGODB_DATABASE_NAME}
 
 # dump file only
 python3 read_report_commit_to_db.py \
-    --cluster_desc cluster_desc/beluga.json \
+    --cluster_name beluga \
     --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job \
     --dump_file ../tmp/slurm_report/beluga/job_dump_file.json
 
@@ -138,12 +138,12 @@ python3 read_report_commit_to_db.py \
 # specify a different allocation file.
 export slurm_state_ALLOCATIONS_RELATED_TO_MILA="../slurm_state_test/fake_allocations_related_to_mila.json"
 python3 read_report_commit_to_db.py \
-    --cluster_desc cluster_desc/beluga.json \
+    --cluster_name beluga \
     --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job_anonymized \
     --dump_file ../tmp/slurm_report/beluga/job_dump_file_anonymized.json
 
 python3 read_report_commit_to_db.py \
-    --cluster_desc cluster_desc/mila.json \
+    --cluster_name mila \
     --jobs_file ../tmp/slurm_report/mila/scontrol_show_job \
     --dump_file dump_file_mila.json
 

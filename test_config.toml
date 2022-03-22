@@ -1,6 +1,7 @@
 [flask]
 testing=true
 login_disabled=true
+secret_key="testing_secret_key"
 
 [google]
 client_id=""
@@ -10,3 +11,39 @@ client_secret=""
 initdb_root_username="mongoadmin"
 initdb_root_password="secret_passowrd_okay"
 connection_string="mongodb://mongoadmin:secret_passowrd_okay@mongodb:27017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false"
+
+
+[clusters.test_cluster]
+account_field="test_cluster_username"
+update_field=false
+allocations=["valid_fake_allocation_name", "clustergroup"]
+timezone="America/Montreal"
+
+[clusters.mila]
+account_field="mila_cluster_username"
+update_field=false
+allocations="*"
+timezone="America/Montreal"
+
+[clusters.beluga]
+account_field="cc_account_username"
+update_field="cc_account_update_key"
+allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
+timezone="America/Montreal"
+
+[clusters.graham]
+account_field="cc_account_username"
+update_field="cc_account_update_key"
+allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
+timezone="America/Toronto"
+
+[clusters.cedar]
+account_field="cc_account_username"
+update_field="cc_account_update_key"
+allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
+timezone="America/Vancouver"
+
+
+[clockwork.test]
+email="student01@mila.quebec"
+api_key="000aaa01"
