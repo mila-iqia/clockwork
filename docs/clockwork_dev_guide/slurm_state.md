@@ -22,7 +22,7 @@ More information is found in the following readme file :
 ## Data formats
 
 To see an example of the data stored in the database,
-we can refer to 
+we can refer to
 [test_common/fake_data.json](https://github.com/mila-iqia/clockwork/tree/master/test_common/fake_data.json)
 which contains fake data for the unit tests.
 
@@ -79,7 +79,7 @@ Nodes are stored in the database in the following format:
     "name": "ced0061",
     "arch": "x86_64",
     "features": "broadwell",
-    "gres": null,
+    "gres": "gpu:gpuname:8(S:0-1)",
     "addr": "ced0061",
     "memory": "128000",
     "state": "ALLOCATED",
@@ -88,7 +88,14 @@ Nodes are stored in the database in the following format:
     "comment": null,
     "cluster_name": "cedar"
     },
-    "cw": {}
+    "cw": {
+      "gpu": {
+              "cw_name": "cwgpuname",
+              "name": "gpuname",
+              "number": 8,
+              "associated_sockets": "0-1"
+          }
+    }
 },
 ```
 
@@ -104,7 +111,7 @@ since the requirements for using the Slurm clusters are basically
 the same as the requirements for accessing those clusters.
 Users are asked in the same way to refrain from sharing publicly
 the information from Clockwork just like they should refrain
-from doing so with the information on the Mila cluster or 
+from doing so with the information on the Mila cluster or
 on the Compute Canada cluster.
 
 ## Some MongoSH commands
