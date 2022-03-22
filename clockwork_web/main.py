@@ -10,7 +10,7 @@ That leads here, to this file, which is just a barebone launcher.
 """
 
 import os
-from .config import get_config, register_config
+from .config import get_config, register_config, boolean
 from .server_app import create_app
 
 """
@@ -25,8 +25,8 @@ We should pick some kind of convention by which, when we disable
 the login, we set the user to be "mario" or something like that.
 """
 
-register_config("flask.testing", False)
-register_config("flask.login_disabled", False)
+register_config("flask.testing", False, validator=boolean)
+register_config("flask.login_disabled", False, validator=boolean)
 
 app = create_app(
     extra_config={

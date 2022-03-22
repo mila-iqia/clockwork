@@ -4,10 +4,10 @@ from flask import current_app
 from flask import g
 from flask.cli import with_appcontext
 
-from clockwork_web.config import get_config, register_config
+from clockwork_web.config import get_config, register_config, string
 
-register_config("mongo.connection_string", "")
-register_config("mongo.database_name", "clockwork")
+register_config("mongo.connection_string", validator=string)
+register_config("mongo.database_name", "clockwork", validator=string)
 
 
 def _get_db():

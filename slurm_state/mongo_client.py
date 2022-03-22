@@ -1,20 +1,17 @@
 from pymongo import MongoClient
+from .config import get_config, register_config, string
+
+register_config("mongo.connection_string", validator=string)
+# This is not used here, but by clients
+register_config("mongo.database_name", "clockwork", validator=string)
 
 
-def get_mongo_client(connection_string: str):
+def get_mongo_client():
     """
-    The first time calling this, you need to pass the proper connection string,
-    but later on it's going to be filled in properly.
-
-    Oftentimes the argument comes from
-        connection_string = os.environ["MONGODB_CONNECTION_STRING"]
-
-    Also, there is the tacit assumption that we're interested
-    only in connecting to one database only so we can reuse clients.
+    Get a client for the configured database.
     """
     if get_mongo_client.value is None:
-        assert connection_string
-        client = MongoClient(connection_string)
+        client = MongoClient(get_config("mongo.connection_string"))
         get_mongo_client.value = client
 
     return get_mongo_client.value

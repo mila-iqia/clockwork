@@ -15,8 +15,12 @@ import clockwork_web
 from clockwork_web.server_app import create_app
 from clockwork_web.db import get_db, init_db
 from clockwork_web.user import User
+from clockwork_web.config import get_config, register_config
 
 from test_common.fake_data import fake_data, populate_fake_data
+
+register_config("clockwork.test.email")
+register_config("clockwork.test.api_key")
 
 
 @pytest.fixture
@@ -88,7 +92,7 @@ def client_with_login(app_with_login):
 
 @pytest.fixture
 def valid_rest_auth_headers():
-    s = f"{os.environ['clockwork_tools_test_EMAIL']}:{os.environ['clockwork_tools_test_CLOCKWORK_API_KEY']}"
+    s = f"{get_config('clockwork.test.email')}:{get_config('clockwork.test.api_key')}"
     encoded_bytes = base64.b64encode(s.encode("utf-8"))
     encoded_s = str(encoded_bytes, "utf-8")
     return {"Authorization": f"Basic {encoded_s}"}
