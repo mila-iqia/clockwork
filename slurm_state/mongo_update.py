@@ -120,27 +120,27 @@ def slurm_node_to_clockwork_node(slurm_node: dict):
     """
 
     # If GPU information are available on the node
-    if all(key in slurm_node for key in ["gres", "features"]) and slurm_node["gres"] is not None:
+    if (
+        all(key in slurm_node for key in ["gres", "features"])
+        and slurm_node["gres"] is not None
+    ):
         # Parse the GPU data and add it to the "cw" field
         gpu_data = get_cw_gres_description(slurm_node["gres"], slurm_node["features"])
 
         # Set up the node dictionary as used in Clockwork
         clockwork_node = {
             "slurm": slurm_node,
-            "cw": {
-                "gpu": gpu_data
-            },
+            "cw": {"gpu": gpu_data},
         }
     # Otherwise
     else:
         clockwork_node = {
             "slurm": slurm_node,
-            "cw": {
-                "gpu": {}
-            },
+            "cw": {"gpu": {}},
         }
 
     return clockwork_node
+
 
 def main_read_jobs_and_update_collection(
     jobs_collection,

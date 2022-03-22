@@ -5,6 +5,7 @@ to a format used by Clockwork).
 
 import re
 
+
 def get_cw_gres_description(unparsed_gres, unparsed_features):
     """
     Extract a dictionary presenting the GPU information of the node, from the
@@ -42,6 +43,7 @@ def get_cw_gres_description(unparsed_gres, unparsed_features):
         gpu_specs["cw_name"] = get_cw_gpu_name(gpu_specs["name"], unparsed_features)
 
     return gpu_specs
+
 
 def get_gres_dict(slurm_gres_field):
     """
@@ -101,6 +103,7 @@ def get_gres_dict(slurm_gres_field):
 
         return gres_dict_parsed
 
+
 def get_cw_gpu_name(slurm_gpu_name, features):
     """
     Return a unique name of the GPU, based on the GPU name of the Slurm report
@@ -125,8 +128,8 @@ def get_cw_gpu_name(slurm_gpu_name, features):
     if m := prog.match(features):
         gpu_ram = m.group(3)
         # Change the name if needed
-        if (slurm_gpu_name == "v100" and gpu_ram == "32"):
+        if slurm_gpu_name == "v100" and gpu_ram == "32":
             return "v100l"
-        elif (slurm_gpu_name == "p100" and gpu_ram == "16"):
+        elif slurm_gpu_name == "p100" and gpu_ram == "16":
             return "p100l"
     return slurm_gpu_name

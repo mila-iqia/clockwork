@@ -24,7 +24,9 @@ def get_gpu_info(gpu_name):
         db = get_db()
         # Find one entry presenting the name corresponding to gpu_name
         # The '_id' and 'cw_name' elements are not displayed
-        requested_gpu = db["gpu"].find_one({"cw_name": gpu_name}, {"_id": 0, "cw_name": 0})
+        requested_gpu = db["gpu"].find_one(
+            {"cw_name": gpu_name}, {"_id": 0, "cw_name": 0}
+        )
         if requested_gpu is not None:
             return requested_gpu
 
