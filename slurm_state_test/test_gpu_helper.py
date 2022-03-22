@@ -16,15 +16,13 @@ def test_get_gres_dict():
     assert get_gres_dict("gpu:rtx8000:4(S:0-1)") == {
         "name": "rtx8000",
         "number": 4,
-        "associated_sockets": "0-1"
+        "associated_sockets": "0-1",
     }
-    assert get_gres_dict("gpu:v100:5") == {
-        "name": "v100",
-        "number": 5
-    }
+    assert get_gres_dict("gpu:v100:5") == {"name": "v100", "number": 5}
     assert get_gres_dict("gpu:rtx8000:bla(S:0-1)") == {}
     assert get_gres_dict("ab:rtx8000:4") == {}
     assert get_gres_dict("aa:bbbb") == {}
+
 
 def test_cw_gpu_name():
     """
@@ -65,7 +63,7 @@ def test_get_cw_gres_description():
         "cw_name": "rtx8000",
         "name": "rtx8000",
         "number": 8,
-        "associated_sockets": "0-1"
+        "associated_sockets": "0-1",
     }
 
     # Case of p100 becoming p100l, with one associated socket
@@ -73,14 +71,14 @@ def test_get_cw_gres_description():
         "cw_name": "p100l",
         "name": "p100",
         "number": 4,
-        "associated_sockets": "0"
+        "associated_sockets": "0",
     }
 
     # Case of p100 staying p100, with no associated socket
     assert get_cw_gres_description("gpu:p100:2", "aaaa,test,12gb") == {
         "cw_name": "p100",
         "name": "p100",
-        "number": 2
+        "number": 2,
     }
 
     # Case of features that do not match the format used by the function with
@@ -89,7 +87,7 @@ def test_get_cw_gres_description():
         "cw_name": "v100",
         "name": "v100",
         "number": 6,
-        "associated_sockets": "0-1"
+        "associated_sockets": "0-1",
     }
 
     # Case of an empty 'Gres' field
