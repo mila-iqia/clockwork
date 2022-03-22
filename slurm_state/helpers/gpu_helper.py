@@ -22,7 +22,7 @@ def get_cw_gres_description(unparsed_gres, unparsed_features):
             "cw_name": <cw_name>,
             "name": <gpu_name>,
             "number": <number>,
-            "associated_sockets": "<sockets_numbers>" (optional)
+            "associated_sockets": "<associated_sockets>" (optional)
         }
         with:
             - <cw_name> a string containing the GPU name according to the
@@ -31,7 +31,7 @@ def get_cw_gres_description(unparsed_gres, unparsed_features):
               Slurm report
             - <number> an integer presenting the number of GPU of this kind on
               the node
-            - <sockets_numbers>" a string presenting the sockets associated to
+            - <associated_sockets> a string presenting the sockets associated to
               the GPU. For instance, "(S:0)" if the GPU are associated with
               socket 0, or "(S:0-1)" if associated with sockets 0 and 1.
     """
@@ -123,7 +123,7 @@ def get_cw_gpu_name(slurm_gpu_name, features):
         A string containing the GPU name based on the convention presented above.
     """
     # Parse the 'AvailableFeatures' field
-    prog = re.compile(r"(\w*?),(\w*?),([0-9]+)gb$")
+    prog = re.compile(r"((\w*?),)+([0-9]+)gb$")
     # If the field matches this format, the amount of RAM can be retrieved
     if m := prog.match(features):
         gpu_ram = m.group(3)
