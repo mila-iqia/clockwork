@@ -6,9 +6,9 @@ The Clockwork REST API proposes three requests to retrieve GPU data:
 
 | Request | Arguments | Example | Description |
 | -- | -- | -- | -- |
-| /gpu/list |  | /gpu/list | List all the GPU data contained in the Clockwork database. The returned result is a list of dictionaries, which present the same format as desribed in the [Clockwork database GPU format](#clockwork-database-gpu-format) |
-| /gpu/one | gpu_name | /gpu/one&name=rtx8000 | Returns a dictionary presenting the data of the GPU associated to the given GPU name. The format of the response is the same as presented in the [Clockwork database GPU format](#clockwork-database-gpu-format) |
-| /nodes/one/gpu | node_name, cluster_name | /nodes/one/gpu?name=cn-a003 | Returns a dictionary presenting the data of the GPU associated to the node. The format of the response is the same as presented in the [Clockwork database GPU format](#clockwork-database-gpu-format) |
+| /gpu/list |  | /gpu/list | List all the GPU data contained in the Clockwork database. The returned result is a list of dictionaries, which present the same format as described in the [In the `gpu` collection](#in-the-gpu-collection) section (minus the `_id` and `cw_name` fields) |
+| /gpu/one | gpu_name | /gpu/one&name=rtx8000 | Returns a dictionary presenting the data of the GPU associated to the given GPU name. The format of the response is the same as presented in the [In the `gpu` collection](#in-the-gpu-collection) section (minus the `_id` and `cw_name` fields) |
+| /nodes/one/gpu | node_name, cluster_name | /nodes/one/gpu?name=cn-a003 | Returns a dictionary presenting the data of the GPU associated to the node. The format of the response is the same as presented in the [In the `gpu` collection](#in-the-gpu-collection) section (minus the `_id` and `cw_name` fields) |
 
 ### The directly implied Python files
 A lot of files are implied to set up the requests, the responses, the access to the database, etc. The "directly implied Python files" (a better name could be found) are the instructions specific to each of the request described in [Overview of the requests](#overview-of-the-requests). Thus, it is not intended to be an exhaustive list.
@@ -20,18 +20,18 @@ Two types of files are identified:
 * **The "helper" files** contact the database to retrieved the useful information.
 
 Thus, a list of the "helper" and "route" files used by each request is presented below:
-* The `/gpu/one` and the `/gpu/list` requests imply two Python files; their "route" file is [`clockwork_web/rest_routes/gpu.py`](clockwork_web/rest_routes/gpu.py) while their "helper" file is [`clockwork_web/core/gpu_helper.py`](clockwork_web/core/gpu_helper.py).
+* The `/gpu/one` and the `/gpu/list` requests imply two Python files; their "route" file is [`clockwork_web/rest_routes/gpu.py`](../../clockwork_web/rest_routes/gpu.py) while their "helper" file is [`clockwork_web/core/gpu_helper.py`](../../clockwork_web/core/gpu_helper.py).
 
-* The `/nodes/one/gpu` request implies three Python files; its "route" file is [`clockwork_web/rest_routes/nodes.py`](clockwork_web/rest_routes/nodes.py) while two "helper" files are used: [`clockwork_web/core/nodes_helper.py`](clockwork_web/core/nodes_helper.py) and [`clockwork_web/core/gpu_helper.py`](clockwork_web/core/gpu_helper.py).
+* The `/nodes/one/gpu` request implies three Python files; its "route" file is [`clockwork_web/rest_routes/nodes.py`](../../clockwork_web/rest_routes/nodes.py) while two "helper" files are used: [`clockwork_web/core/nodes_helper.py`](../../clockwork_web/core/nodes_helper.py) and [`clockwork_web/core/gpu_helper.py`](../../clockwork_web/core/gpu_helper.py).
 
 
 ## GPU data
 ### Lifecycle
-The GPU data related to a node is extracted from the Slurm report and stored in the database, as part of a `node` entry, by the module [`slurm_state`](slurm_state). It is then manually completed by more details on the GPU, stored in the `gpu` collection of the database, by the script [`scripts/update_gpu_information.py`](scripts/update_gpu_information.py). It is then made available through the Clockwork REST API (see [API requests](#api-requests)).
+The GPU data related to a node is extracted from the Slurm report and stored in the database, as part of a `node` entry, by the module [`slurm_state`](../../slurm_state). It is then manually completed by more details on the GPU, stored in the `gpu` collection of the database, by the script [`scripts/update_gpu_information.py`](../../scripts/update_gpu_information.py). It is then made available through the Clockwork REST API (see [API requests](#api-requests)).
 
 ### Formats
 #### In the `node` collection
-The data stored in the `node` collection is mainly retrieved from the Slurm report. It is part of a the node description, presented in [Obtaining the state of the Slurm clusters](docs/clockwork_dev_guide/slurm_state.md). The parts where the GPU data appear are the following:
+The data stored in the `node` collection is mainly retrieved from the Slurm report. It is part of a the node description, presented in [Obtaining the state of the Slurm clusters](slurm_state.md). The parts where the GPU data appear are the following:
 
 ```
 {
