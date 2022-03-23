@@ -2,6 +2,8 @@
 name = "clockwork_tools"
 version = "0.1.0"
 description = "Tools to interact with Clockwork cluster"
+repository = "https://github.com/mila-iqia/clockwork"
+readme = "README.md"
 authors = ["Mila team"]
 license = "MIT"
 
@@ -10,6 +12,9 @@ python = "^3.9"
 requests = "^2.27.1"
 
 [tool.poetry.dev-dependencies]
+
+# [tool.poetry.scripts]
+# clockwork_tools = "clockwork_tools.cli:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
