@@ -79,4 +79,4 @@ def route_api_v1_gpu_list():
 
     .. :quickref: list all the GPUs used
     """
-    return get_gpu_list()
+    return jsonify(get_gpu_list())
