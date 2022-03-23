@@ -20,7 +20,7 @@ def get_gpu_info(gpu_name):
         An empty dictionary otherwise
     """
     # Check the gpu_name type
-    if isinstance(gpu_name, str) and len(gpu_name) > 0:
+    if isinstance(gpu_name, str) and gpu_name:
         db = get_db()
         # Find one entry presenting the name corresponding to gpu_name
         # The '_id' and 'cw_name' elements are not displayed
@@ -41,4 +41,4 @@ def get_gpu_list():
         A list of dictionaries describing the different GPUs.
     """
     db = get_db()
-    return {"gpu_list": list(db["gpu"].find({}, {"_id": 0, "cw_name": 0}))}
+    return list(db["gpu"].find({}, {"_id": 0, "cw_name": 0}))

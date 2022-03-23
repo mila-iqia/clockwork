@@ -68,31 +68,29 @@ def test_gpu_list_success(client, valid_rest_auth_headers):
     assert response.content_type == "application/json"
     assert response.status_code == 200
     gpu_results = response.json
-    assert gpu_results == {
-        "gpu_list": [
-            {
-                "name": "rtx8000",
-                "vendor": "nvidia",
-                "ram": 48,
-                "cuda_cores": 4608,
-                "tensor_cores": 576,
-                "tflops_fp32": 16.3,
-            },
-            {
-                "name": "v100",
-                "vendor": "nvidia",
-                "ram": 0,
-                "cuda_cores": 5120,
-                "tensor_cores": 640,
-                "tflops_fp32": 0,
-            },
-            {
-                "name": "a100",
-                "vendor": "nvidia",
-                "ram": 0,
-                "cuda_cores": 0,
-                "tensor_cores": 0,
-                "tflops_fp32": 19.5,
-            },
-        ]
-    }
+    assert gpu_results == [
+        {
+            "name": "rtx8000",
+            "vendor": "nvidia",
+            "ram": 48,
+            "cuda_cores": 4608,
+            "tensor_cores": 576,
+            "tflops_fp32": 16.3,
+        },
+        {
+            "name": "v100",
+            "vendor": "nvidia",
+            "ram": 0,
+            "cuda_cores": 5120,
+            "tensor_cores": 640,
+            "tflops_fp32": 0,
+        },
+        {
+            "name": "a100",
+            "vendor": "nvidia",
+            "ram": 0,
+            "cuda_cores": 0,
+            "tensor_cores": 0,
+            "tflops_fp32": 19.5,
+        },
+    ]
