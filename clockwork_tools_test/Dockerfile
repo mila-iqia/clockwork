@@ -10,11 +10,10 @@ WORKDIR ${CLOCKWORK_ROOT}
 ENV MONGODB_DATABASE_NAME="clockwork"
 
 RUN pip install --upgrade pip
-
-COPY clockwork_tools/requirements.txt /requirements_tools.txt
-RUN pip install -r /requirements_tools.txt && rm -rf /root/.cache
+COPY clockwork_tools clockwork_tools
+RUN pip install -e ./clockwork_tools && rm -rf /root/.cache
 
 COPY clockwork_tools_test/requirements.txt /requirements_tools_test.txt
 RUN pip install -r /requirements_tools_test.txt && rm -rf /root/.cache
 
-CMD ["coverage", "run", "--source=clockwork_tools", "--rcfile=clockwork_tools_test/.coveragerc", "-m", "pytest", "clockwork_tools_test"]
+CMD ["coverage", "run", "--source=clockwork_tools/clockwork_tools", "--rcfile=clockwork_tools_test/.coveragerc", "-m", "pytest", "clockwork_tools_test"]
