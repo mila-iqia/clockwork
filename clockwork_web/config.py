@@ -176,7 +176,7 @@ def _load_config():
         file_dict = toml.load(_config_file)
         _config = _merge_configs(file_dict, _defaults)
     else:
-        _config = _cleanup_defaults(_defaults)
+        _config = _cleanup_default(_defaults)
 
 
 def _merge_configs(new_dict, default_dict):
