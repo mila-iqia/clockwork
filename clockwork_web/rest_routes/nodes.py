@@ -67,7 +67,7 @@ def route_api_v1_nodes_one():
 @authentication_required
 def route_api_v1_nodes_one_gpu():
     """
-    
+
     .. :quickref: describe the GPU of a node
     """
     # Parse the arguments
