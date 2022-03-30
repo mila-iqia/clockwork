@@ -1,94 +1,92 @@
-{ "gpu_infos":
-  [
-    {
-      "cw_name": "rtx8000",
-      "name": "rtx8000",
-      "vendor": "nvidia",
-      "ram": 48,
-      "cuda_cores": 4608,
-      "tensor_cores": 576,
-      "tflops_fp32": 16.3
-    },
-    {
-      "cw_name": "v100",
-      "name": "v100",
-      "vendor": "nvidia",
-      "ram": 16,
-      "cuda_cores": 5120,
-      "tensor_cores": 640,
-      "tflops_fp32": 15.7
-    },
-    {
-      "cw_name": "t4",
-      "name": "t4",
-      "vendor": "nvidia",
-      "ram": 16,
-      "cuda_cores": 2560,
-      "tensor_cores": 320,
-      "tflops_fp32": 8.1
-    },
-    {
-      "cw_name": "p100",
-      "name": "p100",
-      "vendor": "nvidia",
-      "ram": 12,
-      "cuda_cores": 3584,
+[
+  {
+    "cw_name": "rtx8000",
+    "name": "rtx8000",
+    "vendor": "nvidia",
+    "ram": 48,
+    "cuda_cores": 4608,
+    "tensor_cores": 576,
+    "tflops_fp32": 16.3
+  },
+  {
+    "cw_name": "v100",
+    "name": "v100",
+    "vendor": "nvidia",
+    "ram": 16,
+    "cuda_cores": 5120,
+    "tensor_cores": 640,
+    "tflops_fp32": 15.7
+  },
+  {
+    "cw_name": "t4",
+    "name": "t4",
+    "vendor": "nvidia",
+    "ram": 16,
+    "cuda_cores": 2560,
+    "tensor_cores": 320,
+    "tflops_fp32": 8.1
+  },
+  {
+    "cw_name": "p100",
+    "name": "p100",
+    "vendor": "nvidia",
+    "ram": 12,
+    "cuda_cores": 3584,
 
-      "tflops_fp32": 9.3
-    },
-    {
-      "cw_name": "p100l",
-      "name": "p100",
-      "vendor": "nvidia",
-      "ram": 16,
-      "cuda_cores": 3584,
+    "tflops_fp32": 9.3
+  },
+  {
+    "cw_name": "p100l",
+    "name": "p100",
+    "vendor": "nvidia",
+    "ram": 16,
+    "cuda_cores": 3584,
 
-      "tflops_fp32": 9.3
-    },
-    {
-      "cw_name": "v100l",
-      "name": "v100",
-      "vendor": "nvidia",
-      "ram": 32,
-      "cuda_cores": 5120,
-      "tensor_cores": 640,
-      "tflops_fp32": 15.7
-    },
-    {
-      "cw_name": "a100",
-      "name": "a100",
-      "vendor": "nvidia",
-      "ram": 40,
-      "cuda_cores": 6912,
-      "tensor_cores": 432,
-      "tflops_fp32": 19.5
-    },
-    {
-      "cw_name": "k80",
-      "name": "k80",
-      "vendor": "nvidia",
-      "ram": 24,
-      "cuda_cores": 4992,
+    "tflops_fp32": 9.3
+  },
+  {
+    "cw_name": "v100l",
+    "name": "v100",
+    "vendor": "nvidia",
+    "ram": 32,
+    "cuda_cores": 5120,
+    "tensor_cores": 640,
+    "tflops_fp32": 15.7
+  },
+  {
+    "cw_name": "a100",
+    "name": "a100",
+    "vendor": "nvidia",
+    "ram": 40,
+    "cuda_cores": 6912,
+    "tensor_cores": 432,
+    "tflops_fp32": 19.5
+  },
+  {
+    "cw_name": "k80",
+    "name": "k80",
+    "vendor": "nvidia",
+    "ram": 24,
+    "cuda_cores": 4992,
 
-      "tflops_fp32": 8.73
-    },
-    {
-      "cw_name": "m40",
-      "name": "m40",
-      "vendor": "nvidia",
-      "ram": 24,
-      "cuda_cores": 3072,
+    "tflops_fp32": 8.73
+  },
+  {
+    "cw_name": "m40",
+    "name": "m40",
+    "vendor": "nvidia",
+    "ram": 24,
+    "cuda_cores": 3072,
 
-      "tflops_fp32": 7
-    },
-    {
-      "cw_name": "titanrtx",
-      "name": "titanrtx",
-      "vendor": "nvidia",
-      "ram": 24,
-      "cuda_cores": 4608,
-      "tensor_cores": 576,
-      "tflops_fp32": 16.31
-    }
-  ]
-}
+    "tflops_fp32": 7
+  },
+  {
+    "cw_name": "titanrtx",
+    "name": "titanrtx",
+    "vendor": "nvidia",
+    "ram": 24,
+    "cuda_cores": 4608,
+    "tensor_cores": 576,
+    "tflops_fp32": 16.31
+  }
+]
