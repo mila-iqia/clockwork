@@ -67,44 +67,20 @@ def route_api_v1_nodes_one():
 @authentication_required
 def route_api_v1_nodes_one_gpu():
     """
-    Describe the GPU of a node.
-
-    Take one mandatory "node_name", as in "/nodes/one/gpu?node_name=cn-a003".
-    This could also take a "cluster_name" argument if we have two clusters that
-    have clashes with their host names.
-
-    Return the specifications of a node's GPU. The returned dictionary presents
-    the following format:
-    {
-        "name": <gpu_name>,
-        "vendor": <gpu_vendor>,
-        "ram": <ram_in_gb>,
-        "cuda_cores": <cuda_cores>,
-        "tensor_cores": <tensor_cores>,
-        "tflops_fp32": <tflops_fp32>
-    }
-    with:
-        - <gpu_name> a string presenting the GPU name as described in the Slurm report
-        - <gpu_vendor> a string containing the name of the GPU's vendor
-        - <ram_in_gb> a float which is the number of GB of the GPU's RAM
-        - <cuda_cores> an integer presenting the number of CUDA cores of the GPU
-        - <tensor_cores> an integer presenting the number of tensor cores of the GPU
-        - <tflops_fp32> a float presenting the number of TFLOPS for a FP32 performance
-          (theoretical computing power with single-precision)
 
     .. :quickref: describe the GPU of a node
     """
     # Parse the arguments
-    node_name = request.args.get("node_name", None)
+    name = request.args.get("name", None)
     cluster_name = request.args.get("cluster_name", None)
 
     # Check if the mandatory argument 'node_name' has been provided, and return
     # a 'Bad Request' code if not
-    if node_name is None:
+    if name is None:
         return jsonify("Missing argument node_name."), 400
 
     # Retrieve the node's information given by the user
-    node_filter = get_filter_name(node_name)
+    node_filter = get_filter_name(name)
     cluster_filter = get_filter_cluster_name(cluster_name)
 
     # Combine the filters on the node name and the cluster name in order to
