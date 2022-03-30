@@ -25,7 +25,7 @@ def fake_data():
 
 def populate_fake_data(db_insertion_point, json_file=None):
     """
-    This json file should contain a dict with keys "users", "jobs", "nodes".
+    This json file should contain a dict with keys "users", "jobs", "nodes" and "gpu".
     Not all those keys need to be present. If they are,
     then we will update the corresponding collections in the database.
 
