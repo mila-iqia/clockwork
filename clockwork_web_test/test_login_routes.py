@@ -140,15 +140,15 @@ def test_logout(client_with_login, requests_mock):
     )
 
     assert resp.status_code == 302
-    assert resp.headers["Location"] == "https://localhost/"
+    assert resp.headers["Location"] == "/"
 
     resp = client_with_login.get("/")
     assert resp.status_code == 302
-    assert resp.headers["Location"] == "https://localhost/jobs/"
+    assert resp.headers["Location"] == "jobs/"
 
     resp = client_with_login.get("/login/logout")
     assert resp.status_code == 302
-    assert resp.headers["Location"] == "https://localhost/"
+    assert resp.headers["Location"] == "/"
 
     resp = client_with_login.get("/")
     assert resp.status_code == 200

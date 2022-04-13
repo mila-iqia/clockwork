@@ -1,2 +1,2 @@
-numpy
-toml
+numpy==1.22
+toml==0.10.2
