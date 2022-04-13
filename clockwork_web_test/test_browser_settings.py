@@ -18,4 +18,4 @@ def test_settings_new_key(client):
     assert current_user.clockwork_api_key != api_key
 
     assert response.status_code == 302
-    assert response.headers["Location"] == "http://localhost/settings/"
+    assert response.headers["Location"] == "/settings/"
