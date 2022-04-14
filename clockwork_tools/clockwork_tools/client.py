@@ -470,15 +470,19 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
         self.this_specific_slurm_job_params["job_id"] = os.environ.get(
             "SLURM_JOBID", None
         )
-        # unclear yet why we want that tmpdir
-        self.this_specific_slurm_job_params["job_tmpdir"] = os.environ.get(
-            "SLURM_TMPDIR", None
-        )
 
-        node_name = os.uname().nodename.split(".")[0]
-        self.this_specific_slurm_job_params["node_name"] = node_name
-        self.D_node = self.nodes_one(node_name=node_name)
+        # If we are indeed inside a slurm job, we'll proceed further and analyse
+        # the node name and get its information. Otherwise, we want to avoid all that.
+        if self.this_specific_slurm_job_params["job_id"]:
+            # unclear yet why we want that tmpdir
+            self.this_specific_slurm_job_params["job_tmpdir"] = os.environ.get(
+                "SLURM_TMPDIR", None
+            )
 
-        self.this_specific_slurm_job_params["cluster_name"] = (
-            self.D_node["slurm"]["cluster_name"] if self.D_node else None
-        )
+            node_name = os.uname().nodename.split(".")[0]
+            self.this_specific_slurm_job_params["node_name"] = node_name
+            self.D_node = self.nodes_one(node_name=node_name)
+
+            self.this_specific_slurm_job_params["cluster_name"] = (
+                self.D_node["slurm"]["cluster_name"] if self.D_node else None
+            )
