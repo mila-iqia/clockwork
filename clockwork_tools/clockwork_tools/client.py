@@ -408,7 +408,10 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
         )
         # Due to current constraints, we have to pass "update_pairs"
         # as a string representing a structure in json.
-        params["update_pairs"] = json.dumps(update_pairs)
+        # However, since the base class does the json.dump, we don't
+        # want to do it twice. We therefore have to show some restraint.
+        # params["update_pairs"] = json.dumps(update_pairs)  # NOT THAT
+        params["update_pairs"] = update_pairs
         return super().jobs_user_dict_update(**params)
 
     def nodes_list(self, cluster_name: str = None) -> list[dict[str, any]]:
