@@ -57,14 +57,14 @@ def test_nodes_with_filter(client, fake_data: dict[list[dict]], cluster_name):
 def test_single_node(client, fake_data):
     node = fake_data["nodes"][0]["slurm"]
     response = client.get(
-        f"/nodes/one?name={node['name']}&cluster_name={node['cluster_name']}"
+        f"/nodes/one?node_name={node['name']}&cluster_name={node['cluster_name']}"
     )
     assert response.status_code == 200
     assert node["alloc_tres"].encode("ascii") in response.data
 
 
 def test_single_node_not_found(client):
-    response = client.get("/nodes/one?name=patate009")
+    response = client.get("/nodes/one?node_name=patate009")
     assert response.status_code == 400
 
 
