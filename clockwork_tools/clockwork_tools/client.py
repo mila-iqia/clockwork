@@ -345,7 +345,7 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
             relative_time=relative_time,
             cluster_name=cluster_name,
         )
-        return super().jobs_list(params)
+        return super().jobs_list(**params)
 
     def jobs_one(
         self, job_id: str = None, cluster_name: str = None, target_self: bool = True
@@ -370,7 +370,7 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
         params = self._create_params_for_request(
             target_self=target_self, job_id=job_id, cluster_name=cluster_name
         )
-        return super().jobs_one(params)
+        return super().jobs_one(**params)
 
     def jobs_user_dict_update(
         self,
@@ -409,7 +409,7 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
         # Due to current constraints, we have to pass "update_pairs"
         # as a string representing a structure in json.
         params["update_pairs"] = json.dumps(update_pairs)
-        return super().jobs_user_dict_update(params)
+        return super().jobs_user_dict_update(**params)
 
     def nodes_list(self, cluster_name: str = None) -> list[dict[str, any]]:
         """REST call to api/v1/clusters/nodes/list.
@@ -428,7 +428,7 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
             target_self=False,  # `target_self` not applicable here
             cluster_name=cluster_name,
         )
-        return super().nodes_list(params)
+        return super().nodes_list(**params)
 
     def nodes_one(
         self, node_name: str = None, cluster_name: str = None, target_self: bool = True
@@ -453,7 +453,7 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
         params = self._create_params_for_request(
             target_self=target_self, node_name=node_name, cluster_name=cluster_name
         )
-        return super().nodes_one(params)
+        return super().nodes_one(**params)
 
     def _read_slurm_values_if_applicable(self):
         """
