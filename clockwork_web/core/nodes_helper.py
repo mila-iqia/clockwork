@@ -10,7 +10,7 @@ from clockwork_web.db import get_db
 
 def get_filter_node_name(node_name):
     """
-    Looks rather useless right now, but this implements the 
+    Looks rather useless right now, but this implements the
     little translation needed between the "node_name" that we
     refer to in Clockwork and the actual "name" field in the
     Slurm entries. We use "node_name" in Clockwork to make it
