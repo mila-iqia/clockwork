@@ -36,13 +36,17 @@ def main(argv):
         required=True,
         help="Name of the cluster that produced the file",
     )
+    parser.add_argument('--store_in_db', action=argparse.BooleanOptionalAction)
 
+    """
     parser.add_argument(
         "--mongodb_connection_string", help="Connection string used by MongoClient."
     )
+    """
     parser.add_argument(
         "--mongodb_collection", default="clockwork", help="Collection to populate."
     )
+
 
     parser.add_argument(
         "--dump_file",
@@ -52,23 +56,24 @@ def main(argv):
     args = parser.parse_args(argv[1:])
     print(args)
 
-    connection_string = args.mongodb_connection_string
+    #connection_string = args.mongodb_connection_string
     collection_name = args.mongodb_collection
 
-    if not connection_string or not collection_name:
+    client = get_mongo_client()
+    if not args.store_in_db:
         # We will only write out the results to `args.dump_file` in this case.
         assert (
             args.dump_file
-        ), f"Error. Given that mongodb_connection_string ({args.mongodb_connection_string}) or mongodb_collection ({args.mongodb_collection}) are missing, we can still write the results to a the 'dump_file' argument. However, right now this argument is also missing, so we can't do anything."
+        ), f"Error. Given that the results are not written in the database, we can still write the results to a the 'dump_file' argument. However, right now this argument is also missing, so we can't do anything."
         want_commit_to_db = False
-        client = None
+        #client = None
     else:
         want_commit_to_db = True
-        client = get_mongo_client(connection_string)
+        #client = get_mongo_client()
 
     if args.jobs_file:
         assert os.path.exists(args.jobs_file)
-        assert os.path.exists(args.cluster_name)
+        #assert os.path.exists(args.cluster_name)
 
         # https://stackoverflow.com/questions/33541290/how-can-i-create-an-index-with-pymongo
         # Apparently "ensure_index" is deprecated, and we should always call "create_index".
@@ -78,7 +83,7 @@ def main(argv):
                 name="job_id_and_cluster_name",
             )
         main_read_jobs_and_update_collection(
-            client[collection_name]["jobs"] if client else None,
+            client[collection_name]["jobs"] if client else None, # TODO: la fonction ira quand meme regarder dans la BDD avec lookup_user_account
             client[collection_name]["users"] if client else None,
             args.cluster_name,
             args.jobs_file,
@@ -88,7 +93,7 @@ def main(argv):
 
     if args.nodes_file:
         assert os.path.exists(args.nodes_file)
-        assert os.path.exists(args.cluster_name)
+        #assert os.path.exists(args.cluster_name)
 
         if client:
             client[collection_name]["nodes"].create_index(
