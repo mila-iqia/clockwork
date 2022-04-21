@@ -10,6 +10,7 @@ import argparse
 from slurm_state.mongo_client import get_mongo_client
 from slurm_state.mongo_update import main_read_users_and_update_collection
 
+
 def main(argv):
     # Retrieve the args
     parser = argparse.ArgumentParser(
@@ -18,14 +19,14 @@ def main(argv):
     )
 
     parser.add_argument(
-        "-u", "--users_file",
-        help="JSON file presenting the users to insert in the database."
+        "-u",
+        "--users_file",
+        help="JSON file presenting the users to insert in the database.",
     )
 
     parser.add_argument(
-        "--mongodb_collection",
-        default="clockwork",
-        help="Collection to populate.")
+        "--mongodb_collection", default="clockwork", help="Collection to populate."
+    )
 
     args = parser.parse_args(argv[1:])
 
@@ -37,14 +38,14 @@ def main(argv):
     users_collection = client[args.mongodb_collection]["users"]
 
     users_collection.create_index(
-        [("mila_email_username", 1)],
-        name="users_email_index"
+        [("mila_email_username", 1)], name="users_email_index"
     )
 
     main_read_users_and_update_collection(
         users_collection,
         users_file,
     )
+
 
 if __name__ == "__main__":
     main(sys.argv)

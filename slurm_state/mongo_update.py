@@ -295,19 +295,16 @@ def main_read_users_and_update_collection(
     with open(users_json_file, "r") as f:
         users_to_store = json.load(f)
 
-
     for user_to_store in users_to_store:
 
         L_updates_to_do.append(
             UpdateOne(
                 # rule to match if already present in collection
-                {
-                    "mila_email_username": user_to_store["mila_email_username"]
-                },
+                {"mila_email_username": user_to_store["mila_email_username"]},
                 # the data that we write in the collection
                 {"$set": user_to_store},
                 # create if missing, update if present
-                upsert=True
+                upsert=True,
             )
         )
 
