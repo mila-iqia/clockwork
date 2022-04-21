@@ -37,8 +37,10 @@ def main(argv):
         help="Name of the cluster that produced the file",
     )
     parser.add_argument(
-        "--store_in_db", action=argparse.BooleanOptionalAction,
-        help="Whether or not the jobs and nodes are stored in db.")
+        "--store_in_db",
+        action=argparse.BooleanOptionalAction,
+        help="Whether or not the jobs and nodes are stored in db.",
+    )
 
     parser.add_argument(
         "--mongodb_collection", default="clockwork", help="Collection to populate."
