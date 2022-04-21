@@ -53,7 +53,7 @@ def main(argv):
     args = parser.parse_args(argv[1:])
     collection_name = args.mongodb_collection
 
-    # Ge the database instance
+    # Get the database instance
     client = get_mongo_client()
     if not args.store_in_db:
         # We will only write out the results to `args.dump_file` in this case.
