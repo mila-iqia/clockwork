@@ -17,6 +17,7 @@ export PYTHONPATH="..:${PYTHONPATH:-}"
 export FAKE_USERS_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/fake_users.json
 python3 produce_fake_users.py --output_file=${FAKE_USERS_FILE}
 # TODO: insert users in db
+python3 store_users_in_db.py --users_file=${FAKE_USERS_FILE}
 
 for CLUSTER_NAME in beluga graham cedar mila
 do
@@ -40,7 +41,7 @@ do
         --cluster_name ${CLUSTER_NAME} \
         --jobs_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job_anonymized \
         --dump_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/job_anonymized_dump_file.json
-
+        
     # "node anonymized"  to  "nodes anonymized dump file"
     python3 -m slurm_state.read_report_commit_to_db \
         --cluster_name ${CLUSTER_NAME} \
