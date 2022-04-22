@@ -108,13 +108,15 @@ services:
   clockwork_scripts:
     image: clockwork_scripts
     container_name: cw-scripts
+    build:
+      context: ./
+      dockerfile: scripts/Dockerfile
     depends_on:
       - mongodb
     user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     volumes:
       - ${CLOCKWORK_SLURM_REPORT_PATH}:/clockwork/tmp/slurm_report
-      - ./slurm_state:/clockwork/slurm_state
       - ./test_common:/clockwork/test_common
       - ./test_config.toml:/clockwork/test_config.toml
     environment:
