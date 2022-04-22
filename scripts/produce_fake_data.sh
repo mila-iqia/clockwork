@@ -15,8 +15,9 @@ export slurm_state_ALLOCATIONS_RELATED_TO_MILA=${CLOCKWORK_ROOT}/slurm_state_tes
 export PYTHONPATH="..:${PYTHONPATH:-}"
 
 export FAKE_USERS_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/fake_users.json
+
+# Generate fake users and insert them in the database
 python3 produce_fake_users.py --output_file=${FAKE_USERS_FILE}
-# TODO: insert users in db
 python3 store_users_in_db.py --users_file=${FAKE_USERS_FILE}
 
 for CLUSTER_NAME in beluga graham cedar mila
@@ -41,7 +42,7 @@ do
         --cluster_name ${CLUSTER_NAME} \
         --jobs_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job_anonymized \
         --dump_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/job_anonymized_dump_file.json
-        
+
     # "node anonymized"  to  "nodes anonymized dump file"
     python3 -m slurm_state.read_report_commit_to_db \
         --cluster_name ${CLUSTER_NAME} \
@@ -70,6 +71,10 @@ python3 stitch_json_lists_as_dict.py \
     users ${FAKE_USERS_FILE} \
     jobs ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_jobs_anonymized.json \
     nodes ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json
+
+python3 insert_hardcoded_values.py \
+    --input_file ${CLOCKWORK_ROOT}/test_common/fake_data.json \
+    --output_file ${CLOCKWORK_ROOT}/test_common/fake_data.json
 
 # cp ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json ${CLOCKWORK_ROOT}/test_common/fake_data_nodes.json
 # cp ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_jobs_anonymized.json ${CLOCKWORK_ROOT}/test_common/fake_data_jobs.json
