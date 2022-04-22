@@ -1,12 +1,18 @@
 #!/bin/bash
 set -eu
 
-# Set the environnement
-. ./env.sh
-export CLOCKWORK_SLURM_REPORT_PATH="<insert_slurm_report_local_path>" # TODO
+SLURM_REPORT_PATH=$1
 
-# This is to ensure that there aren't lingering containers after the test script exits.
-trap "docker-compose down && docker-compose rm -fv" EXIT
+if [ -d "$SLURM_REPORT_PATH" ]; then
+    # Set the environnement
+    . ./env.sh
+    export CLOCKWORK_SLURM_REPORT_PATH=$SLURM_REPORT_PATH
 
-# Run the Docker containers
-docker-compose run clockwork_scripts
+    # This is to ensure that there aren't lingering containers after the test script exits.
+    trap "docker-compose down && docker-compose rm -fv" EXIT
+
+    # Run the Docker containers
+    docker-compose run clockwork_scripts
+else
+    echo "The directory $SLURM_REPORT_PATH has not been found."
+fi
