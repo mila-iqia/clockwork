@@ -144,7 +144,7 @@ def helper_list_jobs_for_a_given_random_user(fake_data):
     # Let's run a sanity check to make sure that there are jobs in there,
     # and that the jobs have some username that isn't `None`.
     assert LD_users
-    S = set([D_job["cw"]["mila_email_username"]   for D_job in fake_data["jobs"]])
+    S = set([D_job["cw"]["mila_email_username"] for D_job in fake_data["jobs"]])
     if None in S:
         # this is what we generally expect as prerequisite for this test
         assert 1 < len(S)
