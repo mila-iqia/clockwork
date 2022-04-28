@@ -130,12 +130,7 @@ def helper_list_jobs_for_a_given_random_user(fake_data):
         return [
             D_job
             for D_job in LD_jobs
-            if username
-            in [
-                D_job["cw"].get("mila_cluster_username", None),
-                D_job["cw"].get("mila_email_username", None),
-                D_job["cw"].get("cc_account_username", None),
-            ]
+            if username == D_job["cw"].get("mila_email_username", None)
         ]
 
     # Select something at random from the database, already populated
@@ -149,11 +144,7 @@ def helper_list_jobs_for_a_given_random_user(fake_data):
     # Let's run a sanity check to make sure that there are jobs in there,
     # and that the jobs have some username that isn't `None`.
     assert LD_users
-    S = set(
-        [D_job["cw"]["mila_cluster_username"] for D_job in fake_data["jobs"]]
-        # + [D_job["cw"]["mila_email_username"]   for D_job in fake_data["jobs"]]
-        + [D_job["cw"]["cc_account_username"] for D_job in fake_data["jobs"]]
-    )
+    S = set([D_job["cw"]["mila_email_username"] for D_job in fake_data["jobs"]])
     if None in S:
         # this is what we generally expect as prerequisite for this test
         assert 1 < len(S)
@@ -163,14 +154,13 @@ def helper_list_jobs_for_a_given_random_user(fake_data):
 
     random.shuffle(LD_users)
     for D_user in LD_users:
-        L_username = [D_user["mila_cluster_username"], D_user["cc_account_username"]]
-        random.shuffle(L_username)
-        for username in L_username:
-            LD_jobs_ground_truth = get_ground_truth(username, fake_data["jobs"])
-            # pick something that's interesting, and not something that should
-            # return empty results, because then this test becomes vacuous
-            if LD_jobs_ground_truth:
-                break
+        username = D_user["mila_email_username"]
+
+        LD_jobs_ground_truth = get_ground_truth(username, fake_data["jobs"])
+        # pick something that's interesting, and not something that should
+        # return empty results, because then this test becomes vacuous
+        if LD_jobs_ground_truth:
+            break
         if LD_jobs_ground_truth:
             break
     assert (

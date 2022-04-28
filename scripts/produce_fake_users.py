@@ -17,7 +17,8 @@ import json
             "status": "enabled",
             "clockwork_api_key": "000aaa"
             "cc_account_username": "ccuser040",
-            "mila_cluster_username": milauser040"
+            "mila_cluster_username": milauser040",
+            "cc_account_update_key": None
         },
         { ... },
         ...
@@ -58,6 +59,7 @@ def get_predefined_fake_users(N=20):
                     "cluster_name": "mila",
                 }
             },
+            "cc_account_update_key": None,
         }
         # then add the entries for all the clusters on CC
         account = L_cc_accounts[n % 2]
