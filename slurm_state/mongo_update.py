@@ -282,3 +282,34 @@ def main_read_nodes_and_update_collection(
         with open(dump_file, "w") as f:
             json.dump(L_data_for_dump_file, f, indent=4)
         print(f"Wrote to dump_file {dump_file}.")
+
+
+def main_read_users_and_update_collection(
+    users_collection,
+    users_json_file,
+):
+
+    timestamp_start = time.time()
+    L_updates_to_do = []
+
+    with open(users_json_file, "r") as f:
+        users_to_store = json.load(f)
+
+    for user_to_store in users_to_store:
+
+        L_updates_to_do.append(
+            UpdateOne(
+                # rule to match if already present in collection
+                {"mila_email_username": user_to_store["mila_email_username"]},
+                # the data that we write in the collection
+                {"$set": user_to_store},
+                # create if missing, update if present
+                upsert=True,
+            )
+        )
+
+    result = users_collection.bulk_write(L_updates_to_do)
+    mongo_update_duration = time.time() - timestamp_start
+    print(
+        f"Bulk write for {len(L_updates_to_do)} user entries in mongodb took {mongo_update_duration} seconds."
+    )
