@@ -176,7 +176,7 @@ def _load_config():
         file_dict = toml.load(_config_file)
         _config = _merge_configs(file_dict, _defaults)
     else:
-        _config = _cleanup_defaults(_defaults)
+        _config = _cleanup_default(_defaults)
 
 
 def _merge_configs(new_dict, default_dict):
@@ -215,7 +215,8 @@ def _merge_configs(new_dict, default_dict):
 
 def _cleanup_default(default_dict):
     # Remove validators in a default dict for use as configuration.
+    print(default_dict)
     return {
-        k: _cleanup_default(v[0]) if isinstance(v, dict) else v[0]
-        for k, v in default_dict
+        k: _cleanup_default(v) if isinstance(v, dict) else v[0]
+        for k, v in default_dict.items()
     }
