@@ -66,7 +66,6 @@ def main(argv):
 
     # Check if the input and output files exists
     assert os.path.exists(input_file)
-    assert os.path.exists(output_file)
 
     # Retrieve the fake data from the input file
     fake_data = {}
