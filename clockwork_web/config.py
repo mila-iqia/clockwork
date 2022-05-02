@@ -215,7 +215,6 @@ def _merge_configs(new_dict, default_dict):
 
 def _cleanup_default(default_dict):
     # Remove validators in a default dict for use as configuration.
-    print(default_dict)
     return {
         k: _cleanup_default(v) if isinstance(v, dict) else v[0]
         for k, v in default_dict.items()
