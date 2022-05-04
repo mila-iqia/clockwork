@@ -104,6 +104,8 @@ There is no guarantee that this `mtclient` fixture would indeed have any of
 its own jobs present in the "fake_data.json" used to populate the database initially.
 That explains the acrobatics done in the file "insert_hardcoded_values.py".
 """
+
+
 @pytest.fixture
 def mtclient_student01(db_with_fake_data):
     """
