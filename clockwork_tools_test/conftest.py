@@ -89,12 +89,28 @@ def unauthorized_mtclient_01(invalid_config_01, db_with_fake_data):
     return clockwork_tools.client.ClockworkTools(invalid_config_01)
 
 
+"""
+There is a test called `test_jobs_user_dict_update` in "test_mt_jobs.py"
+and it requires a particular set of text fixtures compared to the other
+tests from the same file. Its fixture `mtclient_student01` comes from "conftest.py"
+in the same directory, which itself refers to a particular job that was
+hardcoded to be inserted in the database (opposed to being inserted by "fake_data.json").
+
+This is because we require additional permissions in order to modify the "user"
+portion of a job in the database, which means that the usual test fixture
+`mtclient(config, db_with_fake_data)` from "conftest.py" doesn't satisfy the requirements.
+
+There is no guarantee that this `mtclient` fixture would indeed have any of
+its own jobs present in the "fake_data.json" used to populate the database initially.
+That explains the acrobatics done in the file "insert_hardcoded_values.py".
+"""
 @pytest.fixture
 def mtclient_student01(db_with_fake_data):
     """
     This is a little too "hardcoded" in terms of featuring
     data straight from fake_data.json added manually here,
     but we need something like that to test `jobs_user_dict_update`.
+    See more detailed explanation above in the source file.
     """
     return clockwork_tools.client.ClockworkTools(
         config={
