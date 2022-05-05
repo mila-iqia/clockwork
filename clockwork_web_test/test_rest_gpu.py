@@ -55,12 +55,18 @@ def test_gpu_one_success(client, valid_rest_auth_headers):
     }
 
 
-def test_gpu_list_success(client, valid_rest_auth_headers):
+def test_gpu_list_success(client, fake_data, valid_rest_auth_headers):
     """
     Make a request to the REST API endpoint /api/v1/gpu/list.
 
     Find a list of gpu entries that should be present in the database.
     """
+    # Create a dictionary of the gpus, omitting the "cw_name" of each entry
+    expected_gpu_results = []
+    for gpu_entry in fake_data["gpu"]:
+        gpu_entry.pop("cw_name")
+        expected_gpu_results.append(gpu_entry)
+
     response = client.get(
         f"/api/v1/clusters/gpu/list",
         headers=valid_rest_auth_headers,
@@ -68,29 +74,4 @@ def test_gpu_list_success(client, valid_rest_auth_headers):
     assert response.content_type == "application/json"
     assert response.status_code == 200
     gpu_results = response.json
-    assert gpu_results == [
-        {
-            "name": "rtx8000",
-            "vendor": "nvidia",
-            "ram": 48,
-            "cuda_cores": 4608,
-            "tensor_cores": 576,
-            "tflops_fp32": 16.3,
-        },
-        {
-            "name": "v100",
-            "vendor": "nvidia",
-            "ram": 0,
-            "cuda_cores": 5120,
-            "tensor_cores": 640,
-            "tflops_fp32": 0,
-        },
-        {
-            "name": "a100",
-            "vendor": "nvidia",
-            "ram": 0,
-            "cuda_cores": 0,
-            "tensor_cores": 0,
-            "tflops_fp32": 19.5,
-        },
-    ]
+    assert gpu_results == expected_gpu_results

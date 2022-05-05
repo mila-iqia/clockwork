@@ -201,7 +201,7 @@ class ClockworkTools:
             params["cluster_name"] = cluster_name
         return self._request(endpoint, params)
 
-    def nodes_one(self, name: str = None, cluster_name: str = None) -> dict[str, any]:
+    def nodes_one(self, node_name: str = None, cluster_name: str = None) -> dict[str, any]:
         """REST call to api/v1/clusters/nodes/one.
 
         Gets the detailed description of a single node
@@ -210,7 +210,7 @@ class ClockworkTools:
         is not required.
 
         Args:
-            name (str): Name of node to be described.
+            node_name (str): Name of node to be described.
             cluster_name (str): Name of cluster where that node lives.
 
         Returns:
@@ -219,8 +219,8 @@ class ClockworkTools:
         """
         endpoint = "api/v1/clusters/nodes/one"
         params = {}
-        if name is not None:
-            params["name"] = name
+        if node_name is not None:
+            params["node_name"] = node_name
         if cluster_name is not None:
             params["cluster_name"] = cluster_name
         return self._request(endpoint, params)
