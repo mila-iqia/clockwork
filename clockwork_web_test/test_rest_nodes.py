@@ -52,7 +52,8 @@ def test_single_node_missing(client, fake_data, valid_rest_auth_headers):
             break
 
     response = client.get(
-        f"/api/v1/clusters/nodes/one?node_name={node_name}", headers=valid_rest_auth_headers
+        f"/api/v1/clusters/nodes/one?node_name={node_name}",
+        headers=valid_rest_auth_headers,
     )
     assert response.status_code == 200
     assert "application/json" in response.content_type
