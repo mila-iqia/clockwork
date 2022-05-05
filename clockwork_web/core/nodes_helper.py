@@ -8,16 +8,19 @@ from flask.globals import current_app
 from clockwork_web.db import get_db
 
 
-def get_filter_name(name):
+def get_filter_node_name(node_name):
     """
-    Looks rather useless right now, but this is where you'd patch
-    some modifications the "name" if you want to have them.
-    Things like tolower() or stripping spaces.
+    Looks rather useless right now, but this implements the
+    little translation needed between the "node_name" that we
+    refer to in Clockwork and the actual "name" field in the
+    Slurm entries. We use "node_name" in Clockwork to make it
+    more explicit, but we don't want to disturb the fields
+    returned from Slurm.
     """
-    if name is None:
+    if node_name is None:
         return {}
     else:
-        return {"slurm.name": name}
+        return {"slurm.name": node_name}
 
 
 def get_nodes(mongodb_filter: dict = {}) -> list:

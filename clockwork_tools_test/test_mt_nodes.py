@@ -37,7 +37,7 @@ def test_unauthorized_get_nodes_list_01(unauthorized_mtclient_01):
 
 def test_unauthorized_get_nodes_one_00(unauthorized_mtclient_00):
     try:
-        response = unauthorized_mtclient_00.nodes_one(name="doesntmatter")
+        response = unauthorized_mtclient_00.nodes_one(node_name="doesntmatter")
     except Exception as e:
         assert "Server rejected call with code" in str(e)
         assert "Authorization error." in str(e)
@@ -46,7 +46,7 @@ def test_unauthorized_get_nodes_one_00(unauthorized_mtclient_00):
 #
 def test_unauthorized_get_nodes_one_01(unauthorized_mtclient_01):
     try:
-        response = unauthorized_mtclient_01.nodes_one(name="doesntmatter")
+        response = unauthorized_mtclient_01.nodes_one(node_name="doesntmatter")
     except Exception as e:
         assert "Server rejected call with code" in str(e)
         assert "Authorization error." in str(e)
@@ -112,9 +112,9 @@ def test_get_nodes_one(mtclient, fake_data, want_valid_name, want_valid_cluster_
     expected_match_to_be_found = True
     filter = {}
     if want_valid_name:
-        filter["name"] = valid_D_node["slurm"]["name"]
+        filter["node_name"] = valid_D_node["slurm"]["name"]
     else:
-        filter["name"] = get_random_string()
+        filter["node_name"] = get_random_string()
         expected_match_to_be_found = False
     #
     if want_valid_cluster_name == True:
