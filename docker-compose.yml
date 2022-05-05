@@ -123,3 +123,16 @@ services:
       - ./test_config.toml:/clockwork/test_config.toml
     environment:
       CLOCKWORK_CONFIG: /clockwork/test_config.toml
+
+  scripts_test:
+    image: scripts_test
+    depends_on:
+      - mongodb
+    user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
+    working_dir: /clockwork
+    volumes:
+      - ./scripts:/clockwork/scripts
+      - ./scripts_test:/clockwork/scripts_test
+      - ./test_config.toml:/clockwork/test_config.toml
+    environment:
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml

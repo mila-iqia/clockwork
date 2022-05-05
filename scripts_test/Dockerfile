@@ -9,8 +9,8 @@ WORKDIR ${CLOCKWORK_ROOT}
 
 RUN pip install --upgrade pip
 
-COPY scripts/requirements.txt /requirements_scrips.txt
-RUN pip install -r /requirements_scrips.txt && rm -rf /root/.cache
+COPY scripts/requirements.txt /requirements_scripts.txt
+RUN pip install -r /requirements_scripts.txt && rm -rf /root/.cache
 
 COPY scripts_test/requirements.txt /requirements_scripts_test.txt
 RUN pip install -r /requirements_scripts_test.txt && rm -rf /root/.cache
