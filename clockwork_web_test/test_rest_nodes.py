@@ -78,12 +78,13 @@ def test_single_node_gpu_with_specs(client, fake_data, valid_rest_auth_headers):
     """
 
     # Get a random node presenting non-null Gres information
-    all_gpus_names = [ D_gpu["cw_name"] for D_gpu in fake_data["gpu"]]
+    all_gpus_names = [D_gpu["cw_name"] for D_gpu in fake_data["gpu"]]
     original_D_node = random.choice(
         [
             D_node
             for D_node in fake_data["nodes"]
-            if ("cw_name" in D_node["cw"]["gpu"]) and (D_node["cw"]["gpu"]["cw_name"] in all_gpus_names)
+            if ("cw_name" in D_node["cw"]["gpu"])
+            and (D_node["cw"]["gpu"]["cw_name"] in all_gpus_names)
         ]
     )
 
@@ -117,11 +118,7 @@ def test_single_node_with_no_identified_gpu(client, fake_data, valid_rest_auth_h
     # Get a random node presenting no Gres information (if the ["slurm"]["gres"]
     # field in None, so should be the ["cw"]["gpu"] field)
     original_D_node = random.choice(
-        [
-            D_node
-            for D_node in fake_data["nodes"]
-            if D_node["slurm"]["gres"] == None
-        ]
+        [D_node for D_node in fake_data["nodes"] if D_node["slurm"]["gres"] == None]
     )
 
     response = client.get(
@@ -145,18 +142,17 @@ def test_single_node_gpu_without_specs(client, fake_data, valid_rest_auth_header
     """
 
     # Get a random node presenting a GPU unknown from the database
-    all_gpus_names = [ D_gpu["cw_name"] for D_gpu in fake_data["gpu"]]
+    all_gpus_names = [D_gpu["cw_name"] for D_gpu in fake_data["gpu"]]
     original_D_node = random.choice(
         [
             D_node
             for D_node in fake_data["nodes"]
-            if ("cw_name" in D_node["cw"]["gpu"]) and (D_node["cw"]["gpu"]["cw_name"] not in all_gpus_names)
+            if ("cw_name" in D_node["cw"]["gpu"])
+            and (D_node["cw"]["gpu"]["cw_name"] not in all_gpus_names)
         ]
     )
 
     # Retrieve the response of the API call
-    print("!!!!")
-    print(original_D_node['slurm']['name'])
     response = client.get(
         f"/api/v1/clusters/nodes/one/gpu?node_name={original_D_node['slurm']['name']}",
         headers=valid_rest_auth_headers,
