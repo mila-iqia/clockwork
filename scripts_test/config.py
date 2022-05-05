@@ -1,9 +1,8 @@
-#######################################################################
-# Don't edit this file, edit clockwork_web/config.py and copy it back #
-#######################################################################
+# Don't forget to sync changes with slurm_state/config.py
 
 import os
 import copy
+import zoneinfo
 
 import toml
 
@@ -18,9 +17,93 @@ _defaults = {}
 
 _config_file = os.environ.get("CLOCKWORK_CONFIG", None)
 
+
+class ConfigError(Exception):
+    def __init__(self, message, keys=None):
+        self.message = message
+        self.keys = [] if keys is None else keys
+
+    def __str__(self):
+        return f"In key {'.'.join(reversed(self.keys))}: {self.message}"
+
+
 # Placeholder for validation
 def anything(value):
     return value
+
+
+def string(value):
+    if not isinstance(value, str):
+        raise ConfigError("expected string")
+    return value
+
+
+def optional_string(value):
+    if value is False:
+        return value
+    return string(value)
+
+
+def boolean(value):
+    if isinstance(value, bool):
+        return value
+    elif isinstance(value, str):
+        if value in ["True", "true"]:
+            return True
+        elif value in ["False", "false"]:
+            return False
+    elif isinstance(value, int):
+        if value == 1:
+            return True
+        elif value == 0:
+            return False
+    raise ConfigError("expected boolean")
+
+
+def string_list(value):
+    if not isinstance(value, list):
+        raise ConfigError("expected list")
+    if any(not isinstance(v, str) for v in value):
+        raise ConfigError("non-strings in list")
+    return value
+
+
+def timezone(value):
+    try:
+        return zoneinfo.ZoneInfo(value)
+    except ValueError:
+        raise ConfigError("invalid time zone")
+    except zoneinfo.ZoneInfoNotFound:
+        raise ConfigError("unknown timezone")
+
+
+class SubdictValidator:
+    """Validate that all keys in a dictionary have a certain format."""
+
+    def __init__(self, fields):
+        self._fields = fields
+
+    def add_field(self, name, validator):
+        self._fields[name] = validator
+
+    def __call__(self, value):
+        if not isinstance(value, dict):
+            raise ConfigError("expected a dictionary value")
+        res = {}
+        for k, v in value.items():
+            if not isinstance(v, dict):
+                raise ConfigError("expected a dictionary value", keys=[k])
+            sub = {}
+            for field_key, field_valid in self._fields.items():
+                if field_key not in v:
+                    raise ConfigError("missing field", keys=[field_key, k])
+                try:
+                    sub[field_key] = field_valid(v[field_key])
+                except ConfigError as e:
+                    e.keys.extend([field_key, k])
+                    raise
+            res[k] = sub
+        return res
 
 
 def register_config(key, default=_NoDefault, validator=anything):
@@ -58,9 +141,9 @@ def get_config(key):
         _load_config()
     try:
         d, k = _get_dict(_config, key)
+        value = d[k]
     except KeyError:
         raise KeyError(f"no such config key '{key}'")
-    value = d[k]
     if value is _NoDefault:
         raise KeyError(f"no value set for '{key}'")
     return value
@@ -83,11 +166,6 @@ def _get_dict(d, key, create=False):
         else:
             d = d[k]
     return d, keys[-1]
-
-
-# This should use the logger at the warning level
-def _warn(msg):
-    print(msg)
 
 
 def _load_config():
@@ -121,17 +199,23 @@ def _merge_configs(new_dict, default_dict):
                 res[k] = v[0]
         else:
             # And here we extract and validate the value from new_dict
-            if isinstance(v, dict):
-                res[k] = _merge_configs(nv, v)
-            else:
-                # v[1] is the validator
-                res[k] = v[1](nv)
+            try:
+                if isinstance(v, dict):
+                    if not isinstance(nv, dict):
+                        raise ConfigError("expected dictionary")
+                    res[k] = _merge_configs(nv, v)
+                else:
+                    # v[1] is the validator
+                    res[k] = v[1](nv)
+            except ConfigError as e:
+                e.keys.append(k)
+                raise
     return res
 
 
 def _cleanup_default(default_dict):
     # Remove validators in a default dict for use as configuration.
     return {
-        k: _cleanup_default(v[0]) if isinstance(v, dict) else v[0]
-        for k, v in default_dict
+        k: _cleanup_default(v) if isinstance(v, dict) else v[0]
+        for k, v in default_dict.items()
     }
