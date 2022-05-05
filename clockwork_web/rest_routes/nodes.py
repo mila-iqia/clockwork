@@ -34,13 +34,13 @@ def route_api_v1_nodes_list():
 @authentication_required
 def route_api_v1_nodes_one():
     """
-    Take one mandatory args "name", as in "/nodes/one?name=cn-a003".
+    Take one mandatory args "node_name", as in "/nodes/one?node_name=cn-a003".
     This could take a "cluster_name" args if, for some freak reason,
     we have two clusters that have clashes with their host names.
 
     .. :quickref: list one Slurm node
     """
-    f0 = get_filter_name(request.args.get("name", None))
+    f0 = get_filter_name(request.args.get("node_name", None))
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
 
@@ -71,16 +71,16 @@ def route_api_v1_nodes_one_gpu():
     .. :quickref: describe the GPU of a node
     """
     # Parse the arguments
-    name = request.args.get("name", None)
+    node_name = request.args.get("node_name", None)
     cluster_name = request.args.get("cluster_name", None)
 
     # Check if the mandatory argument 'node_name' has been provided, and return
     # a 'Bad Request' code if not
-    if name is None:
+    if node_name is None:
         return jsonify("Missing argument node_name."), 400
 
     # Retrieve the node's information given by the user
-    node_filter = get_filter_name(name)
+    node_filter = get_filter_name(node_name)
     cluster_filter = get_filter_cluster_name(cluster_name)
 
     # Combine the filters on the node name and the cluster name in order to
@@ -94,7 +94,7 @@ def route_api_v1_nodes_one_gpu():
     if len(node_information) == 1:
         # Get the GPU name
         try:
-            gpu_name = node_information[0]["cw"]["gpu"]["gpu_name"]
+            gpu_name = node_information[0]["cw"]["gpu"]["cw_name"]
         except:
             return {}
         # Retrieve the GPU information
