@@ -123,10 +123,10 @@ def get_cw_gpu_name(slurm_gpu_name, features):
         A string containing the GPU name based on the convention presented above.
     """
     # Parse the 'AvailableFeatures' field
-    prog = re.compile(r"((\w*?),)+([0-9]+)gb$")
+    prog = re.compile(r"^(\w*,)*(\d+)gb$")
     # If the field matches this format, the amount of RAM can be retrieved
     if m := prog.match(features):
-        gpu_ram = m.group(3)
+        gpu_ram = m.group(2)
         # Change the name if needed
         if slurm_gpu_name == "v100" and gpu_ram == "32":
             return "v100l"
