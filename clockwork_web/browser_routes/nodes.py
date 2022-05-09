@@ -37,7 +37,7 @@ from clockwork_web.core.jobs_helper import (
     combine_all_mongodb_filters,
 )
 from clockwork_web.core.nodes_helper import (
-    get_filter_name,
+    get_filter_node_name,
     strip_artificial_fields_from_node,
 )
 
@@ -48,12 +48,12 @@ from clockwork_web.core.nodes_helper import (
 @login_required
 def route_list():
     """
-    Can take optional args "cluster_name" and "name",
+    Can take optional args "cluster_name" and "node_name",
     where "name" refers to the host name.
 
     .. :quickref: list all Slurm nodes as formatted html
     """
-    f0 = get_filter_name(request.args.get("name", None))
+    f0 = get_filter_node_name(request.args.get("node_name", None))
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
     LD_nodes = get_nodes(filter)
@@ -77,7 +77,7 @@ def route_one():
     .. :quickref: list one Slurm node as formatted html
     """
 
-    f0 = get_filter_name(request.args.get("name", None))
+    f0 = get_filter_node_name(request.args.get("node_name", None))
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
     LD_nodes = get_nodes(filter)

@@ -2,7 +2,7 @@ from flask import request, make_response
 from flask.json import jsonify
 from .authentication import authentication_required
 
-from clockwork_web.core.nodes_helper import get_nodes, get_filter_name
+from clockwork_web.core.nodes_helper import get_nodes, get_filter_node_name
 from clockwork_web.core.jobs_helper import (
     combine_all_mongodb_filters,
     get_filter_cluster_name,
@@ -29,13 +29,13 @@ def route_api_v1_nodes_list():
 @authentication_required
 def route_api_v1_nodes_one():
     """
-    Takes one mandatory args "name", as in "/nodes/one?name=cn-a003".
+    Takes one mandatory args "node_name", as in "/nodes/one?node_name=cn-a003".
     This could take a "cluster_name" args if, for some freak reason,
     we have two clusters that have clashes with their host names.
 
     .. :quickref: list one Slurm node
     """
-    f0 = get_filter_name(request.args.get("name", None))
+    f0 = get_filter_node_name(request.args.get("node_name", None))
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
 
