@@ -75,6 +75,8 @@ def test_jobs_user_dict_update(mtclient_student01):
     Verify that we can modify that particular job for that user.
     We omit the `fake_data` test fixture because we hardcode
     certain details by hand.
+    Refer to the code for test fixture `mtclient_student01`
+    to see a longer discussion about the particular needs of this test.
     """
 
     # set two fields and make sure they are read back properly
