@@ -45,11 +45,16 @@ Used:
 
 ```bash
 # for main project
-python3 -m pip install flask flask-login numpy pymongo oauthlib coverage black
+python3 -m pip install flask flask-login numpy pymongo oauthlib coverage black ldap3 toml
 # for docs
 python3 -m pip install sphinx myst_parser sphinx_rtd_theme sphinxcontrib.httpdomain
 ```
 
 ## documentation
 
-In the "doc" directory, build the documentation with `make rst; make html`.
+In the "doc" directory, build the documentation with
+```
+export CLOCKWORK_CONFIG=../test_config.toml
+make rst
+make html
+```

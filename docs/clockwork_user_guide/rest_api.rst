@@ -240,7 +240,7 @@ nodes
     This does not return more details than calls to nodes/list,
     but it makes the request lighter for the server. [TODO: Measure this claim.]
 
-    Takes arguments `name`, `cluster_name` to identify a node uniquely.
+    Takes arguments `node_name`, `cluster_name` to identify a node uniquely.
     
     If no valid entry is found, the result is an empty dict.
     When more than one are found, this is an error.
@@ -249,7 +249,7 @@ nodes
 
    .. sourcecode:: http
 
-        GET /api/v1/cluster/node/one?name=cn-a002&cluster_name=mila
+        GET /api/v1/cluster/node/one?node_name=cn-a002&cluster_name=mila
         Host: clockwork.mila.quebec
         Accept: application/json
 

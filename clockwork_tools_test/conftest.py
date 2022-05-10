@@ -76,17 +76,17 @@ def db_with_fake_data():
 
 @pytest.fixture
 def mtclient(config, db_with_fake_data):
-    return clockwork_tools.client.ClockworkTools(config)
+    return clockwork_tools.client.ClockworkToolsClient(**config)
 
 
 @pytest.fixture
 def unauthorized_mtclient_00(invalid_config_00, db_with_fake_data):
-    return clockwork_tools.client.ClockworkTools(invalid_config_00)
+    return clockwork_tools.client.ClockworkToolsClient(**invalid_config_00)
 
 
 @pytest.fixture
 def unauthorized_mtclient_01(invalid_config_01, db_with_fake_data):
-    return clockwork_tools.client.ClockworkTools(invalid_config_01)
+    return clockwork_tools.client.ClockworkToolsClient(**invalid_config_01)
 
 
 """
@@ -114,8 +114,8 @@ def mtclient_student01(db_with_fake_data):
     but we need something like that to test `jobs_user_dict_update`.
     See more detailed explanation above in the source file.
     """
-    return clockwork_tools.client.ClockworkTools(
-        config={
+    return clockwork_tools.client.ClockworkToolsClient(
+        **{
             "host": os.environ["clockwork_tools_test_HOST"],
             "port": os.environ["clockwork_tools_test_PORT"],
             "email": "student01@mila.quebec",
