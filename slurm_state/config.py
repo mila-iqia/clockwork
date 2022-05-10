@@ -46,6 +46,22 @@ def optional_string(value):
     return string(value)
 
 
+def boolean(value):
+    if isinstance(value, bool):
+        return value
+    elif isinstance(value, str):
+        if value in ["True", "true"]:
+            return True
+        elif value in ["False", "false"]:
+            return False
+    elif isinstance(value, int):
+        if value == 1:
+            return True
+        elif value == 0:
+            return False
+    raise ConfigError("expected boolean")
+
+
 def string_list(value):
     if not isinstance(value, list):
         raise ConfigError("expected list")
@@ -162,7 +178,7 @@ def _load_config():
         file_dict = toml.load(_config_file)
         _config = _merge_configs(file_dict, _defaults)
     else:
-        _config = _cleanup_defaults(_defaults)
+        _config = _cleanup_default(_defaults)
 
 
 def _merge_configs(new_dict, default_dict):
@@ -202,6 +218,6 @@ def _merge_configs(new_dict, default_dict):
 def _cleanup_default(default_dict):
     # Remove validators in a default dict for use as configuration.
     return {
-        k: _cleanup_default(v[0]) if isinstance(v, dict) else v[0]
-        for k, v in default_dict
+        k: _cleanup_default(v) if isinstance(v, dict) else v[0]
+        for k, v in default_dict.items()
     }
