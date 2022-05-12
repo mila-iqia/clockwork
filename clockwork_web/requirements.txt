@@ -4,5 +4,3 @@ oauthlib==3.2
 Flask-Login==0.6.0
 pymongo==4.0
 toml==0.10.2
-# Only used for the ldap import script that should move away
-ldap3==2.9
