@@ -30,14 +30,7 @@ files for each cluster (namely by using the fake users)
 into the `clockwork/test_common/fake_data.json`.
 
 ### The clusters
-To be taken into account, the different "cluster folders" (introduced as `cluster1`,
-`cluster2`, and `cluterN`) must be called using existing cluster names (thus,
-each name has to be contained in the following list:
-* beluga
-* cedar
-* graham
-* mila
-* narval
+As a sanity measure for now, we restrict the "cluster" folders (i.e. `cluster1`, ..., `clusterN`) to be from the list of clusters that we currently have access to. That is, `beluga`, `cedar`, `graham`, `mila`, `narval`.
 
 ### Temporary files generated while producing the fake data
 During the process of test data generation, several files are created directly in `slurm_report`:
