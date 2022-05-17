@@ -43,18 +43,17 @@ def get_random_path():
 def process_line(line: str, D_cluster_account: dict) -> str:
     """
     Anonymize the lines from the report.
-    This involves doing a hatchet job to some fields
-    while keeping other fields intact.
-    The assumption is that scontrol is very predictible
-    in the layout of its outputs so we can parse things
-    with regex.
 
-    D_cluster_account looks like
-    {
-        "username": "ccuser040",
-        "uid": 10040,
-        "account": "def-pomme-rrg",
-        "cluster_name": "beluga",
+    This involves doing a hatchet job to some fields while keeping other fields
+    intact. The assumption is that scontrol is very predictible in the layout
+    of its outputs so we can parse things with regex.
+
+    D_cluster_account looks like :
+    { \
+        "username": "ccuser040", \
+        "uid": 10040, \
+        "account": "def-pomme-rrg", \
+        "cluster_name": "beluga" \
     }
 
     """

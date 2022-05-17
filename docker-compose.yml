@@ -93,6 +93,8 @@ services:
       - ./clockwork_web_test:/clockwork/clockwork_web_test
       - ./slurm_state:/clockwork/slurm_state
       - ./slurm_state_test:/clockwork/slurm_state_test
+      - ./scripts:/clockwork/scripts
+      - ./scripts_test:/clockwork/scripts_test
       - ./test_common:/clockwork/test_common
       - ./test_config.toml:/clockwork/test_config.toml
     command: bash
@@ -118,6 +120,19 @@ services:
     volumes:
       - ${CLOCKWORK_SLURM_REPORT_PATH}:/clockwork/tmp/slurm_report
       - ./test_common:/clockwork/test_common
+      - ./test_config.toml:/clockwork/test_config.toml
+    environment:
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml
+
+  scripts_test:
+    image: scripts_test
+    depends_on:
+      - mongodb
+    user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
+    working_dir: /clockwork
+    volumes:
+      - ./scripts:/clockwork/scripts
+      - ./scripts_test:/clockwork/scripts_test
       - ./test_config.toml:/clockwork/test_config.toml
     environment:
       CLOCKWORK_CONFIG: /clockwork/test_config.toml

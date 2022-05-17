@@ -1,3 +1,7 @@
+"""
+Insert elements extracted from the Slurm reports into the database.
+"""
+
 import os, time
 from pymongo import UpdateOne
 import json
@@ -5,6 +9,8 @@ from slurm_state.extra_filters import (
     is_allocation_related_to_mila,
     clusters_valid,
 )
+
+from slurm_state.helpers.gpu_helper import get_cw_gres_description
 from slurm_state.config import get_config, timezone, string, optional_string
 
 from .scontrol_parser import job_parser, node_parser
@@ -89,10 +95,27 @@ def slurm_node_to_clockwork_node(slurm_node: dict):
     to specific users).
     We still add the "cw" field for our own uses.
     """
-    clockwork_node = {
-        "slurm": slurm_node,
-        "cw": {},
-    }
+
+    # If GPU information are available on the node
+    if (
+        all(key in slurm_node for key in ["gres", "features"])
+        and slurm_node["gres"] is not None
+    ):
+        # Parse the GPU data and add it to the "cw" field
+        gpu_data = get_cw_gres_description(slurm_node["gres"], slurm_node["features"])
+
+        # Set up the node dictionary as used in Clockwork
+        clockwork_node = {
+            "slurm": slurm_node,
+            "cw": {"gpu": gpu_data},
+        }
+    # Otherwise
+    else:
+        clockwork_node = {
+            "slurm": slurm_node,
+            "cw": {"gpu": {}},
+        }
+
     return clockwork_node
 
 

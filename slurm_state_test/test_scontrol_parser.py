@@ -227,14 +227,18 @@ def test_job_parser_command_hack_end():
 
 def test_node_parser():
     f = StringIO(
-        """NodeName=abc1 Arch=x86_64
+        """NodeName=abc1 Arch=x86_64 Gres=gpu:rtx8000:8(S:0-1)
 
 NodeName=abc2 Arch=power9
 
 """
     )
     assert list(node_parser(f, None)) == [
-        {"name": "abc1", "arch": "x86_64"},
+        {
+            "name": "abc1",
+            "arch": "x86_64",
+            "gres": "gpu:rtx8000:8(S:0-1)",
+        },
         {"name": "abc2", "arch": "power9"},
     ]
 
