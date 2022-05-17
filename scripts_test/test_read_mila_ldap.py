@@ -7,7 +7,7 @@ from scripts import read_mila_ldap
 from scripts_test.config import get_config
 
 
-def test_database_update_users(app):
+def test_database_update_users():
     """
     This tests the connection to the database,
     but not the functionality of the web server.
@@ -62,7 +62,7 @@ def test_database_update_users(app):
 
     # Connect to MongoDB
     client = MongoClient(get_config("mongo.connection_string"))
-    db = client[get_config("mongo.database_name")]
+    mc = client[get_config("mongo.database_name")]
 
     mc[collection_name].delete_many({})
 
