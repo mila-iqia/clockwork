@@ -19,6 +19,7 @@ Welcome to Clockwork's documentation!
    :caption: Developer Guide
 
    clockwork_dev_guide/main
+   clockwork_dev_guide/gpu
    clockwork_dev_guide/slurm_state
 
 .. toctree::
