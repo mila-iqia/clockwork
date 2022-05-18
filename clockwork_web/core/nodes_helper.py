@@ -29,13 +29,12 @@ def get_nodes(mongodb_filter: dict = {}) -> list:
 
     Returns a list of dict with the properties of nodes.
     """
+    # Connect to the database
     mc = get_db()
-    LD_nodes = list(mc["nodes"].find(mongodb_filter))
-    return [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
 
-
-def strip_artificial_fields_from_node(D_node):
-    # Returns a copy. Does not mutate the original.
-    # Useful because mongodb puts a non-json-serializable "_id" field.
-    fields_to_remove = ["_id"]
-    return dict((k, v) for (k, v) in D_node.items() if k not in fields_to_remove)
+    # Retrieve the list of nodes corresponding to the criteria
+    # - The "mongodb_filter" is used to select the nodes we are looking for
+    # - The second parameter ({"_id": 0}) is used to delete the "_id" element
+    #   of each returned node
+    LD_nodes = list(mc["nodes"].find(mongodb_filter, {"_id": 0}))
+    return LD_nodes

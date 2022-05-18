@@ -36,10 +36,7 @@ from clockwork_web.core.jobs_helper import (
     get_filter_cluster_name,
     combine_all_mongodb_filters,
 )
-from clockwork_web.core.nodes_helper import (
-    get_filter_node_name,
-    strip_artificial_fields_from_node,
-)
+from clockwork_web.core.nodes_helper import get_filter_node_name
 
 # Note that flask_api.route('/') will lead to a redirection with "/nodes", and pytest might not like that.
 
@@ -57,8 +54,6 @@ def route_list():
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
     LD_nodes = get_nodes(filter)
-
-    LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
 
     return render_template(
         "nodes.html",
@@ -94,8 +89,6 @@ def route_one():
             ),
             400,
         )  # bad request
-
-    LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
 
     D_node = LD_nodes[0]  # the one and only
     # need to format it as list of tuples for the template (unless I'm mistaken)
