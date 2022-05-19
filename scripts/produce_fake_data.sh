@@ -42,14 +42,12 @@ do
         --cluster_name ${CLUSTER_NAME} \
         --jobs_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job_anonymized \
         --dump_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/job_anonymized_dump_file.json
-        #--cluster_desc ${CLOCKWORK_ROOT}/slurm_state/cluster_desc/${CLUSTER_NAME}.json \
 
     # "node anonymized"  to  "nodes anonymized dump file"
     python3 -m slurm_state.read_report_commit_to_db \
         --cluster_name ${CLUSTER_NAME} \
         --nodes_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_node_anonymized \
         --dump_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/node_anonymized_dump_file.json
-        #--cluster_desc ${CLOCKWORK_ROOT}/slurm_state/cluster_desc/${CLUSTER_NAME}.json \
 done
 
 python3 concat_json_lists.py --keep 100 \
