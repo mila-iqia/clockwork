@@ -80,6 +80,7 @@ def main(argv):
                 [("slurm.job_id", 1), ("slurm.cluster_name", 1)],
                 name="job_id_and_cluster_name",
             )
+
         main_read_jobs_and_update_collection(
             jobs_collection,
             client[collection_name]["users"],
