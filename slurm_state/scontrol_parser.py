@@ -5,7 +5,7 @@ FIELD = re.compile(r"([a-zA-z/:]+)=(.*?)(?: ([a-zA-Z/:]+=.*)|$)")
 
 
 def gen_dicts(f):
-    """Yields dicts from blocks in the 'scontrol show' output format."""
+    """Yield dicts from blocks in the 'scontrol show' output format."""
     curd = dict()
     for line in f:
         line = line.strip()
@@ -70,8 +70,8 @@ def id_int(f, ctx):
 
 def maybe_null_string_to_none_object(f, ctx):
     """
-    Converts "(null)" into `None` if applicable.
-    Otherwise, leaves the field unchanged.
+    Convert "(null)" into `None` if applicable.
+    Otherwise, leave the field unchanged.
     """
     if f == "(null)":
         return None

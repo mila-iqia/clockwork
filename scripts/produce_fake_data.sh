@@ -70,7 +70,8 @@ python3 stitch_json_lists_as_dict.py \
     ${CLOCKWORK_ROOT}/test_common/fake_data.json \
     users ${FAKE_USERS_FILE} \
     jobs ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_jobs_anonymized.json \
-    nodes ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json
+    nodes ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json \
+    gpu ${CLOCKWORK_ROOT}/scripts/fake_gpu_information.json
 
 python3 insert_hardcoded_values.py \
     --input_file ${CLOCKWORK_ROOT}/test_common/fake_data.json \

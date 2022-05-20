@@ -1,0 +1,89 @@
+NodeName=test-node-1 Arch=x86_64 CoresPerSocket=20
+   CPUAlloc=34 CPUTot=80 CPULoad=19.88
+   AvailableFeatures=x86_64,turing,48gb
+   ActiveFeatures=x86_64,turing,48gb
+   Gres=(null)
+   NodeAddr=test-node-1 NodeHostName=test-node-1 Version=20.11.8
+   OS=Linux 4.15.0-99-generic #100-Ubuntu SMP Wed Apr 22 20:32:56 UTC 2020
+   RealMemory=386619 AllocMem=196976 FreeMem=313185 Sockets=2 Boards=1
+   State=MIXED ThreadsPerCore=2 TmpDisk=3600000 Weight=1 Owner=N/A MCS_label=N/A
+   Partitions=unkillable,short-unkillable,main,main-grace,long,long-grace,cpu_jobs_low,cpu_jobs_low-grace
+   BootTime=2021-08-04T12:45:29 SlurmdStartTime=2021-08-04T23:52:12
+   CfgTRES=cpu=80,mem=386619M,billing=136,gres/gpu=8
+   AllocTRES=cpu=34,mem=196976M,gres/gpu=8
+   CapWatts=n/a
+   CurrentWatts=0 AveWatts=0
+   ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s
+   Comment=(null)
+
+ NodeName=test-node-2 Arch=x86_64 CoresPerSocket=20
+    CPUAlloc=34 CPUTot=80 CPULoad=19.88
+    AvailableFeatures=x86_64,turing,48gb
+    ActiveFeatures=x86_64,turing,48gb
+    Gres=gpu:rtx8000:8(S:0-1)
+    NodeAddr=test-node-2 NodeHostName=test-node-2 Version=20.11.8
+    OS=Linux 4.15.0-99-generic #100-Ubuntu SMP Wed Apr 22 20:32:56 UTC 2020
+    RealMemory=386619 AllocMem=196976 FreeMem=313185 Sockets=2 Boards=1
+    State=MIXED ThreadsPerCore=2 TmpDisk=3600000 Weight=1 Owner=N/A MCS_label=N/A
+    Partitions=unkillable,short-unkillable,main,main-grace,long,long-grace,cpu_jobs_low,cpu_jobs_low-grace
+    BootTime=2021-08-04T12:45:29 SlurmdStartTime=2021-08-04T23:52:12
+    CfgTRES=cpu=80,mem=386619M,billing=136,gres/gpu=8
+    AllocTRES=cpu=34,mem=196976M,gres/gpu=8
+    CapWatts=n/a
+    CurrentWatts=0 AveWatts=0
+    ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s
+    Comment=(null)
+
+NodeName=test-node-3 Arch=x86_64 CoresPerSocket=20
+   CPUAlloc=34 CPUTot=80 CPULoad=19.88
+   AvailableFeatures=x86_64,turing,32gb
+   ActiveFeatures=x86_64,turing,32gb
+   Gres=gpu:v100:8
+   NodeAddr=test-node-3 NodeHostName=test-node-3 Version=20.11.8
+   OS=Linux 4.15.0-99-generic #100-Ubuntu SMP Wed Apr 22 20:32:56 UTC 2020
+   RealMemory=386619 AllocMem=196976 FreeMem=313185 Sockets=2 Boards=1
+   State=MIXED ThreadsPerCore=2 TmpDisk=3600000 Weight=1 Owner=N/A MCS_label=N/A
+   Partitions=unkillable,short-unkillable,main,main-grace,long,long-grace,cpu_jobs_low,cpu_jobs_low-grace
+   BootTime=2021-08-04T12:45:29 SlurmdStartTime=2021-08-04T23:52:12
+   CfgTRES=cpu=80,mem=386619M,billing=136,gres/gpu=8
+   AllocTRES=cpu=34,mem=196976M,gres/gpu=8
+   CapWatts=n/a
+   CurrentWatts=0 AveWatts=0
+   ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s
+   Comment=(null)
+
+NodeName=test-node-4 Arch=x86_64 CoresPerSocket=20
+  CPUAlloc=34 CPUTot=80 CPULoad=19.88
+  AvailableFeatures=x86_64,turing,32gb
+  ActiveFeatures=x86_64,turing,32gb
+  Gres=gpu:not-an-existing-gpu:8
+  NodeAddr=test-node-4 NodeHostName=test-node-4 Version=20.11.8
+  OS=Linux 4.15.0-99-generic #100-Ubuntu SMP Wed Apr 22 20:32:56 UTC 2020
+  RealMemory=386619 AllocMem=196976 FreeMem=313185 Sockets=2 Boards=1
+  State=MIXED ThreadsPerCore=2 TmpDisk=3600000 Weight=1 Owner=N/A MCS_label=N/A
+  Partitions=unkillable,short-unkillable,main,main-grace,long,long-grace,cpu_jobs_low,cpu_jobs_low-grace
+  BootTime=2021-08-04T12:45:29 SlurmdStartTime=2021-08-04T23:52:12
+  CfgTRES=cpu=80,mem=386619M,billing=136,gres/gpu=8
+  AllocTRES=cpu=34,mem=196976M,gres/gpu=8
+  CapWatts=n/a
+  CurrentWatts=0 AveWatts=0
+  ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s
+  Comment=(null)
+
+NodeName=test-node-5 Arch=x86_64 CoresPerSocket=20
+ CPUAlloc=34 CPUTot=80 CPULoad=19.88
+ AvailableFeatures=x86_64,turing,32gb
+ ActiveFeatures=x86_64,turing,32gb
+ Gres=justarandomfield
+ NodeAddr=test-node-5 NodeHostName=test-node-5 Version=20.11.8
+ OS=Linux 4.15.0-99-generic #100-Ubuntu SMP Wed Apr 22 20:32:56 UTC 2020
+ RealMemory=386619 AllocMem=196976 FreeMem=313185 Sockets=2 Boards=1
+ State=MIXED ThreadsPerCore=2 TmpDisk=3600000 Weight=1 Owner=N/A MCS_label=N/A
+ Partitions=unkillable,short-unkillable,main,main-grace,long,long-grace,cpu_jobs_low,cpu_jobs_low-grace
+ BootTime=2021-08-04T12:45:29 SlurmdStartTime=2021-08-04T23:52:12
+ CfgTRES=cpu=80,mem=386619M,billing=136,gres/gpu=8
+ AllocTRES=cpu=34,mem=196976M,gres/gpu=8
+ CapWatts=n/a
+ CurrentWatts=0 AveWatts=0
+ ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s
+ Comment=(null)
