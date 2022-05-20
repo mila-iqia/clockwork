@@ -20,50 +20,61 @@ export FAKE_USERS_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/fake_users.json
 python3 produce_fake_users.py --output_file=${FAKE_USERS_FILE}
 python3 store_users_in_db.py --users_file=${FAKE_USERS_FILE}
 
-for CLUSTER_NAME in beluga graham cedar mila
-do
-    # "node"  to  "node anonymized"
-    python3 -m slurm_state.anonymize_scontrol_report \
-        --keep 100 \
-        --cluster_name ${CLUSTER_NAME} \
-        --users_file ${FAKE_USERS_FILE} \
-        --input_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_node \
-        --output_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_node_anonymized
-    # "job"  to  "job anonymized"
-    python3 -m slurm_state.anonymize_scontrol_report \
-        --keep 100 \
-        --cluster_name ${CLUSTER_NAME} \
-        --users_file ${FAKE_USERS_FILE} \
-        --input_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job \
-        --output_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job_anonymized
+# We iterate over the subfolders of the slurm_report folder, and use the data
+# they contain if their names are related to known clusters
 
-    # "job anonymized"  to  "jobs anonymized dump file"
-    python3 -m slurm_state.read_report_commit_to_db \
-        --cluster_name ${CLUSTER_NAME} \
-        --jobs_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job_anonymized \
-        --dump_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/job_anonymized_dump_file.json
+# These lists are destined to contain the generated temporary files
+ANONYMIZED_JOBS_FILES=()
+ANONYMIZED_NODES_FILES=()
 
-    # "node anonymized"  to  "nodes anonymized dump file"
-    python3 -m slurm_state.read_report_commit_to_db \
-        --cluster_name ${CLUSTER_NAME} \
-        --nodes_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_node_anonymized \
-        --dump_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/node_anonymized_dump_file.json
+# Iterate over the file of the slurm_report folder (the subfolders are the ones
+# interesting us)
+for SUBFOLDER in ${CLOCKWORK_ROOT}/tmp/slurm_report/*; do
+  # If the file really is a subfolder
+  if [ -d "$SUBFOLDER" ]; then
+    CLUSTER_NAME="$(basename -- $SUBFOLDER)"
+    # If its name is contained in the clusters list
+    if [[ "$CLUSTER_NAME" =~ ^(beluga|graham|cedar|narval|mila)$ ]]; then
+      # "node"  to  "node anonymized"
+      python3 -m slurm_state.anonymize_scontrol_report \
+          --keep 100 \
+          --cluster_name ${CLUSTER_NAME} \
+          --users_file ${FAKE_USERS_FILE} \
+          --input_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_node \
+          --output_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_node_anonymized
+      # "job"  to  "job anonymized"
+      python3 -m slurm_state.anonymize_scontrol_report \
+          --keep 100 \
+          --cluster_name ${CLUSTER_NAME} \
+          --users_file ${FAKE_USERS_FILE} \
+          --input_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job \
+          --output_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job_anonymized
+
+      # "job anonymized"  to  "jobs anonymized dump file"
+      ANONYMIZED_JOBS_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/job_anonymized_dump_file.json
+      python3 -m slurm_state.read_report_commit_to_db \
+          --cluster_name ${CLUSTER_NAME} \
+          --jobs_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job_anonymized \
+          --dump_file $ANONYMIZED_JOBS_FILE
+      ANONYMIZED_JOBS_FILES+=(${ANONYMIZED_JOBS_FILE})
+
+      # "node anonymized"  to  "nodes anonymized dump file"
+      ANONYMIZED_NODES_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/node_anonymized_dump_file.json
+      python3 -m slurm_state.read_report_commit_to_db \
+          --cluster_name ${CLUSTER_NAME} \
+          --nodes_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_node_anonymized \
+          --dump_file $ANONYMIZED_NODES_FILE
+      ANONYMIZED_NODES_FILES+=($ANONYMIZED_NODES_FILE)
+    fi
+  fi
 done
 
 python3 concat_json_lists.py --keep 100 \
-    --inputs \
-    ${CLOCKWORK_ROOT}/tmp/slurm_report/beluga/job_anonymized_dump_file.json \
-    ${CLOCKWORK_ROOT}/tmp/slurm_report/cedar/job_anonymized_dump_file.json \
-    ${CLOCKWORK_ROOT}/tmp/slurm_report/graham/job_anonymized_dump_file.json \
-    ${CLOCKWORK_ROOT}/tmp/slurm_report/mila/job_anonymized_dump_file.json \
+    --inputs ${ANONYMIZED_JOBS_FILES[@]} \
     --output ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_jobs_anonymized.json
 
 python3 concat_json_lists.py --keep 100 \
-    --inputs \
-    ${CLOCKWORK_ROOT}/tmp/slurm_report/beluga/node_anonymized_dump_file.json \
-    ${CLOCKWORK_ROOT}/tmp/slurm_report/cedar/node_anonymized_dump_file.json \
-    ${CLOCKWORK_ROOT}/tmp/slurm_report/graham/node_anonymized_dump_file.json \
-    ${CLOCKWORK_ROOT}/tmp/slurm_report/mila/node_anonymized_dump_file.json \
+    --inputs ${ANONYMIZED_NODES_FILES[@]} \
     --output ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json
 
 python3 stitch_json_lists_as_dict.py \
