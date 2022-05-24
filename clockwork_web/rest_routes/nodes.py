@@ -6,7 +6,11 @@ from flask import request, make_response
 from flask.json import jsonify
 from .authentication import authentication_required
 
-from clockwork_web.core.nodes_helper import get_nodes, get_filter_node_name, strip_artificial_fields_from_node
+from clockwork_web.core.nodes_helper import (
+    get_nodes,
+    get_filter_node_name,
+    strip_artificial_fields_from_node,
+)
 from clockwork_web.core.jobs_helper import (
     combine_all_mongodb_filters,
     get_filter_cluster_name,
