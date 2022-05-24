@@ -6,7 +6,7 @@ from flask import request, make_response
 from flask.json import jsonify
 from .authentication import authentication_required
 
-from clockwork_web.core.nodes_helper import get_nodes, get_filter_node_name
+from clockwork_web.core.nodes_helper import get_nodes, get_filter_node_name, strip_artificial_fields_from_node
 from clockwork_web.core.jobs_helper import (
     combine_all_mongodb_filters,
     get_filter_cluster_name,
@@ -26,8 +26,14 @@ def route_api_v1_nodes_list():
 
     .. :quickref: list all Slurm nodes
     """
+    # Set up filters related to the constraints (here, not so much)
     filter = get_filter_cluster_name(request.args.get("cluster_name", None))
-    return jsonify(get_nodes(filter))
+    # Get a list of the nodes corresponding to the filters
+    LD_nodes = get_nodes(filter)
+    # Delete the _id element of each node
+    LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
+    # Return the nodes
+    return jsonify(LD_nodes)
 
 
 @flask_api.route("/nodes/one")
@@ -58,8 +64,8 @@ def route_api_v1_nodes_one():
             500,
         )
 
-    D_node = LD_nodes[0]
-
+    # Return the only one node, without its _id element
+    D_node = strip_artificial_fields_from_node(LD_nodes[0])
     return jsonify(D_node)
 
 
