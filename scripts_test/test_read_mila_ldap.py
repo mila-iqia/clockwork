@@ -1,15 +1,15 @@
 from flask import current_app
 
+from pymongo import MongoClient
 import pytest
-from clockwork_web.db import get_db, init_db
-from clockwork_web.scripts import read_mila_ldap
-from clockwork_web.config import get_config
+from scripts import read_mila_ldap
+from scripts_test.config import get_config
 
 import string
 import random
 
 
-def test_database_update_users(app):
+def test_database_update_users():
     """
     This tests the connection to the database,
     but not the functionality of the web server.
@@ -61,9 +61,11 @@ def test_database_update_users(app):
     # Then verify that the contents is indeed there.
     # It should also contain some extra fields
     # such as "cc_account_username" which should be `None`.
-    with app.app_context():
-        mc = get_db()
-        mc[collection_name].delete_many({})
+
+    # Connect to MongoDB
+    client = MongoClient(get_config("mongo.connection_string"))
+    mc = client[get_config("mongo.database_name")]
+    mc[collection_name].delete_many({})
 
     ####
     ## The first part of the test is to populate the collection initially.
