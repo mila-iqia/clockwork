@@ -31,7 +31,7 @@ def get_nodes(mongodb_filter: dict = {}) -> list:
     """
     mc = get_db()
     LD_nodes = list(mc["nodes"].find(mongodb_filter))
-    return [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
+    return LD_nodes
 
 
 def strip_artificial_fields_from_node(D_node):
