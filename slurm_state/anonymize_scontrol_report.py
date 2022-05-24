@@ -22,14 +22,18 @@ def get_random_job_name():
     return "somejobname_%d" % np.random.randint(low=0, high=1e6)
 
 
-def get_machine_name(cluster_name, n):
-    return {
-        "mila": "mil",
-        "beluga": "blg",
-        "graham": "grh",
-        "cedar": "ced",
-        "narval": "nar",
-    }[cluster_name] + ("%0.4d" % int(n))
+def get_machine_name(cluster_name, node_name, n):
+    return (
+        {
+            "mila": "mil",
+            "beluga": "blg",
+            "graham": "grh",
+            "cedar": "ced",
+            "narval": "nar",
+        }[cluster_name]
+        + node_name
+        + ("%0.4d" % int(n))
+    )
 
 
 def get_random_path():
@@ -94,21 +98,21 @@ def process_line(line: str, D_cluster_account: dict) -> str:
 
     # nodes
     if m := re.match(
-        r"(\s*)NodeName=(\w+?)(\d+)\s(Arch=.+?)\s(CoresPerSocket=.+?)\s*", line
+        r"(\s*)NodeName=([\-\w]+?)(\d+)\s(Arch=.+?)\s(CoresPerSocket=.+?)\s*", line
     ):
         return "%sNodeName=%s %s %s\n" % (
             m.group(1),
-            get_machine_name(D_cluster_account["cluster_name"], m.group(3)),
+            get_machine_name(D_cluster_account["cluster_name"], m.group(2), m.group(3)),
             m.group(4),
             m.group(5),
         )
     if m := re.match(r"(\s*)(OS=.+?)\s*", line):
         return "%sOS=Linux 17.10.x86_64\n" % (m.group(1),)
-    if m := re.match(r"(\s*)NodeAddr=\w+?(\d+)\sNodeHostName=\w+?(\d+)(.*)", line):
+    if m := re.match(r"(\s*)NodeAddr=[\-\w]+?(\d+)\sNodeHostName=\w+?(\d+)(.*)", line):
         return "%sNodeAddr=%s NodeHostName=%s %s\n" % (
             m.group(1),
-            get_machine_name(D_cluster_account["cluster_name"], m.group(3)),
-            get_machine_name(D_cluster_account["cluster_name"], m.group(3)),
+            get_machine_name(D_cluster_account["cluster_name"], m.group(2), m.group(3)),
+            get_machine_name(D_cluster_account["cluster_name"], m.group(2), m.group(3)),
             m.group(4),
         )
     if m := re.match(r"(\s*)Partitions=", line):
