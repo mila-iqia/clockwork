@@ -13,6 +13,13 @@ def test_database_update_users():
     """
     This tests the connection to the database,
     but not the functionality of the web server.
+
+    It also specifically tests a certain mechanism by
+    which we absolutely avoid inserting a user
+    with a status "enabled" if it was contained in the
+    database already with a status "disabled".
+    This is an important piece of logic from
+    the "read_mila_ldap.py" script.
     """
 
     LD_users = [
@@ -127,6 +134,8 @@ def test_database_update_users():
             if k == "status":
                 # This is something specific that we test.
                 # They should both end up being "disabled".
+                # The logic behind that is explained in
+                # `client_side_user_updates` from "read_mila_ldap.py".
                 assert D_found_user[k] == "disabled"
             elif k in ["cc_account_username", "clockwork_api_key"]:
                 assert D_found_user[k] is not None
