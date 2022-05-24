@@ -1,18 +1,25 @@
 from flask import current_app
 
+from pymongo import MongoClient
 import pytest
-from clockwork_web.db import get_db, init_db
-from clockwork_web.scripts import read_mila_ldap
-from clockwork_web.config import get_config
+from scripts import read_mila_ldap
+from scripts_test.config import get_config
 
 import string
 import random
 
 
-def test_database_update_users(app):
+def test_database_update_users():
     """
     This tests the connection to the database,
     but not the functionality of the web server.
+
+    It also specifically tests a certain mechanism by
+    which we absolutely avoid inserting a user
+    with a status "enabled" if it was contained in the
+    database already with a status "disabled".
+    This is an important piece of logic from
+    the "read_mila_ldap.py" script.
     """
 
     LD_users = [
@@ -61,9 +68,11 @@ def test_database_update_users(app):
     # Then verify that the contents is indeed there.
     # It should also contain some extra fields
     # such as "cc_account_username" which should be `None`.
-    with app.app_context():
-        mc = get_db()
-        mc[collection_name].delete_many({})
+
+    # Connect to MongoDB
+    client = MongoClient(get_config("mongo.connection_string"))
+    mc = client[get_config("mongo.database_name")]
+    mc[collection_name].delete_many({})
 
     ####
     ## The first part of the test is to populate the collection initially.
@@ -125,6 +134,8 @@ def test_database_update_users(app):
             if k == "status":
                 # This is something specific that we test.
                 # They should both end up being "disabled".
+                # The logic behind that is explained in
+                # `client_side_user_updates` from "read_mila_ldap.py".
                 assert D_found_user[k] == "disabled"
             elif k in ["cc_account_username", "clockwork_api_key"]:
                 assert D_found_user[k] is not None
