@@ -318,7 +318,9 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     Hence, the returned line is:
     NodeAddr=cedcn-a001 NodeHostName=cedcn-a001 Version=20.11.8
     """
-    if m := re.match(r"(\s*)NodeAddr=([\-\w]+?\d+)\sNodeHostName=([\-\w]+?\d+)(.*)", line):
+    if m := re.match(
+        r"(\s*)NodeAddr=([\-\w]+?\d+)\sNodeHostName=([\-\w]+?\d+)(.*)", line
+    ):
         return "%sNodeAddr=%s NodeHostName=%s %s\n" % (
             m.group(1),
             get_machine_name(D_cluster_account["cluster_name"], m.group(2)),
