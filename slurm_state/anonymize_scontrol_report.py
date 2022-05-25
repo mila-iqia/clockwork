@@ -22,21 +22,26 @@ def get_random_job_name():
     return "somejobname_%d" % np.random.randint(low=0, high=1e6)
 
 
-def get_machine_name(cluster_name, node_name, n):
-    return (
-        {
-            "mila": "mil",
-            "beluga": "blg",
-            "graham": "grh",
-            "cedar": "ced",
-            "narval": "nar",
-        }[cluster_name]
-        + node_name
-        + ("%0.4d" % int(n))
-    )
+def get_machine_name(cluster_name, node_name):
+    """
+    Generate another name for a node, based on its name and its cluster.
+
+    A node called "ab-a001" on the cluster Mila is then called: milab-a001
+    for instance.
+    """
+    return {
+        "mila": "mil",
+        "beluga": "blg",
+        "graham": "grh",
+        "cedar": "ced",
+        "narval": "nar",
+    }[cluster_name] + node_name
 
 
 def get_random_path():
+    """
+    Generate a fake path, used to fill the fake data.
+    """
     return "/a%d/b%d/c%d" % (
         np.random.randint(low=0, high=1000),
         np.random.randint(low=0, high=1000),
