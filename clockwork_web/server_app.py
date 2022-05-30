@@ -18,6 +18,7 @@ from flask import Flask, redirect, render_template, url_for
 from flask_login import current_user, LoginManager
 from .browser_routes.nodes import flask_api as nodes_routes_flask_api
 from .browser_routes.jobs import flask_api as jobs_routes_flask_api
+from .browser_routes.gpu import flask_api as gpu_routes_flask_api
 
 # from .jobs_routes import flask_api as jobs_routes_flask_api  # TODO: this will be updated as well with new pattern
 from .browser_routes.settings import flask_api as settings_routes_flask_api
@@ -51,6 +52,7 @@ def create_app(extra_config: dict):
 
     app.register_blueprint(nodes_routes_flask_api, url_prefix="/nodes")
     app.register_blueprint(jobs_routes_flask_api, url_prefix="/jobs")
+    app.register_blueprint(gpu_routes_flask_api, url_prefix="/gpu")
     app.register_blueprint(settings_routes_flask_api, url_prefix="/settings")
     app.register_blueprint(login_routes_flask_api, url_prefix="/login")
 

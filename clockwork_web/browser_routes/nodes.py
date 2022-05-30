@@ -99,6 +99,7 @@ def route_one():
     D_node = strip_artificial_fields_from_node(LD_nodes[0])  # the one and only
     # need to format it as list of tuples for the template (unless I'm mistaken)
     LP_single_node = list(sorted(D_node.items(), key=lambda e: e[0]))
+    
     return render_template(
         "single_node.html",
         LP_single_node=LP_single_node,
