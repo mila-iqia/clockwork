@@ -1,11 +1,12 @@
 from flask import Blueprint, Markup, render_template, request
 from flask.json import jsonify
 
-from flask_login import (current_user, login_required)
+from flask_login import current_user, login_required
 from clockwork_web.core.gpu_helper import get_gpu_info, get_gpu_list
 
 
 flask_api = Blueprint("gpu", __name__)
+
 
 @flask_api.route("/list")
 @login_required
@@ -27,6 +28,7 @@ def route_list():
         mila_email_username=current_user.mila_email_username,
     )
 
+
 @flask_api.route("/one")
 @login_required
 def route_one():
@@ -44,10 +46,9 @@ def route_one():
     """
     gpu_name = request.args.get("gpu_name", None)
     if gpu_name is None:
-        return(
-            render_template("error.html",
-                error_msg=f"Missing argument gpu_name."),
-                400, # Bad Request
+        return (
+            render_template("error.html", error_msg=f"Missing argument gpu_name."),
+            400,  # Bad Request
         )
 
     # Retrieve the GPU information
