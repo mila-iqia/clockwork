@@ -166,5 +166,5 @@ def route_interactive():
     """
     return render_template(
         "jobs_interactive.html",
-        mila_email_username=current_user.get_mila_email_username,
+        mila_email_username=current_user.mila_email_username,
     )

@@ -129,7 +129,7 @@ class User(UserMixin):
 
 class AnonUser(AnonymousUserMixin):
     def __init__(self):
-        self.mila_email_username = "anonymous@mila.quebec"
+        self.mila_email_username = "student00@mila.quebec"# "anonymous@mila.quebec"
         self.status = "enabled"
         self.clockwork_api_key = "deadbeef"
         self.cc_account_username = None
