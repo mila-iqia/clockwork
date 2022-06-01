@@ -61,9 +61,11 @@ def route_list():
     "user" refers to any of the three alternatives to identify a user,
     and it will many any of them.
     "relative_time" refers to how many seconds to go back in time to list jobs.
+    "want_json" is set if the expected returned entity is a JSON list of the jobs.
 
     .. :quickref: list all Slurm job as formatted html
     """
+    want_json = request.args.get("want_json", None)
 
     f0 = get_filter_user(request.args.get("user", None))
 
@@ -86,7 +88,6 @@ def route_list():
 
     filter = combine_all_mongodb_filters(f0, f1)
 
-    # pprint(filter)
     LD_jobs = get_jobs(filter)
 
     # TODO : You might want to stop doing the `infer_best_guess_for_username`
@@ -96,11 +97,14 @@ def route_list():
         for D_job in LD_jobs
     ]
 
-    return render_template(
-        "jobs.html",
-        LD_jobs=LD_jobs,
-        mila_email_username=current_user.mila_email_username,
-    )
+    if want_json is not None:
+        return jsonify(LD_jobs)
+    else:
+        return render_template(
+            "jobs.html",
+            LD_jobs=LD_jobs,
+            mila_email_username=current_user.mila_email_username,
+        )
 
 
 @flask_api.route("/one")
