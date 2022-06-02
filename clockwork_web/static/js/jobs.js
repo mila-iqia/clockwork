@@ -198,34 +198,33 @@ function populate_table(response_contents) {
     let tbody = document.createElement('tbody');
     /* then add the information for all the jobs */
     [].forEach.call(response_contents, function(D_job) {
-        D_job = D_job["slurm"];
+        D_job_slurm = D_job["slurm"];
         let tr = document.createElement('tr');
         let td;
-        td = document.createElement('td'); td.innerHTML = D_job["cluster_name"]; tr.appendChild(td);
-        td = document.createElement('td'); td.innerHTML = D_job["username"]; tr.appendChild(td); // TODO : add href for meaningful people pertaining to single user ?
+        td = document.createElement('td'); td.innerHTML = D_job_slurm["cluster_name"]; tr.appendChild(td);
+        td = document.createElement('td'); td.innerHTML = D_job_slurm["username"]; tr.appendChild(td); // TODO : add href for meaningful people pertaining to single user ?
         td = document.createElement('td'); td.innerHTML = (
-            "<a href=\"" + "/jobs/one?job_id=" + D_job["job_id"] + "\">" + D_job["job_id"] + "</a>"); tr.appendChild(td);
-        //td = document.createElement('td'); td.innerHTML = D_job["job_id"]; tr.appendChild(td);
-        td = document.createElement('td'); td.innerHTML = (D_job["name"] ? D_job["name"] : "").substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
-        td = document.createElement('td'); td.innerHTML = D_job["job_state"]; tr.appendChild(td);
+            "<a href=\"" + "/jobs/one?job_id=" + D_job_slurm["job_id"] + "\">" + D_job_slurm["job_id"] + "</a>"); tr.appendChild(td);
+        td = document.createElement('td'); td.innerHTML = (D_job_slurm["name"] ? D_job["name"] : "").substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
+        td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
 
         // start time
         td = document.createElement('td');
-        if (D_job["start_time"] == null) {
+        if (D_job_slurm["start_time"] == null) {
             td.innerHTML = "";
         } else {
             // TODO: convert "2021-07-06T22:19:46 EDT" into "2021-07-06  22:19:46" for readability
-            td.innerHTML = D_job["start_time"].toString();
+            td.innerHTML = D_job_slurm["start_time"].toString();
         }
         tr.appendChild(td);
 
         // end time
         td = document.createElement('td');
-        if (D_job["end_time"] == null) {
+        if (D_job_slurm["end_time"] == null) {
             td.innerHTML = "";
         } else {
             // TODO: convert "2021-07-06T22:19:46 EDT" into "2021-07-06  22:19:46" for readability
-            td.innerHTML = D_job["end_time"].toString();
+            td.innerHTML = D_job_slurm["end_time"].toString();
         }
         tr.appendChild(td);
 
