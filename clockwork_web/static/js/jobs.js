@@ -159,16 +159,21 @@ function apply_filter(response_contents, display_filter) {
 function populate_table(response_contents) {
     /*
         `response_contents` here is a list of dict with fields
-            {
-                'cluster_name': ... ,
-                'best_guess_for_username': ... ,
-                'job_id': ... ,
-                'name': ... ,
-                ...
-            }
+            'slurm': {
+                        'cluster_name': ... ,
+                        'username': ... ,
+                        'job_id': ... ,
+                        'name': ... ,
+                        ...
+                    },
+            'cw': {
+                    ...
+                  }
 
+
+          For now, we mainly display the "slurm" informations of each job
             <td>{{e['cluster_name']}}</td>
-            <td><a href="/jobs/list/{{e['best_guess_for_username']}}"> {{e['best_guess_for_username']}} </a></td>
+            <td><a href="/jobs/list/{{e['username']}}"> {{e['username']}} </a></td>
             <td><a href="/jobs/one?job_id={{e['job_id']}}"> {{e['job_id']}} </a></td>
             <td>{{e.get('name', "")[:32]}}</td> <!-- truncate after 32 chars -->
             <td>{{e['job_state']}}</td>
@@ -197,7 +202,7 @@ function populate_table(response_contents) {
         let tr = document.createElement('tr');
         let td;
         td = document.createElement('td'); td.innerHTML = D_job["cluster_name"]; tr.appendChild(td);
-        td = document.createElement('td'); td.innerHTML = D_job["best_guess_for_username"]; tr.appendChild(td); // TODO : add href for meaningful people pertaining to single user ?
+        td = document.createElement('td'); td.innerHTML = D_job["username"]; tr.appendChild(td); // TODO : add href for meaningful people pertaining to single user ?
         td = document.createElement('td'); td.innerHTML = (
             "<a href=\"" + "/jobs/one?job_id=" + D_job["job_id"] + "\">" + D_job["job_id"] + "</a>"); tr.appendChild(td);
         //td = document.createElement('td'); td.innerHTML = D_job["job_id"]; tr.appendChild(td);
