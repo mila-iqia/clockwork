@@ -29,6 +29,8 @@ from flask_login import (
 # this is what allows the factorization into many files.
 from flask import Blueprint
 
+from clockwork_web.core.utils import to_boolean
+
 flask_api = Blueprint("jobs", __name__)
 
 from clockwork_web.core.jobs_helper import (
@@ -65,8 +67,9 @@ def route_list():
 
     .. :quickref: list all Slurm job as formatted html
     """
-    want_json = request.args.get("want_json", None)
-
+    want_json = request.args.get("want_json", type=str, default='False')
+    want_json = to_boolean(want_json)
+    
     f0 = get_filter_user(request.args.get("user", None))
 
     time1 = request.args.get("relative_time", None)
@@ -97,7 +100,7 @@ def route_list():
         for D_job in LD_jobs
     ]
 
-    if want_json is not None:
+    if want_json:
         return jsonify(LD_jobs)
     else:
         return render_template(
