@@ -3,6 +3,7 @@ Gathers useful functions that can be used by the browser routes and the
 REST API.
 """
 
+
 def to_boolean(arg):
     """
     Transforms a string (or int) arg into a boolean.

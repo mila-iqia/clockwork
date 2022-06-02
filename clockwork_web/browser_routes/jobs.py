@@ -67,9 +67,9 @@ def route_list():
 
     .. :quickref: list all Slurm job as formatted html
     """
-    want_json = request.args.get("want_json", type=str, default='False')
+    want_json = request.args.get("want_json", type=str, default="False")
     want_json = to_boolean(want_json)
-    
+
     f0 = get_filter_user(request.args.get("user", None))
 
     time1 = request.args.get("relative_time", None)
