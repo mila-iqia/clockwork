@@ -8,21 +8,20 @@
         refresh_display(display_filter)
 */
 
+// We set up a request to retrieve the jobs list as JSON
+const refresh_endpoint = "/jobs/list?want_json=True"
 
-
-//const refresh_endpoint = "/api/0/list_jobs"
-const refresh_endpoint = "/jobs/list?want_json"  // hardcoded into job_routes.py
-
+// This id is used to identify the table to populate in the associated HTML file
 const id_of_table_to_populate = "table_98429387" // hardcoded into jobs.html also
 
 /*  The point of having those two global variables
-    is that you can call externally call `refresh_display(display_filter)`.
+    is that you can externally call `refresh_display(display_filter)`.
     It's not nice to deal with global variables, but the alternative
     is that we export more of the arbitrary stuff to the outside.
- */
+*/
 
-var latest_response_contents;
-var latest_filtered_response_contents;
+var latest_response_contents; // Stores the content of the latest response received
+var latest_filtered_response_contents; // Results in applying filters on the latest response contents
 
 
 
@@ -62,11 +61,14 @@ function launch_refresh_all_data(query_filter, display_filter) {
         to worry about identification. The user cookie is passed automatically
         in the headers.
     */
+
     let url = refresh_endpoint;
+    // If a user is specified, add its username to the request
     if (query_filter["user"].localeCompare("all") != 0) {
       url = url + "&user=" + query_filter["user"];
     };
 
+    // Send the request, and retrieve the response
     const request = new Request(url,
         {   method: 'GET',
             headers: {
@@ -90,6 +92,10 @@ function launch_refresh_all_data(query_filter, display_filter) {
 };
 
 function refresh_display(display_filter) {
+    /*
+        Clear and populate the jobs table with the latest response content,
+        filtered by the "display filters" given as parameters.
+    */
     latest_filtered_response_contents = apply_filter(latest_response_contents, display_filter);
     vacate_table(); // idempotent if not table is present
     populate_table(latest_filtered_response_contents);
@@ -99,6 +105,8 @@ function refresh_display(display_filter) {
 
 /*
     Helpers:
+        retrieve_username_from_email(email)
+        removeAllChildNodes(parent)
         vacate_table()
         populate_table(response_contents)
         apply_filter(response_contents, display_filter)
@@ -202,10 +210,10 @@ function populate_table(response_contents) {
         let tr = document.createElement('tr');
         let td;
         td = document.createElement('td'); td.innerHTML = D_job_slurm["cluster_name"]; tr.appendChild(td);
-        td = document.createElement('td'); td.innerHTML = D_job_slurm["username"]; tr.appendChild(td); // TODO : add href for meaningful people pertaining to single user ?
+        td = document.createElement('td'); td.innerHTML = retrieve_username_from_email(D_job["cw"]["mila_email_username"]); tr.appendChild(td); // TODO : add href for meaningful people pertaining to single user ?
         td = document.createElement('td'); td.innerHTML = (
             "<a href=\"" + "/jobs/one?job_id=" + D_job_slurm["job_id"] + "\">" + D_job_slurm["job_id"] + "</a>"); tr.appendChild(td);
-        td = document.createElement('td'); td.innerHTML = (D_job_slurm["name"] ? D_job["name"] : "").substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
+        td = document.createElement('td'); td.innerHTML = (D_job_slurm["name"] ? D_job_slurm["name"] : "").substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
         td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
 
         // start time
@@ -240,4 +248,24 @@ function populate_table(response_contents) {
             td0.innerHTML = "<a href=\"" + url + "\">" + note_info["title"] + "</a>";
             */
 
+}
+
+function retrieve_username_from_email(email) {
+    /*
+        Retrieve the first part of the email identifying a user.
+
+        The format of an input email is:
+        firstname.name@mila.quebec
+
+        The expected result for this function is:
+        firstname.name
+        (or more generally the party before the @)
+    */
+    if (email !== null) {
+        const parsed_email = email.split("@");
+        return parsed_email[0];
+    }
+    else {
+      return "";
+    }
 }

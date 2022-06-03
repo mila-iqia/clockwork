@@ -63,7 +63,7 @@ def route_list():
     "user" refers to any of the three alternatives to identify a user,
     and it will many any of them.
     "relative_time" refers to how many seconds to go back in time to list jobs.
-    "want_json" is set if the expected returned entity is a JSON list of the jobs.
+    "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
 
     .. :quickref: list all Slurm job as formatted html
     """
