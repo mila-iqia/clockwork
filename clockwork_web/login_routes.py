@@ -215,7 +215,7 @@ if os.environ.get("CLOCKWORK_ENABLE_TESTING_LOGIN", "") == "True":
         assert current_app.testing
 
         user_id = request.args.get("user_id")
-        user = Users.get(user_id)
+        user = User.get(user_id)
         if user is None or user.status != "enabled":
             return render_template(
                 "error.html",

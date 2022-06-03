@@ -34,8 +34,7 @@
                 query_filter["user"] = "all";
             }
             else if ( document.getElementById("user_option_only_me").checked ) {
-                /* TODO : use the authenticated user's actual username here */
-                query_filter["user"] = "alaingui";
+                query_filter["user"] = "{{ mila_email_username }}";
             }
             else if ( document.getElementById("user_option_other").checked ) {
                 query_filter["user"] = document.getElementById("user_option_other_textarea").value;
@@ -77,7 +76,7 @@
 
         function server_refresh() {
             /* This fetches from the server.
-            
+
                 - read the values of the toggle switches
                 - set the value for query_filter
              */
@@ -177,7 +176,7 @@
                             <span><textarea id="user_option_other_textarea" rows="1" cols="20" maxlength="20" style="resize:none;height:90%;"> </textarea></span>
                         </label>
                     </div>
-                    
+
                 </form>
             </div>
 
@@ -285,7 +284,7 @@
                     </div>
                 </div>
             </div>
-            
+
 
             <!-- toggling status -->
             <div class="col s2 cc_toggle_zone_column">
@@ -350,7 +349,7 @@
         <div class="col s9" id="changeme">
 
             <!-- <h1>{{channel_title}}</h1> -->
-            
+
             <table class="striped" id="table_98429387">
                 <!-- This table starts empty and is populated automatically when the DOM is ready. -->
             </table>
