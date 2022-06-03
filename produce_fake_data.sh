@@ -3,7 +3,6 @@ set -eu
 
 # Set the environnement
 . ./env.sh
-export CLOCKWORK_SLURM_REPORT_PATH=./slurm_report
 
 # This is to ensure that there aren't lingering containers after the test script exits.
 trap "docker-compose down && docker-compose rm -fv" EXIT
