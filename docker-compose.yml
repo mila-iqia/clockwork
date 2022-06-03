@@ -118,7 +118,7 @@ services:
     user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
     working_dir: /clockwork
     volumes:
-      - ${CLOCKWORK_SLURM_REPORT_PATH}:/clockwork/tmp/slurm_report
+      - ./slurm_report:/clockwork/tmp/slurm_report
       - ./test_common:/clockwork/test_common
       - ./test_config.toml:/clockwork/test_config.toml
     environment:
