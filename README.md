@@ -58,3 +58,16 @@ export CLOCKWORK_CONFIG=../test_config.toml
 make rst
 make html
 ```
+
+## running the code in "dev" mode inside a Docker container
+
+Start the container:
+```
+bash dev.sh
+```
+Inside the container:
+```
+python3 scripts/store_fake_data_in_db.py
+python3 -m flask run --host="0.0.0.0"
+```
+Navigate to `http://localhost:15000` on your computer.
