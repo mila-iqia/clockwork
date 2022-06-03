@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="cc_subheader_banner">
+        <div class="row">
+            <div class="col s2">
+                <!-- spacing on the left -->
+            </div>
+            <div class="col s4">
+                <h4>GPUs</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s1">
+            <!-- spacing on the left -->
+        </div>
+        <div class="col s9" id="changeme">
+
+            <!-- We clearly don't have half as much information as we might want to list here. -->
+
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th>GPU name</th>
+                        <th>Vendor</th>
+                        <th>RAM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for D_gpu in LD_gpus %}
+                    <tr>
+                        <!-- Name -->
+                        <td>{{D_gpu['name']}}</td>
+
+                        <!-- Vendor -->
+                        <td>{{D_gpu['vendor']}}</td>
+
+                        <!-- RAM (whether if it is stored or not) -->
+                        {% if "ram" in D_gpu %}
+                          <td>{{D_gpu['ram']}}</td>
+                        {% else %}
+                          <td></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
