@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="cc_subheader_banner">
+        <div class="row">
+            <div class="col s2">
+                <!-- spacing on the left -->
+            </div>
+            <div class="col s4">
+                <h4>GPU {{gpu_name}} information</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s1">
+            <!-- spacing on the left -->
+        </div>
+        {% if LP_gpu | length == 0 %}
+          No information has been found for GPU {{gpu_name}}.
+        {% else %}
+          <div class="col s9" id="changeme">
+              <!-- <h1>{{channel_title}}</h1> -->
+              <table class="striped">
+                  <thead>
+                      <tr>
+                          <th>key</th>
+                          <th>value</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for (k, v) in LP_gpu %}
+                      <tr>
+                          <td>{{k}}</td>
+                          <td>{{v}}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+        {% endif %}
+    </div>
+{% endblock %}
