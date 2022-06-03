@@ -221,7 +221,10 @@ function populate_table(response_contents) {
         if (D_job_slurm["start_time"] == null) {
             td.innerHTML = "";
         } else {
-            // TODO: convert "2021-07-06T22:19:46 EDT" into "2021-07-06  22:19:46" for readability
+            // If you want to display the time as "2021-07-06 22:19:46" for readability
+            // you need to set it up because this is going to be written as a unix timestamp.
+            // This might include injecting another field with a name
+            // such as "start_time_human_readable" or something like that, and using it here.
             td.innerHTML = D_job_slurm["start_time"].toString();
         }
         tr.appendChild(td);
@@ -231,7 +234,10 @@ function populate_table(response_contents) {
         if (D_job_slurm["end_time"] == null) {
             td.innerHTML = "";
         } else {
-            // TODO: convert "2021-07-06T22:19:46 EDT" into "2021-07-06  22:19:46" for readability
+            // If you want to display the time as "2021-07-06 22:19:46" for readability
+            // you need to set it up because this is going to be written as a unix timestamp.
+            // This might include injecting another field with a name
+            // such as "start_time_human_readable" or something like that, and using it here.
             td.innerHTML = D_job_slurm["end_time"].toString();
         }
         tr.appendChild(td);
