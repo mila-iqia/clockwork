@@ -75,7 +75,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     JobId=1234567 ArrayJobId=1234566 ArrayTaskId=1 JobName=JesuisunNomdeJob
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, another line is reconstructed, adding a random number as job id,
@@ -101,7 +101,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     UserId=nobody(221774718) GroupId=nobody(221774718) MCS_label=N/A
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, another line is reconstructed, faking a user by using the data
@@ -162,7 +162,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     Command=/tmp/usr/script.sh arg
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, a new line is reconstructed, "faking" a command by using the
@@ -179,7 +179,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     WorkDir=/home/mila/tmp/squalala
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, a new line is reconstructed, "faking" a working directory by using
@@ -196,7 +196,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     StdErr=/home/mila/tmp/errors.txt
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, a new line is reconstructed, "faking" a StdErr by using
@@ -213,7 +213,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     StdIn=/tmp/pifpafpouf
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, a new line is reconstructed, "faking" a StdIn as /dev/null.
@@ -229,7 +229,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     StdOut=/home/mila/tmp/slurm-1234567.out
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, a new line is reconstructed, "faking" a StdOut by using
@@ -246,7 +246,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     Partition=unkillable AllocNode:Sid=loginx:12345
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, a new line is reconstructed, "faking" a "fun_partition" as
@@ -264,7 +264,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     NodeName=cn-a001 Arch=x86_64 CoresPerSocket=20
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
     - m.group(2) is cn-a001
     - m.group(3) is Arch=x86_64
@@ -294,7 +294,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     OS=Linux 4.10.0-99-generic #Comment about the OS
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, another line is reconstructed, "faking" a Linux 17.10 as OS.
@@ -307,7 +307,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     NodeAddr=ab-a001 NodeHostName=ab-a001 Version=20.11.8
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
     - m.group(2) is ab-a001
     - m.group(3) is ab-a001
@@ -338,7 +338,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     Partitions=unkillable,short-unkillable,etc
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, another line is reconstructed, "faking" a "fun_partitions" as
@@ -352,7 +352,7 @@ def process_line(line: str, D_cluster_account: dict) -> str:
     Reason=NVIDIA Update
 
     where:
-    - m.group(1) is null here, but is used in order to keep the same indentation
+    - m.group(1) is an empty string here, but is, in practice, used in order to keep the same indentation
       between the input file and the generated file
 
     From it, another line is reconstructed, "faking" "partying" as
