@@ -29,6 +29,8 @@ from flask_login import (
 # this is what allows the factorization into many files.
 from flask import Blueprint
 
+from clockwork_web.core.utils import to_boolean
+
 flask_api = Blueprint("jobs", __name__)
 
 from clockwork_web.core.jobs_helper import (
@@ -61,9 +63,12 @@ def route_list():
     "user" refers to any of the three alternatives to identify a user,
     and it will many any of them.
     "relative_time" refers to how many seconds to go back in time to list jobs.
+    "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
 
     .. :quickref: list all Slurm job as formatted html
     """
+    want_json = request.args.get("want_json", type=str, default="False")
+    want_json = to_boolean(want_json)
 
     f0 = get_filter_user(request.args.get("user", None))
 
@@ -86,7 +91,6 @@ def route_list():
 
     filter = combine_all_mongodb_filters(f0, f1)
 
-    # pprint(filter)
     LD_jobs = get_jobs(filter)
 
     # TODO : You might want to stop doing the `infer_best_guess_for_username`
@@ -96,11 +100,14 @@ def route_list():
         for D_job in LD_jobs
     ]
 
-    return render_template(
-        "jobs.html",
-        LD_jobs=LD_jobs,
-        mila_email_username=current_user.mila_email_username,
-    )
+    if want_json:
+        return jsonify(LD_jobs)
+    else:
+        return render_template(
+            "jobs.html",
+            LD_jobs=LD_jobs,
+            mila_email_username=current_user.mila_email_username,
+        )
 
 
 @flask_api.route("/one")
@@ -166,5 +173,5 @@ def route_interactive():
     """
     return render_template(
         "jobs_interactive.html",
-        mila_email_username=current_user.get_mila_email_username,
+        mila_email_username=current_user.mila_email_username,
     )
