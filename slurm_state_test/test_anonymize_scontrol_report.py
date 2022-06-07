@@ -53,12 +53,12 @@ def test_process_line_node():
     }
 
     L_lines = """
-NodeName=secret4104 Arch=x86_64 CoresPerSocket=2
+NodeName=ok4104 Arch=x86_64 CoresPerSocket=2
    CPUAlloc=6 CPUTot=40 CPULoad=0.01
    AvailableFeatures=skylake,v100,nvlink
    ActiveFeatures=skylake,v100,nvlink
    Gres=gpu:v100:4
-   NodeAddr=secret4104 NodeHostName=secret4104  Port=0 Version=19.05.8
+   NodeAddr=ok4104 NodeHostName=ok4104  Port=0 Version=19.05.8
    OS=Linux 17.10.secret.x86_64
    RealMemory=191000 AllocMem=32000 FreeMem=115949 Sockets=2 Boards=1
    State=MIXED ThreadsPerCore=1 TmpDisk=1412000 Weight=4 Owner=N/A MCS_label=N/A
