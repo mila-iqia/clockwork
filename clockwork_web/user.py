@@ -37,6 +37,10 @@ class User(UserMixin):
         mila_cluster_username=None,
         cc_account_username=None,
         cc_account_update_key=None,
+        web_settings={
+            "nbr_items_per_page": 40,  # TODO: set this value somewhere to normalize
+            "dark_mode": False,
+        },
     ):
         """
         This constructor is called only by the `get` method.
@@ -48,6 +52,7 @@ class User(UserMixin):
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
         self.cc_account_update_key = cc_account_update_key
+        self.web_settings = web_settings
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -135,6 +140,7 @@ class AnonUser(AnonymousUserMixin):
         self.cc_account_username = None
         self.mila_cluster_username = None
         self.cc_account_update_key = None
+        self.web_settings = {"nbr_items_per_page": 40, "dark_mode": False}
 
     def new_api_key(self):
         # We don't want to touch the database for this.

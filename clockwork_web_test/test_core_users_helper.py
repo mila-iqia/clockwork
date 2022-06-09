@@ -37,7 +37,9 @@ def test_set_web_setting_with_wrong_setting_key(app, fake_data):
     - fake_data     The data on which our tests are based
     """
     # Get an existing mila_email_username from the fake_data
-    known_mila_email_username = fake_data["users"][0]["mila_email_username"] # No check about the users length is done, because we want an error if the fake_data are not usable
+    known_mila_email_username = fake_data["users"][0][
+        "mila_email_username"
+    ]  # No check about the users length is done, because we want an error if the fake_data are not usable
 
     # Use the app context
     with app.app_context():
@@ -51,10 +53,11 @@ def test_set_web_setting_with_wrong_setting_key(app, fake_data):
 
 @pytest.mark.parametrize(
     "setting_key,setting_value",
-    [("nbr_items_per_page", True),
-    ("dark_mode", 6)],
+    [("nbr_items_per_page", True), ("dark_mode", 6)],
 )
-def test_set_web_setting_incorrect_value_for_existing_setting(app, fake_data, setting_key, setting_value):
+def test_set_web_setting_incorrect_value_for_existing_setting(
+    app, fake_data, setting_key, setting_value
+):
     """
     Test the function set_web_setting with a known user, but an incorrect value
     type for the setting nbr_items_per_page
@@ -69,7 +72,9 @@ def test_set_web_setting_incorrect_value_for_existing_setting(app, fake_data, se
                         type of the setting
     """
     # Get an existing mila_email_username from the fake_data
-    known_mila_email_username = fake_data["users"][0]["mila_email_username"] # No check about the users length is done, because we want an error if the fake_data are not usable
+    known_mila_email_username = fake_data["users"][0][
+        "mila_email_username"
+    ]  # No check about the users length is done, because we want an error if the fake_data are not usable
 
     # Use the app context
     with app.app_context():
@@ -113,7 +118,9 @@ def test_set_web_setting_set_nbr_items_per_page(app, fake_data, value):
         mc = get_db()
         # NB: the argument of find_one is the filter to apply to the user list
         # the returned user matches this condition
-        D_user = mc["users"].find_one({"mila_email_username": known_user["mila_email_username"]})
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
         # Compare the value of nbr_items_per_page with the new value we tried to set
         assert D_user["web_settings"]["nbr_items_per_page"] == value
 
@@ -149,7 +156,9 @@ def test_set_web_setting_set_dark_mode(app, fake_data):
         mc = get_db()
         # NB: the argument of find_one is the filter to apply to the user list
         # the returned user matches this condition
-        D_user = mc["users"].find_one({"mila_email_username": known_user["mila_email_username"]})
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
         # Compare the value of dark_mode with the new value we tried to set
         assert D_user["web_settings"]["dark_mode"] == new_dark_mode
 
@@ -164,12 +173,16 @@ def test_is_correct_type_for_web_setting_with_unexisting_web_setting():
 
 @pytest.mark.parametrize(
     "setting_key,setting_value",
-    [("nbr_items_per_page", 7.89),
-    ("nbr_items_per_page", True),
-    ("dark_mode", "test"),
-    ("dark_mode", 52.90)],
+    [
+        ("nbr_items_per_page", 7.89),
+        ("nbr_items_per_page", True),
+        ("dark_mode", "test"),
+        ("dark_mode", 52.90),
+    ],
 )
-def test_is_correct_type_for_web_setting_with_incorrect_value_type(setting_key, setting_value):
+def test_is_correct_type_for_web_setting_with_incorrect_value_type(
+    setting_key, setting_value
+):
     """
     Test the function is_correct_type_for_web_setting with an existing setting
     key, but an unexpected type for the value to set
@@ -185,10 +198,12 @@ def test_is_correct_type_for_web_setting_with_incorrect_value_type(setting_key, 
 
 @pytest.mark.parametrize(
     "setting_key,setting_value",
-    [("nbr_items_per_page", 10),
-    ("nbr_items_per_page", 567),
-    ("dark_mode", False),
-    ("dark_mode", True)],
+    [
+        ("nbr_items_per_page", 10),
+        ("nbr_items_per_page", 567),
+        ("dark_mode", False),
+        ("dark_mode", True),
+    ],
 )
 def test_is_correct_type_for_web_setting_success(setting_key, setting_value):
     """
@@ -258,10 +273,14 @@ def test_set_items_per_page_set_negative_number(app, fake_data, value):
         mc = get_db()
         # NB: the argument of find_one is the filter to apply to the user list
         # the returned user matches this condition
-        D_user = mc["users"].find_one({"mila_email_username": known_user["mila_email_username"]})
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
         # Compare the value of nbr_items_per_page with the default value of
         # the setting nbr_items_per_page
-        assert D_user["web_settings"]["nbr_items_per_page"] == 40 # TODO: maybe put it in the configuration file?
+        assert (
+            D_user["web_settings"]["nbr_items_per_page"] == 40
+        )  # TODO: maybe put it in the configuration file?
 
 
 @pytest.mark.parametrize(
@@ -281,7 +300,9 @@ def test_set_items_per_page_with_incorrect_value_type(app, fake_data, value):
                     an incorrect type
     """
     # Get an existing mila_email_username from the fake_data
-    known_mila_email_username = fake_data["users"][0]["mila_email_username"] # No check about the users length is done, because we want an error if the fake_data are not usable
+    known_mila_email_username = fake_data["users"][0][
+        "mila_email_username"
+    ]  # No check about the users length is done, because we want an error if the fake_data are not usable
 
     # Use the app context
     with app.app_context():
@@ -317,7 +338,9 @@ def test_set_items_per_page_set_positive_number(app, fake_data, value):
         mc = get_db()
         # NB: the argument of find_one is the filter to apply to the user list
         # the returned user matches this condition
-        D_user = mc["users"].find_one({"mila_email_username": known_user["mila_email_username"]})
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
         # Compare the value of nbr_items_per_page with the new value we tried to set
         assert D_user["web_settings"]["nbr_items_per_page"] == value
 
@@ -373,9 +396,13 @@ def test_reset_items_per_page_with_known_user(app, fake_data):
         mc = get_db()
         # NB: the argument of find_one is the filter to apply to the user list
         # the returned user matches this condition
-        D_user = mc["users"].find_one({"mila_email_username": known_user["mila_email_username"]})
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
         # Compare the value of nbr_items_per_page with the new value we tried to set
-        assert D_user["web_settings"]["nbr_items_per_page"] == 40 # TODO: maybe put it in the configuration file?
+        assert (
+            D_user["web_settings"]["nbr_items_per_page"] == 40
+        )  # TODO: maybe put it in the configuration file?
 
 
 def test_enable_dark_mode_with_unknown_user(app, fake_data):
@@ -427,7 +454,9 @@ def test_enable_dark_mode_success(app, fake_data):
         mc = get_db()
         # NB: the argument of find_one is the filter to apply to the user list
         # the returned user matches this condition
-        D_user = mc["users"].find_one({"mila_email_username": known_user["mila_email_username"]})
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
         # Compare the value of dark_mode with True
         assert D_user["web_settings"]["dark_mode"] == True
 
@@ -481,7 +510,9 @@ def test_disable_dark_mode_success(app, fake_data):
         mc = get_db()
         # NB: the argument of find_one is the filter to apply to the user list
         # the returned user matches this condition
-        D_user = mc["users"].find_one({"mila_email_username": known_user["mila_email_username"]})
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
         # Compare the value of dark_mode with False
         assert D_user["web_settings"]["dark_mode"] == False
 
@@ -497,6 +528,6 @@ def assert_no_user_has_been_modified(fake_data):
     """
     # Retrieve the users list from the database
     mc = get_db()
-    LD_users = list(mc["users"].find({},{"_id": 0}))
+    LD_users = list(mc["users"].find({}, {"_id": 0}))
     # Compare it to the fake data content
     assert fake_data["users"] == LD_users
