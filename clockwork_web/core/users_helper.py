@@ -12,6 +12,7 @@ web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool}
 # TODO: do we call it "DEFAULT_NBR_ITEMS_PER_PAGE" or do we keep a lowercase syntax?
 default_nbr_items_per_page = 40
 
+
 def set_web_setting(mila_email_username, setting_key, setting_value):
     """
     Update an element of a User's web settings. The "web settings" of a
@@ -88,12 +89,14 @@ def set_items_per_page(mila_email_username, nbr_items_per_page):
     # If the value to set is an integer
     if isinstance(nbr_items_per_page, int):
         # Check if nbr_items_per_page is a positive number.
-        if (nbr_items_per_page <= 0):
-             # If not, set the default value for this parameter
+        if nbr_items_per_page <= 0:
+            # If not, set the default value for this parameter
             reset_items_per_page(mila_email_username)
         else:
             # If it is positive, call set_web_setting
-            set_web_setting(mila_email_username, "nbr_items_per_page", nbr_items_per_page)
+            set_web_setting(
+                mila_email_username, "nbr_items_per_page", nbr_items_per_page
+            )
 
 
 def reset_items_per_page(mila_email_username):

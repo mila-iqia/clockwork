@@ -60,7 +60,12 @@ def get_predefined_fake_users(N=20):
                 }
             },
             "cc_account_update_key": None,
+            "web_settings": {
+                "nbr_items_per_page": 40,  # TODO: centralize this value
+                "dark_mode": False,
+            },
         }
+
         # then add the entries for all the clusters on CC
         account = L_cc_accounts[n % 2]
         for cluster_name in L_cc_clusters:
@@ -75,7 +80,7 @@ def get_predefined_fake_users(N=20):
     return [gen_single_user(n) for n in range(N)]
 
 
-def get_predefined_fake_users_old():
+def get_predefined_fake_users_old():  # TODO: do we keep this function?
 
     M = 10
 
