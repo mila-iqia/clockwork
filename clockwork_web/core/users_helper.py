@@ -36,11 +36,20 @@ def set_web_setting(mila_email_username, setting_key, setting_value):
         users_collection = get_db()["users"]
 
         # Update the information in the user's settings
+        # (First, the key is reformatted in order to avoid problem.
+        # Thus, for the setting "nbr_items_per_page" for instance, the requests
+        # looks like:
+        #    {
+        #        "mila_email_username": "student00@mila.quebec",
+        #        "$set": {"web_settings.nbr_items_per_page": 34}
+        #    }
+        # This is what the variable "web_settings_key" is about.)
+        web_settings_key = "web_settings.{}".format(setting_key)
         users_collection.update_one(
             {
                 "mila_email_username": mila_email_username
             },  # identify the element to update
-            {"$set": {"web_settings": {setting_key: setting_value}}},  # update to do
+            {"$set": {web_settings_key: setting_value}},  # update to do
         )
     else:
         # TODO: do we raise an error?

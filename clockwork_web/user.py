@@ -20,6 +20,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 import secrets
 
 from .db import get_db
+from clockwork_web.core.users_helper import enable_dark_mode, disable_dark_mode
 
 
 class User(UserMixin):
@@ -95,6 +96,7 @@ class User(UserMixin):
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
                 cc_account_update_key=e["cc_account_update_key"],
+                web_settings=e["web_settings"],
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
@@ -130,6 +132,21 @@ class User(UserMixin):
         )
         if res.modified_count != 1:
             raise ValueError("could not modify update key")
+
+    ###
+    #   Web settings
+    ###
+    def settings_dark_mode_enable(self):
+        """
+        Enable the dark mode display option for the User.
+        """
+        enable_dark_mode(self.mila_email_username)
+
+    def settings_dark_mode_disable(self):
+        """
+        Disable the dark mode display option for the User.
+        """
+        disable_dark_mode(self.mila_email_username)
 
 
 class AnonUser(AnonymousUserMixin):

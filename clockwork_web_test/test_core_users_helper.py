@@ -123,6 +123,13 @@ def test_set_web_setting_set_nbr_items_per_page(app, fake_data, value):
         )
         # Compare the value of nbr_items_per_page with the new value we tried to set
         assert D_user["web_settings"]["nbr_items_per_page"] == value
+        # Assert that the other web settings remain unchanged
+        for setting_key in known_user["web_settings"].keys():
+            if setting_key != "nbr_items_per_page":
+                assert (
+                    known_user["web_settings"][setting_key]
+                    == D_user["web_settings"][setting_key]
+                )
 
 
 def test_set_web_setting_set_dark_mode(app, fake_data):
@@ -161,6 +168,13 @@ def test_set_web_setting_set_dark_mode(app, fake_data):
         )
         # Compare the value of dark_mode with the new value we tried to set
         assert D_user["web_settings"]["dark_mode"] == new_dark_mode
+        # Assert that the other web settings remain unchanged
+        for setting_key in known_user["web_settings"].keys():
+            if setting_key != "dark_mode":
+                assert (
+                    known_user["web_settings"][setting_key]
+                    == D_user["web_settings"][setting_key]
+                )
 
 
 def test_is_correct_type_for_web_setting_with_unexisting_web_setting():
@@ -281,6 +295,13 @@ def test_set_items_per_page_set_negative_number(app, fake_data, value):
         assert (
             D_user["web_settings"]["nbr_items_per_page"] == 40
         )  # TODO: maybe put it in the configuration file?
+        # Assert that the other web settings remain unchanged
+        for setting_key in known_user["web_settings"].keys():
+            if setting_key != "nbr_items_per_page":
+                assert (
+                    known_user["web_settings"][setting_key]
+                    == D_user["web_settings"][setting_key]
+                )
 
 
 @pytest.mark.parametrize(
@@ -343,6 +364,13 @@ def test_set_items_per_page_set_positive_number(app, fake_data, value):
         )
         # Compare the value of nbr_items_per_page with the new value we tried to set
         assert D_user["web_settings"]["nbr_items_per_page"] == value
+        # Assert that the other web settings remain unchanged
+        for setting_key in known_user["web_settings"].keys():
+            if setting_key != "nbr_items_per_page":
+                assert (
+                    known_user["web_settings"][setting_key]
+                    == D_user["web_settings"][setting_key]
+                )
 
 
 def test_reset_items_per_page_with_unknown_user(app, fake_data):
@@ -403,6 +431,13 @@ def test_reset_items_per_page_with_known_user(app, fake_data):
         assert (
             D_user["web_settings"]["nbr_items_per_page"] == 40
         )  # TODO: maybe put it in the configuration file?
+        # Assert that the other web settings remain unchanged
+        for setting_key in known_user["web_settings"].keys():
+            if setting_key != "nbr_items_per_page":
+                assert (
+                    known_user["web_settings"][setting_key]
+                    == D_user["web_settings"][setting_key]
+                )
 
 
 def test_enable_dark_mode_with_unknown_user(app, fake_data):
@@ -459,6 +494,13 @@ def test_enable_dark_mode_success(app, fake_data):
         )
         # Compare the value of dark_mode with True
         assert D_user["web_settings"]["dark_mode"] == True
+        # Assert that the other web settings remain unchanged
+        for setting_key in known_user["web_settings"].keys():
+            if setting_key != "dark_mode":
+                assert (
+                    known_user["web_settings"][setting_key]
+                    == D_user["web_settings"][setting_key]
+                )
 
 
 def test_disable_dark_mode_with_unknown_user(app, fake_data):
@@ -515,6 +557,13 @@ def test_disable_dark_mode_success(app, fake_data):
         )
         # Compare the value of dark_mode with False
         assert D_user["web_settings"]["dark_mode"] == False
+        # Assert that the other web settings remain unchanged
+        for setting_key in known_user["web_settings"].keys():
+            if setting_key != "dark_mode":
+                assert (
+                    known_user["web_settings"][setting_key]
+                    == D_user["web_settings"][setting_key]
+                )
 
 
 # Helpers
