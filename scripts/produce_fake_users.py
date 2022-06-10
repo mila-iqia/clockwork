@@ -79,51 +79,6 @@ def get_predefined_fake_users(N=20):
 
     return [gen_single_user(n) for n in range(N)]
 
-
-def get_predefined_fake_users_old():  # TODO: do we keep this function?
-
-    M = 10
-
-    L_cc_clusters = ["beluga", "graham", "cedar", "narval"]
-
-    LD_users = []
-    n = 0
-    for _ in range(M):
-        for account in [
-            "def-patate-rrg",
-            "def-pomme-rrg",
-            "def-cerise-rrg",
-            "def-citron-rrg",
-        ]:
-            for cluster_name in L_cc_clusters:
-                n = n + 1
-                LD_users.append(
-                    {
-                        "username": "ccuser%0.2d" % n,
-                        "uid": 10000 + n,
-                        "account": account,
-                        "cluster_name": cluster_name,
-                    }
-                )
-
-    for _ in range(M):
-        for __ in range(
-            len(L_cc_clusters)
-        ):  # compensate for the other one getting 4x accounts
-            account = "mila"
-            cluster_name = "mila"
-            n = n + 1
-            LD_users.append(
-                {
-                    "username": "milauser%0.2d" % n,
-                    "uid": 10000 + n,
-                    "account": "mila",
-                    "cluster_name": "mila",
-                }
-            )
-    return LD_users
-
-
 def main(argv):
     parser = argparse.ArgumentParser(
         prog=argv[0],
