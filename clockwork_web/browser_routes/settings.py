@@ -12,10 +12,7 @@ from flask import jsonify
 # https://flask.palletsprojects.com/en/1.1.x/appcontext/
 from flask import g
 
-from flask_login import (
-    current_user,
-    fresh_login_required,
-)
+from flask_login import current_user, fresh_login_required, login_required
 
 # As described on
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
@@ -34,11 +31,13 @@ def route_index():
 
     .. :quickref: access the settings page as html
     """
+    # Display the user's settings as HTML
     return render_template(
         "settings.html",
         mila_email_username=current_user.mila_email_username,
         clockwork_api_key=current_user.clockwork_api_key,
         cc_account_update_key=current_user.cc_account_update_key,
+        web_settings=current_user.web_settings,
     )
 
 
@@ -60,3 +59,32 @@ def route_update_key():
     """
     current_user.new_update_key()
     return redirect("/settings/")
+
+
+###
+#   This section is related to the web settings of the current user
+###
+
+
+@flask_api.route("/web/dark_mode/set")
+@login_required
+def route_set_dark_mode():
+    """
+    Enable the dark mode web setting for the current user.
+    """
+    current_user.settings_dark_mode_enable()
+    return (
+        {}
+    )  # TODO: I'm not sure this is the correct way to do this
+
+
+@flask_api.route("/web/dark_mode/unset")
+@login_required
+def route_unset_dark_mode():
+    """
+    Disable the dark mode web setting for the current user.
+    """
+    current_user.settings_dark_mode_disable()
+    return (
+        {}
+    )  # TODO: I'm not sure this is the correct way to do this
