@@ -36,7 +36,7 @@ def set_web_setting(mila_email_username, setting_key, setting_value):
         users_collection = get_db()["users"]
 
         # Update the information in the user's settings
-        requested_user = users_collection.update_one(
+        users_collection.update_one(
             {
                 "mila_email_username": mila_email_username
             },  # identify the element to update
