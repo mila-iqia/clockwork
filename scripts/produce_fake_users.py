@@ -79,6 +79,7 @@ def get_predefined_fake_users(N=20):
 
     return [gen_single_user(n) for n in range(N)]
 
+
 def main(argv):
     parser = argparse.ArgumentParser(
         prog=argv[0],
