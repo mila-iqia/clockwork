@@ -224,6 +224,87 @@ def test_client_side_user_updates():
 
         assert u["status"] == ("enabled" if answer else "disabled")
 
+def test_client_side_user_updates_web_settings_new_user():
+    """
+    This test focuses on the case of the user's web settings(/preferrences)
+    when this user will be added to the database.
+    """
+    # Define the users in the database
+    LD_predefined_users = []
+
+    # Define the user to add
+    LD_users_to_add = [{
+        "mila_email_username": "jamesbond@mila.quebec",
+        "mila_cluster_username": "jamesbond",
+        "mila_cluster_uid": "1500000001",
+        "mila_cluster_gid": "1500000001",
+        "display_name": "James Bond",
+        "status": "enabled",
+        "clockwork_api_key": None,
+        "cc_account_username": "cc_007"
+    }]
+
+    # Generate the users to update or insert at last
+    LD_users_to_update_or_insert = read_mila_ldap.client_side_user_updates(LD_predefined_users, LD_users_to_add)
+
+    # Assert that the retrieve list in not empty
+    assert len(LD_users_to_update_or_insert) > 0
+
+    # Check if the web settings have correctly been set
+    for user in LD_users_to_update_or_insert:
+        assert user["web_settings"] == {
+            "nbr_items_per_page": 40, # TODO: centralize
+            "dark_mode": False # TODO: centralize
+        }
+
+def test_client_side_user_updates_web_settings_updated_user():
+    """
+    This test focuses on the case of the user's web settings(/preferrences)
+    when this user will be updated.
+    """
+    # Define the web settings the user has already set before
+    predefined_web_settings = {
+        "nbr_items_per_page": 53,
+        "dark_mode": True
+    }
+
+    # Define the users in the database
+    LD_predefined_users = [
+        {
+            "mila_email_username": "jamesbond@mila.quebec",
+            "mila_cluster_username": "jamesbond",
+            "mila_cluster_uid": "1500000001",
+            "mila_cluster_gid": "1500000001",
+            "display_name": "James Bond",
+            "status": "enabled",
+            "clockwork_api_key": None,
+            "cc_account_username": "cc_007",
+            "web_settings": predefined_web_settings
+        },
+    ]
+
+    # Define the user to update
+    LD_users_to_update = [
+        {
+            "mila_email_username": "jamesbond@mila.quebec",
+            "mila_cluster_username": "agent007", # This is to check an update different from the web settings
+            "mila_cluster_uid": "1500000001",
+            "mila_cluster_gid": "1500000001",
+            "display_name": "James Bond",
+            "status": "enabled",
+        },
+    ]
+
+    # Generate the users to update or insert at last
+    LD_users_to_update_or_insert = read_mila_ldap.client_side_user_updates(LD_predefined_users, LD_users_to_update)
+
+    # Assert that the retrieve list in not empty
+    assert len(LD_users_to_update_or_insert) > 0
+
+    # Check if the web settings have not been updated
+    for user in LD_users_to_update_or_insert:
+        assert user["web_settings"] == predefined_web_settings
+
 
 def test_process_user():
     source = {

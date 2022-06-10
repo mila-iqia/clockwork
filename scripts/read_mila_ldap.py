@@ -300,6 +300,10 @@ def client_side_user_updates(LD_users_DB, LD_users_LDAP):
             entry = DD_users_LDAP[meu]
             entry["cc_account_username"] = None
             entry["clockwork_api_key"] = None
+            entry["web_settings"] = {
+                "nbr_items_per_page": 40, # TODO: centralize
+                "dark_mode": False
+            }
             assert "status" in entry  # sanity check
         else:
             # User is in DB and in LDAP. Update it carefully and don't
