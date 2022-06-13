@@ -77,7 +77,7 @@ def route_set_nbr_items_per_page():
     # Retrieve the preferred number of items to display per page (ie the number
     # to store in the settings), called nbr_items_per_page
     nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
-    print(nbr_items_per_page)
+
     # Check if nbr_items_per_page exists
     if nbr_items_per_page:
         # Check if nbr_items_per_page is a positive integer
