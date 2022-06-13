@@ -64,6 +64,47 @@ def route_update_key():
 ###
 #   This section is related to the web settings of the current user
 ###
+@flask_api.route("/web/nbr_items_per_page/set")
+@login_required
+def route_set_nbr_items_per_page():
+    """
+    Set a new value to the preferred number of items to display per page for the
+    current user.
+
+    .. :quickref: set the number of items to display per page in the current
+                  user's settings
+    """
+    # Retrieve the preferred number of items to display per page (ie the number
+    # to store in the settings), called nbr_items_per_page
+    nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
+    print(nbr_items_per_page)
+    # Check if nbr_items_per_page exists
+    if nbr_items_per_page:
+        # Check if nbr_items_per_page is a positive integer
+        if type(nbr_items_per_page) == int and nbr_items_per_page > 0:
+            # If it is, update this number in the current user's settings
+            current_user.settings_nbr_items_per_page_set(nbr_items_per_page)
+
+            # Redirect to the settings page
+            return redirect("/settings")
+        else:
+            # Otherwise, return a Bad Request error and redirect to the error page
+            return (
+                render_template(
+                    "error.html",
+                    error_msg=f"Wrong number of items to display per page provided to be set.",
+                ),
+                400,  # Bad Request
+            )
+    else:
+        # If nbr_items_per_page does not exist, return Bad Request
+        return (
+            render_template(
+                "error.html",
+                error_msg=f"Missing argument, or wrong format: nbr_items_per_page.",
+            ),
+            400,  # Bad Request
+        )
 
 
 @flask_api.route("/web/dark_mode/set")
@@ -71,11 +112,11 @@ def route_update_key():
 def route_set_dark_mode():
     """
     Enable the dark mode web setting for the current user.
+
+    .. :quickref: enable the dark mode for the current user
     """
     current_user.settings_dark_mode_enable()
-    return (
-        {}
-    )  # TODO: I'm not sure this is the correct way to do this
+    return {}  # TODO: I'm not sure this is the correct way to do this
 
 
 @flask_api.route("/web/dark_mode/unset")
@@ -83,8 +124,8 @@ def route_set_dark_mode():
 def route_unset_dark_mode():
     """
     Disable the dark mode web setting for the current user.
+
+    .. :quickref: disable the dark mode for the current user
     """
     current_user.settings_dark_mode_disable()
-    return (
-        {}
-    )  # TODO: I'm not sure this is the correct way to do this
+    return {}  # TODO: I'm not sure this is the correct way to do this

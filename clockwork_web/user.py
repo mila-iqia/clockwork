@@ -20,7 +20,11 @@ from flask_login import UserMixin, AnonymousUserMixin
 import secrets
 
 from .db import get_db
-from clockwork_web.core.users_helper import enable_dark_mode, disable_dark_mode
+from clockwork_web.core.users_helper import (
+    enable_dark_mode,
+    disable_dark_mode,
+    set_items_per_page,
+)
 
 
 class User(UserMixin):
@@ -147,6 +151,18 @@ class User(UserMixin):
         Disable the dark mode display option for the User.
         """
         disable_dark_mode(self.mila_email_username)
+
+    def settings_nbr_items_per_page_set(self, nbr_items_per_page):
+        """
+        Set a new value to the preferred number of items to display per page for
+        the current user.
+
+        Parameters:
+        - nbr_items_per_page    The preferred number of items to display per
+                                page for the User, ie the value to save in
+                                its settings
+        """
+        set_items_per_page(self.mila_email_username, nbr_items_per_page)
 
 
 class AnonUser(AnonymousUserMixin):

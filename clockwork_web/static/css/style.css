@@ -8,3 +8,11 @@
 div.main {
     background-color: antiquewhite;
 }
+
+/*
+    This is done to counter the "display:none;" of materialize.css
+    (to be updated when setting the design)
+*/
+.cw-select {
+  display: inline-block;
+}
