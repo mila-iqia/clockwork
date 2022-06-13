@@ -124,6 +124,52 @@ def reset_items_per_page(mila_email_username):
     )
 
 
+def get_nbr_items_per_page(mila_email_username):
+    """
+    Retrieve the number of items to display per page, set in the user's settings.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users
+                                collection of the database
+
+    Returns:
+        The value of nbr_items_per_page from the user's settings if a user has been
+        found; the default value of the number of items to display per page otherwise
+    """
+    # Retrieve the user from mila_email_username
+    user = get_users_one(mila_email_username)
+
+    if not user:
+        # If no user has been found, return the default value of the number of items
+        # to display per page
+        return 40  # TODO: centralize this value
+    else:
+        # If a user has been found, return the value stored in its settings
+        return user["web_settings"]["nbr_items_per_page"]
+
+
+def get_users_one(mila_email_username):
+    """
+    Retrieve a user from the database, based on its mila_email_username.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users
+                                collection of the database
+    Returns:
+        A dictionary presenting the user if it has been found;
+        None otherwise.
+    """
+    # Retrieve the users collection from the database
+    users_collection = get_db()["users"]
+
+    # Try to get the user from this collection
+    user = users_collection.find_one({"mila_email_username": mila_email_username})
+
+    # Return the user. It is a dictionary presenting the user if one has been
+    # found, None otherwise.
+    return user
+
+
 def enable_dark_mode(mila_email_username):
     """
     Enable the dark mode display option for a specific user.
