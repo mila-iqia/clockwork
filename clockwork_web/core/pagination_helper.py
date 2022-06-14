@@ -44,12 +44,12 @@ def get_pagination_values(current_user_mila_email, num_page, nbr_items_per_page)
             # it is kept. Otherwise (such as it is the case here), the users
             # helper is called in order to retrieve the default value related
             # to this user
-            get_nbr_items_per_page(current_user_mila_email)
+            nbr_items_per_page = get_nbr_items_per_page(current_user_mila_email)
 
     else:
         # If no nbr_items_per_page has been provided, we use the value which is
         # stored in the user's settings by calling the users helper
-        get_nbr_items_per_page(current_user_mila_email)
+        nbr_items_per_page = get_nbr_items_per_page(current_user_mila_email)
 
     # Return the pagination tuple
     number_of_skipped_items = nbr_items_per_page * (num_page - 1)
