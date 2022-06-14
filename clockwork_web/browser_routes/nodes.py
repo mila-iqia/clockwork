@@ -40,6 +40,7 @@ from clockwork_web.core.nodes_helper import (
     get_filter_node_name,
     strip_artificial_fields_from_node,
 )
+from clockwork_web.pagination_helper import get_pagination_values
 
 # Note that flask_api.route('/') will lead to a redirection with "/nodes", and pytest might not like that.
 
@@ -50,16 +51,31 @@ def route_list():
     """
     Can take optional args "cluster_name" and "node_name",
     where "name" refers to the host name.
+    "num_page" is optional and used for the pagination: it is a positive integer
+    presenting the number of the current page
+    "nbr_items_per_page" is optional and used for the pagination: it is a
+    positive integer presenting the number of items to display per page
 
     .. :quickref: list all Slurm nodes as formatted html
     """
+    # Retrieve the pagination parameters
+    pagination_num_page = request.args.get("num_page", type=int, default="1")
+    pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int) # TODO: centralize this default value
+    # Use the pagination helper to define the number of element to skip, and the number of elements to display
+    pagination_parameters = get_pagination_values(current_user.mila_email_username, num_page, nbr_items_per_page)
+
+    # Define the filters to select the nodes
     f0 = get_filter_node_name(request.args.get("node_name", None))
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
-    LD_nodes = get_nodes(filter)
 
+    # Retrieve the nodes, by applying the filters and the pagination
+    LD_nodes = get_nodes(filter, pagination=pagination_parameters)
+
+    # Format the nodes (by withdrawing the "_id" element of each node)
     LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
 
+    # Display the HTML page
     return render_template(
         "nodes.html",
         LD_nodes=LD_nodes,

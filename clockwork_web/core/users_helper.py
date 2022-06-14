@@ -115,8 +115,8 @@ def reset_items_per_page(mila_email_username):
     default value (arbitrarily defined by Clockwork's team).
 
     Parameters:
-    mila_email_username     Element identifying the User in the users
-                            collection of the database
+        mila_email_username     Element identifying the User in the users
+                                collection of the database
     """
     # Call set_web_setting
     set_web_setting(
