@@ -36,10 +36,13 @@ def test_set_web_setting_with_wrong_setting_key(app, fake_data):
     - app           The scope of our tests, used to set the context (to access MongoDB)
     - fake_data     The data on which our tests are based
     """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
     # Get an existing mila_email_username from the fake_data
     known_mila_email_username = fake_data["users"][0][
         "mila_email_username"
-    ]  # No check about the users length is done, because we want an error if the fake_data are not usable
+    ]
 
     # Use the app context
     with app.app_context():
@@ -71,10 +74,13 @@ def test_set_web_setting_incorrect_value_for_existing_setting(
                         of the test, its type must not correspond to the expected
                         type of the setting
     """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
     # Get an existing mila_email_username from the fake_data
     known_mila_email_username = fake_data["users"][0][
         "mila_email_username"
-    ]  # No check about the users length is done, because we want an error if the fake_data are not usable
+    ]
 
     # Use the app context
     with app.app_context():
@@ -99,9 +105,10 @@ def test_set_web_setting_set_nbr_items_per_page(app, fake_data, value):
     - fake_data     The data on which our tests are based
     - value         The value to set
     """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
     # Get an existing user from the fake_data
-    # NB: we don't check about the users length, because we want an error
-    # if the fake_data are not usable
     known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
@@ -141,9 +148,10 @@ def test_set_web_setting_set_dark_mode(app, fake_data):
     - app           The scope of our tests, used to set the context (to access MongoDB)
     - fake_data     The data on which our tests are based
     """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
     # Get an existing user from the fake_data
-    # NB: we don't check about the users length, because we want an error
-    # if the fake_data are not usable
     known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
@@ -269,9 +277,10 @@ def test_set_items_per_page_set_negative_number(app, fake_data, value):
     """
     # TODO: do we let this check in set_items_per_page or do we move it to
     # set_web_setting?
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
     # Get an existing user from the fake_data
-    # NB: we don't check about the users length, because we want an error
-    # if the fake_data are not usable
     known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
@@ -320,10 +329,13 @@ def test_set_items_per_page_with_incorrect_value_type(app, fake_data, value):
     - value         The value to set. For the purpose of the test, must present
                     an incorrect type
     """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
     # Get an existing mila_email_username from the fake_data
     known_mila_email_username = fake_data["users"][0][
         "mila_email_username"
-    ]  # No check about the users length is done, because we want an error if the fake_data are not usable
+    ]
 
     # Use the app context
     with app.app_context():
@@ -343,9 +355,10 @@ def test_set_items_per_page_set_positive_number(app, fake_data, value):
     Test the function set_items_per_page with a known user, and a positive
     integer as value (which is an expected value)
     """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
     # Get an existing user from the fake_data
-    # NB: we don't check about the users length, because we want an error
-    # if the fake_data are not usable
     known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
@@ -404,9 +417,10 @@ def test_reset_items_per_page_with_known_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
+        # Assert that the users of the fake data exist and are not empty
+        assert "users" in fake_data and len(fake_data["users"]) > 0
+
         # Get an existing user from the fake_data
-        # NB: we don't check about the users length, because we want an error
-        # if the fake_data are not usable
         known_user = fake_data["users"][0]
 
         # First set its nbr_items_per_page to a number different from the
@@ -470,9 +484,10 @@ def test_enable_dark_mode_success(app, fake_data):
     """
     # Use the app context
     with app.app_context():
+        # Assert that the users of the fake data exist and are not empty
+        assert "users" in fake_data and len(fake_data["users"]) > 0
+
         # Get an existing user from the fake_data
-        # NB: we don't check about the users length, because we want an error
-        # if the fake_data are not usable
         known_user = fake_data["users"][0]
 
         # First set its dark mode option to False
@@ -533,9 +548,10 @@ def test_disable_dark_mode_success(app, fake_data):
     """
     # Use the app context
     with app.app_context():
+        # Assert that the users of the fake data exist and are not empty
+        assert "users" in fake_data and len(fake_data["users"]) > 0
+
         # Get an existing user from the fake_data
-        # NB: we don't check about the users length, because we want an error
-        # if the fake_data are not usable
         known_user = fake_data["users"][0]
 
         # First set its dark mode option to True
@@ -565,6 +581,118 @@ def test_disable_dark_mode_success(app, fake_data):
                     == D_user["web_settings"][setting_key]
                 )
 
+def test_get_nbr_items_per_page_none_user(app):
+    """
+    Test the function get_nbr_items_per_page when the user is None.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    """
+    # Use the app context
+    with app.app_context():
+        # Assert that the returned value is the default value
+        assert get_nbr_items_per_page(None) == 40 # TODO centralize this value
+
+def test_get_nbr_items_per_page_unknown_user(app):
+    """
+    Test the function get_nbr_items_per_page when the user is not stored in
+    the database.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    """
+    # Use the app context
+    with app.app_context():
+        # Assert that the returned value is the default value
+        assert get_nbr_items_per_page("unknownuser") == 40 # TODO centralize this value
+
+def test_get_nbr_items_per_page_known_user(app, fake_data):
+    """
+    Test the function get_nbr_items_per_page when the user is stored in
+    the database.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    """
+    # Use the app context
+    with app.app_context():
+        # Assert that the users of the fake data exist and are not empty
+        assert "users" in fake_data and len(fake_data["users"]) > 0
+
+        # Get a user from the fake_data
+        D_known_user = fake_data["users"][0]
+
+        # Retrieve its nbr_items_per_page through the function we are testing
+        retrieved_nbr_items_per_page = get_nbr_items_per_page(D_known_user["mila_email_username"])
+
+        # Compare its nbr_items_per_page with the one we know
+        assert retrieved_nbr_items_per_page == D_known_user["web_settings"]["nbr_items_per_page"]
+
+        # (The following is to be sure that we don't always return the default value)
+        # Set a new value to its nbr_items_per_page
+        new_value = retrieved_nbr_items_per_page + 33 # Thus, we are sure that the values differ
+        set_items_per_page(D_known_user["mila_email_username"], new_value)
+
+        # Retrieve its nbr_items_per_page through the function we are testing
+        retrieved_nbr_items_per_page = get_nbr_items_per_page(D_known_user["mila_email_username"])
+
+        # Compare its nbr_items_per_page with the one we know
+        assert retrieved_nbr_items_per_page == new_value
+
+def test_get_users_one_none_user(app):
+    """
+    Test the function get_users_one when the user is None.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    """
+    # Use the app context
+    with app.app_context():
+        # Assert that the returned value is None
+        assert get_users_one(None) == None
+
+def test_get_users_one_unknown_user(app):
+    """
+    Test the function get_users_one when the user is not stored in
+    the database.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    """
+    # Use the app context
+    with app.app_context():
+        # Assert that the returned value is None
+        assert get_users_one("unknownuser") == None
+
+def test_get_users_one_known_user(app, fake_data):
+    """
+    Test the function get_users_one when the user is stored in
+    the database.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    """
+    # Use the app context
+    with app.app_context():
+        # Assert that the users of the fake data exist and are not empty
+        assert "users" in fake_data and len(fake_data["users"]) > 0
+
+        # Get a user from the fake_data
+        D_known_user = fake_data["users"][0]
+
+        # Retrieve it through the function we are testing
+        D_retrieved_user = get_users_one(D_known_user["mila_email_username"])
+
+        # Compare it with the one we know
+        assert D_retrieved_user == D_known_user
 
 # Helpers
 def assert_no_user_has_been_modified(fake_data):
