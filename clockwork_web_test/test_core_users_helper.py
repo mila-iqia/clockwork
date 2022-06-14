@@ -40,9 +40,7 @@ def test_set_web_setting_with_wrong_setting_key(app, fake_data):
     assert "users" in fake_data and len(fake_data["users"]) > 0
 
     # Get an existing mila_email_username from the fake_data
-    known_mila_email_username = fake_data["users"][0][
-        "mila_email_username"
-    ]
+    known_mila_email_username = fake_data["users"][0]["mila_email_username"]
 
     # Use the app context
     with app.app_context():
@@ -78,9 +76,7 @@ def test_set_web_setting_incorrect_value_for_existing_setting(
     assert "users" in fake_data and len(fake_data["users"]) > 0
 
     # Get an existing mila_email_username from the fake_data
-    known_mila_email_username = fake_data["users"][0][
-        "mila_email_username"
-    ]
+    known_mila_email_username = fake_data["users"][0]["mila_email_username"]
 
     # Use the app context
     with app.app_context():
@@ -333,9 +329,7 @@ def test_set_items_per_page_with_incorrect_value_type(app, fake_data, value):
     assert "users" in fake_data and len(fake_data["users"]) > 0
 
     # Get an existing mila_email_username from the fake_data
-    known_mila_email_username = fake_data["users"][0][
-        "mila_email_username"
-    ]
+    known_mila_email_username = fake_data["users"][0]["mila_email_username"]
 
     # Use the app context
     with app.app_context():
@@ -581,6 +575,7 @@ def test_disable_dark_mode_success(app, fake_data):
                     == D_user["web_settings"][setting_key]
                 )
 
+
 def test_get_nbr_items_per_page_none_user(app):
     """
     Test the function get_nbr_items_per_page when the user is None.
@@ -592,7 +587,8 @@ def test_get_nbr_items_per_page_none_user(app):
     # Use the app context
     with app.app_context():
         # Assert that the returned value is the default value
-        assert get_nbr_items_per_page(None) == 40 # TODO centralize this value
+        assert get_nbr_items_per_page(None) == 40  # TODO centralize this value
+
 
 def test_get_nbr_items_per_page_unknown_user(app):
     """
@@ -606,7 +602,8 @@ def test_get_nbr_items_per_page_unknown_user(app):
     # Use the app context
     with app.app_context():
         # Assert that the returned value is the default value
-        assert get_nbr_items_per_page("unknownuser") == 40 # TODO centralize this value
+        assert get_nbr_items_per_page("unknownuser") == 40  # TODO centralize this value
+
 
 def test_get_nbr_items_per_page_known_user(app, fake_data):
     """
@@ -627,21 +624,31 @@ def test_get_nbr_items_per_page_known_user(app, fake_data):
         D_known_user = fake_data["users"][0]
 
         # Retrieve its nbr_items_per_page through the function we are testing
-        retrieved_nbr_items_per_page = get_nbr_items_per_page(D_known_user["mila_email_username"])
+        retrieved_nbr_items_per_page = get_nbr_items_per_page(
+            D_known_user["mila_email_username"]
+        )
 
         # Compare its nbr_items_per_page with the one we know
-        assert retrieved_nbr_items_per_page == D_known_user["web_settings"]["nbr_items_per_page"]
+        assert (
+            retrieved_nbr_items_per_page
+            == D_known_user["web_settings"]["nbr_items_per_page"]
+        )
 
         # (The following is to be sure that we don't always return the default value)
         # Set a new value to its nbr_items_per_page
-        new_value = retrieved_nbr_items_per_page + 33 # Thus, we are sure that the values differ
+        new_value = (
+            retrieved_nbr_items_per_page + 33
+        )  # Thus, we are sure that the values differ
         set_items_per_page(D_known_user["mila_email_username"], new_value)
 
         # Retrieve its nbr_items_per_page through the function we are testing
-        retrieved_nbr_items_per_page = get_nbr_items_per_page(D_known_user["mila_email_username"])
+        retrieved_nbr_items_per_page = get_nbr_items_per_page(
+            D_known_user["mila_email_username"]
+        )
 
         # Compare its nbr_items_per_page with the one we know
         assert retrieved_nbr_items_per_page == new_value
+
 
 def test_get_users_one_none_user(app):
     """
@@ -656,6 +663,7 @@ def test_get_users_one_none_user(app):
         # Assert that the returned value is None
         assert get_users_one(None) == None
 
+
 def test_get_users_one_unknown_user(app):
     """
     Test the function get_users_one when the user is not stored in
@@ -669,6 +677,7 @@ def test_get_users_one_unknown_user(app):
     with app.app_context():
         # Assert that the returned value is None
         assert get_users_one("unknownuser") == None
+
 
 def test_get_users_one_known_user(app, fake_data):
     """
@@ -693,6 +702,7 @@ def test_get_users_one_known_user(app, fake_data):
 
         # Compare it with the one we know
         assert D_retrieved_user == D_known_user
+
 
 # Helpers
 def assert_no_user_has_been_modified(fake_data):

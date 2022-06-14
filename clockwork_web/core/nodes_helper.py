@@ -28,10 +28,10 @@ def get_nodes(mongodb_filter: dict = {}, pagination: tuple = None) -> list:
     Talk to the database and get the information.
 
     Parameters:
-        mongodb_filter  The filters to apply in order to select the nodes we
-                        want to retrieve from the MongoDB database
+        mongodb_filter  A concatenation of the filters to apply in order to select
+                        the nodes we want to retrieve from the MongoDB database
         pagination      A tuple presenting the number of elements to skip while
-                        listing the nodes as first element, and as second element,
+                        listing the nodes as first element, and, as second element,
                         the number of nodes to display from it
 
     Returns:
@@ -45,7 +45,9 @@ def get_nodes(mongodb_filter: dict = {}, pagination: tuple = None) -> list:
     mc = get_db()
     # Get the nodes from it
     if pagination:
-        LD_nodes = list(mc["nodes"].find(mongodb_filter).skip(pagination[0]).limit(pagination[1]))
+        LD_nodes = list(
+            mc["nodes"].find(mongodb_filter).skip(pagination[0]).limit(pagination[1])
+        )
     else:
         LD_nodes = list(mc["nodes"].find(mongodb_filter))
     # Return the retrieved nodes

@@ -43,7 +43,7 @@ from clockwork_web.core.jobs_helper import (
     get_jobs,
     infer_best_guess_for_username,
 )
-from clockwork_web.pagination_helper import get_pagination_values
+from clockwork_web.core.pagination_helper import get_pagination_values
 
 
 @flask_api.route("/")
@@ -78,9 +78,13 @@ def route_list():
 
     # Retrieve the pagination parameters
     pagination_num_page = request.args.get("num_page", type=int, default="1")
-    pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int) # TODO: centralize this default value
+    pagination_nbr_items_per_page = request.args.get(
+        "nbr_items_per_page", type=int
+    )  # TODO: centralize this default value
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
-    pagination_parameters = get_pagination_values(current_user.mila_email_username, num_page, nbr_items_per_page)
+    pagination_parameters = get_pagination_values(
+        current_user.mila_email_username, pagination_num_page, pagination_nbr_items_per_page
+    )
 
     f0 = get_filter_user(request.args.get("user", None))
 
@@ -119,6 +123,7 @@ def route_list():
             "jobs.html",
             LD_jobs=LD_jobs,
             mila_email_username=current_user.mila_email_username,
+            num_page=pagination_num_page,
         )
 
 

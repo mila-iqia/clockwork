@@ -165,7 +165,9 @@ def get_users_one(mila_email_username):
     # Try to get the user from this collection
     # (The first argument of find_one is the filter we want to apply in order to selection our user.)
     # (The second argument of find_one indicates that we don't want the "_id" element to be included in the returned dictionary)
-    user = users_collection.find_one({"mila_email_username": mila_email_username}, {"_id": 0})
+    user = users_collection.find_one(
+        {"mila_email_username": mila_email_username}, {"_id": 0}
+    )
 
     # Return the user. It is a dictionary presenting the user if one has been
     # found, None otherwise.

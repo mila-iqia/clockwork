@@ -96,7 +96,7 @@ def get_jobs(mongodb_filter: dict = {}, pagination: tuple = None):
 
     Returns:
         Returns a list of dict with the properties of jobs.
-    """"
+    """
     # Assert that pagination is a tuple of two elements
     if not (type(pagination) == tuple and len(pagination) == 2):
         pagination = None
@@ -105,7 +105,9 @@ def get_jobs(mongodb_filter: dict = {}, pagination: tuple = None):
     mc = get_db()
     # Get the jobs from it
     if pagination:
-        LD_jobs = list(mc["jobs"].find(mongodb_filter).skip(pagination[0]).limit(pagination[1]))
+        LD_jobs = list(
+            mc["jobs"].find(mongodb_filter).skip(pagination[0]).limit(pagination[1])
+        )
     else:
         LD_jobs = list(mc["jobs"].find(mongodb_filter))
     # Return the retrieved jobs
