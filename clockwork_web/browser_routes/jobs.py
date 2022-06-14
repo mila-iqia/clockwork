@@ -43,6 +43,7 @@ from clockwork_web.core.jobs_helper import (
     get_jobs,
     infer_best_guess_for_username,
 )
+from clockwork_web.pagination_helper import get_pagination_values
 
 
 @flask_api.route("/")
@@ -64,11 +65,22 @@ def route_list():
     and it will many any of them.
     "relative_time" refers to how many seconds to go back in time to list jobs.
     "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
+    "num_page" is optional and used for the pagination: it is a positive integer
+    presenting the number of the current page
+    "nbr_items_per_page" is optional and used for the pagination: it is a
+    positive integer presenting the number of items to display per page
 
     .. :quickref: list all Slurm job as formatted html
     """
+    # Define the type of the return
     want_json = request.args.get("want_json", type=str, default="False")
     want_json = to_boolean(want_json)
+
+    # Retrieve the pagination parameters
+    pagination_num_page = request.args.get("num_page", type=int, default="1")
+    pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int) # TODO: centralize this default value
+    # Use the pagination helper to define the number of element to skip, and the number of elements to display
+    pagination_parameters = get_pagination_values(current_user.mila_email_username, num_page, nbr_items_per_page)
 
     f0 = get_filter_user(request.args.get("user", None))
 
@@ -91,7 +103,7 @@ def route_list():
 
     filter = combine_all_mongodb_filters(f0, f1)
 
-    LD_jobs = get_jobs(filter)
+    LD_jobs = get_jobs(filter, pagination=pagination_parameters)
 
     # TODO : You might want to stop doing the `infer_best_guess_for_username`
     # at some point to design something better. See CW-81.

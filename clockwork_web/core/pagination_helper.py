@@ -11,21 +11,21 @@ def get_pagination_values(current_user_mila_email, num_page, nbr_items_per_page)
     provided in the request, or the current user's settings.
 
     Parameters:
-    - current_user_mila_email   Current user mila email. Its settings are used if
-                                num_page or nbr_items_per_page is missing.
-    - num_page                  Number of the current page. This number is the one
-                                provided in the request. If it is None or invalid,
-                                the first page is considered.
-    - nbr_items_per_page        Number of items to displayed per page; this number
-                                is the one provided in the request. If it is None or
-                                invalid, the value stored in the current user's
-                                settings is used.
+        current_user_mila_email   Current user mila email. Its settings are used
+                                  if num_page or nbr_items_per_page is missing.
+        num_page                  Number of the current page. This number is the one
+                                  provided in the request. If it is None or invalid,
+                                  the first page is considered.
+        nbr_items_per_page        Number of items to displayed per page; this number
+                                  is the one provided in the request. If it is None
+                                  or invalid, the value stored in the current user's
+                                  settings is used.
 
     Returns:
-    A tuple corresponding to the pagination parameters. It presents the following
-    format: (number_of_skipped_items, nbr_items_per_page).
-    For instance, the tuple (50, 10) indicates that the items to return are the
-    items from the 51st to the 60th of the list.
+        A tuple corresponding to the pagination parameters. It presents the following
+        format: (number_of_skipped_items, nbr_items_per_page).
+        For instance, the tuple (50, 10) indicates that the items to return are
+        the items from the 51st to the 60th of the list.
     """
     # Set the value of num_page
     if num_page:

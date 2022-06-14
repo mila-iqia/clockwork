@@ -82,9 +82,34 @@ def combine_all_mongodb_filters(*mongodb_filters):
         return {"$and": non_empty_mongodb_filters}
 
 
-def get_jobs(mongodb_filter: dict = {}):
+def get_jobs(mongodb_filter: dict = {}, pagination: tuple = None):
+    """
+    Talk to the database and get the information.
+
+    Parameters:
+        mongodb_filter  A concatenation of the filters to apply in order to
+                        select the jobs we want to retrieve from the MongoDB
+                        database
+        pagination      A tuple presenting the number of elements to skip while
+                        listing the jobs as first element, and, as second element,
+                         the number of jobs to display from it
+
+    Returns:
+        Returns a list of dict with the properties of jobs.
+    """"
+    # Assert that pagination is a tuple of two elements
+    if not (type(pagination) == tuple and len(pagination) == 2):
+        pagination = None
+
+    # Retrieve the database
     mc = get_db()
-    return list(mc["jobs"].find(mongodb_filter))
+    # Get the jobs from it
+    if pagination:
+        LD_jobs = list(mc["jobs"].find(mongodb_filter).skip(pagination[0]).limit(pagination[1]))
+    else:
+        LD_jobs = list(mc["jobs"].find(mongodb_filter))
+    # Return the retrieved jobs
+    return LD_jobs
 
 
 def update_job_user_dict(mongodb_filter: dict, new_user_dict: dict):
