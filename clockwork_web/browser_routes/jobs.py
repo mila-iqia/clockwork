@@ -78,9 +78,7 @@ def route_list():
 
     # Retrieve the pagination parameters
     pagination_num_page = request.args.get("num_page", type=int, default="1")
-    pagination_nbr_items_per_page = request.args.get(
-        "nbr_items_per_page", type=int
-    )  # TODO: centralize this default value
+    pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
     pagination_parameters = get_pagination_values(
         current_user.mila_email_username,

@@ -17,6 +17,7 @@ import json
 import pytest
 
 from clockwork_web.core.pagination_helper import get_pagination_values
+from clockwork_web.core.users_helper import get_default_setting_value
 
 
 def test_nodes(client, fake_data: dict[list[dict]]):
@@ -26,7 +27,7 @@ def test_nodes(client, fake_data: dict[list[dict]]):
     are going to put the fake data in the database for us.
     """
     response = client.get("/nodes/list")
-    for i in range(0, 40):  # TODO: centralize this value
+    for i in range(0, get_default_setting_value("nbr_items_per_page")):
         D_node = fake_data["nodes"][i]
         assert D_node["slurm"]["name"].encode("utf-8") in response.data
 

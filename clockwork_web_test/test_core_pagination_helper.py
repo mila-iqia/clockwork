@@ -5,7 +5,10 @@ Tests for the clockwork_web.core.pagination_helper functions.
 import pytest
 
 from clockwork_web.core.pagination_helper import get_pagination_values
-from clockwork_web.core.users_helper import set_items_per_page
+from clockwork_web.core.users_helper import (
+    get_default_setting_value,
+    set_items_per_page,
+)
 
 ###
 #   Tests of get_pagination_values
@@ -66,7 +69,7 @@ def test_get_pagination_none_user_wrong_type_wrong_type(
     expected_nbr_of_skipped_items = 0
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
 
     # Use the app context
     with app.app_context():
@@ -108,7 +111,7 @@ def test_get_pagination_none_user_wrong_type_negative_value(
     expected_nbr_of_skipped_items = 0
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
 
     # Use the app context
     with app.app_context():
@@ -193,7 +196,7 @@ def test_get_pagination_none_user_negative_value_wrong_type(
     expected_nbr_of_skipped_items = 0
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
 
     # Use the app context
     with app.app_context():
@@ -235,7 +238,7 @@ def test_get_pagination_none_user_negative_value_negative_value(
     expected_nbr_of_skipped_items = 0
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
 
     # Use the app context
     with app.app_context():
@@ -318,7 +321,7 @@ def test_get_pagination_none_user_positive_value_wrong_type(
     # Define the expected results
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
     expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
 
@@ -358,7 +361,7 @@ def test_get_pagination_none_user_positive_value_negative_value(
     # Define the expected results
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
     expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
 
@@ -444,7 +447,7 @@ def test_get_pagination_unknown_user_wrong_type_wrong_type(
     # Define the expected results
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
     expected_nbr_of_skipped_items = 0
 
@@ -486,7 +489,7 @@ def test_get_pagination_unknown_user_wrong_type_negative_value(
     # Define the expected results
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
     expected_nbr_of_skipped_items = 0
 
@@ -571,7 +574,7 @@ def test_get_pagination_unknown_user_negative_value_wrong_type(
     # Define the expected results
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
     expected_nbr_of_skipped_items = 0
 
@@ -613,7 +616,7 @@ def test_get_pagination_unknown_user_negative_value_negative_value(
     # Define the expected results
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
     expected_nbr_of_skipped_items = 0
 
@@ -698,7 +701,7 @@ def test_get_pagination_unknown_user_positive_value_wrong_type(
     # Define the expected results
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
     expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
 
@@ -738,7 +741,7 @@ def test_get_pagination_unknown_user_positive_value_negative_value(
     # Define the expected results
     # The number of elements to display per page we expect to retrieve in the
     # function's return
-    expected_nbr_items_per_page = 40  # TODO: centralize this value
+    expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
     expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
 
@@ -834,7 +837,7 @@ def test_get_pagination_known_user_wrong_type_wrong_type(
         # Assert that this value is different from the default one
         # (NB: for now, it seems obvious, but when we will centralize the default
         # value, it will make more sense)
-        assert new_nbr_items_per_page != 40  # TODO: centralize this value
+        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
         # Define the expected results
         # The number of elements to display per page we expect to retrieve in the
@@ -890,7 +893,7 @@ def test_get_pagination_known_user_wrong_type_negative_value(
         # Assert that this value is different from the default one
         # (NB: for now, it seems obvious, but when we will centralize the default
         # value, it will make more sense)
-        assert new_nbr_items_per_page != 40  # TODO: centralize this value
+        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
         # Define the expected results
         # The number of elements to display per page we expect to retrieve in the
@@ -945,7 +948,7 @@ def test_get_pagination_known_user_wrong_type_positive_value(
         # Assert that this value is different from the default one
         # (NB: for now, it seems obvious, but when we will centralize the default
         # value, it will make more sense)
-        assert new_nbr_items_per_page != 40  # TODO: centralize this value
+        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
         # Define the expected results
         # The number of elements to display per page we expect to retrieve in the
@@ -1001,7 +1004,7 @@ def test_get_pagination_known_user_negative_value_wrong_type(
         # Assert that this value is different from the default one
         # (NB: for now, it seems obvious, but when we will centralize the default
         # value, it will make more sense)
-        assert new_nbr_items_per_page != 40  # TODO: centralize this value
+        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
         # Define the expected results
         # The number of elements to display per page we expect to retrieve in the
@@ -1056,7 +1059,7 @@ def test_get_pagination_known_user_negative_value_negative_value(
         # Assert that this value is different from the default one
         # (NB: for now, it seems obvious, but when we will centralize the default
         # value, it will make more sense)
-        assert new_nbr_items_per_page != 40  # TODO: centralize this value
+        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
         # Define the expected results
         # The number of elements to display per page we expect to retrieve in the
@@ -1111,7 +1114,7 @@ def test_get_pagination_known_user_negative_value_positive_value(
         # Assert that this value is different from the default one
         # (NB: for now, it seems obvious, but when we will centralize the default
         # value, it will make more sense)
-        assert new_nbr_items_per_page != 40  # TODO: centralize this value
+        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
         # Define the expected results
         # The number of elements to display per page we expect to retrieve in the
@@ -1167,7 +1170,7 @@ def test_get_pagination_known_user_positive_value_wrong_type(
         # Assert that this value is different from the default one
         # (NB: for now, it seems obvious, but when we will centralize the default
         # value, it will make more sense)
-        assert new_nbr_items_per_page != 40  # TODO: centralize this value
+        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
         # Define the expected results
         # The number of elements to display per page we expect to retrieve in the
@@ -1220,7 +1223,7 @@ def test_get_pagination_known_user_positive_value_negative_value(
         # Assert that this value is different from the default one
         # (NB: for now, it seems obvious, but when we will centralize the default
         # value, it will make more sense)
-        assert new_nbr_items_per_page != 40  # TODO: centralize this value
+        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
         # Define the expected results
         # The number of elements to display per page we expect to retrieve in the
@@ -1273,7 +1276,7 @@ def test_get_pagination_known_user_positive_value_positive_value(
         # Assert that this value is different from the default one
         # (NB: for now, it seems obvious, but when we will centralize the default
         # value, it will make more sense)
-        assert new_nbr_items_per_page != 40  # TODO: centralize this value
+        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
         # Define the expected results
         # The number of elements to display per page we expect to retrieve in the

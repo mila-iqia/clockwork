@@ -25,6 +25,7 @@ from test_common.jobs_test_helpers import (
     helper_jobs_list_with_filter,
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
+from clockwork_web.core.users_helper import get_default_setting_value
 
 
 def test_redirect_index(client):
@@ -124,7 +125,7 @@ def test_jobs(client, fake_data: dict[list[dict]]):
     are going to put the fake data in the database for us.
     """
     response = client.get("/jobs/list")
-    for i in range(0, 40):  # TODO: centralize this value
+    for i in range(0, get_default_setting_value("nbr_items_per_page")):
         D_job = fake_data["jobs"][i]
         assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
 

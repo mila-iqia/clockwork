@@ -8,6 +8,35 @@ from clockwork_web.core.users_helper import *
 from clockwork_web.db import init_db, get_db
 
 
+@pytest.mark.parametrize(
+    "setting_name",
+    ["unexistingsetting", -1, 4.5, False, {}, ["blbl"]],
+)
+def test_get_default_setting_value_wrong_setting_name(setting_name):
+    """
+    Test the function get_default_setting_value when an unexisting setting_name
+    is provided
+
+    Parameters:
+        setting_name    The name of the unexisting setting_name to check
+    """
+    assert get_default_setting_value(setting_name) == None
+
+
+def test_get_default_setting_value_nbr_items_per_page():
+    """
+    Test the function get_default_setting_value when setting_name is "nbr_items_per_page".
+    """
+    assert get_default_setting_value("nbr_items_per_page") == 40
+
+
+def test_get_default_setting_value_dark_mode():
+    """
+    Test the function get_default_setting_value when setting_name is "dark_mode".
+    """
+    assert get_default_setting_value("dark_mode") == False
+
+
 def test_set_web_setting_with_unknown_user(app, fake_data):
     """
     Test the function set_web_setting with an unknown user.
@@ -297,8 +326,10 @@ def test_set_items_per_page_set_negative_number(app, fake_data, value):
         )
         # Compare the value of nbr_items_per_page with the default value of
         # the setting nbr_items_per_page
-        assert (
-            D_user["web_settings"]["nbr_items_per_page"] == 40
+        assert D_user["web_settings"][
+            "nbr_items_per_page"
+        ] == get_default_setting_value(
+            "nbr_items_per_page"
         )  # TODO: maybe put it in the configuration file?
         # Assert that the other web settings remain unchanged
         for setting_key in known_user["web_settings"].keys():
@@ -436,8 +467,10 @@ def test_reset_items_per_page_with_known_user(app, fake_data):
             {"mila_email_username": known_user["mila_email_username"]}
         )
         # Compare the value of nbr_items_per_page with the new value we tried to set
-        assert (
-            D_user["web_settings"]["nbr_items_per_page"] == 40
+        assert D_user["web_settings"][
+            "nbr_items_per_page"
+        ] == get_default_setting_value(
+            "nbr_items_per_page"
         )  # TODO: maybe put it in the configuration file?
         # Assert that the other web settings remain unchanged
         for setting_key in known_user["web_settings"].keys():
@@ -587,7 +620,9 @@ def test_get_nbr_items_per_page_none_user(app):
     # Use the app context
     with app.app_context():
         # Assert that the returned value is the default value
-        assert get_nbr_items_per_page(None) == 40  # TODO centralize this value
+        assert get_nbr_items_per_page(None) == get_default_setting_value(
+            "nbr_items_per_page"
+        )
 
 
 def test_get_nbr_items_per_page_unknown_user(app):
@@ -602,7 +637,9 @@ def test_get_nbr_items_per_page_unknown_user(app):
     # Use the app context
     with app.app_context():
         # Assert that the returned value is the default value
-        assert get_nbr_items_per_page("unknownuser") == 40  # TODO centralize this value
+        assert get_nbr_items_per_page("unknownuser") == get_default_setting_value(
+            "nbr_items_per_page"
+        )
 
 
 def test_get_nbr_items_per_page_known_user(app, fake_data):
