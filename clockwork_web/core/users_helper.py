@@ -8,9 +8,30 @@ from clockwork_web.db import get_db
 # TODO: do we call it "WEB_SETTINGS_TYPES" or do we keep a lowercase syntax?
 web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool}
 
-# default value for the user setting "nbr_items_per_page"
-# TODO: do we call it "DEFAULT_NBR_ITEMS_PER_PAGE" or do we keep a lowercase syntax?
-default_nbr_items_per_page = 40
+# Dictionary presenting the default values for the user web settings
+default_settings_values = {
+    "nbr_items_per_page": 40,  # default value for the user setting "nbr_items_per_page"
+    "dark_mode": False,  # default value of the user setting "dark_mode"
+}
+
+
+def get_default_setting_value(setting_name):
+    """
+    Retrieve the default value of one user web setting, identified by its
+    setting name
+
+    Parameters:
+        setting_name    Name of the settings of which we want to get the
+                        default value. For now, it could be "nbr_items_per_page"
+                        or "dark_mode"
+
+    Returns:
+        The default value for the requested web setting
+    """
+    if type(setting_name) == str and setting_name in default_settings_values:
+        return default_settings_values[setting_name]
+    else:
+        return None
 
 
 def set_web_setting(mila_email_username, setting_key, setting_value):
@@ -120,7 +141,9 @@ def reset_items_per_page(mila_email_username):
     """
     # Call set_web_setting
     set_web_setting(
-        mila_email_username, "nbr_items_per_page", default_nbr_items_per_page
+        mila_email_username,
+        "nbr_items_per_page",
+        get_default_setting_value("nbr_items_per_page"),
     )
 
 
@@ -142,7 +165,7 @@ def get_nbr_items_per_page(mila_email_username):
     if not user:
         # If no user has been found, return the default value of the number of items
         # to display per page
-        return 40  # TODO: centralize this value
+        return get_default_setting_value("nbr_items_per_page")
     else:
         # If a user has been found, return the value stored in its settings
         return user["web_settings"]["nbr_items_per_page"]
