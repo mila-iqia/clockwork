@@ -26,15 +26,17 @@ def test_nodes(client, fake_data: dict[list[dict]]):
     are going to put the fake data in the database for us.
     """
     response = client.get("/nodes/list")
-    for i in range(0,40): # TODO: centralize this value
+    for i in range(0, 40):  # TODO: centralize this value
         D_node = fake_data["nodes"][i]
         assert D_node["slurm"]["name"].encode("utf-8") in response.data
 
+
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page",
-    [(1,10),(0,22),("blbl",30),(True,5),(3,14)]
+    "num_page,nbr_items_per_page", [(1, 10), (0, 22), ("blbl", 30), (True, 5), (3, 14)]
 )
-def test_nodes_with_both_pagination_options(client, fake_data: dict[list[dict]], num_page, nbr_items_per_page):
+def test_nodes_with_both_pagination_options(
+    client, fake_data: dict[list[dict]], num_page, nbr_items_per_page
+):
     """
     Check that all the expected names of the nodes are present in the HTML
     generated when using both pagination options: num_page and nbr_items_per_page.
@@ -52,7 +54,9 @@ def test_nodes_with_both_pagination_options(client, fake_data: dict[list[dict]],
 
     # Retrieve the bounds of the interval of index in which the expected nodes
     # are contained
-    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(None, num_page, nbr_items_per_page)
+    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
+        None, num_page, nbr_items_per_page
+    )
 
     # Assert that the retrieved nodes correspond to the expected nodes
     for i in range(number_of_skipped_items, nbr_items_per_page):
@@ -60,11 +64,11 @@ def test_nodes_with_both_pagination_options(client, fake_data: dict[list[dict]],
             D_node = fake_data["nodes"][i]
             assert D_node["slurm"]["name"].encode("utf-8") in response.data
 
-@pytest.mark.parametrize(
-    "num_page",
-    [1,2,3,"lala",7.8, False]
-)
-def test_nodes_with_num_page_pagination_option(client, fake_data: dict[list[dict]], num_page):
+
+@pytest.mark.parametrize("num_page", [1, 2, 3, "lala", 7.8, False])
+def test_nodes_with_num_page_pagination_option(
+    client, fake_data: dict[list[dict]], num_page
+):
     """
     Check that all the expected names of the nodes are present in the HTML
     generated using only the num_page pagination option.
@@ -82,7 +86,9 @@ def test_nodes_with_num_page_pagination_option(client, fake_data: dict[list[dict
 
     # Retrieve the bounds of the interval of index in which the expected nodes
     # are contained
-    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(None, num_page, None)
+    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
+        None, num_page, None
+    )
     # Assert that the retrieved nodes correspond to the expected nodes
 
     for i in range(number_of_skipped_items, nbr_items_per_page):
@@ -90,11 +96,11 @@ def test_nodes_with_num_page_pagination_option(client, fake_data: dict[list[dict
             D_node = fake_data["nodes"][i]
             assert D_node["slurm"]["name"].encode("utf-8") in response.data
 
-@pytest.mark.parametrize(
-    "nbr_items_per_page",
-    [1,29,50,-1, [1,2], True]
-)
-def test_nodes_with_num_page_pagination_option(client, fake_data: dict[list[dict]], nbr_items_per_page):
+
+@pytest.mark.parametrize("nbr_items_per_page", [1, 29, 50, -1, [1, 2], True])
+def test_nodes_with_num_page_pagination_option(
+    client, fake_data: dict[list[dict]], nbr_items_per_page
+):
     """
     Check that all the expected names of the nodes are present in the HTML
     generated using only the num_page pagination option.
@@ -111,13 +117,16 @@ def test_nodes_with_num_page_pagination_option(client, fake_data: dict[list[dict
 
     # Retrieve the bounds of the interval of index in which the expected nodes
     # are contained
-    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(None, None, nbr_items_per_page)
+    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
+        None, None, nbr_items_per_page
+    )
     # Assert that the retrieved nodes correspond to the expected nodes
 
     for i in range(number_of_skipped_items, nbr_items_per_page):
         if i < len(fake_data):
             D_node = fake_data["nodes"][i]
             assert D_node["slurm"]["name"].encode("utf-8") in response.data
+
 
 @pytest.mark.parametrize(
     "cluster_name", ("mila", "cedar", "graham", "beluga", "sephiroth")
