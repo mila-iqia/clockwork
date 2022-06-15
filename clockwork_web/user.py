@@ -24,6 +24,7 @@ from clockwork_web.core.users_helper import (
     enable_dark_mode,
     disable_dark_mode,
     set_items_per_page,
+    get_default_setting_value,
 )
 
 
@@ -43,8 +44,8 @@ class User(UserMixin):
         cc_account_username=None,
         cc_account_update_key=None,
         web_settings={
-            "nbr_items_per_page": 40,  # TODO: set this value somewhere to normalize
-            "dark_mode": False,
+            "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
+            "dark_mode": get_default_setting_value("dark_mode"),
         },
     ):
         """
@@ -173,7 +174,10 @@ class AnonUser(AnonymousUserMixin):
         self.cc_account_username = None
         self.mila_cluster_username = None
         self.cc_account_update_key = None
-        self.web_settings = {"nbr_items_per_page": 40, "dark_mode": False}
+        self.web_settings = {
+            "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
+            "dark_mode": get_default_setting_value("dark_mode"),
+        }
 
     def new_api_key(self):
         # We don't want to touch the database for this.
