@@ -24,7 +24,8 @@ def test_nodes(client, fake_data: dict[list[dict]]):
     are going to put the fake data in the database for us.
     """
     response = client.get("/nodes/list")
-    for D_node in fake_data["nodes"]:
+    for i in range(0,40): # TODO: centralize this value
+        D_node = fake_data["nodes"][i]
         assert D_node["slurm"]["name"].encode("utf-8") in response.data
 
 
