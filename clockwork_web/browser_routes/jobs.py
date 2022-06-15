@@ -83,7 +83,9 @@ def route_list():
     )  # TODO: centralize this default value
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
     pagination_parameters = get_pagination_values(
-        current_user.mila_email_username, pagination_num_page, pagination_nbr_items_per_page
+        current_user.mila_email_username,
+        pagination_num_page,
+        pagination_nbr_items_per_page,
     )
 
     f0 = get_filter_user(request.args.get("user", None))
