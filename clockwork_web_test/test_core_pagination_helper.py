@@ -23,7 +23,7 @@ from clockwork_web.core.users_helper import (
 #     structure of the other Clockwork tests
 #   - The second part is the user's status. It takes either "none_user_",
 #     "unknwon_user_" or "known_user_" as values
-#   - The third part refers to the page number; related to the num_page
+#   - The third part refers to the page number; related to the page_num
 #     argument of the function to test. It takes either "wrong_type",
 #     "negative_value" or "positive_value" as values
 #   - The fourth part refers to the number of items to display per page
@@ -34,30 +34,30 @@ from clockwork_web.core.users_helper import (
 #       test_get_pagination_known_user_wrong_type_negative_value
 #   tests the function get_pagination_values with:
 #       - a known user (ie it is stored in the database)
-#       - a num_page argument presenting another type than integer
+#       - a page_num argument presenting another type than integer
 #       - a nbr_items_per_page argument set at 0 or a negative integer
 ###
 
 # When user is None
 
-# When user is None and num_page of wrong type
+# When user is None and page_num of wrong type
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page",
+    "page_num,nbr_items_per_page",
     [("pifpafpouf", True), (None, [1, 2, 3]), ({}, (4, 5, 6))],
 )
 def test_get_pagination_none_user_wrong_type_wrong_type(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - None as the current_user_mila_email parameter
-    - The num_page argument presenting a type different from integer
+    - The page_num argument presenting a type different from integer
     - The nbr_items_per_page presenting a type different from integer
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -77,7 +77,7 @@ def test_get_pagination_none_user_wrong_type_wrong_type(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(none_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(none_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -85,21 +85,21 @@ def test_get_pagination_none_user_wrong_type_wrong_type(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [("pifpafpouf", -34), (None, -6), ({}, 0)]
+    "page_num,nbr_items_per_page", [("pifpafpouf", -34), (None, -6), ({}, 0)]
 )
 def test_get_pagination_none_user_wrong_type_negative_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - None as the current_user_mila_email parameter
-    - The num_page argument presenting a type different from integer
+    - The page_num argument presenting a type different from integer
     - The nbr_items_per_page presenting 0 or a negative integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -119,7 +119,7 @@ def test_get_pagination_none_user_wrong_type_negative_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(none_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(none_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -127,21 +127,21 @@ def test_get_pagination_none_user_wrong_type_negative_value(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(True, 5), ([1, 2, 3], 42), ((4, 5, 6), 117)]
+    "page_num,nbr_items_per_page", [(True, 5), ([1, 2, 3], 42), ((4, 5, 6), 117)]
 )
 def test_get_pagination_none_user_wrong_type_positive_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - None as the current_user_mila_email parameter
-    - The num_page argument presenting a type different from integer
+    - The page_num argument presenting a type different from integer
     - The nbr_items_per_page presenting a positive integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -161,30 +161,30 @@ def test_get_pagination_none_user_wrong_type_positive_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(none_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(none_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-# When user is None and num_page 0 or a negative integer
+# When user is None and page_num 0 or a negative integer
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(-66, True), (-578, [1, 2, 3]), (-1, (4, 5, 6))]
+    "page_num,nbr_items_per_page", [(-66, True), (-578, [1, 2, 3]), (-1, (4, 5, 6))]
 )
 def test_get_pagination_none_user_negative_value_wrong_type(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - None as the current_user_mila_email parameter
-    - The num_page argument presenting 0 or a negative integer as value
+    - The page_num argument presenting 0 or a negative integer as value
     - The nbr_items_per_page presenting a type different from integer
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -204,7 +204,7 @@ def test_get_pagination_none_user_negative_value_wrong_type(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(none_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(none_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -212,21 +212,21 @@ def test_get_pagination_none_user_negative_value_wrong_type(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(-10, 0), (-6, -144), (-10001, -9)]
+    "page_num,nbr_items_per_page", [(-10, 0), (-6, -144), (-10001, -9)]
 )
 def test_get_pagination_none_user_negative_value_negative_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - None as the current_user_mila_email parameter
-    - The num_page argument presenting 0 or a negative integer as value
+    - The page_num argument presenting 0 or a negative integer as value
     - The nbr_items_per_page presenting 0 or a negative integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -246,7 +246,7 @@ def test_get_pagination_none_user_negative_value_negative_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(none_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(none_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -254,21 +254,21 @@ def test_get_pagination_none_user_negative_value_negative_value(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(-6, 10), (0, 24), (-137, 200)]
+    "page_num,nbr_items_per_page", [(-6, 10), (0, 24), (-137, 200)]
 )
 def test_get_pagination_none_user_negative_value_positive_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - None as the current_user_mila_email parameter
-    - The num_page argument presenting 0 or a negative integer as value
+    - The page_num argument presenting 0 or a negative integer as value
     - The nbr_items_per_page presenting a positive integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -288,30 +288,30 @@ def test_get_pagination_none_user_negative_value_positive_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(none_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(none_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-# When user is None and num_page a positive integer
+# When user is None and page_num a positive integer
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(1, True), (45, [1, 2, 3]), (19, (4, 5, 6))]
+    "page_num,nbr_items_per_page", [(1, True), (45, [1, 2, 3]), (19, (4, 5, 6))]
 )
 def test_get_pagination_none_user_positive_value_wrong_type(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - None as the current_user_mila_email parameter
-    - The num_page argument presenting a positive integer as value
+    - The page_num argument presenting a positive integer as value
     - The nbr_items_per_page presenting a type different from integer
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -323,7 +323,7 @@ def test_get_pagination_none_user_positive_value_wrong_type(
     # function's return
     expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
-    expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
+    expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
     # Use the app context
     with app.app_context():
@@ -331,27 +331,27 @@ def test_get_pagination_none_user_positive_value_wrong_type(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(none_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(none_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-@pytest.mark.parametrize("num_page,nbr_items_per_page", [(24, 0), (46, -70), (10, -5)])
+@pytest.mark.parametrize("page_num,nbr_items_per_page", [(24, 0), (46, -70), (10, -5)])
 def test_get_pagination_none_user_positive_value_negative_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - None as the current_user_mila_email parameter
-    - The num_page argument presenting a positive integer as value
+    - The page_num argument presenting a positive integer as value
     - The nbr_items_per_page presenting 0 or a negative integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -363,7 +363,7 @@ def test_get_pagination_none_user_positive_value_negative_value(
     # function's return
     expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
-    expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
+    expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
     # Use the app context
     with app.app_context():
@@ -371,27 +371,27 @@ def test_get_pagination_none_user_positive_value_negative_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(none_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(none_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-@pytest.mark.parametrize("num_page,nbr_items_per_page", [(10, 33), (42, 6), (5, 5)])
+@pytest.mark.parametrize("page_num,nbr_items_per_page", [(10, 33), (42, 6), (5, 5)])
 def test_get_pagination_none_user_positive_value_positive_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - None as the current_user_mila_email parameter
-    - The num_page argument presenting a positive integer as value
+    - The page_num argument presenting a positive integer as value
     - The nbr_items_per_page presenting a positive integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -403,7 +403,7 @@ def test_get_pagination_none_user_positive_value_positive_value(
     # function's return
     expected_nbr_items_per_page = nbr_items_per_page
     # The number of skipped items we expect to retrieve in the function's return
-    expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
+    expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
     # Use the app context
     with app.app_context():
@@ -411,7 +411,7 @@ def test_get_pagination_none_user_positive_value_positive_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(none_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(none_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -420,24 +420,24 @@ def test_get_pagination_none_user_positive_value_positive_value(
 
 # When user is unknown
 
-# When user is unknown and num_page of wrong type
+# When user is unknown and page_num of wrong type
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page",
+    "page_num,nbr_items_per_page",
     [("pifpafpouf", True), (None, [1, 2, 3]), ({}, (4, 5, 6))],
 )
 def test_get_pagination_unknown_user_wrong_type_wrong_type(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - An unknown user as the current_user_mila_email parameter
-    - The num_page argument presenting a type different from integer
+    - The page_num argument presenting a type different from integer
     - The nbr_items_per_page presenting a type different from integer
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -457,7 +457,7 @@ def test_get_pagination_unknown_user_wrong_type_wrong_type(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(unknown_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(unknown_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -465,21 +465,21 @@ def test_get_pagination_unknown_user_wrong_type_wrong_type(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [("pifpafpouf", -34), (None, -6), ({}, 0)]
+    "page_num,nbr_items_per_page", [("pifpafpouf", -34), (None, -6), ({}, 0)]
 )
 def test_get_pagination_unknown_user_wrong_type_negative_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - An unknown user as the current_user_mila_email parameter
-    - The num_page argument presenting a type different from integer
+    - The page_num argument presenting a type different from integer
     - The nbr_items_per_page presenting 0 or a negative integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -499,7 +499,7 @@ def test_get_pagination_unknown_user_wrong_type_negative_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(unknown_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(unknown_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -507,21 +507,21 @@ def test_get_pagination_unknown_user_wrong_type_negative_value(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(True, 5), ([1, 2, 3], 42), ((4, 5, 6), 117)]
+    "page_num,nbr_items_per_page", [(True, 5), ([1, 2, 3], 42), ((4, 5, 6), 117)]
 )
 def test_get_pagination_unknown_user_wrong_type_positive_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - An unknown user as the current_user_mila_email parameter
-    - The num_page argument presenting a type different from integer
+    - The page_num argument presenting a type different from integer
     - The nbr_items_per_page presenting a positive integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -541,30 +541,30 @@ def test_get_pagination_unknown_user_wrong_type_positive_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(unknown_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(unknown_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-# When user is unknown and num_page 0 or a negative integer
+# When user is unknown and page_num 0 or a negative integer
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(-66, True), (-578, [1, 2, 3]), (-1, (4, 5, 6))]
+    "page_num,nbr_items_per_page", [(-66, True), (-578, [1, 2, 3]), (-1, (4, 5, 6))]
 )
 def test_get_pagination_unknown_user_negative_value_wrong_type(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - An unknown user as the current_user_mila_email parameter
-    - The num_page argument presenting 0 or a negative integer as value
+    - The page_num argument presenting 0 or a negative integer as value
     - The nbr_items_per_page presenting a type different from integer
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -584,7 +584,7 @@ def test_get_pagination_unknown_user_negative_value_wrong_type(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(unknown_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(unknown_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -592,21 +592,21 @@ def test_get_pagination_unknown_user_negative_value_wrong_type(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(-10, 0), (-6, -144), (-10001, -9)]
+    "page_num,nbr_items_per_page", [(-10, 0), (-6, -144), (-10001, -9)]
 )
 def test_get_pagination_unknown_user_negative_value_negative_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - An unknown user as the current_user_mila_email parameter
-    - The num_page argument presenting 0 or a negative integer as value
+    - The page_num argument presenting 0 or a negative integer as value
     - The nbr_items_per_page presenting 0 or a negative integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -626,7 +626,7 @@ def test_get_pagination_unknown_user_negative_value_negative_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(unknown_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(unknown_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -634,21 +634,21 @@ def test_get_pagination_unknown_user_negative_value_negative_value(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(-6, 10), (0, 24), (-137, 200)]
+    "page_num,nbr_items_per_page", [(-6, 10), (0, 24), (-137, 200)]
 )
 def test_get_pagination_unknown_user_negative_value_positive_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - An unknown user as the current_user_mila_email parameter
-    - The num_page argument presenting 0 or a negative integer as value
+    - The page_num argument presenting 0 or a negative integer as value
     - The nbr_items_per_page presenting a positive integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -668,30 +668,30 @@ def test_get_pagination_unknown_user_negative_value_positive_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(unknown_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(unknown_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-# When user is unknown and num_page a positive integer
+# When user is unknown and page_num a positive integer
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(1, True), (45, [1, 2, 3]), (19, (4, 5, 6))]
+    "page_num,nbr_items_per_page", [(1, True), (45, [1, 2, 3]), (19, (4, 5, 6))]
 )
 def test_get_pagination_unknown_user_positive_value_wrong_type(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - An unknown as the current_user_mila_email parameter
-    - The num_page argument presenting a positive integer as value
+    - The page_num argument presenting a positive integer as value
     - The nbr_items_per_page presenting a type different from integer
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -703,7 +703,7 @@ def test_get_pagination_unknown_user_positive_value_wrong_type(
     # function's return
     expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
-    expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
+    expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
     # Use the app context
     with app.app_context():
@@ -711,27 +711,27 @@ def test_get_pagination_unknown_user_positive_value_wrong_type(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(unknown_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(unknown_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-@pytest.mark.parametrize("num_page,nbr_items_per_page", [(24, 0), (46, -70), (10, -5)])
+@pytest.mark.parametrize("page_num,nbr_items_per_page", [(24, 0), (46, -70), (10, -5)])
 def test_get_pagination_unknown_user_positive_value_negative_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - An unknown user as the current_user_mila_email parameter
-    - The num_page argument presenting a positive integer as value
+    - The page_num argument presenting a positive integer as value
     - The nbr_items_per_page presenting 0 or a negative integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -743,7 +743,7 @@ def test_get_pagination_unknown_user_positive_value_negative_value(
     # function's return
     expected_nbr_items_per_page = get_default_setting_value("nbr_items_per_page")
     # The number of skipped items we expect to retrieve in the function's return
-    expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
+    expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
     # Use the app context
     with app.app_context():
@@ -751,27 +751,27 @@ def test_get_pagination_unknown_user_positive_value_negative_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(unknown_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(unknown_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-@pytest.mark.parametrize("num_page,nbr_items_per_page", [(10, 33), (42, 6), (5, 5)])
+@pytest.mark.parametrize("page_num,nbr_items_per_page", [(10, 33), (42, 6), (5, 5)])
 def test_get_pagination_unknown_user_positive_value_positive_value(
-    app, num_page, nbr_items_per_page
+    app, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - An unknown user as the current_user_mila_email parameter
-    - The num_page argument presenting a positive integer as value
+    - The page_num argument presenting a positive integer as value
     - The nbr_items_per_page presenting a positive integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -783,7 +783,7 @@ def test_get_pagination_unknown_user_positive_value_positive_value(
     # function's return
     expected_nbr_items_per_page = nbr_items_per_page
     # The number of skipped items we expect to retrieve in the function's return
-    expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
+    expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
     # Use the app context
     with app.app_context():
@@ -791,7 +791,7 @@ def test_get_pagination_unknown_user_positive_value_positive_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(unknown_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(unknown_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -800,25 +800,25 @@ def test_get_pagination_unknown_user_positive_value_positive_value(
 
 # When user is known
 
-# When user is known and num_page of wrong type
+# When user is known and page_num of wrong type
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page",
+    "page_num,nbr_items_per_page",
     [("pifpafpouf", True), (None, [1, 2, 3]), ({}, (4, 5, 6))],
 )
 def test_get_pagination_known_user_wrong_type_wrong_type(
-    app, fake_data, num_page, nbr_items_per_page
+    app, fake_data, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - A known user as the current_user_mila_email parameter
-    - The num_page argument presenting a type different from integer
+    - The page_num argument presenting a type different from integer
     - The nbr_items_per_page presenting a type different from integer
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
         fake_data                           The data on which our tests are based
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -850,7 +850,7 @@ def test_get_pagination_known_user_wrong_type_wrong_type(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(known_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -858,22 +858,22 @@ def test_get_pagination_known_user_wrong_type_wrong_type(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [("pifpafpouf", -34), (None, -6), ({}, 0)]
+    "page_num,nbr_items_per_page", [("pifpafpouf", -34), (None, -6), ({}, 0)]
 )
 def test_get_pagination_known_user_wrong_type_negative_value(
-    app, fake_data, num_page, nbr_items_per_page
+    app, fake_data, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - A known user as the current_user_mila_email parameter
-    - The num_page argument presenting a type different from integer
+    - The page_num argument presenting a type different from integer
     - The nbr_items_per_page presenting 0 or a negative integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
         fake_data                           The data on which our tests are based
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -906,7 +906,7 @@ def test_get_pagination_known_user_wrong_type_negative_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(known_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -914,22 +914,22 @@ def test_get_pagination_known_user_wrong_type_negative_value(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(True, 5), ([1, 2, 3], 42), ((4, 5, 6), 117)]
+    "page_num,nbr_items_per_page", [(True, 5), ([1, 2, 3], 42), ((4, 5, 6), 117)]
 )
 def test_get_pagination_known_user_wrong_type_positive_value(
-    app, fake_data, num_page, nbr_items_per_page
+    app, fake_data, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - A known user as the current_user_mila_email parameter
-    - The num_page argument presenting a type different from integer
+    - The page_num argument presenting a type different from integer
     - The nbr_items_per_page presenting a positive integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
         fake_data                           The data on which our tests are based
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -961,31 +961,31 @@ def test_get_pagination_known_user_wrong_type_positive_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(known_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-# When user is known and num_page 0 or a negative integer
+# When user is known and page_num 0 or a negative integer
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(-66, True), (-578, [1, 2, 3]), (-1, (4, 5, 6))]
+    "page_num,nbr_items_per_page", [(-66, True), (-578, [1, 2, 3]), (-1, (4, 5, 6))]
 )
 def test_get_pagination_known_user_negative_value_wrong_type(
-    app, fake_data, num_page, nbr_items_per_page
+    app, fake_data, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - A known user as the current_user_mila_email parameter
-    - The num_page argument presenting 0 or a negative integer as value
+    - The page_num argument presenting 0 or a negative integer as value
     - The nbr_items_per_page presenting a type different from integer
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
         fake_data                           The data on which our tests are based
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -1017,7 +1017,7 @@ def test_get_pagination_known_user_negative_value_wrong_type(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(known_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -1025,22 +1025,22 @@ def test_get_pagination_known_user_negative_value_wrong_type(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(-10, 0), (-6, -144), (-10001, -9)]
+    "page_num,nbr_items_per_page", [(-10, 0), (-6, -144), (-10001, -9)]
 )
 def test_get_pagination_known_user_negative_value_negative_value(
-    app, fake_data, num_page, nbr_items_per_page
+    app, fake_data, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - A known user as the current_user_mila_email parameter
-    - The num_page argument presenting 0 or a negative integer as value
+    - The page_num argument presenting 0 or a negative integer as value
     - The nbr_items_per_page presenting 0 or a negative integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
         fake_data                           The data on which our tests are based
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -1072,7 +1072,7 @@ def test_get_pagination_known_user_negative_value_negative_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(known_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
@@ -1080,22 +1080,22 @@ def test_get_pagination_known_user_negative_value_negative_value(
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(-6, 10), (0, 24), (-137, 200)]
+    "page_num,nbr_items_per_page", [(-6, 10), (0, 24), (-137, 200)]
 )
 def test_get_pagination_known_user_negative_value_positive_value(
-    app, fake_data, num_page, nbr_items_per_page
+    app, fake_data, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - A known user as the current_user_mila_email parameter
-    - The num_page argument presenting 0 or a negative integer as value
+    - The page_num argument presenting 0 or a negative integer as value
     - The nbr_items_per_page presenting a positive integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
         fake_data                           The data on which our tests are based
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -1127,31 +1127,31 @@ def test_get_pagination_known_user_negative_value_positive_value(
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(known_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-# When user is known and num_page a positive integer
+# When user is known and page_num a positive integer
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(1, True), (45, [1, 2, 3]), (19, (4, 5, 6))]
+    "page_num,nbr_items_per_page", [(1, True), (45, [1, 2, 3]), (19, (4, 5, 6))]
 )
 def test_get_pagination_known_user_positive_value_wrong_type(
-    app, fake_data, num_page, nbr_items_per_page
+    app, fake_data, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - A known as the current_user_mila_email parameter
-    - The num_page argument presenting a positive integer as value
+    - The page_num argument presenting a positive integer as value
     - The nbr_items_per_page presenting a type different from integer
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
         fake_data                           The data on which our tests are based
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -1177,34 +1177,34 @@ def test_get_pagination_known_user_positive_value_wrong_type(
         # function's return
         expected_nbr_items_per_page = new_nbr_items_per_page
         # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
+        expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
         # Call the function with the input parameters
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(known_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-@pytest.mark.parametrize("num_page,nbr_items_per_page", [(24, 0), (46, -70), (10, -5)])
+@pytest.mark.parametrize("page_num,nbr_items_per_page", [(24, 0), (46, -70), (10, -5)])
 def test_get_pagination_known_user_positive_value_negative_value(
-    app, fake_data, num_page, nbr_items_per_page
+    app, fake_data, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - A known user as the current_user_mila_email parameter
-    - The num_page argument presenting a positive integer as value
+    - The page_num argument presenting a positive integer as value
     - The nbr_items_per_page presenting 0 or a negative integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
         fake_data                           The data on which our tests are based
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -1230,34 +1230,34 @@ def test_get_pagination_known_user_positive_value_negative_value(
         # function's return
         expected_nbr_items_per_page = new_nbr_items_per_page
         # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
+        expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
         # Call the function with the input parameters
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(known_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
         assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
 
-@pytest.mark.parametrize("num_page,nbr_items_per_page", [(10, 33), (42, 6), (5, 5)])
+@pytest.mark.parametrize("page_num,nbr_items_per_page", [(10, 33), (42, 6), (5, 5)])
 def test_get_pagination_known_user_positive_value_positive_value(
-    app, fake_data, num_page, nbr_items_per_page
+    app, fake_data, page_num, nbr_items_per_page
 ):
     """
     Test the function get_pagination_values with:
     - A known user as the current_user_mila_email parameter
-    - The num_page argument presenting a positive integer as value
+    - The page_num argument presenting a positive integer as value
     - The nbr_items_per_page presenting a positive integer as value
 
     Parameters:
         app                                 The scope of our tests, used to set
                                             the context (to access MongoDB)
         fake_data                           The data on which our tests are based
-        num_page                            The page number to pass as argument
+        page_num                            The page number to pass as argument
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
@@ -1283,13 +1283,13 @@ def test_get_pagination_known_user_positive_value_positive_value(
         # function's return
         expected_nbr_items_per_page = nbr_items_per_page
         # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = (num_page - 1) * expected_nbr_items_per_page
+        expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
         # Call the function with the input parameters
         (
             retrieved_nbr_of_skipped_items,
             retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user, num_page, nbr_items_per_page)
+        ) = get_pagination_values(known_user, page_num, nbr_items_per_page)
 
         # Assert the values we retrieve equal the values we expect
         assert retrieved_nbr_items_per_page == expected_nbr_items_per_page

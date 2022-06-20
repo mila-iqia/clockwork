@@ -42,8 +42,6 @@ def test_settings_set_nbr_items_per_page_missing_argument(client):
     assert response.status_code == 400
 
 
-
-
 @pytest.mark.parametrize("nbr_items_per_page", ["test", 1.3, True])
 def test_settings_set_nbr_items_per_page_wrong_type(client, nbr_items_per_page):
     """
