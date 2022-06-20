@@ -70,14 +70,22 @@ def set_web_setting(mila_email_username, setting_key, setting_value):
         #    }
         # This is what the variable "web_settings_key" is about.)
         web_settings_key = "web_settings.{}".format(setting_key)
-        users_collection.update_one(
+        update_result = users_collection.update_one(
             {
                 "mila_email_username": mila_email_username
             },  # identify the element to update
             {"$set": {web_settings_key: setting_value}},  # update to do
         )
-        # Return 200 (Success) and a success message
-        return (200, "The setting has been updated.")
+        if update_result.modified_count == 1:
+            # Return 200 (Success) and a success message if one setting has
+            # been modified (because there should be only one user corresponding
+            # to mila_email_username, and only one web setting corresponding to
+            # the setting key for this user)
+            return (200, "The setting has been updated.")
+        else:
+            # Otherwise, return error 500 (Internal Server Error): we do not
+            # really know what happened
+            return (500, "An error occurred.")
     else:
         # Return 400 (Bad Request) and an error message
         return (400, "The provided value is not expected for this setting.")
@@ -107,7 +115,7 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
         else:
             return web_settings_types[setting_key] == bool
     else:
-        return False  # TODO: raise an error instead?
+        return False
 
 
 def set_items_per_page(mila_email_username, nbr_items_per_page):
