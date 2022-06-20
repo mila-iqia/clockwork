@@ -47,10 +47,15 @@ def test_set_web_setting_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Set the dark mode for unexisting user to True
+        # Set the dark mode for unexisting user to True and get the status code of the operation
         # (in this case, we have valid setting_key and setting_value)
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
-        set_web_setting(unknown_mila_email_username, "dark_mode", True)
+        (status_code, _) = set_web_setting(
+            unknown_mila_email_username, "dark_mode", True
+        )
+
+        # Check the status code
+        assert status_code == 500
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -73,9 +78,14 @@ def test_set_web_setting_with_wrong_setting_key(app, fake_data):
 
     # Use the app context
     with app.app_context():
-        # Set an unexisting setting by using set_web_setting
+        # Set an unexisting setting by using set_web_setting and get the status code of the operation
         unexisting_setting = "settingdoesnotexist"
-        set_web_setting(known_mila_email_username, unexisting_setting, 42)
+        (status_code, _) = set_web_setting(
+            known_mila_email_username, unexisting_setting, 42
+        )
+
+        # Check the status code
+        assert status_code == 400
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -109,8 +119,13 @@ def test_set_web_setting_incorrect_value_for_existing_setting(
 
     # Use the app context
     with app.app_context():
-        # Try to set a wrong value type for the setting
-        set_web_setting(known_mila_email_username, setting_key, setting_value)
+        # Try to set a wrong value type for the setting and get the status code of the operation
+        (status_code, _) = set_web_setting(
+            known_mila_email_username, setting_key, setting_value
+        )
+
+        # Check the status code
+        assert status_code == 400
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -142,8 +157,13 @@ def test_set_web_setting_set_nbr_items_per_page(app, fake_data, value):
         # Retrieve value of the user's nbr_items_per_page setting
         previous_nbr_items_per_page = known_user["web_settings"]["nbr_items_per_page"]
 
-        # Set the setting nbr_items_per_page of the user to value
-        set_web_setting(known_mila_email_username, "nbr_items_per_page", value)
+        # Set the setting nbr_items_per_page of the user to value and get the status code of the operation
+        (status_code, _) = set_web_setting(
+            known_mila_email_username, "nbr_items_per_page", value
+        )
+
+        # Check the status code
+        assert status_code == 200
 
         # Assert that the user has been correctly modified
         # Retrieve the user from the database
@@ -188,8 +208,13 @@ def test_set_web_setting_set_dark_mode(app, fake_data):
         # Set the setting dark_mode of the user to True if its previous value
         # was False, and to False if its previous value was True
         new_dark_mode = not previous_dark_mode
-        # ... and set this new value
-        set_web_setting(known_mila_email_username, "dark_mode", new_dark_mode)
+        # ... set this new value and get the status code of the operation
+        (status_code, _) = set_web_setting(
+            known_mila_email_username, "dark_mode", new_dark_mode
+        )
+
+        # Check the status code
+        assert status_code == 200
 
         # Assert that the user has been correctly modified
         # Retrieve the user from the database
@@ -276,10 +301,13 @@ def test_set_items_per_page_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Set the dark mode for unexisting user to True
+        # Set the dark mode for unexisting user to True and get the status code of the operation
         # (in this case, we have valid setting_key and setting_value)
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
-        set_items_per_page(unknown_mila_email_username, 5)
+        (status_code, _) = set_items_per_page(unknown_mila_email_username, 5)
+
+        # Check the status code
+        assert status_code == 500
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -300,8 +328,6 @@ def test_set_items_per_page_set_negative_number(app, fake_data, value):
     - value         The value to set. It must be negative or 0 for the purpose
                     of the test
     """
-    # TODO: do we let this check in set_items_per_page or do we move it to
-    # set_web_setting?
     # Assert that the users of the fake data exist and are not empty
     assert "users" in fake_data and len(fake_data["users"]) > 0
 
@@ -312,8 +338,11 @@ def test_set_items_per_page_set_negative_number(app, fake_data, value):
     # Use the app context
     with app.app_context():
         # Set the setting nbr_items_per_page of the user to a negative number
-        # (or 0)
-        set_items_per_page(known_mila_email_username, -2)
+        # (or 0) and get the status code of the operation
+        (status_code, _) = set_items_per_page(known_mila_email_username, value)
+
+        # Check the status code
+        assert status_code == 200
 
         # Assert that the default value of the nbr_items_per_page setting
         # has been set for this user
@@ -328,9 +357,7 @@ def test_set_items_per_page_set_negative_number(app, fake_data, value):
         # the setting nbr_items_per_page
         assert D_user["web_settings"][
             "nbr_items_per_page"
-        ] == get_default_setting_value(
-            "nbr_items_per_page"
-        )  # TODO: maybe put it in the configuration file?
+        ] == get_default_setting_value("nbr_items_per_page")
         # Assert that the other web settings remain unchanged
         for setting_key in known_user["web_settings"].keys():
             if setting_key != "nbr_items_per_page":
@@ -364,8 +391,11 @@ def test_set_items_per_page_with_incorrect_value_type(app, fake_data, value):
 
     # Use the app context
     with app.app_context():
-        # Try to set a wrong value type for the setting
-        set_items_per_page(known_mila_email_username, value)
+        # Try to set a wrong value type for the setting and get the status code of the operation
+        (status_code, _) = set_items_per_page(known_mila_email_username, value)
+
+        # Check the status code
+        assert status_code == 400
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -389,8 +419,11 @@ def test_set_items_per_page_set_positive_number(app, fake_data, value):
 
     # Use the app context
     with app.app_context():
-        # Set the setting nbr_items_per_page of the user to a positive number
-        set_items_per_page(known_mila_email_username, value)
+        # Set the setting nbr_items_per_page of the user to a positive number and get the status code of the operation
+        (status_code, _) = set_items_per_page(known_mila_email_username, value)
+
+        # Check the status code
+        assert status_code == 200
 
         # Assert that the user has been correctly modified
         # Retrieve the user from the database
@@ -423,9 +456,12 @@ def test_reset_items_per_page_with_unknown_user(app, fake_data):
     # Use the app context
     with app.app_context():
         # Try to reset the preferred number of items per page to the default
-        # value for an unexisting user
+        # value for an unexisting user and get the status code of the operation
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
-        reset_items_per_page(unknown_mila_email_username)
+        (status_code, _) = reset_items_per_page(unknown_mila_email_username)
+
+        # Check the status code
+        assert status_code == 500
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -449,14 +485,17 @@ def test_reset_items_per_page_with_known_user(app, fake_data):
         known_user = fake_data["users"][0]
 
         # First set its nbr_items_per_page to a number different from the
-        # default number
-        set_items_per_page(known_user, 56)
+        # default number and get the status code of the operation
+        (status_code, _) = set_items_per_page(known_user["mila_email_username"], 56)
 
-        # TODO: I did not check if the modification has been done because it is
-        # suppose to be tested in another function, but we can discuss it
+        # Check the status code
+        assert status_code == 200
 
-        # Then reset this value
-        reset_items_per_page(known_user["mila_email_username"])
+        # Then reset this value and get the status code of the operation
+        (status_code, _) = reset_items_per_page(known_user["mila_email_username"])
+
+        # Check the status code
+        assert status_code == 200
 
         # Assert that the default value has been set for this user
         # Retrieve the user from the database
@@ -492,9 +531,12 @@ def test_enable_dark_mode_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Try to enable the dark mode for an unexisting user
+        # Try to enable the dark mode for an unexisting user and get the status code of the operation
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
-        enable_dark_mode(unknown_mila_email_username)
+        (status_code, _) = enable_dark_mode(unknown_mila_email_username)
+
+        # Check the status code
+        assert status_code == 500
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -517,14 +559,22 @@ def test_enable_dark_mode_success(app, fake_data):
         # Get an existing user from the fake_data
         known_user = fake_data["users"][0]
 
-        # First set its dark mode option to False
-        set_web_setting(known_user, "dark_mode", False)
+        # First set its dark mode option to False and get the status code of the operation
+        (status_code, _) = set_web_setting(
+            known_user["mila_email_username"], "dark_mode", False
+        )
+
+        # Check the status code
+        assert status_code == 200
 
         # TODO: I did not check if the modification has been done because it is
         # suppose to be tested in another function, but we can discuss it
 
-        # Then enable the dark mode for this user
-        enable_dark_mode(known_user["mila_email_username"])
+        # Then enable the dark mode for this user and get the status code of the operation
+        (status_code, _) = enable_dark_mode(known_user["mila_email_username"])
+
+        # Check the status code
+        assert status_code == 200
 
         # Assert that True has been set to the dark_mode setting for this user
         # Retrieve the user from the database
@@ -556,9 +606,12 @@ def test_disable_dark_mode_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Try to disable the dark mode for an unexisting user
+        # Try to disable the dark mode for an unexisting user and get the status code of the operation
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
-        disable_dark_mode(unknown_mila_email_username)
+        (status_code, _) = disable_dark_mode(unknown_mila_email_username)
+
+        # Check the status code
+        assert status_code == 500
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -581,14 +634,22 @@ def test_disable_dark_mode_success(app, fake_data):
         # Get an existing user from the fake_data
         known_user = fake_data["users"][0]
 
-        # First set its dark mode option to True
-        set_web_setting(known_user, "dark_mode", True)
+        # First set its dark mode option to True and get the status code of the operation
+        (status_code, _) = set_web_setting(
+            known_user["mila_email_username"], "dark_mode", True
+        )
+
+        # Check the status code
+        assert status_code == 200
 
         # TODO: I did not check if the modification has been done because it is
         # suppose to be tested in another function, but we can discuss it
 
-        # Then disable the dark mode for this user
-        disable_dark_mode(known_user["mila_email_username"])
+        # Then disable the dark mode for this user and get the status code of the operation
+        (status_code, _) = disable_dark_mode(known_user["mila_email_username"])
+
+        # Check the status code
+        assert status_code == 200
 
         # Assert that False has been set to the dark_mode setting for this user
         # Retrieve the user from the database
@@ -672,11 +733,16 @@ def test_get_nbr_items_per_page_known_user(app, fake_data):
         )
 
         # (The following is to be sure that we don't always return the default value)
-        # Set a new value to its nbr_items_per_page
+        # Set a new value to its nbr_items_per_page and get the status code of the operation
         new_value = (
             retrieved_nbr_items_per_page + 33
         )  # Thus, we are sure that the values differ
-        set_items_per_page(D_known_user["mila_email_username"], new_value)
+        (status_code, _) = set_items_per_page(
+            D_known_user["mila_email_username"], new_value
+        )
+
+        # Check the status code
+        assert status_code == 200
 
         # Retrieve its nbr_items_per_page through the function we are testing
         retrieved_nbr_items_per_page = get_nbr_items_per_page(

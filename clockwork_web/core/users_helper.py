@@ -76,7 +76,10 @@ def set_web_setting(mila_email_username, setting_key, setting_value):
             },  # identify the element to update
             {"$set": {web_settings_key: setting_value}},  # update to do
         )
-        if update_result.modified_count == 1:
+
+        # (We use matched_count here instead of modified_count in order to not return
+        # an error if the old value was just the same as the value we want to set)
+        if update_result.matched_count == 1:
             # Return 200 (Success) and a success message if one setting has
             # been modified (because there should be only one user corresponding
             # to mila_email_username, and only one web setting corresponding to
