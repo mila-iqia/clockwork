@@ -51,7 +51,7 @@ def route_list():
     """
     Can take optional args "cluster_name" and "node_name",
     where "name" refers to the host name.
-    "num_page" is optional and used for the pagination: it is a positive integer
+    "page_num" is optional and used for the pagination: it is a positive integer
     presenting the number of the current page
     "nbr_items_per_page" is optional and used for the pagination: it is a
     positive integer presenting the number of items to display per page
@@ -59,12 +59,12 @@ def route_list():
     .. :quickref: list all Slurm nodes as formatted html
     """
     # Retrieve the pagination parameters
-    pagination_num_page = request.args.get("num_page", type=int, default="1")
+    pagination_page_num = request.args.get("page_num", type=int, default="1")
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
     pagination_parameters = get_pagination_values(
         current_user.mila_email_username,
-        pagination_num_page,
+        pagination_page_num,
         pagination_nbr_items_per_page,
     )
 
@@ -84,7 +84,7 @@ def route_list():
         "nodes.html",
         LD_nodes=LD_nodes,
         mila_email_username=current_user.mila_email_username,
-        num_page=pagination_num_page,
+        page_num=pagination_page_num,
     )
 
 

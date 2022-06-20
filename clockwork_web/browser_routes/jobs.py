@@ -65,7 +65,7 @@ def route_list():
     and it will many any of them.
     "relative_time" refers to how many seconds to go back in time to list jobs.
     "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
-    "num_page" is optional and used for the pagination: it is a positive integer
+    "page_num" is optional and used for the pagination: it is a positive integer
     presenting the number of the current page
     "nbr_items_per_page" is optional and used for the pagination: it is a
     positive integer presenting the number of items to display per page
@@ -77,12 +77,12 @@ def route_list():
     want_json = to_boolean(want_json)
 
     # Retrieve the pagination parameters
-    pagination_num_page = request.args.get("num_page", type=int, default="1")
+    pagination_page_num = request.args.get("page_num", type=int, default="1")
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
     pagination_parameters = get_pagination_values(
         current_user.mila_email_username,
-        pagination_num_page,
+        pagination_page_num,
         pagination_nbr_items_per_page,
     )
 
@@ -123,7 +123,7 @@ def route_list():
             "jobs.html",
             LD_jobs=LD_jobs,
             mila_email_username=current_user.mila_email_username,
-            num_page=pagination_num_page,
+            page_num=pagination_page_num,
         )
 
 

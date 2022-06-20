@@ -32,23 +32,23 @@ def test_get_jobs_without_filters_or_pagination(app, fake_data):
 
 
 @pytest.mark.parametrize(
-    "num_page,nbr_items_per_page", [(1, 10), (0, 22), ("blbl", 30), (True, 5), (3, 14)]
+    "page_num,nbr_items_per_page", [(1, 10), (0, 22), ("blbl", 30), (True, 5), (3, 14)]
 )
-def test_get_jobs_with_pagination(app, fake_data, num_page, nbr_items_per_page):
+def test_get_jobs_with_pagination(app, fake_data, page_num, nbr_items_per_page):
     """
     Test the function get_jobs by providing only pagination parameters.
 
     Parameters:
         app                 The scope of our tests, used to set the context (to access MongoDB)
         fake_data           The data on which our tests are based
-        num_page            The number of the page displaying the jobs
+        page_num            The number of the page displaying the jobs
         nbr_items_per_page  The number of jobs we want to display per page
     """
     # Use the app context
     with app.app_context():
         # Define the pagination parameters
         pagination_parameters = get_pagination_values(
-            None, num_page, nbr_items_per_page
+            None, page_num, nbr_items_per_page
         )
 
         # Retrieve the jobs we want to list
@@ -62,7 +62,7 @@ def test_get_jobs_with_pagination(app, fake_data, num_page, nbr_items_per_page):
         # Retrieve the bounds of the interval of index in which the expected
         # jobs are contained
         (nbr_of_skipped_items, nbr_displayed_items_per_page) = get_pagination_values(
-            None, num_page, nbr_items_per_page
+            None, page_num, nbr_items_per_page
         )
 
         # Assert that they correspond to the jobs we expect
