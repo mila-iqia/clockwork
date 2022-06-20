@@ -52,7 +52,10 @@ def test_get_jobs_with_pagination(app, fake_data, page_num, nbr_items_per_page):
         )
 
         # Retrieve the jobs we want to list
-        LD_retrieved_jobs = get_jobs(nbr_skipped_items=nbr_skipped_items, nbr_items_to_display=nbr_items_to_display)
+        LD_retrieved_jobs = get_jobs(
+            nbr_skipped_items=nbr_skipped_items,
+            nbr_items_to_display=nbr_items_to_display,
+        )
 
         # Withdraw the "_id" element of the retrieved jobs
         LD_retrieved_jobs = [
@@ -63,7 +66,6 @@ def test_get_jobs_with_pagination(app, fake_data, page_num, nbr_items_per_page):
         assert (
             LD_retrieved_jobs
             == fake_data["jobs"][
-                nbr_skipped_items : nbr_skipped_items
-                + nbr_items_to_display
+                nbr_skipped_items : nbr_skipped_items + nbr_items_to_display
             ]
         )
