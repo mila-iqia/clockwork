@@ -144,14 +144,24 @@ class User(UserMixin):
     def settings_dark_mode_enable(self):
         """
         Enable the dark mode display option for the User.
+
+        Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
         """
-        enable_dark_mode(self.mila_email_username)
+        return enable_dark_mode(self.mila_email_username)
 
     def settings_dark_mode_disable(self):
         """
         Disable the dark mode display option for the User.
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (it should only return 200)
+            - a message describing the state of the operation
         """
-        disable_dark_mode(self.mila_email_username)
+        return disable_dark_mode(self.mila_email_username)
 
     def settings_nbr_items_per_page_set(self, nbr_items_per_page):
         """
@@ -162,8 +172,13 @@ class User(UserMixin):
         - nbr_items_per_page    The preferred number of items to display per
                                 page for the User, ie the value to save in
                                 its settings
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
         """
-        set_items_per_page(self.mila_email_username, nbr_items_per_page)
+        return set_items_per_page(self.mila_email_username, nbr_items_per_page)
 
 
 class AnonUser(AnonymousUserMixin):
