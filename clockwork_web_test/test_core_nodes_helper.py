@@ -47,29 +47,23 @@ def test_get_nodes_with_pagination(app, fake_data, page_num, nbr_items_per_page)
     # Use the app context
     with app.app_context():
         # Define the pagination parameters
-        pagination_parameters = get_pagination_values(
+        (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
             None, page_num, nbr_items_per_page
         )
 
         # Retrieve the nodes we want to list
-        LD_retrieved_nodes = get_nodes(pagination=pagination_parameters)
+        LD_retrieved_nodes = get_nodes(nbr_skipped_items=nbr_skipped_items, nbr_items_to_display=nbr_items_to_display)
 
         # Withdraw the "_id" element of the retrieved nodes
         LD_retrieved_nodes = [
             strip_artificial_fields_from_node(D_node) for D_node in LD_retrieved_nodes
         ]
 
-        # Retrieve the bounds of the interval of index in which the expected
-        # nodes are contained
-        (nbr_of_skipped_items, nbr_displayed_items_per_page) = get_pagination_values(
-            None, page_num, nbr_items_per_page
-        )
-
         # Assert that they correspond to the nodes we expect
         assert (
             LD_retrieved_nodes
             == fake_data["nodes"][
-                nbr_of_skipped_items : nbr_of_skipped_items
-                + nbr_displayed_items_per_page
+                nbr_skipped_items : nbr_skipped_items
+                + nbr_items_to_display
             ]
         )

@@ -82,31 +82,40 @@ def combine_all_mongodb_filters(*mongodb_filters):
         return {"$and": non_empty_mongodb_filters}
 
 
-def get_jobs(mongodb_filter: dict = {}, pagination: tuple = None):
+def get_jobs(
+    mongodb_filter: dict = {}, nbr_skipped_items=None, nbr_items_to_display=None
+):
     """
     Talk to the database and get the information.
 
     Parameters:
-        mongodb_filter  A concatenation of the filters to apply in order to
-                        select the jobs we want to retrieve from the MongoDB
-                        database
-        pagination      A tuple presenting the number of elements to skip while
-                        listing the jobs as first element, and, as second element,
-                         the number of jobs to display from it
+        mongodb_filter          A concatenation of the filters to apply in order
+                                to select the jobs we want to retrieve from the
+                                MongoDB database
+        nbr_skipped_items       Number of elements to skip while listing the jobs
+        nbr_items_to_display    Number of jobs to display
 
     Returns:
         Returns a list of dict with the properties of jobs.
     """
-    # Assert that pagination is a tuple of two elements
-    if not (type(pagination) == tuple and len(pagination) == 2):
-        pagination = None
+    # Assert that the two pagination elements (nbr_skipped_items and
+    # nbr_items_to_display) are respectively positive and strictly positive
+    # integers
+    if not (type(nbr_skipped_items) == int and nbr_skipped_items >= 0):
+        nbr_skipped_items = None
+
+    if not (type(nbr_items_to_display) == int and nbr_items_to_display > 0):
+        nbr_items_to_display = None
 
     # Retrieve the database
     mc = get_db()
     # Get the jobs from it
-    if pagination:
+    if nbr_skipped_items != None and nbr_items_to_display:
         LD_jobs = list(
-            mc["jobs"].find(mongodb_filter).skip(pagination[0]).limit(pagination[1])
+            mc["jobs"]
+            .find(mongodb_filter)
+            .skip(nbr_skipped_items)
+            .limit(nbr_items_to_display)
         )
     else:
         LD_jobs = list(mc["jobs"].find(mongodb_filter))

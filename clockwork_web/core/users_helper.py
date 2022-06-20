@@ -5,7 +5,6 @@ Helper functions related to the User entity.
 from clockwork_web.db import get_db
 
 # Dictionary referencing the expected type for each web setting entity
-# TODO: do we call it "WEB_SETTINGS_TYPES" or do we keep a lowercase syntax?
 web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool}
 
 # Dictionary presenting the default values for the user web settings

@@ -47,29 +47,23 @@ def test_get_jobs_with_pagination(app, fake_data, page_num, nbr_items_per_page):
     # Use the app context
     with app.app_context():
         # Define the pagination parameters
-        pagination_parameters = get_pagination_values(
+        (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
             None, page_num, nbr_items_per_page
         )
 
         # Retrieve the jobs we want to list
-        LD_retrieved_jobs = get_jobs(pagination=pagination_parameters)
+        LD_retrieved_jobs = get_jobs(nbr_skipped_items=nbr_skipped_items, nbr_items_to_display=nbr_items_to_display)
 
         # Withdraw the "_id" element of the retrieved jobs
         LD_retrieved_jobs = [
             strip_artificial_fields_from_job(D_job) for D_job in LD_retrieved_jobs
         ]
 
-        # Retrieve the bounds of the interval of index in which the expected
-        # jobs are contained
-        (nbr_of_skipped_items, nbr_displayed_items_per_page) = get_pagination_values(
-            None, page_num, nbr_items_per_page
-        )
-
         # Assert that they correspond to the jobs we expect
         assert (
             LD_retrieved_jobs
             == fake_data["jobs"][
-                nbr_of_skipped_items : nbr_of_skipped_items
-                + nbr_displayed_items_per_page
+                nbr_skipped_items : nbr_skipped_items
+                + nbr_items_to_display
             ]
         )
