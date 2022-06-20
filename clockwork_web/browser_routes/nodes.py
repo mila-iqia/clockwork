@@ -62,7 +62,7 @@ def route_list():
     pagination_page_num = request.args.get("page_num", type=int, default="1")
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
-    pagination_parameters = get_pagination_values(
+    (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
         current_user.mila_email_username,
         pagination_page_num,
         pagination_nbr_items_per_page,
@@ -74,7 +74,11 @@ def route_list():
     filter = combine_all_mongodb_filters(f0, f1)
 
     # Retrieve the nodes, by applying the filters and the pagination
-    LD_nodes = get_nodes(filter, pagination=pagination_parameters)
+    LD_nodes = get_nodes(
+        filter,
+        nbr_skipped_items=nbr_skipped_items,
+        nbr_items_to_display=nbr_items_to_display,
+    )
 
     # Format the nodes (by withdrawing the "_id" element of each node)
     LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
