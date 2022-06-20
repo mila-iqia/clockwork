@@ -82,11 +82,23 @@ def route_set_nbr_items_per_page():
     if nbr_items_per_page:
         # Check if nbr_items_per_page is a positive integer
         if type(nbr_items_per_page) == int and nbr_items_per_page > 0:
-            # If it is, update this number in the current user's settings
-            current_user.settings_nbr_items_per_page_set(nbr_items_per_page)
+            # If it is, update this number in the current user's settings and
+            # retrieve the status code and status message associated to this
+            # operation
+            (
+                status_code,
+                status_message,
+            ) = current_user.settings_nbr_items_per_page_set(nbr_items_per_page)
 
-            # Redirect to the settings page
-            return redirect("/settings")
+            if status_code == 200:
+                # If a success has been return, redirect to the settings page
+                return redirect("/settings")
+            else:
+                # Otherwise, return an error
+                return (
+                    render_template("error.html", error_msg=status_message),
+                    status_code,
+                )
         else:
             # Otherwise, return a Bad Request error and redirect to the error page
             return (
@@ -115,8 +127,16 @@ def route_set_dark_mode():
 
     .. :quickref: enable the dark mode for the current user
     """
-    current_user.settings_dark_mode_enable()
-    return {}  # TODO: I'm not sure this is the correct way to do this
+    # Set the dark mode value to True in the current user's web settings and
+    # retrieve the status code and status message associated to the operation
+    (status_code, status_message) = current_user.settings_dark_mode_enable()
+
+    if status_code == 200:
+        # If a success has been returned
+        return {}  # TODO: I'm not sure this is the correct way to do this
+    else:
+        # Otherwise, return an error
+        return (render_template("error.html", error_msg=status_message), status_code)
 
 
 @flask_api.route("/web/dark_mode/unset")
@@ -127,5 +147,13 @@ def route_unset_dark_mode():
 
     .. :quickref: disable the dark mode for the current user
     """
-    current_user.settings_dark_mode_disable()
-    return {}  # TODO: I'm not sure this is the correct way to do this
+    # Set the dark mode value to False in the current user's web settings and
+    # retrieve the status code and status message associated to the operation
+    (status_code, status_message) = current_user.settings_dark_mode_disable()
+
+    if status_code == 200:
+        # If a success has been returned
+        return {}  # TODO: I'm not sure this is the correct way to do this
+    else:
+        # Otherwise, return an error
+        return (render_template("error.html", error_msg=status_message), status_code)

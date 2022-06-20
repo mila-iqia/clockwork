@@ -48,6 +48,11 @@ def set_web_setting(mila_email_username, setting_key, setting_value):
                                 user["web_settings"] dictionary
         setting_value           The value to associate to the referred entity
                                 (identified by the setting_key)
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (200 or 400)
+        - a message describing the state of the operation
     """
     # If the type of setting_value is the expected type for an element related
     # to setting_key
@@ -71,9 +76,11 @@ def set_web_setting(mila_email_username, setting_key, setting_value):
             },  # identify the element to update
             {"$set": {web_settings_key: setting_value}},  # update to do
         )
+        # Return 200 (Success) and a success message
+        return (200, "The setting has been updated.")
     else:
-        # TODO: do we raise an error?
-        pass
+        # Return 400 (Bad Request) and an error message
+        return (400, "The provided value is not expected for this setting.")
 
 
 def is_correct_type_for_web_setting(setting_key, setting_value):
@@ -114,18 +121,27 @@ def set_items_per_page(mila_email_username, nbr_items_per_page):
         mila_email_username     Element identifying the User in the users
                                 collection of the database
         nbr_items_per_page      New number of items to display, to set
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (200 or 400)
+        - a message describing the state of the operation
     """
     # If the value to set is an integer
     if isinstance(nbr_items_per_page, int):
         # Check if nbr_items_per_page is a positive number.
         if nbr_items_per_page <= 0:
             # If not, set the default value for this parameter
-            reset_items_per_page(mila_email_username)
+            return reset_items_per_page(mila_email_username)
+
         else:
             # If it is positive, call set_web_setting
-            set_web_setting(
+            return set_web_setting(
                 mila_email_username, "nbr_items_per_page", nbr_items_per_page
             )
+
+    # Return 400 (Bad Request) and an error message
+    return (400, "The provided value is not expected for this setting")
 
 
 def reset_items_per_page(mila_email_username):
@@ -137,13 +153,27 @@ def reset_items_per_page(mila_email_username):
     Parameters:
         mila_email_username     Element identifying the User in the users
                                 collection of the database
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
     """
-    # Call set_web_setting
-    set_web_setting(
+    # Call set_web_setting and retrieve the returned status code and status
+    # message
+    (status_code, status_message) = set_web_setting(
         mila_email_username,
         "nbr_items_per_page",
         get_default_setting_value("nbr_items_per_page"),
     )
+
+    if status_code == 200:
+        # If the status code is 200 (Success), return it and indicates in the message
+        # that the setting's value has been set to default
+        return (200, "The setting has been reset to its default value.")
+    else:
+        # Otherwise, returns what the function set_web_setting has returned
+        return (status_code, status_message)
 
 
 def get_nbr_items_per_page(mila_email_username):
@@ -203,9 +233,14 @@ def enable_dark_mode(mila_email_username):
     Parameters:
         mila_email_username     Element identifying the User in the users
                                 collection of the database
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
     """
-    # Call set_web_setting
-    set_web_setting(mila_email_username, "dark_mode", True)
+    # Call set_web_setting an return its response
+    return set_web_setting(mila_email_username, "dark_mode", True)
 
 
 def disable_dark_mode(mila_email_username):
@@ -215,6 +250,11 @@ def disable_dark_mode(mila_email_username):
     Parameters:
         mila_email_username     Element identifying the User in the users
                                 collection of the database
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
     """
-    # Call set_web_setting
-    set_web_setting(mila_email_username, "dark_mode", False)
+    # Call set_web_setting and return its response
+    return set_web_setting(mila_email_username, "dark_mode", False)
