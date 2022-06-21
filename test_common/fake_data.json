@@ -518,8 +518,8 @@
         "partition": "fun_partition",
         "nodes": "cdr1120",
         "num_nodes": "1",
-        "num_cpus": "32",
-        "num_tasks": "32",
+        "num_cpus": "1",
+        "num_tasks": "1",
         "cpus_per_task": "1",
         "TRES": "cpu=32,mem=125G,node=1,billing=32",
         "command": "/a501/b278/c880",
@@ -550,8 +550,8 @@
         "partition": "fun_partition",
         "nodes": "cdr1790",
         "num_nodes": "1",
-        "num_cpus": "32",
-        "num_tasks": "32",
+        "num_cpus": "1",
+        "num_tasks": "1",
         "cpus_per_task": "1",
         "TRES": "cpu=32,mem=125G,node=1,billing=32",
         "command": "/a61/b434/c454",
@@ -703,15 +703,15 @@
         "account": "def-pomme-rrg",
         "job_state": "PENDING",
         "exit_code": "0:0",
-        "time_limit": 10800,
-        "submit_time": 1580804575.0,
-        "start_time": null,
-        "end_time": null,
+        "time_limit": 432000,
+        "submit_time": 1628179108.0,
+        "start_time": 1637545686.0,
+        "end_time": 1637977686.0,
         "partition": "fun_partition",
         "nodes": null,
-        "num_nodes": "1",
-        "num_cpus": "1",
-        "num_tasks": "1",
+        "num_nodes": "6",
+        "num_cpus": "160",
+        "num_tasks": "160",
         "cpus_per_task": "1",
         "TRES": "cpu=1,mem=6000M,node=1,billing=1",
         "command": "/a818/b60/c427",
@@ -774,7 +774,7 @@
         "partition": "fun_partition",
         "nodes": null,
         "num_nodes": "1",
-        "num_cpus": "4",
+        "num_cpus": "2",
         "num_tasks": "1",
         "cpus_per_task": "4",
         "TRES": "cpu=4,mem=16G,node=1,billing=4",
@@ -903,7 +903,7 @@
         "partition": "fun_partition",
         "nodes": "cn-c024",
         "num_nodes": "1",
-        "num_cpus": "1",
+        "num_cpus": "4",
         "num_tasks": "1",
         "cpus_per_task": "1",
         "TRES": "cpu=1,mem=10G,node=1,gres/gpu=1",
@@ -916,7 +916,7 @@
         "cluster_name": "mila"
       },
       "cw": {
-        "mila_email_username": "student07@mila.quebec"
+        "mila_email_username": "student18@mila.quebec"
       },
       "user": {}
     },
@@ -981,7 +981,7 @@
         "cluster_name": "graham"
       },
       "cw": {
-        "mila_email_username": "student04@mila.quebec"
+        "mila_email_username": "student05@mila.quebec"
       },
       "user": {}
     },
@@ -1226,8 +1226,8 @@
         "partition": "fun_partition",
         "nodes": "cdr1078",
         "num_nodes": "1",
-        "num_cpus": "32",
-        "num_tasks": "32",
+        "num_cpus": "1",
+        "num_tasks": "1",
         "cpus_per_task": "1",
         "TRES": "cpu=32,mem=125G,node=1,billing=32",
         "command": "/a15/b835/c32",
@@ -1742,7 +1742,7 @@
         "partition": "fun_partition",
         "nodes": "cn-a004",
         "num_nodes": "1",
-        "num_cpus": "4",
+        "num_cpus": "8",
         "num_tasks": "1",
         "cpus_per_task": "4",
         "TRES": "cpu=4,mem=64G,node=1,billing=1,gres/gpu=1",
@@ -1897,15 +1897,15 @@
         "account": "def-patate-rrg",
         "job_state": "PENDING",
         "exit_code": "0:0",
-        "time_limit": 10800,
-        "submit_time": 1580804575.0,
-        "start_time": null,
-        "end_time": null,
+        "time_limit": 2419200,
+        "submit_time": 1630441394.0,
+        "start_time": 1635533629.0,
+        "end_time": 1637952829.0,
         "partition": "fun_partition",
-        "nodes": null,
+        "nodes": "cdr1754",
         "num_nodes": "1",
-        "num_cpus": "1",
-        "num_tasks": "1",
+        "num_cpus": "32",
+        "num_tasks": "32",
         "cpus_per_task": "1",
         "TRES": "cpu=1,mem=6000M,node=1,billing=1",
         "command": "/a591/b853/c188",
@@ -1934,9 +1934,9 @@
         "start_time": null,
         "end_time": null,
         "partition": "fun_partition",
-        "nodes": null,
+        "nodes": "cn-c040",
         "num_nodes": "1",
-        "num_cpus": "4",
+        "num_cpus": "1",
         "num_tasks": "1",
         "cpus_per_task": "4",
         "TRES": "cpu=4,mem=16G,node=1,billing=4",
@@ -1948,7 +1948,7 @@
         "cluster_name": "graham"
       },
       "cw": {
-        "mila_email_username": "student15@mila.quebec"
+        "mila_email_username": "student13@mila.quebec"
       },
       "user": {}
     },
@@ -1991,7 +1991,7 @@
         "username": "ccuser16",
         "uid": 10016,
         "account": "def-patate-rrg",
-        "job_state": "RUNNING",
+        "job_state": "PENDING",
         "exit_code": "0:0",
         "time_limit": 2419200,
         "submit_time": 1630441518.0,
@@ -2000,8 +2000,8 @@
         "partition": "fun_partition",
         "nodes": "cdr1617",
         "num_nodes": "1",
-        "num_cpus": "32",
-        "num_tasks": "32",
+        "num_cpus": "1",
+        "num_tasks": "1",
         "cpus_per_task": "1",
         "TRES": "cpu=32,mem=125G,node=1,billing=32",
         "command": "/a578/b376/c671",
@@ -2140,7 +2140,7 @@
         "cluster_name": "graham"
       },
       "cw": {
-        "mila_email_username": "student10@mila.quebec"
+        "mila_email_username": "student18@mila.quebec"
       },
       "user": {}
     },
@@ -2215,7 +2215,7 @@
         "username": "ccuser19",
         "uid": 10019,
         "account": "def-pomme-rrg",
-        "job_state": "RUNNING",
+        "job_state": "PENDING",
         "exit_code": "0:0",
         "time_limit": 2419200,
         "submit_time": 1630441491.0,
@@ -2224,8 +2224,8 @@
         "partition": "fun_partition",
         "nodes": "cdr1058",
         "num_nodes": "1",
-        "num_cpus": "32",
-        "num_tasks": "32",
+        "num_cpus": "1",
+        "num_tasks": "1",
         "cpus_per_task": "1",
         "TRES": "cpu=32,mem=125G,node=1,billing=32",
         "command": "/a363/b916/c940",
@@ -2236,7 +2236,7 @@
         "cluster_name": "cedar"
       },
       "cw": {
-        "mila_email_username": "student19@mila.quebec"
+        "mila_email_username": "student01@mila.quebec"
       },
       "user": {}
     },
@@ -2256,7 +2256,7 @@
         "partition": "fun_partition",
         "nodes": "gra14",
         "num_nodes": "1",
-        "num_cpus": "4",
+        "num_cpus": "1",
         "num_tasks": "1",
         "cpus_per_task": "4",
         "TRES": "cpu=4,mem=16G,node=1,billing=4",
@@ -2350,9 +2350,9 @@
         "start_time": 1637011083.0,
         "end_time": 1637615883.0,
         "partition": "fun_partition",
-        "nodes": "cn-c006",
+        "nodes": "cn-a007",
         "num_nodes": "1",
-        "num_cpus": "1",
+        "num_cpus": "2",
         "num_tasks": "1",
         "cpus_per_task": "1",
         "TRES": "cpu=1,mem=10G,node=1,gres/gpu=1",
@@ -2494,7 +2494,7 @@
         "cluster_name": "graham"
       },
       "cw": {
-        "mila_email_username": "student18@mila.quebec"
+        "mila_email_username": "student00@mila.quebec"
       },
       "user": {}
     },
@@ -2623,7 +2623,7 @@
         "cluster_name": "graham"
       },
       "cw": {
-        "mila_email_username": "student07@mila.quebec"
+        "mila_email_username": "student04@mila.quebec"
       },
       "user": {}
     },
@@ -2828,15 +2828,47 @@
         "account": "def-pomme-rrg",
         "job_state": "PENDING",
         "exit_code": "0:0",
-        "time_limit": 10800,
-        "submit_time": 1580804575.0,
-        "start_time": null,
-        "end_time": null,
+        "time_limit": 864000,
+        "submit_time": 1629920095.0,
+        "start_time": 1636899313.0,
+        "end_time": 1637763313.0,
         "partition": "fun_partition",
-        "nodes": null,
+        "nodes": "gra22",
         "num_nodes": "1",
-        "num_cpus": "1",
+        "num_cpus": "4",
         "num_tasks": "1",
+        "cpus_per_task": "4",
+        "TRES": "cpu=4,mem=16G,node=1,billing=4",
+        "command": "/a22/b958/c440",
+        "work_dir": "/a11/b581/c815",
+        "stderr": "/a550/b79/c817.err",
+        "stdin": "/dev/null",
+        "stdout": "/a629/b827/c666.out",
+        "cluster_name": "graham"
+      },
+      "cw": {
+        "mila_email_username": "student18@mila.quebec"
+      },
+      "user": {}
+    },
+    {
+      "slurm": {
+        "job_id": "643257",
+        "name": "somejobname_151528",
+        "username": "ccuser08",
+        "uid": 10008,
+        "account": "def-patate-rrg",
+        "job_state": "RUNNING",
+        "exit_code": "0:0",
+        "time_limit": 432000,
+        "submit_time": 1622575524.0,
+        "start_time": 1636622628.0,
+        "end_time": 1637054628.0,
+        "partition": "fun_partition",
+        "nodes": "gra[97-100,102-104,106,113,115,119,125,127,130,132-133,1108,1111,1115-1117,1119,1122,1124-1128,1131-1135,1137,1139]",
+        "num_nodes": "35",
+        "num_cpus": "160",
+        "num_tasks": "160",
         "cpus_per_task": "1",
         "TRES": "cpu=1,mem=6000M,node=1,billing=1",
         "command": "/a914/b761/c672",
@@ -3535,7 +3567,7 @@
       "slurm": {
         "name": "grh0002",
         "arch": "x86_64",
-        "features": "broadwell",
+        "features": "skylake",
         "gres": null,
         "addr": "grh0002",
         "memory": 128000,
@@ -3641,11 +3673,7 @@
         "cluster_name": "cedar"
       },
       "cw": {
-        "gpu": {
-          "name": "p100",
-          "number": 4,
-          "cw_name": "p100"
-        }
+        "gpu": {}
       }
     },
     {
@@ -3668,24 +3696,20 @@
     },
     {
       "slurm": {
-        "name": "ced0037",
+        "name": "cedcdr0054",
         "arch": "x86_64",
-        "features": "p100",
-        "gres": "gpu:p100:4",
-        "addr": "ced0037",
+        "features": "broadwell",
+        "gres": null,
+        "addr": "ced540054",
         "memory": 128000,
-        "state": "MIXED",
-        "cfg_tres": "cpu=24,mem=125G,billing=4,gres/gpu=4",
-        "alloc_tres": "cpu=14,mem=40664M,gres/gpu=4",
+        "state": "ALLOCATED",
+        "cfg_tres": "cpu=32,mem=125G,billing=32",
+        "alloc_tres": "cpu=32,mem=110560M",
         "comment": null,
         "cluster_name": "cedar"
       },
       "cw": {
-        "gpu": {
-          "name": "p100",
-          "number": 4,
-          "cw_name": "p100"
-        }
+        "gpu": {}
       }
     },
     {
@@ -3790,7 +3814,7 @@
       "slurm": {
         "name": "grh0008",
         "arch": "x86_64",
-        "features": "broadwell",
+        "features": "skylake",
         "gres": null,
         "addr": "grh0008",
         "memory": 128000,
@@ -3856,17 +3880,21 @@
         "cfg_tres": "cpu=32,mem=125G,billing=32",
         "alloc_tres": "cpu=32,mem=106600M",
         "comment": null,
-        "cluster_name": "graham"
+        "cluster_name": "cedar"
       },
       "cw": {
-        "gpu": {}
+        "gpu": {
+          "name": "p100",
+          "number": 4,
+          "cw_name": "p100"
+        }
       }
     },
     {
       "slurm": {
         "name": "ced0078",
         "arch": "x86_64",
-        "features": "broadwell",
+        "features": "skylake",
         "gres": null,
         "addr": "ced0078",
         "memory": 128000,
@@ -3896,10 +3924,9 @@
       },
       "cw": {
         "gpu": {
-          "name": "rtx8000",
-          "number": 8,
-          "associated_sockets": "0-1",
-          "cw_name": "rtx8000"
+          "name": "v100",
+          "number": 4,
+          "cw_name": "v100"
         }
       }
     },
@@ -3944,11 +3971,11 @@
         "arch": "x86_64",
         "features": "broadwell",
         "gres": null,
-        "addr": "ced0067",
+        "addr": "ced730073",
         "memory": 128000,
-        "state": "MIXED",
+        "state": "ALLOCATED",
         "cfg_tres": "cpu=32,mem=125G,billing=32",
-        "alloc_tres": "cpu=29,mem=127376M",
+        "alloc_tres": "cpu=32,mem=103495M",
         "comment": null,
         "cluster_name": "cedar"
       },
@@ -4152,7 +4179,7 @@
         "gres": null,
         "addr": "grh0058",
         "memory": 128000,
-        "state": "ALLOCATED",
+        "state": "MIXED",
         "cfg_tres": "cpu=32,mem=125G,billing=32",
         "alloc_tres": "cpu=32,mem=125G",
         "comment": null,
@@ -4174,7 +4201,7 @@
         "cfg_tres": "cpu=32,mem=125G,billing=32",
         "alloc_tres": "cpu=32,mem=117360M",
         "comment": null,
-        "cluster_name": "cedar"
+        "cluster_name": "mila"
       },
       "cw": {
         "gpu": {}
@@ -4192,10 +4219,14 @@
         "cfg_tres": "cpu=32,mem=125G,billing=32",
         "alloc_tres": "cpu=32,mem=125G",
         "comment": null,
-        "cluster_name": "graham"
+        "cluster_name": "cedar"
       },
       "cw": {
-        "gpu": {}
+        "gpu": {
+          "name": "p100",
+          "number": 4,
+          "cw_name": "p100"
+        }
       }
     },
     {
@@ -4212,7 +4243,11 @@
         "cluster_name": "beluga"
       },
       "cw": {
-        "gpu": {}
+        "gpu": {
+          "name": "v100",
+          "number": 8,
+          "cw_name": "v100l"
+        }
       }
     },
     {
@@ -4263,7 +4298,7 @@
         "cfg_tres": "cpu=24,mem=125G,billing=4,gres/gpu=4",
         "alloc_tres": "cpu=24,mem=125G,gres/gpu=4",
         "comment": null,
-        "cluster_name": "cedar"
+        "cluster_name": "graham"
       },
       "cw": {
         "gpu": {
@@ -4450,7 +4485,11 @@
         "cluster_name": "graham"
       },
       "cw": {
-        "gpu": {}
+        "gpu": {
+          "name": "v100",
+          "number": 4,
+          "cw_name": "v100"
+        }
       }
     },
     {
@@ -4504,7 +4543,7 @@
       "slurm": {
         "name": "ced0079",
         "arch": "x86_64",
-        "features": "broadwell",
+        "features": "skylake",
         "gres": null,
         "addr": "ced0079",
         "memory": 128000,
@@ -4784,15 +4823,28 @@
         "cfg_tres": "cpu=64,mem=376G,billing=120,gres/gpu=8",
         "alloc_tres": "cpu=15,mem=130G,gres/gpu=8",
         "comment": null,
-        "cluster_name": "mila"
+        "cluster_name": "cedar"
       },
       "cw": {
-        "gpu": {
-          "name": "rtx8000",
-          "number": 8,
-          "associated_sockets": "0-1",
-          "cw_name": "rtx8000"
-        }
+        "gpu": {}
+      }
+    },
+    {
+      "slurm": {
+        "name": "grhgra0010",
+        "arch": "x86_64",
+        "features": "broadwell",
+        "gres": null,
+        "addr": "grh100010",
+        "memory": 128000,
+        "state": "ALLOCATED",
+        "cfg_tres": "cpu=32,mem=125G,billing=32",
+        "alloc_tres": "cpu=32,mem=106600M",
+        "comment": null,
+        "cluster_name": "graham"
+      },
+      "cw": {
+        "gpu": {}
       }
     },
     {
@@ -4883,7 +4935,7 @@
         "cfg_tres": "cpu=24,mem=125G,billing=4,gres/gpu=4",
         "alloc_tres": "cpu=10,mem=64G,gres/gpu=4",
         "comment": null,
-        "cluster_name": "cedar"
+        "cluster_name": "graham"
       },
       "cw": {
         "gpu": {
@@ -5030,7 +5082,7 @@
         "memory": 128000,
         "state": "ALLOCATED",
         "cfg_tres": "cpu=32,mem=125G,billing=32",
-        "alloc_tres": "cpu=32,mem=125G",
+        "alloc_tres": "cpu=32,mem=110524M",
         "comment": null,
         "cluster_name": "graham"
       },
@@ -5168,15 +5220,10 @@
         "cfg_tres": "cpu=64,mem=376G,billing=120,gres/gpu=8",
         "alloc_tres": "cpu=33,mem=134592M,gres/gpu=8",
         "comment": null,
-        "cluster_name": "mila"
+        "cluster_name": "cedar"
       },
       "cw": {
-        "gpu": {
-          "name": "rtx8000",
-          "number": 8,
-          "associated_sockets": "0-1",
-          "cw_name": "rtx8000"
-        }
+        "gpu": {}
       }
     },
     {
@@ -5245,15 +5292,10 @@
         "cfg_tres": "cpu=64,mem=376G,billing=120,gres/gpu=8",
         "alloc_tres": "cpu=50,mem=181G,gres/gpu=8",
         "comment": null,
-        "cluster_name": "mila"
+        "cluster_name": "cedar"
       },
       "cw": {
-        "gpu": {
-          "name": "rtx8000",
-          "number": 8,
-          "associated_sockets": "0-1",
-          "cw_name": "rtx8000"
-        }
+        "gpu": {}
       }
     },
     {
@@ -5310,7 +5352,11 @@
         "cluster_name": "beluga"
       },
       "cw": {
-        "gpu": {}
+        "gpu": {
+          "name": "v100",
+          "number": 4,
+          "cw_name": "v100"
+        }
       }
     },
     {
@@ -5396,7 +5442,7 @@
         "gres": null,
         "addr": "grh0013",
         "memory": 128000,
-        "state": "ALLOCATED",
+        "state": "MIXED",
         "cfg_tres": "cpu=32,mem=125G,billing=32",
         "alloc_tres": "cpu=32,mem=115600M",
         "comment": null,
