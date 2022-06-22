@@ -1,14 +1,12 @@
 from flask import Blueprint, request, render_template
-from flask_login import(
-    current_user,
-    login_required
-)
+from flask_login import current_user, login_required
 
 flask_api = Blueprint("users", __name__)
 
-import random # TODO: This is a temporary import
+import random  # TODO: This is a temporary import
 
 from clockwork_web.core.users_helper import get_user
+
 
 @flask_api.route("/one")
 @login_required
@@ -40,5 +38,7 @@ def route_one():
         username=username,
         user=D_user,
         mila_email_username=current_user.mila_email_username,
-        picture_name="user{}".format(random.randint(0,2)) # TODO: This is a temporary addition in order to user several images
+        picture_name="user{}".format(
+            random.randint(0, 2)
+        ),  # TODO: This is a temporary addition in order to user several images
     )
