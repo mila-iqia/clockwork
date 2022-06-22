@@ -46,7 +46,11 @@
                     {% for D_job in LD_jobs %}
                     <tr>
                         <td>{{D_job['slurm']['cluster_name']}}</td>
-                        <td>{{D_job['cw']['best_guess_for_username']}}</td>
+                          <td>
+                            <a href="/users/one?username={{D_job['cw']['best_guess_for_username']}}">
+                              {{D_job['cw']['best_guess_for_username']}}
+                            </a>
+                          </td>
                         <td>
                             <a href="/jobs/one?cluster_name={{D_job['slurm']['cluster_name']}}&job_id={{D_job['slurm']['job_id']}}">{{D_job['slurm']['job_id']}}</a>
                         </td>

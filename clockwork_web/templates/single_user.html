@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="cc_subheader_banner">
+        <div class="row">
+            <div class="col s2">
+                <!-- spacing on the left -->
+            </div>
+            <div class="col s4">
+                <h4>{{username}}</h4>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <!-- Account(s) -->
+        <!-- Mila account -->
+        {% if user["mila_cluster_username"] is not none %}
+          <div class="row">
+            <div class="col s3">
+              <b>Mila account:</b>
+            </div>
+            <div class="col s1">
+              {{user["mila_cluster_username"]}}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Compute Canada account -->
+        {% if user["cc_account_username"] is not none %}
+          <div class="row">
+            <div class="col s3">
+              <b>Digital Research Alliance of Canada account</b>
+            </div>
+            <div class="col s1">
+              {{user["cc_account_username"]}}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Picture -->
+        <img src="{{url_for('static', filename='images/users/{}.jpg'.format(picture_name))}}"
+
+    </div>
+{% endblock %}
