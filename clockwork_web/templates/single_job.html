@@ -32,7 +32,7 @@
         <div class="col s9" id="changeme">
 
             <!-- <h1>{{channel_title}}</h1> -->
-            
+
             <table class="striped">
                 <thead>
                     <tr>
@@ -47,6 +47,12 @@
                         {% if k in ['batch_host'] and v != None %}
                         <!-- TODO : Implement this link because it doesn't work now. -->
                         <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
+                        {% elif k == "username" %}
+                          <td>
+                            <a href="/users/one?username={{v}}">
+                              {{v}}
+                            </a>
+                          </td>
                         {% else %}
                         <td>{{v}}</td>
                         {% endif %}
