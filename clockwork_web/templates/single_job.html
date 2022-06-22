@@ -41,7 +41,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for (k, v) in LP_single_job %}
+                    {% for (k, v) in LP_single_job_slurm %}
                     <tr>
                         <td>{{k}}</td>
                         {% if k in ['batch_host'] and v != None %}
@@ -49,7 +49,7 @@
                         <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
                         {% elif k == "username" %}
                           <td>
-                            <a href="/users/one?username={{v}}">
+                            <a href="/users/one?username={{D_single_job_cw['mila_username']}}">
                               {{v}}
                             </a>
                           </td>
