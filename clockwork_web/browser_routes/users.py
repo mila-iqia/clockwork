@@ -44,6 +44,8 @@ def route_one():
         )
     else:
         return (
-            render_template("error.html", error_msg=f"The requested user has not been found."),
-            400 # Bad Request
+            render_template(
+                "error.html", error_msg=f"The requested user has not been found."
+            ),
+            400,  # Bad Request
         )
