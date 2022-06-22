@@ -16,6 +16,7 @@ Lots of details about these tests depend on the particular values that we put in
 import random
 import json
 import pytest
+
 from test_common.jobs_test_helpers import (
     helper_list_relative_time,
     helper_single_job_missing,
@@ -23,6 +24,8 @@ from test_common.jobs_test_helpers import (
     helper_list_jobs_for_a_given_random_user,
     helper_jobs_list_with_filter,
 )
+from clockwork_web.core.pagination_helper import get_pagination_values
+from clockwork_web.core.users_helper import get_default_setting_value
 
 
 def test_redirect_index(client):
@@ -113,6 +116,115 @@ def test_list_invalid_time(client):
         b"cannot be cast as a valid integer: this_is_not_a_valid_relative_time"
         in response.data
     )
+
+
+def test_jobs(client, fake_data: dict[list[dict]]):
+    """
+    Check that all the names of the jobs are present in the HTML generated.
+    Note that the `client` fixture depends on other fixtures that
+    are going to put the fake data in the database for us.
+    """
+    response = client.get("/jobs/list")
+    for i in range(0, get_default_setting_value("nbr_items_per_page")):
+        D_job = fake_data["jobs"][i]
+        assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
+
+
+@pytest.mark.parametrize(
+    "page_num,nbr_items_per_page", [(1, 10), (0, 22), ("blbl", 30), (True, 5), (3, 14)]
+)
+def test_jobs_with_both_pagination_options(
+    client, fake_data: dict[list[dict]], page_num, nbr_items_per_page
+):
+    """
+    Check that all the expected names of the jobs are present in the HTML
+    generated when using both pagination options: page_num and nbr_items_per_page.
+
+    Parameters
+        client              The web client to request. Note that this fixture
+                            depends on other fixtures that are going to put the
+                            fake data in the database for us
+        fake_data           The data our tests are based on
+        page_num            The number of the page displaying the jobs
+        nbr_items_per_page  The number of jobs we want to display per page
+    """
+    # Get the response
+    response = client.get("/jobs/list?page_num={}&nbr_items_per_page={}")
+
+    # Retrieve the bounds of the interval of index in which the expected jobs
+    # are contained
+    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
+        None, page_num, nbr_items_per_page
+    )
+
+    # Assert that the retrieved jobs correspond to the expected jobs
+    for i in range(number_of_skipped_items, nbr_items_per_page):
+        if i < len(fake_data):
+            D_job = fake_data["jobs"][i]
+            assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
+
+
+@pytest.mark.parametrize("page_num", [1, 2, 3, "lala", 7.8, False])
+def test_jobs_with_page_num_pagination_option(
+    client, fake_data: dict[list[dict]], page_num
+):
+    """
+    Check that all the expected names of the jobs are present in the HTML
+    generated using only the page_num pagination option.
+
+    Parameters
+        client              The web client to request. Note that this fixture
+                            depends on other fixtures that are going to put the
+                            fake data in the database for us
+        fake_data           The data our tests are based on
+        page_num            The number of the page displaying the jobs
+        nbr_items_per_page  The number of jobs we want to display per page
+    """
+    # Get the response
+    response = client.get("/jobs/list?page_num={}&nbr_items_per_page={}")
+
+    # Retrieve the bounds of the interval of index in which the expected jobs
+    # are contained
+    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
+        None, page_num, None
+    )
+    # Assert that the retrieved jobs correspond to the expected jobs
+
+    for i in range(number_of_skipped_items, nbr_items_per_page):
+        if i < len(fake_data):
+            D_job = fake_data["jobs"][i]
+            assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
+
+
+@pytest.mark.parametrize("nbr_items_per_page", [1, 29, 50, -1, [1, 2], True])
+def test_jobs_with_page_num_pagination_option(
+    client, fake_data: dict[list[dict]], nbr_items_per_page
+):
+    """
+    Check that all the expected names of the jobs are present in the HTML
+    generated using only the page_num pagination option.
+
+    Parameters
+        client              The web client to request. Note that this fixture
+                            depends on other fixtures that are going to put the
+                            fake data in the database for us
+        fake_data           The data our tests are based on
+        nbr_items_per_page  The number of jobs we want to display per page
+    """
+    # Get the response
+    response = client.get("/jobs/list?page_num={}&nbr_items_per_page={}")
+
+    # Retrieve the bounds of the interval of index in which the expected jobs
+    # are contained
+    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
+        None, None, nbr_items_per_page
+    )
+    # Assert that the retrieved jobs correspond to the expected jobs
+
+    for i in range(number_of_skipped_items, nbr_items_per_page):
+        if i < len(fake_data):
+            D_job = fake_data["jobs"][i]
+            assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
 
 
 # No equivalent of "test_jobs_list_with_filter" here.
