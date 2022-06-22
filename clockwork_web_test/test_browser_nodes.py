@@ -16,6 +16,9 @@ Lots of details about these tests depend on the particular values that we put in
 import json
 import pytest
 
+from clockwork_web.core.pagination_helper import get_pagination_values
+from clockwork_web.core.users_helper import get_default_setting_value
+
 
 def test_nodes(client, fake_data: dict[list[dict]]):
     """
@@ -24,8 +27,106 @@ def test_nodes(client, fake_data: dict[list[dict]]):
     are going to put the fake data in the database for us.
     """
     response = client.get("/nodes/list")
-    for D_node in fake_data["nodes"]:
+    for i in range(0, get_default_setting_value("nbr_items_per_page")):
+        D_node = fake_data["nodes"][i]
         assert D_node["slurm"]["name"].encode("utf-8") in response.data
+
+
+@pytest.mark.parametrize(
+    "page_num,nbr_items_per_page", [(1, 10), (0, 22), ("blbl", 30), (True, 5), (3, 14)]
+)
+def test_nodes_with_both_pagination_options(
+    client, fake_data: dict[list[dict]], page_num, nbr_items_per_page
+):
+    """
+    Check that all the expected names of the nodes are present in the HTML
+    generated when using both pagination options: page_num and nbr_items_per_page.
+
+    Parameters
+        client              The web client to request. Note that this fixture
+                            depends on other fixtures that are going to put the
+                            fake data in the database for us
+        fake_data           The data our tests are based on
+        page_num            The number of the page displaying the nodes
+        nbr_items_per_page  The number of nodes we want to display per page
+    """
+    # Get the response
+    response = client.get("/nodes/list?page_num={}&nbr_items_per_page={}")
+
+    # Retrieve the bounds of the interval of index in which the expected nodes
+    # are contained
+    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
+        None, page_num, nbr_items_per_page
+    )
+
+    # Assert that the retrieved nodes correspond to the expected nodes
+    for i in range(number_of_skipped_items, nbr_items_per_page):
+        if i < len(fake_data):
+            D_node = fake_data["nodes"][i]
+            assert D_node["slurm"]["name"].encode("utf-8") in response.data
+
+
+@pytest.mark.parametrize("page_num", [1, 2, 3, "lala", 7.8, False])
+def test_nodes_with_page_num_pagination_option(
+    client, fake_data: dict[list[dict]], page_num
+):
+    """
+    Check that all the expected names of the nodes are present in the HTML
+    generated using only the page_num pagination option.
+
+    Parameters
+        client              The web client to request. Note that this fixture
+                            depends on other fixtures that are going to put the
+                            fake data in the database for us
+        fake_data           The data our tests are based on
+        page_num            The number of the page displaying the nodes
+        nbr_items_per_page  The number of nodes we want to display per page
+    """
+    # Get the response
+    response = client.get("/nodes/list?page_num={}&nbr_items_per_page={}")
+
+    # Retrieve the bounds of the interval of index in which the expected nodes
+    # are contained
+    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
+        None, page_num, None
+    )
+    # Assert that the retrieved nodes correspond to the expected nodes
+
+    for i in range(number_of_skipped_items, nbr_items_per_page):
+        if i < len(fake_data):
+            D_node = fake_data["nodes"][i]
+            assert D_node["slurm"]["name"].encode("utf-8") in response.data
+
+
+@pytest.mark.parametrize("nbr_items_per_page", [1, 29, 50, -1, [1, 2], True])
+def test_nodes_with_page_num_pagination_option(
+    client, fake_data: dict[list[dict]], nbr_items_per_page
+):
+    """
+    Check that all the expected names of the nodes are present in the HTML
+    generated using only the page_num pagination option.
+
+    Parameters
+        client              The web client to request. Note that this fixture
+                            depends on other fixtures that are going to put the
+                            fake data in the database for us
+        fake_data           The data our tests are based on
+        nbr_items_per_page  The number of nodes we want to display per page
+    """
+    # Get the response
+    response = client.get("/nodes/list?page_num={}&nbr_items_per_page={}")
+
+    # Retrieve the bounds of the interval of index in which the expected nodes
+    # are contained
+    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
+        None, None, nbr_items_per_page
+    )
+    # Assert that the retrieved nodes correspond to the expected nodes
+
+    for i in range(number_of_skipped_items, nbr_items_per_page):
+        if i < len(fake_data):
+            D_node = fake_data["nodes"][i]
+            assert D_node["slurm"]["name"].encode("utf-8") in response.data
 
 
 @pytest.mark.parametrize(
