@@ -182,8 +182,13 @@ def route_one():
     D_single_job_cw = D_job["cw"]
     # Add an element "cw_username" to D_job["cw"] in order to avoid additional
     # operations in the template
-    if "mila_email_username" in D_single_job_cw and D_single_job_cw["mila_email_username"]:
-        D_single_job_cw["mila_username"] = D_single_job_cw["mila_email_username"].split("@")[0]
+    if (
+        "mila_email_username" in D_single_job_cw
+        and D_single_job_cw["mila_email_username"]
+    ):
+        D_single_job_cw["mila_username"] = D_single_job_cw["mila_email_username"].split(
+            "@"
+        )[0]
 
     return render_template(
         "single_job.html",
