@@ -20,6 +20,12 @@ from flask_login import UserMixin, AnonymousUserMixin
 import secrets
 
 from .db import get_db
+from clockwork_web.core.users_helper import (
+    enable_dark_mode,
+    disable_dark_mode,
+    set_items_per_page,
+    get_default_setting_value,
+)
 
 
 class User(UserMixin):
@@ -37,6 +43,10 @@ class User(UserMixin):
         mila_cluster_username=None,
         cc_account_username=None,
         cc_account_update_key=None,
+        web_settings={
+            "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
+            "dark_mode": get_default_setting_value("dark_mode"),
+        },
     ):
         """
         This constructor is called only by the `get` method.
@@ -48,6 +58,7 @@ class User(UserMixin):
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
         self.cc_account_update_key = cc_account_update_key
+        self.web_settings = web_settings
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -90,6 +101,7 @@ class User(UserMixin):
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
                 cc_account_update_key=e["cc_account_update_key"],
+                web_settings=e["web_settings"],
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
@@ -126,6 +138,48 @@ class User(UserMixin):
         if res.modified_count != 1:
             raise ValueError("could not modify update key")
 
+    ###
+    #   Web settings
+    ###
+    def settings_dark_mode_enable(self):
+        """
+        Enable the dark mode display option for the User.
+
+        Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
+        """
+        return enable_dark_mode(self.mila_email_username)
+
+    def settings_dark_mode_disable(self):
+        """
+        Disable the dark mode display option for the User.
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (it should only return 200)
+            - a message describing the state of the operation
+        """
+        return disable_dark_mode(self.mila_email_username)
+
+    def settings_nbr_items_per_page_set(self, nbr_items_per_page):
+        """
+        Set a new value to the preferred number of items to display per page for
+        the current user.
+
+        Parameters:
+        - nbr_items_per_page    The preferred number of items to display per
+                                page for the User, ie the value to save in
+                                its settings
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return set_items_per_page(self.mila_email_username, nbr_items_per_page)
+
 
 class AnonUser(AnonymousUserMixin):
     def __init__(self):
@@ -135,6 +189,10 @@ class AnonUser(AnonymousUserMixin):
         self.cc_account_username = None
         self.mila_cluster_username = None
         self.cc_account_update_key = None
+        self.web_settings = {
+            "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
+            "dark_mode": get_default_setting_value("dark_mode"),
+        }
 
     def new_api_key(self):
         # We don't want to touch the database for this.

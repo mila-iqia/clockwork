@@ -43,6 +43,7 @@ from clockwork_web.core.jobs_helper import (
     get_jobs,
     infer_best_guess_for_username,
 )
+from clockwork_web.core.pagination_helper import get_pagination_values
 
 
 @flask_api.route("/")
@@ -64,12 +65,28 @@ def route_list():
     and it will many any of them.
     "relative_time" refers to how many seconds to go back in time to list jobs.
     "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
+    "page_num" is optional and used for the pagination: it is a positive integer
+    presenting the number of the current page
+    "nbr_items_per_page" is optional and used for the pagination: it is a
+    positive integer presenting the number of items to display per page
 
     .. :quickref: list all Slurm job as formatted html
     """
+    # Define the type of the return
     want_json = request.args.get("want_json", type=str, default="False")
     want_json = to_boolean(want_json)
 
+    # Retrieve the pagination parameters
+    pagination_page_num = request.args.get("page_num", type=int, default="1")
+    pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
+    # Use the pagination helper to define the number of element to skip, and the number of elements to display
+    (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
+        current_user.mila_email_username,
+        pagination_page_num,
+        pagination_nbr_items_per_page,
+    )
+
+    # Define the filters to select the jobs
     f0 = get_filter_user(request.args.get("user", None))
 
     time1 = request.args.get("relative_time", None)
@@ -89,9 +106,15 @@ def route_list():
                 400,
             )  # bad request
 
+    # Combine the filters
     filter = combine_all_mongodb_filters(f0, f1)
 
-    LD_jobs = get_jobs(filter)
+    # Retrieve the jobs, by applying the filters and the pagination
+    LD_jobs = get_jobs(
+        filter,
+        nbr_skipped_items=nbr_skipped_items,
+        nbr_items_to_display=nbr_items_to_display,
+    )
 
     # TODO : You might want to stop doing the `infer_best_guess_for_username`
     # at some point to design something better. See CW-81.
@@ -101,12 +124,15 @@ def route_list():
     ]
 
     if want_json:
+        # If requested, return the list as JSON
         return jsonify(LD_jobs)
     else:
+        # Otherwise, display the HTML page
         return render_template(
             "jobs.html",
             LD_jobs=LD_jobs,
             mila_email_username=current_user.mila_email_username,
+            page_num=pagination_page_num,
         )
 
 

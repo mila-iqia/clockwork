@@ -6,11 +6,31 @@
         {{extra_css}}
     </style>
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/user.js') }}"></script>
     <script>
         {% autoescape false %}
         {{extra_js}}
         {% endautoescape %}
 
+        function switch_dark_mode() {
+          /*
+            Retrieve the state of the toggle button (true if it is checked,
+            false otherwise)
+          */
+          var is_checked = document.getElementById("dark_mode_toggle").checked;
+          if (is_checked) {
+            enable_dark_mode();
+          }
+          else {
+            disable_dark_mode();
+          }
+        };
+
+        function select_nbr_items_per_page(nbr_items_per_page_dropdown) {
+          // Retrieve the selected value
+          var selected_nbr = nbr_items_per_page_dropdown.options[nbr_items_per_page_dropdown.selectedIndex].value;
+          set_nbr_items_per_page(selected_nbr);
+        };
     </script>
 
 {% endblock %}
@@ -29,7 +49,7 @@
         <div class="col s1">
             <!-- spacing on the left -->
         </div>
-        <div class="col s9" id="changeme">
+        <div class="col s3" id="changeme">
             <!--
                 This is a temporary thing.
                 In reality we'll want to fetch the settings
@@ -39,7 +59,7 @@
 
             <a href="new_key">change key</a>
         </div>
-        <div class="col s9">
+        <div class="col s2">
         {% if cc_account_update_key is not none %}
           Run this command to register your account: sbatch --time=1 --wrap=true --comment=clockwork_register_accout:{{ cc_account_update_key }}
         {% else %}
@@ -47,4 +67,55 @@
         {% endif %}
         </div>
     </div>
+
+    <!-- Web settings -->
+
+    <!-- Items per page -->
+    <div class="row">
+      <div class="col s1">
+          <!-- spacing on the left -->
+      </div>
+
+      <!-- Label -->
+      <div class="col s3">
+          Number of items displayed per page
+      </div>
+
+      <!-- Associated content -->
+      <div class="col s2">
+        <select class="cw-select" name="nbr_items_per_page_selection" id="nbr_items_per_page_selection" onchange="select_nbr_items_per_page(this)">
+          <option value="{{web_settings["nbr_items_per_page"]}}">{{web_settings["nbr_items_per_page"]}}</option>
+          <option value="1">1</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Dark mode -->
+    <div class="row">
+      <div class="col s1">
+          <!-- spacing on the left -->
+      </div>
+
+      <!-- Label -->
+      <div class="col s3">
+          Dark mode
+      </div>
+
+      <!-- Associated content -->
+      <div class="col s2">
+          <div class="switch">
+            <label>
+              {% if web_settings["dark_mode"] %}
+                <input id="dark_mode_toggle" type="checkbox" onclick="switch_dark_mode()" checked />
+              {% else %}
+                <input id="dark_mode_toggle" type="checkbox" onclick="switch_dark_mode()" />
+              {% endif %}
+              <span class="lever cw-switch-lever"></span>
+            </label>
+          </div>
+      </div>
+    </div>
+
 {% endblock %}
