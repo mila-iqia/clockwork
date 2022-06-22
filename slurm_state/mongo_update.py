@@ -320,6 +320,7 @@ def main_read_users_and_update_collection(
 
     for user_to_store in users_to_store:
 
+        # Add the user to the queue of updates to do
         L_updates_to_do.append(
             UpdateOne(
                 # rule to match if already present in collection
