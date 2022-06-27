@@ -1,103 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    {% block head %}
-    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"  media="screen,projection"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwork_cluster.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pygment_trac.css') }}">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<head>
+			{% block head %}
+			<!-- <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"  media="screen,projection"/> -->
+			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwork_cluster.css') }}"> -->
+			<link rel="stylesheet" href="{{ url_for('static', filename='css/pygment_trac.css') }}">
+			<link href="{{ url_for('static', filename='css/fontawesome.min.css') }}" rel="stylesheet">
+			<link href="{{ url_for('static', filename='css/solid.min.css') }}" rel="stylesheet">
 
-    <!-- That wonderful typewriter font. -->
-    <link href="https://fonts.googleapis.com/css?family=Amiri&display=swap" rel="stylesheet">
-    <style type="text/css" media="screen, print">
-        @font-face {
-          font-family: "Ailerons";
-          src: url("{{ url_for('static', filename='fonts/Ailerons-Regular.otf') }}");
-        }
-        @font-face {
-          font-family: "Anurati";
-          src: url("{{ url_for('static', filename='fonts/Anurati-Regular.otf') }}");
-        }
-        @font-face {
-          font-family: "Neuton";
-          src: url("{{ url_for('static', filename='fonts/Neuton-Light.ttf') }}");
-        }
-      </style>
+			<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <title>A Clockwork Cluster : {% block title %}{% endblock %}</title>
-    {% endblock %}
-</head>
-<body>
-    <!-- <div id="content"> -->
-    <div class="row">
-      <div class="col s1">
-        <!-- spacing on the left -->
-      </div>
-      <div class="col s5">
-        <a href="{{url_for('index')}}">
-          <img src="{{ url_for('static', filename='images/clockwork_cluster_0.5x.png')}}" width='50%'>
-        </a>
-      </div>
+			<link rel="preconnect" href="https://fonts.googleapis.com">
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+			<link href="https://fonts.googleapis.com/css2?family=Asap+Condensed:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+			
+			<link rel="apple-touch-icon" sizes="120x120" href="{{ url_for('static', filename='favicons/apple-touch-icon.png') }}">
+			<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicons/favicon-32x32.png') }}">
+			<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicons/favicon-16x16.png') }}">
+			<link rel="manifest" href="{{ url_for('static', filename='favicons/site.webmanifest') }}">
+			<link rel="mask-icon" href="{{ url_for('static', filename='favicons/safari-pinned-tab.svg') }}" color="#5bbad5">
+			<link rel="shortcut icon" href="{{ url_for('static', filename='favicons/favicon.ico') }}">
 
-      <div class="col s1">
-        <!-- spacing -->
-      </div>
-      <div class="col s4">
-        <div class="cc_header_right_col">
-          <div>
-            <a href="https://docs.mila.quebec">Mila docs</a>
-          </div>
-          <div>
-            <a href="https://dashboard.server.mila.quebec">Mila dashboard</a>
-          </div>
-        </div>
-        <div class="cc_header_right_col">
-          <div>
-            <!-- TODO : add a conditional here in the template -->
-            {% if mila_email_username: %}
-              Logged as : {{mila_email_username}}
-            {% else %}
-              Not logged in.
-            {% endif %}
-          </div>
-          <div>
-            <a href="{{url_for('settings.route_index')}}">my settings</a>
-            <!-- This would be fine, but it doesn't look good.
-            <a href="/settings">
-              <i class="material-icons">settings</i>
-            </a>
-            -->
-          </div>
-          <div>
-            <a href="{{url_for('login.route_logout')}}">logout</a>
-            <!-- This would be fine, but it doesn't look good.
-              <a class="waves-effect waves-light btn-small grey darken-1" href="/login/logout">
-              logout
-              <i class="material-icons right">exit_to_app</i>
-              </a>
-            -->
-          </div>
-        </div>
-        <div class="cc_header_right_col">
-          <div>
-            [link about ~this]
-          </div>
-          <div>
-            [link for github code]
-          </div>
-        </div>
-      </div>
-    </div>
+			<script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+			<script type="text/javascript" src="{{ url_for('static', filename='js/sortable.min.js') }}"></script>
 
-    {% block content %}{% endblock %}
-    <!-- </div> -->
-    <!--
-    <div id="footer">
-        {% block footer %}
-        &copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.
-        {% endblock %}
-    </div>
-    -->
-    <script type="text/javascript" src="{{ url_for('static', filename='js/materialize.min.js') }}"></script>
+			<meta name="msapplication-TileColor" content="#ffffff">
+			<meta name="msapplication-config" content="{{ url_for('static', filename='favicons/browserconfig.xml') }}">
+			<meta name="theme-color" content="#ffffff">
+
+			<title>Clockwork - {% block title %}{% endblock %}</title>
+			{% endblock %}
+	</head>
+	<body>
+		<div class="container-fluid">
+			<div class="top align-items-center row g-0">
+				<div class="col-xxl-1 d-none d-xxl-block"></div>
+				<div class="col">
+					<a href="{{url_for('index')}}">
+						<img class="logo" src="{{ url_for('static', filename='images/logo_cw.png')}}" />
+					</a>
+				</div>
+				
+				<div class="col">
+					<nav class="navbar-expand-lg">
+						<div class="container-fluid">
+						    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+						      <span class="navbar-toggler-icon"></span>
+						    </button>
+							<div class="collapse navbar-collapse" id="navbarSupportedContent">
+								<ul class="navbar-nav mb-2 mb-lg-0">
+									<li class="nav-item"><a class="nav-link" href="{{url_for('index')}}"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+									<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_index')}}"><i class="fa-solid fa-list-check"></i> Jobs</a></li>
+									<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_index')}}"><i class="fa-solid fa-circle-nodes"></i> Clusters</a></li>
+									<li class="nav-item"><a class="nav-link" href="{{url_for('settings.route_index')}}"><i class="fa-solid fa-gears"></i> Settings</a></li>
+									
+									 <li class="nav-item dropdown">
+							        	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-arrow-up-right-from-square"></i> External</a>
+						        		<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+								            <li><h3>Mila</h3></li>
+											<li><a class="dropdown-item" href="https://dashboard.server.mila.quebec" target="_blank">Dashboard</a></li>
+											<li><a class="dropdown-item" href="https://docs.mila.quebec" target="_blank">Documentation</a></li>
+											<li><hr class="dropdown-divider"></li>
+											<li><h3>Clockwork</h3></li>
+											<li><a class="dropdown-item" href="#" target="_blank">Documentation</a></li>
+											<li><a class="dropdown-item" href="#" target="_blank">Github</a></li>
+						        		</ul>
+							        </li>
+								</ul>
+							</div>
+						</div>
+					</nav>
+				</div>
+				<div class="col login">
+					<!-- TODO : add a conditional here in the template -->
+					{% if mila_email_username: %}
+						<div class="btn-group dropstart">
+							<a class="user_loggedin" data-bs-toggle="dropdown" aria-expanded="false" href="#"><i class="fa-solid fa-user-check"></i></a>
+							<div class="dropdown-menu">
+								<p>Logged in as <strong>{{mila_email_username}}</strong></p>
+								<a class="btn" href="{{url_for('login.route_logout')}}">Logout? <i class="fa-solid fa-person-to-portal"></i></a>
+							</div>
+						</div>
+					{% else %}
+						<!-- not logged in -->
+					{% endif %}
+				</div>
+				<div class="col-xxl-1 d-none d-xxl-block"></div>
+			</div>
+		</div>
+			
+		
+		{% block content %}{% endblock %}
+		
+		{% block footer %}
+			<div id="footer">
+				<div class="container">
+					<div class="row">
+						<div class="col">
+							&copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endblock %}
+
+		<!-- <script type="text/javascript" src="{{ url_for('static', filename='js/materialize.min.js') }}"></script> -->
 </body>
 </html>

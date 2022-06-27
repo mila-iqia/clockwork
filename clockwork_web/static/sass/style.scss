@@ -1,0 +1,331 @@
+@import "../bootstrap/scss/bootstrap";
+
+@import "_variables";
+@import "_sortable";
+
+/*
+ ██████  ██████  ███    ███ ███    ███  ██████  ███    ██ 
+██      ██    ██ ████  ████ ████  ████ ██    ██ ████   ██ 
+██      ██    ██ ██ ████ ██ ██ ████ ██ ██    ██ ██ ██  ██ 
+██      ██    ██ ██  ██  ██ ██  ██  ██ ██    ██ ██  ██ ██ 
+ ██████  ██████  ██      ██ ██      ██  ██████  ██   ████ 
+*/
+
+
+body {
+    background: white;
+    font-family: 'Asap Condensed', sans-serif;
+    color: $text;
+}
+
+a, a:visited {
+    color: $turquoise;
+    text-decoration: none;
+
+    &:hover {
+        color: $purple_pale;
+    }
+}
+div.title {
+    color: black;
+    padding: 0 0 20px;
+    > i {
+        font-size: 0.6em;
+        margin-left: -20px;
+    }
+
+    h1 {
+        &:before {
+            content: "";
+            width: 80px;
+            display: block;
+            margin-left: -20px;
+            border-bottom: 1px solid;
+        }
+    }
+       
+}
+
+
+/*
+██   ██ ███████  █████  ██████  ███████ ██████  
+██   ██ ██      ██   ██ ██   ██ ██      ██   ██ 
+███████ █████   ███████ ██   ██ █████   ██████  
+██   ██ ██      ██   ██ ██   ██ ██      ██   ██ 
+██   ██ ███████ ██   ██ ██████  ███████ ██   ██ 
+*/
+
+.navbar-collapse {
+    justify-content: flex-end;
+
+    .navbar-nav a.nav-link {
+        color: $charcoal;
+        padding: 0 20px;
+        white-space: nowrap;
+        text-transform: uppercase;
+
+        i {
+            padding-right: 0.2em;
+        }
+    }
+
+    ul.dropdown-menu {
+        color: $text;
+        h3 {
+            font-size: 1em;
+            font-weight: 900;
+            padding: 0 16px;
+        }
+    }
+}
+.logo {
+    max-width: 298px;
+}
+.login {
+    text-align: right;
+    max-width: 40px;
+    .dropdown-menu {
+        padding: 10px;
+        white-space: nowrap;
+    }
+}
+
+.top {
+    padding: 0.6em 0;
+    background: white;
+    vertical-align: middle;
+}
+/*
+███████ ███████  █████  ██████   ██████ ██   ██ 
+██      ██      ██   ██ ██   ██ ██      ██   ██ 
+███████ █████   ███████ ██████  ██      ███████ 
+     ██ ██      ██   ██ ██   ██ ██      ██   ██ 
+███████ ███████ ██   ██ ██   ██  ██████ ██   ██ 
+*/
+
+.searchform {
+    background-image: url(../images/top_bg.png);
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: 100% 100%;
+    padding: 60px 0;
+
+    .cc_toggle_zone_column {
+        height: 100%;
+        border-radius: 4px;
+        border: 1px solid $grey;
+        padding: 0;        
+    }
+
+    .row .col-md-4:nth-child(1) {
+        input[type="radio"] {
+            margin-right: 6px;
+        }
+
+        .form-check-group input[type="radio"] {
+            margin-top: 10px;
+        }
+    }
+
+    .row .col-md-4:nth-child(2), 
+    .row .col-md-4:nth-child(3) {
+        .cc_toggle_zone_row:nth-child(even) {
+            background: white;
+        }
+    }
+
+    .cc_toggle_zone_row {
+        padding: 4px 18px;
+
+        &.row_title {
+            padding: 12px 18px 10px;
+            text-transform: uppercase;
+            @include bold();
+        }
+
+        a {
+            display: block;
+            float: left;
+            padding: 0 5px;
+
+            i[title="Cluster documentation"] {
+                color: $text;
+            }
+
+            &:hover i {
+                color: $purple_pale;
+            }
+        }
+
+        .form-switch {
+            padding-left: 0;
+        }
+    }
+    button {
+        display: block;
+        width: 100%;
+        margin: 30px 0;
+    }
+}
+.btn-red {
+    border: 0;
+    background-color: $red;
+    border-radius: 1.5em;
+    line-height: 1.5em;
+    font-size: 1.3em;
+    color: white;
+    text-transform: uppercase;
+    @include bold();
+    @include gradient-x($red, $red-red, 0%, 100%);
+    @include transition(0.3s all);
+
+    &:hover, &:active {
+        border: 0;
+        box-shadow: 0 0 0 0.25rem #9bced3;
+        color: white;
+        @include gradient-x($red-red, $red, 0%, 100%);
+    }
+    &:focus {
+        border: 0;
+        color: white;
+    }
+}
+
+table.table-striped {
+    border-spacing: 0;
+    border-collapse: initial;
+    border-left: 1px solid $grey;
+    border-right: 1px solid $grey;
+    border-top: 1px solid $grey;
+
+    @include border-radius(4px); 
+}
+
+table.table-striped,
+.cc_cluster_toggle_subzone .form-check-label {
+    span {
+        text-transform: capitalize;
+    }
+    span:before {
+        font-family: "Font Awesome 6 Pro";
+        font-weight: 900;
+        display: inline-block;
+        padding: 0 6px 0 0;
+    }
+
+    span.failed:before {
+        color: $purple_pale;
+        content: "\f071";
+    }
+    span.completed:before {
+        color: $turquoise;
+        content: "\f336";
+    }
+    span.pending:before {
+        color: $yellow;
+        content: "\f28b";
+    }
+    span.running:before {
+        color: $green;
+        content: "\e29e";
+    }
+
+    tr td:first-child, tr th {
+        @include bold();
+    }
+
+    td.links {
+        text-align: center;
+        a {
+            color: $text;
+            display: inline-block;
+            padding-right: 10px;
+
+            &:last-child {
+                padding-right: 0;
+            }
+        }
+    }
+   
+    td.actions {
+        text-align: center;
+
+        a.stop {
+            color: $red-red;
+        }
+    }
+
+    th[data-sortable="false"] {
+        text-align: center;
+    }
+    
+}
+.form-switch .form-check-input {
+    width: 2.8em;
+    height: 1.3em;
+    background-color: #c6c6c6;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    @include transition(all, 0.2s);
+    border: 0;
+
+    &:before {
+        content: "\f00d";
+        font-size: 0.8em;
+        margin-left: 1.9em;
+        margin-top: 0.05em;
+        font-family: "Font Awesome 6 Pro";
+        font-weight: 900;
+        display: block;
+        position: absolute;
+        color: white;
+    }
+}
+.form-switch .form-check-input:checked {
+    background-color: $purple;
+    border-color: $purple;
+
+    &:before {
+        content: "\f00c";
+        font-size: 0.7em;
+        margin-top: 0.2em;
+        margin-left: 0.96em;
+        font-family: "Font Awesome 6 Pro";
+        font-weight: 900;
+        display: block;
+        position: absolute;
+        color: white;
+    }
+}
+.form-radio .form-check-input {
+    @include transition(all, 0.2s);
+}
+
+.form-radio .form-check-input:checked {
+    background-color: $purple;
+    border-color: $purple;
+    background-image: none;
+
+    &:before {
+        content: "\f00c";
+        font-size: 0.7em;
+        margin-top: 0;
+        margin-left: 0.2em;
+        font-family: "Font Awesome 6 Pro";
+        font-weight: 900;
+        display: block;
+        position: absolute;
+        color: white;
+    }
+}
+.form-radio .form-check-input:focus, .form-radio .form-check-input:active {
+    background-image: none;
+    background: $purple;
+    box-shadow: 0 0 0 0.25rem lighten($turquoise, 20%);
+}
+
+.form-switch .form-check-input:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    box-shadow: 0 0 0 0.25rem lighten($turquoise, 20%);
+}
+
+

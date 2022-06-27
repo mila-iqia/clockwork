@@ -8,6 +8,64 @@
         refresh_display(display_filter)
 */
 
+//date stuff
+var TimeAgo = (function() {
+  var self = {};
+  
+  // Public Methods
+  self.locales = {
+    prefix: '',
+    sufix:  'ago',
+    
+    seconds: 'less than a minute',
+    minute:  'about a minute',
+    minutes: '%d minutes',
+    hour:    'about an hour',
+    hours:   'about %d hours',
+    day:     'a day',
+    days:    '%d days',
+    month:   'about a month',
+    months:  '%d months',
+    year:    'about a year',
+    years:   '%d years'
+  };
+  
+  self.inWords = function(timeAgo) {
+    var seconds = Math.floor((new Date() - parseInt(timeAgo)) / 1000),
+        separator = this.locales.separator || ' ',
+        words = this.locales.prefix + separator,
+        interval = 0,
+        intervals = {
+          year:   seconds / 31536000,
+          month:  seconds / 2592000,
+          day:    seconds / 86400,
+          hour:   seconds / 3600,
+          minute: seconds / 60
+        };
+    
+    var distance = this.locales.seconds;
+    
+    for (var key in intervals) {
+      interval = Math.floor(intervals[key]);
+      
+      if (interval > 1) {
+        distance = this.locales[key + 's'];
+        break;
+      } else if (interval === 1) {
+        distance = this.locales[key];
+        break;
+      }
+    }
+    
+    distance = distance.replace(/%d/i, interval);
+    words += distance + separator + this.locales.sufix;
+
+    return words.trim();
+  };
+  
+  return self;
+}());
+
 // We set up a request to retrieve the jobs list as JSON
 const refresh_endpoint = "/jobs/list?want_json=True"
 
@@ -86,6 +144,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
     .then(response_contents => {
         latest_response_contents = response_contents;
         refresh_display(display_filter);
+        
     }).catch(error => {
         console.error(error);
     });
@@ -99,6 +158,13 @@ function refresh_display(display_filter) {
     latest_filtered_response_contents = apply_filter(latest_response_contents, display_filter);
     vacate_table(); // idempotent if not table is present
     populate_table(latest_filtered_response_contents);
+    //kaweb - for some reason, the sortable initonly works on reload/first load, not after changing filters
+    Sortable.init();
+    //kaweb - tooltips work though
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
 }
 
 
@@ -193,13 +259,15 @@ function populate_table(response_contents) {
     let thead = document.createElement('thead');
     let tr = document.createElement('tr');
     let th;
-    th = document.createElement('th'); th.innerHTML = "cluster"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "user"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "job_id"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "job name [:20]"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "job_state"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "start time"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "end time"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "Cluster"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "User"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "Job ID"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "Job name [:20]"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "Job_state"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "Start time"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "End time"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "Links"; th.setAttribute("data-sortable", "false"); tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "Actions"; th.setAttribute("data-sortable", "false"); tr.appendChild(th);
     thead.appendChild(tr);
     table.appendChild(thead);
 
@@ -207,6 +275,8 @@ function populate_table(response_contents) {
     /* then add the information for all the jobs */
     [].forEach.call(response_contents, function(D_job) {
         D_job_slurm = D_job["slurm"];
+        //kaweb - displaying the job state in lowercase to manipulate it in CSS
+        job_state = D_job_slurm["job_state"].toLowerCase();
         let tr = document.createElement('tr');
         let td;
         td = document.createElement('td'); td.innerHTML = D_job_slurm["cluster_name"]; tr.appendChild(td);
@@ -214,7 +284,10 @@ function populate_table(response_contents) {
         td = document.createElement('td'); td.innerHTML = (
             "<a href=\"" + "/jobs/one?job_id=" + D_job_slurm["job_id"] + "\">" + D_job_slurm["job_id"] + "</a>"); tr.appendChild(td);
         td = document.createElement('td'); td.innerHTML = (D_job_slurm["name"] ? D_job_slurm["name"] : "").substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
-        td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
+        //td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
+        //kaweb - using the job state as a shorthand to insert icons through CSS
+        td = document.createElement('td'); td.innerHTML = (
+            "<span class=\"" + job_state + "\">" + job_state + "</span>"); tr.appendChild(td);
 
         // start time
         td = document.createElement('td');
@@ -225,7 +298,9 @@ function populate_table(response_contents) {
             // you need to set it up because this is going to be written as a unix timestamp.
             // This might include injecting another field with a name
             // such as "start_time_human_readable" or something like that, and using it here.
-            td.innerHTML = D_job_slurm["start_time"].toString();
+            //td.innerHTML = D_job_slurm["start_time"].toString();
+
+            td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]);
         }
         tr.appendChild(td);
 
@@ -238,8 +313,28 @@ function populate_table(response_contents) {
             // you need to set it up because this is going to be written as a unix timestamp.
             // This might include injecting another field with a name
             // such as "start_time_human_readable" or something like that, and using it here.
-            td.innerHTML = D_job_slurm["end_time"].toString();
+            // td.innerHTML = D_job_slurm["end_time"].toString();
+
+            td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]);
         }
+        tr.appendChild(td);
+
+        // links
+        td = document.createElement('td'); 
+        td.className = "links";
+        td.innerHTML = (
+            "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to somewhere'><i class='fa-solid fa-file'></i></a>"
+            + 
+            "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>"
+        ); 
+        tr.appendChild(td);
+
+        // actions
+        td = document.createElement('td'); 
+        td.className = "actions";
+        td.innerHTML = (
+            "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-ban'></i></a>"
+        ); 
         tr.appendChild(td);
 
 
