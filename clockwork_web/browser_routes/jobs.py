@@ -62,7 +62,7 @@ def route_list():
     Can take optional args "cluster_name", "user", "relative_time".
 
     "user" refers to any of the three alternatives to identify a user,
-    and it will many any of them.
+    and it will match any of them.
     "relative_time" refers to how many seconds to go back in time to list jobs.
     "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
     "page_num" is optional and used for the pagination: it is a positive integer
@@ -134,6 +134,91 @@ def route_list():
             mila_email_username=current_user.mila_email_username,
             page_num=pagination_page_num,
         )
+
+@flask_api.route("/search")
+@login_required
+def route_search():
+    """
+    Display a list of jobs, which can be filtered by user, cluster and state.
+
+    Can take optional arguments:
+    - "user_name"
+    - "clusters_names"
+    - "states"
+    - "page_num"
+    - "nbr_items_per_page".
+
+    - "user_name" refers to any of the three alternatives to identify a user,
+    and it will match any of them.
+    - "clusters_names" refers to the cluster(s) on which we are looking for the jobs
+    - "states" refers to the state(s) of the jobs we are looking for
+    - "page_num" is optional and used for the pagination: it is a positive integer
+    presenting the number of the current page
+    - "nbr_items_per_page" is optional and used for the pagination: it is a
+    positive integer presenting the number of items to display per page
+
+    .. :quickref: list all Slurm job as formatted html
+    """
+    # Retrieve the parameters used to filter the jobs
+    user_name = request.args.get("user_name", None)
+    clusters_names = request.args.getlist("clusters_names", None)
+    states = request.args.getlist("states", None)
+
+    # Retrieve the pagination parameters
+    pagination_page_num = request.args.get("page_num", type=int, default="1")
+    pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
+    # Use the pagination helper to define the number of element to skip, and the number of elements to display
+    (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
+        current_user.mila_email_username,
+        pagination_page_num,
+        pagination_nbr_items_per_page,
+    )
+
+    ###
+    # Define the filters to select the jobs
+    ###
+    # Define the user filter
+    f0 = get_filter_user(user_name)
+
+    # Define the filter related to the cluster on which the jobs run
+    if (len(clusters_names) > 0):
+        f1 = {"slurm.cluster_name": {"$in": clusters_names}}
+    else:
+        f1 = {} # Apply no filter for the clusters if no cluster has been provided
+
+    # Define the filter related to the jobs' states
+    if (len(states) > 0):
+        f2 = {"slurm.job_state": {"$in": states}}
+    else:
+        f2 = {} # Apply no filter for the states if no state has been provided
+
+    # Combine the filters
+    filter = combine_all_mongodb_filters(f0, f1, f2)
+
+    ###
+    # Retrieve the jobs and display them
+    ###
+    # Retrieve the jobs, by applying the filters and the pagination
+    LD_jobs = get_jobs(
+        filter,
+        nbr_skipped_items=nbr_skipped_items,
+        nbr_items_to_display=nbr_items_to_display,
+    )
+
+    # TODO : You might want to stop doing the `infer_best_guess_for_username`
+    # at some point to design something better. See CW-81.
+    LD_jobs = [
+        infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
+        for D_job in LD_jobs
+    ]
+
+    # Display the HTML page
+    return render_template(
+        "jobs_search.html",
+        LD_jobs=LD_jobs,
+        mila_email_username=current_user.mila_email_username,
+        page_num=pagination_page_num,
+    )
 
 
 @flask_api.route("/one")
