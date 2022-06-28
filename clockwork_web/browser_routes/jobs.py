@@ -135,6 +135,7 @@ def route_list():
             page_num=pagination_page_num,
         )
 
+
 @flask_api.route("/search")
 @login_required
 def route_search():
@@ -181,16 +182,16 @@ def route_search():
     f0 = get_filter_user(user_name)
 
     # Define the filter related to the cluster on which the jobs run
-    if (len(clusters_names) > 0):
+    if len(clusters_names) > 0:
         f1 = {"slurm.cluster_name": {"$in": clusters_names}}
     else:
-        f1 = {} # Apply no filter for the clusters if no cluster has been provided
+        f1 = {}  # Apply no filter for the clusters if no cluster has been provided
 
     # Define the filter related to the jobs' states
-    if (len(states) > 0):
+    if len(states) > 0:
         f2 = {"slurm.job_state": {"$in": states}}
     else:
-        f2 = {} # Apply no filter for the states if no state has been provided
+        f2 = {}  # Apply no filter for the states if no state has been provided
 
     # Combine the filters
     filter = combine_all_mongodb_filters(f0, f1, f2)
