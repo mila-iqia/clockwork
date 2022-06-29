@@ -5,29 +5,6 @@ Helper functions related to the User entity and the users entries from the datab
 from clockwork_web.db import get_db
 
 
-def get_user_by_single_username(username):
-    """
-    Get information of a specific user defined by its username (without the
-    "@mila.quebec" part).
-
-    Parameters:
-        username   Name of the requested user
-
-    Returns:
-        A dictionary describing the requested user if it has been found.
-        None otherwise
-    """
-    # Check the username type
-    if username and isinstance(username, str):
-        # Find one entry presenting the Mila address associated to the username
-        # as mila_email_username
-        requested_mila_email_username = "{}@mila.quebec".format(username)
-        return get_users_one(requested_mila_email_username)
-
-    # By default, return None
-    return None
-
-
 # Dictionary referencing the expected type for each web setting entity
 web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool}
 
