@@ -5,7 +5,7 @@ flask_api = Blueprint("users", __name__)
 
 import random  # TODO: This is a temporary import
 
-from clockwork_web.core.users_helper import get_user_by_single_username
+from clockwork_web.core.users_helper import get_users_one
 
 
 @flask_api.route("/one")
@@ -30,7 +30,7 @@ def route_one():
         )
 
     # Retrieve the user information
-    D_user = get_user_by_single_username(username)
+    D_user = get_users_one(username)
 
     if D_user is not None:
         return render_template(
@@ -47,5 +47,5 @@ def route_one():
             render_template(
                 "error.html", error_msg=f"The requested user has not been found."
             ),
-            400,  # Bad Request
+            404,  # Not Found
         )
