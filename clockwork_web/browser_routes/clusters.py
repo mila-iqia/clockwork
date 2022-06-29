@@ -50,6 +50,9 @@ def route_one():
 
     else:
         # Return a 400 error (Bad Request) if no cluster_name has been provided
-        return render_template(
-            "error.html", error_msg=f"The argument cluster_name is missing."
+        return (
+            render_template(
+                "error.html", error_msg=f"The argument cluster_name is missing."
+            ),
+            400,  # Bad Request
         )
