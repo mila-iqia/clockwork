@@ -40,7 +40,7 @@ def route_one():
             mila_email_username=current_user.mila_email_username,
             picture_name="user{}".format(
                 random.randint(0, 2)
-            ),  # TODO: This is a temporary addition in order to user several images
+            ),  # TODO: This is a temporary addition in order to use several images
         )
     else:
         return (
