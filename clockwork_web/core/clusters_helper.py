@@ -1,6 +1,48 @@
 """
 Helper function regarding the clusters.
 """
+# Import the functions from clockwork_web.config
+from clockwork_web.config import get_config, register_config
+
+# Import the validators from clockwork_web.config
+from clockwork_web.config import optional_string, SubdictValidator, string_list, string, timezone
+
+def alloc_valid(value):
+    """
+    Check if the "allocations" field of a cluster is either "*" or a list of
+    strings
+
+    Parameters:
+        - value     The value of the field "allocations" for a cluster in the
+                    configuration file
+    """
+    if value == "*":
+        return value
+    return string_list(value)
+
+
+def load_clusters_from_config():
+    """
+    Import the clusters from the config file
+    """
+    # Define the format of a cluster
+    clusters_valid = SubdictValidator({})
+    # Global information
+    clusters_valid.add_field("organism", string)
+    clusters_valid.add_field("timezone", timezone)
+    # Allocations information
+    clusters_valid.add_field("account_field", string)
+    clusters_valid.add_field("allocations", alloc_valid)
+    # Hardware information
+    clusters_valid.add_field("nbr_cpus", int)
+    clusters_valid.add_field("nbr_gpus", int)
+    # Links to the documentation
+    clusters_valid.add_field("official_documentation", string)
+    clusters_valid.add_field("mila_documentation", optional_string)
+
+    # Load the clusters from the configuration file, asserting that it uses the
+    # predefined format
+    register_config("clusters", validator=clusters_valid)
 
 
 def get_all_clusters():
@@ -8,52 +50,11 @@ def get_all_clusters():
     List all the clusters.
 
     Returns:
-        A list of the clusters' names
+        A list of the clusters' information
     """
-    # TODO: Retrieve infos from TOML configuration file
-    return {
-        "beluga": {
-            "organism": "Digital Research Alliance of Canada",
-            "timezone": "America/Montreal",
-            "nbr_cpus": 1950,  # Number of CPUs on this cluster
-            "nbr_gpus": 696,  # Number of GPUs on this cluster
-            "links": {
-                "alliance": "https://docs.alliancecan.ca/wiki/B%C3%A9luga/",
-                "mila": "https://docs.mila.quebec/Extra_compute.html#beluga",
-            },
-        },
-        "cedar": {
-            "organism": "Digital Research Alliance of Canada",
-            "timezone": "America/Vancouver",
-            "nbr_cpus": 4948,  # Number of CPUs on this cluster
-            "nbr_gpus": 1352,  # Number of GPUs on this cluster
-            "links": {
-                "alliance": "https://docs.alliancecan.ca/wiki/Cedar",
-                "mila": "https://docs.mila.quebec/Extra_compute.html#cedar",
-            },
-        },
-        "graham": {
-            "organism": "Digital Research Alliance of Canada",
-            "timezone": "America/Toronto",
-            "nbr_cpus": 2660,  # Number of CPUs on this cluster
-            "nbr_gpus": 536,  # Number of GPUs on this cluster
-            "links": {
-                "alliance": "https://docs.alliancecan.ca/wiki/Graham",
-                "mila": "https://docs.mila.quebec/Extra_compute.html#graham",
-            },
-        },
-        "mila": {
-            "organism": "Mila",
-            "timezone": "America/Montreal",
-            "nbr_cpus": 4860,  # Number of CPUs on this cluster
-            "nbr_gpus": 532,  # Number of GPUs on this cluster
-            "links": {"mila": "https://docs.mila.quebec/Information.html"},
-        },
-        "narval": {
-            "organism": "Digital Research Alliance of Canada",
-            "timezone": "Unknown",
-            "nbr_cpus": 2608,  # Number of CPUs on this cluster
-            "nbr_gpus": 636,  # Number of GPUs on this cluster
-            "links": {"alliance": "https://docs.alliancecan.ca/wiki/Narval"},
-        },
-    }  # TODO: centralize
+    return get_config('clusters')
+
+
+
+# Import the clusters from the config file
+load_clusters_from_config()
