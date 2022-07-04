@@ -27,29 +27,22 @@
 
     <div>
         <!-- Account(s) -->
-        <!-- Mila account -->
-        {% if user["mila_cluster_username"] is not none %}
-          <div class="row">
-            <div class="col s3">
-              <b>Mila account:</b>
+        <h1>Accounts</h1>
+        {% for account_field in account_fields %}
+          {% if account_field in user and user[account_field] is not none %}
+            <div class="row">
+              <div class="col s3">
+                <b>{{user[account_field]}}</b>
+              </div>
+              <div class="col s9">
+                For clusters
+                {% for cluster_name in account_fields[account_field] %}
+                  <a href="/clusters/one?cluster_name={{cluster_name}}">{{cluster_name}} </a>
+                {% endfor %}
+              </div>
             </div>
-            <div class="col s1">
-              {{user["mila_cluster_username"]}}
-            </div>
-          </div>
-        {% endif %}
-
-        <!-- Compute Canada account -->
-        {% if user["cc_account_username"] is not none %}
-          <div class="row">
-            <div class="col s3">
-              <b>Digital Research Alliance of Canada account</b>
-            </div>
-            <div class="col s1">
-              {{user["cc_account_username"]}}
-            </div>
-          </div>
-        {% endif %}
+          {% endif %}
+        {% endfor %}
 
         <!-- Picture -->
         <img src="{{url_for('static', filename='images/users/{}.jpg'.format(picture_name))}}"

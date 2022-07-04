@@ -6,7 +6,7 @@ flask_api = Blueprint("users", __name__)
 import random  # TODO: This is a temporary import
 
 from clockwork_web.core.users_helper import get_users_one
-
+from clockwork_web.core.clusters_helper import get_account_fields
 
 @flask_api.route("/one")
 @login_required
@@ -32,11 +32,22 @@ def route_one():
     # Retrieve the user information
     D_user = get_users_one(username)
 
+    # Retrieve the keys identifying the account for each cluster
+    # The retrieved dictionary has the following format, for instance:
+    # {
+    #    "key_for_first_set_of_clusters": ["cluster_name_1", ..., "cluster_name_x"],
+    #    ...,
+    #    "key_for_nth_set_of_clusters": ["cluster_name_A", ..., "cluster_name_m"]
+    # }
+    D_account_fields = get_account_fields()
+
+
     if D_user is not None:
         return render_template(
             "single_user.html",
             username=username,
             user=D_user,
+            account_fields=D_account_fields,
             mila_email_username=current_user.mila_email_username,
             picture_name="user{}".format(
                 random.randint(0, 2)
