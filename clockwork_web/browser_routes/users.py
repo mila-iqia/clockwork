@@ -3,8 +3,6 @@ from flask_login import current_user, login_required
 
 flask_api = Blueprint("users", __name__)
 
-import random  # TODO: This is a temporary import
-
 from clockwork_web.core.users_helper import get_users_one
 from clockwork_web.core.clusters_helper import get_account_fields
 
@@ -49,9 +47,6 @@ def route_one():
             user=D_user,
             account_fields=D_account_fields,
             mila_email_username=current_user.mila_email_username,
-            picture_name="user{}".format(
-                random.randint(0, 2)
-            ),  # TODO: This is a temporary addition in order to use several images
         )
     else:
         return (

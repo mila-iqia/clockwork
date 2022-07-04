@@ -45,7 +45,11 @@
         {% endfor %}
 
         <!-- Picture -->
-        <img src="{{url_for('static', filename='images/users/{}.jpg'.format(picture_name))}}"
+        {% if "personal_picture" in user %}
+          <img src="{{user['personal_picture']}}"
+        {% else %}
+          <img src="{{url_for('static', filename='images/users/no_picture.jpg')}}">
+        {% endif %}
 
     </div>
 {% endblock %}
