@@ -230,21 +230,24 @@ def test_jobs_with_page_num_pagination_option(
 # No equivalent of "test_jobs_list_with_filter" here.
 
 
-
 ###
 #   Tests for route_search
 ###
 @pytest.mark.parametrize(
     "user_name,clusters_names,states,page_num,nbr_items_per_page",
-    [("student05@mila.quebec", ["mila","graham"], ["RUNNING","PENDING"],2,2),
-    ("student10@mila.quebec", ["graham"], ["RUNNING","PENDING"],2,2),
-    ("student13@mila.quebec", [], ["RUNNING","PENDING"],1,40),
-    ("student13@mila.quebec", [], [],-1,-10),
-    ("student13@mila.quebec", [], [],-1,-10),
-    ("student03@mila.quebec", ["cedar"], [],1,50),
-    (None, ["cedar"], [],2,10)],
-    )
-def test_route_search(client, fake_data, user_name, clusters_names, states, page_num, nbr_items_per_page):
+    [
+        ("student05@mila.quebec", ["mila", "graham"], ["RUNNING", "PENDING"], 2, 2),
+        ("student10@mila.quebec", ["graham"], ["RUNNING", "PENDING"], 2, 2),
+        ("student13@mila.quebec", [], ["RUNNING", "PENDING"], 1, 40),
+        ("student13@mila.quebec", [], [], -1, -10),
+        ("student13@mila.quebec", [], [], -1, -10),
+        ("student03@mila.quebec", ["cedar"], [], 1, 50),
+        (None, ["cedar"], [], 2, 10),
+    ],
+)
+def test_route_search(
+    client, fake_data, user_name, clusters_names, states, page_num, nbr_items_per_page
+):
     """
     Test the function route_search with different sets of arguments.
 
@@ -281,7 +284,9 @@ def test_route_search(client, fake_data, user_name, clusters_names, states, page
 
         # Define the tests which will determine if the job is taken into account or not
         test_user_name = (retrieved_user_name == user_name) or ignore_user_name_filter
-        test_clusters_names = (retrieved_cluster_name in clusters_names) or ignore_clusters_names_filter
+        test_clusters_names = (
+            retrieved_cluster_name in clusters_names
+        ) or ignore_clusters_names_filter
         test_states = (retrieved_state in states) or ignore_states_filter
 
         # Select the jobs in regard of the predefined tests
@@ -327,7 +332,9 @@ def test_route_search(client, fake_data, user_name, clusters_names, states, page
     )
 
     # Assert that the retrieved jobs correspond to the expected jobs
-    for i in range(number_of_skipped_items, number_of_skipped_items+nbr_items_per_page):
+    for i in range(
+        number_of_skipped_items, number_of_skipped_items + nbr_items_per_page
+    ):
         if i < len(LD_prefiltered_jobs):
             D_job = LD_prefiltered_jobs[i]
             assert D_job["slurm"]["job_id"].encode("utf-8") in response.data

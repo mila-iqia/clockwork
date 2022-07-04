@@ -25,6 +25,7 @@ def get_filter_job_id(job_id):
     else:
         return {"slurm.job_id": job_id}
 
+
 def get_filter_after_end_time(end_time):
     """
     Returns all the matches that either don't have
