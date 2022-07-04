@@ -25,25 +25,6 @@ def get_filter_job_id(job_id):
     else:
         return {"slurm.job_id": job_id}
 
-
-def get_filter_user(user):
-    """
-    This is a filter for the "jobs" and "nodes" collections
-    that looks into the "cw" part of the entries in order to
-    retrieve the
-    """
-    if user not in ["all", "*", "", None]:
-        return {
-            "$or": [
-                {"cw.mila_cluster_username": user},
-                {"cw.cc_account_username": user},
-                {"cw.mila_email_username": user},
-            ]
-        }
-    else:
-        return {}
-
-
 def get_filter_after_end_time(end_time):
     """
     Returns all the matches that either don't have

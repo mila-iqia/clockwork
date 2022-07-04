@@ -34,7 +34,6 @@ from clockwork_web.core.utils import to_boolean
 flask_api = Blueprint("jobs", __name__)
 
 from clockwork_web.core.jobs_helper import (
-    get_filter_user,
     get_filter_after_end_time,
     get_filter_cluster_name,
     get_filter_job_id,
@@ -86,8 +85,12 @@ def route_list():
         pagination_nbr_items_per_page,
     )
 
-    # Define the filters to select the jobs
-    f0 = get_filter_user(request.args.get("user", None))
+    # Define the filter to select the jobs
+    user_name = request.args.get("user", None)
+    if user_name is not None:
+        f0 = {"cw.mila_email_username": user_name}
+    else:
+        f0 = {}
 
     time1 = request.args.get("relative_time", None)
     if time1 is None:
@@ -179,7 +182,11 @@ def route_search():
     # Define the filters to select the jobs
     ###
     # Define the user filter
-    f0 = get_filter_user(user_name)
+    user_name = request.args.get("user_name", None)
+    if user_name is not None:
+        f0 = {"cw.mila_email_username": user_name}
+    else:
+        f0 = {}
 
     # Define the filter related to the cluster on which the jobs run
     if len(clusters_names) > 0:
