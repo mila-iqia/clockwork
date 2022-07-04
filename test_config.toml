@@ -18,6 +18,11 @@ account_field="test_cluster_username"
 update_field=false
 allocations=["valid_fake_allocation_name", "clustergroup"]
 timezone="America/Montreal"
+organism="Mila"
+nbr_cpus=1
+nbr_gpus=-1
+official_documentation=""
+mila_documentation=false
 
 
 [clusters.mila]
@@ -29,6 +34,7 @@ organism="Mila"
 nbr_cpus=4860
 nbr_gpus=532
 official_documentation="https://docs.mila.quebec/Information.html"
+mila_documentation=false
 
 
 [clusters.beluga]
@@ -66,15 +72,17 @@ nbr_gpus=1352
 official_documentation="https://docs.alliancecan.ca/wiki/Cedar"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#cedar"
 
+
 [clusters.narval]
 account_field="cc_account_username"
 update_field="cc_account_update_key"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
-timezone="Unknown"
+timezone="America/Montreal"
 organism="Digital Research Alliance of Canada"
 nbr_cpus=2608
 nbr_gpus=636
 official_documentation="https://docs.alliancecan.ca/wiki/Narval"
+mila_documentation=false
 
 
 [clockwork.test]
