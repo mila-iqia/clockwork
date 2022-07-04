@@ -228,3 +228,106 @@ def test_jobs_with_page_num_pagination_option(
 
 
 # No equivalent of "test_jobs_list_with_filter" here.
+
+
+
+###
+#   Tests for route_search
+###
+@pytest.mark.parametrize(
+    "user_name,clusters_names,states,page_num,nbr_items_per_page",
+    [("student05@mila.quebec", ["mila","graham"], ["RUNNING","PENDING"],2,2),
+    ("student10@mila.quebec", ["graham"], ["RUNNING","PENDING"],2,2),
+    ("student13@mila.quebec", [], ["RUNNING","PENDING"],1,40),
+    ("student13@mila.quebec", [], [],-1,-10),
+    ("student13@mila.quebec", [], [],-1,-10),
+    ("student03@mila.quebec", ["cedar"], [],1,50),
+    (None, ["cedar"], [],2,10)],
+    )
+def test_route_search(client, fake_data, user_name, clusters_names, states, page_num, nbr_items_per_page):
+    """
+    Test the function route_search with different sets of arguments.
+
+    Parameters:
+        client              The web client to request. Note that this fixture
+                            depends on other fixtures that are going to put the
+                            fake data in the database for us
+        fake_data           The data our tests are based on
+        user_name           The user whose jobs we are looking for
+        clusters_names      An array of the clusters on which we search jobs
+        states              An array of the potential states of the jobs we want
+                            to retrieve
+        page_num            The number of the plage to display the jobs
+        nbr_items_per_page  The number of jobs to display per page
+    """
+    ###
+    # Look for the jobs we are expecting
+    ###
+
+    # Initialize the jobs we are expecting (before pagination)
+    LD_prefiltered_jobs = []
+
+    # Determine which filters we have to ignored
+    ignore_user_name_filter = user_name is None
+    ignore_clusters_names_filter = len(clusters_names) < 1
+    ignore_states_filter = len(states) < 1
+
+    # For each job, determine if it could be expected (before applying the pagination)
+    for D_job in fake_data["jobs"]:
+        # Retrieve the values we may want to test
+        retrieved_user_name = D_job["cw"]["mila_email_username"]
+        retrieved_cluster_name = D_job["slurm"]["cluster_name"]
+        retrieved_state = D_job["slurm"]["job_state"]
+
+        # Define the tests which will determine if the job is taken into account or not
+        test_user_name = (retrieved_user_name == user_name) or ignore_user_name_filter
+        test_clusters_names = (retrieved_cluster_name in clusters_names) or ignore_clusters_names_filter
+        test_states = (retrieved_state in states) or ignore_states_filter
+
+        # Select the jobs in regard of the predefined tests
+        if test_user_name and test_clusters_names and test_states:
+            LD_prefiltered_jobs.append(D_job)
+
+    ###
+    # Format the request
+    ###
+
+    # Initialize the call
+    request_line = "/jobs/search?"
+
+    # - user_name
+    if user_name is not None:
+        request_line += "user_name={}&".format(user_name)
+    # - clusters_names
+    if len(clusters_names) > 0:
+        for cluster_name in clusters_names:
+            request_line += "clusters_names={}&".format(cluster_name)
+    # - states
+    if len(states) > 0:
+        for state in states:
+            request_line += "states={}&".format(state)
+    # - page_num
+    if page_num:
+        request_line += "page_num={}&".format(page_num)
+    # - nbr_items_per_page
+    if nbr_items_per_page:
+        request_line += "nbr_items_per_page={}".format(nbr_items_per_page)
+
+    # Retrieve the results
+    response = client.get(request_line)
+
+    ###
+    # Apply the pagination
+    ###
+
+    # Retrieve the bounds of the interval of index in which the expected jobs
+    # are contained
+    (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
+        None, page_num, nbr_items_per_page
+    )
+
+    # Assert that the retrieved jobs correspond to the expected jobs
+    for i in range(number_of_skipped_items, number_of_skipped_items+nbr_items_per_page):
+        if i < len(LD_prefiltered_jobs):
+            D_job = LD_prefiltered_jobs[i]
+            assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
