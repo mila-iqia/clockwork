@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 from clockwork_web.core.clusters_helper import *
 
+
 def test_get_all_clusters():
     """
     Test the function get_all_clusters.
@@ -16,7 +17,12 @@ def test_get_all_clusters():
             "organism": "Digital Research Alliance of Canada",
             "timezone": ZoneInfo(key="America/Montreal"),
             "account_field": "cc_account_username",
-            "allocations": ["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"],
+            "allocations": [
+                "def-patate-rrg",
+                "def-pomme-rrg",
+                "def-cerise-rrg",
+                "def-citron-rrg",
+            ],
             "nbr_cpus": 1950,  # Number of CPUs on this cluster
             "nbr_gpus": 696,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/B%C3%A9luga/",
@@ -26,7 +32,12 @@ def test_get_all_clusters():
             "organism": "Digital Research Alliance of Canada",
             "timezone": ZoneInfo(key="America/Vancouver"),
             "account_field": "cc_account_username",
-            "allocations": ["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"],
+            "allocations": [
+                "def-patate-rrg",
+                "def-pomme-rrg",
+                "def-cerise-rrg",
+                "def-citron-rrg",
+            ],
             "nbr_cpus": 4948,  # Number of CPUs on this cluster
             "nbr_gpus": 1352,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Cedar",
@@ -36,7 +47,12 @@ def test_get_all_clusters():
             "organism": "Digital Research Alliance of Canada",
             "timezone": ZoneInfo(key="America/Toronto"),
             "account_field": "cc_account_username",
-            "allocations": ["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"],
+            "allocations": [
+                "def-patate-rrg",
+                "def-pomme-rrg",
+                "def-cerise-rrg",
+                "def-citron-rrg",
+            ],
             "nbr_cpus": 2660,  # Number of CPUs on this cluster
             "nbr_gpus": 536,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Graham",
@@ -56,7 +72,12 @@ def test_get_all_clusters():
             "organism": "Digital Research Alliance of Canada",
             "timezone": ZoneInfo(key="America/Montreal"),
             "account_field": "cc_account_username",
-            "allocations": ["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"],
+            "allocations": [
+                "def-patate-rrg",
+                "def-pomme-rrg",
+                "def-cerise-rrg",
+                "def-citron-rrg",
+            ],
             "nbr_cpus": 2608,  # Number of CPUs on this cluster
             "nbr_gpus": 636,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Narval",

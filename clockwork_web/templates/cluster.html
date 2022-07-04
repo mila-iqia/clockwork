@@ -61,15 +61,13 @@
                     </td>
                     <td>
                         <ul>
-                          {% if 'alliance' in cluster['links'] %}
-                            <li style="list-style-type: circle;">
-                              <a href="{{cluster['links']['alliance']}}">On Digital Research Alliance of Canada's website</a>
-                            </li>
-                          {% endif %}
-                          {% if 'mila' in cluster['links'] %}
                           <li style="list-style-type: circle;">
-                            <a href="{{cluster['links']['mila']}}">On Mila's website</a>
+                            <a href="{{cluster['official_documentation']}}">See the official documentation</a>
                           </li>
+                          {% if cluster['mila_documentation'] %}
+                            <li style="list-style-type: circle;">
+                              <a href="{{cluster['mila_documentation']}}">See additional Mila documentation</a>
+                            </li>
                           {% endif %}
                         </ul>
                     </td>

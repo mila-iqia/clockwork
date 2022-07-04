@@ -5,7 +5,14 @@ Helper function regarding the clusters.
 from clockwork_web.config import get_config, register_config
 
 # Import the validators from clockwork_web.config
-from clockwork_web.config import optional_string, SubdictValidator, string_list, string, timezone
+from clockwork_web.config import (
+    optional_string,
+    SubdictValidator,
+    string_list,
+    string,
+    timezone,
+)
+
 
 def alloc_valid(value):
     """
@@ -52,8 +59,7 @@ def get_all_clusters():
     Returns:
         A list of the clusters' information
     """
-    return get_config('clusters')
-
+    return get_config("clusters")
 
 
 # Import the clusters from the config file
