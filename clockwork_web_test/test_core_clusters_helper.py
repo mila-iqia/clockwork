@@ -96,3 +96,25 @@ def test_get_all_clusters():
     }
 
     assert D_expected_clusters == get_all_clusters()
+
+
+def test_get_account_fields():
+    """
+    Test the function get_account_fields.
+    """
+    expected_clusters_for_account_fields = {
+        "cc_account_username": ["beluga", "cedar", "graham", "narval"],
+        "mila_cluster_username": ["mila"],
+        "test_cluster_username": ["test_cluster"],
+    }
+
+    retrieved_clusters_for_accound_fields = get_account_fields()
+
+    for expected_account_field in expected_clusters_for_account_fields:
+        assert expected_account_field in retrieved_clusters_for_accound_fields
+        expected_clusters = expected_clusters_for_account_fields[expected_account_field]
+        retrieved_clusters = retrieved_clusters_for_accound_fields[
+            expected_account_field
+        ]
+        assert len(expected_clusters) == len(retrieved_clusters)
+        assert set(expected_clusters) == set(retrieved_clusters)
