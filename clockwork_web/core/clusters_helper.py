@@ -28,7 +28,7 @@ def alloc_valid(value):
     return string_list(value)
 
 
-def load_clusters_from_config():
+def _load_clusters_from_config():
     """
     Import the clusters from the config file
     """
@@ -63,4 +63,4 @@ def get_all_clusters():
 
 
 # Import the clusters from the config file
-load_clusters_from_config()
+_load_clusters_from_config()
