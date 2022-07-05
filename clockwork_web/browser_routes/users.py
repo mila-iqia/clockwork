@@ -6,6 +6,7 @@ flask_api = Blueprint("users", __name__)
 from clockwork_web.core.users_helper import get_users_one
 from clockwork_web.core.clusters_helper import get_account_fields
 
+
 @flask_api.route("/one")
 @login_required
 def route_one():
@@ -38,7 +39,6 @@ def route_one():
     #    "key_for_nth_set_of_clusters": ["cluster_name_A", ..., "cluster_name_m"]
     # }
     D_account_fields = get_account_fields()
-
 
     if D_user is not None:
         return render_template(
