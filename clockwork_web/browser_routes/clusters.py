@@ -29,26 +29,16 @@ def route_one():
     # Retrieve the argument cluster_name
     cluster_name = request.args.get("cluster_name", None)
 
-    # Reformat the clusters in order to keep what we want
+    # Get the clusters and reformat them in order to keep what we want
     # We make a copy in order to avoid unwillingly modify the original dictionary
     D_all_clusters = get_all_clusters()
     D_clusters = {}
 
-    for current_cluster_name in D_all_clusters.keys():
-        # Initialize each cluster
-        D_clusters[current_cluster_name] = {}
-
-        for cluster_key in D_all_clusters[current_cluster_name].keys():
-            if cluster_key == "timezone":
-                # Keep the string information of the ZoneInfo
-                D_clusters[current_cluster_name][cluster_key] = str(
-                    D_all_clusters[current_cluster_name]["timezone"]
-                )
-            elif cluster_key != "allocations":
-                # We don't need the allocations information yet
-                D_clusters[current_cluster_name][cluster_key] = D_all_clusters[
-                    current_cluster_name
-                ][cluster_key]
+    for current_cluster_name in D_all_clusters:
+        copy = D_all_clusters[current_cluster_name].copy()
+        del copy["allocations"]
+        copy["timezone"] = str(copy["timezone"])
+        D_clusters[current_cluster_name] = copy
 
     # Check if cluster_name is contained in the expected cluster names
     if cluster_name:
