@@ -10,7 +10,6 @@ from .authentication import authentication_required
 from ..db import get_db
 
 from clockwork_web.core.jobs_helper import (
-    get_filter_user,
     get_filter_after_end_time,
     get_filter_cluster_name,
     get_filter_job_id,
@@ -33,7 +32,11 @@ def route_api_v1_jobs_list():
 
     .. :quickref: list all Slurm jobs
     """
-    f0 = get_filter_user(request.args.get("user", None))
+    user_name = request.args.get("user", None)
+    if user_name is not None:
+        f0 = {"cw.mila_email_username": user_name}
+    else:
+        f0 = {}
 
     time1 = request.args.get("relative_time", None)
     if time1 is None:
