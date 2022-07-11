@@ -71,3 +71,7 @@ python3 scripts/store_fake_data_in_db.py
 python3 -m flask run --host="0.0.0.0"
 ```
 Navigate to `http://localhost:15000` on your computer.
+
+# Current branches
+(To be completed)
+* `frontend` to set up the graphical interface
