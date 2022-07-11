@@ -34,3 +34,8 @@ $text: #505050;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+@mixin normal() {
+    font-weight: normal;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+}

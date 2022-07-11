@@ -24,6 +24,9 @@
 			<script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 			<script type="text/javascript" src="{{ url_for('static', filename='js/sortable.min.js') }}"></script>
 
+			<script type="text/javascript" src="{{ url_for('static', filename='js/counterup.js') }}"></script>
+			<script type="text/javascript" src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+
 			<meta name="msapplication-TileColor" content="#ffffff">
 			<meta name="msapplication-config" content="{{ url_for('static', filename='favicons/browserconfig.xml') }}">
 			<meta name="theme-color" content="#ffffff">
@@ -50,7 +53,7 @@
 							<div class="collapse navbar-collapse" id="navbarSupportedContent">
 								<ul class="navbar-nav mb-2 mb-lg-0">
 									<li class="nav-item"><a class="nav-link" href="{{url_for('index')}}"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-									<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_index')}}"><i class="fa-solid fa-list-check"></i> Jobs</a></li>
+									<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_list')}}"><i class="fa-solid fa-list-check"></i> Jobs</a></li>
 									<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_index')}}"><i class="fa-solid fa-circle-nodes"></i> Clusters</a></li>
 									<li class="nav-item"><a class="nav-link" href="{{url_for('settings.route_index')}}"><i class="fa-solid fa-gears"></i> Settings</a></li>
 									
@@ -96,8 +99,11 @@
 			<div id="footer">
 				<div class="container">
 					<div class="row">
-						<div class="col">
-							&copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.
+						<div class="col-6">
+							&copy; 2022 MILA. All rights reserved.
+						</div>
+						<div class="col-6">
+							<a href="">Feedback and bug reports</a> | <a href="">Privacy policy <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
 						</div>
 					</div>
 				</div>

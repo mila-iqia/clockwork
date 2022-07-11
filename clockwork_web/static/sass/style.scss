@@ -21,6 +21,7 @@ body {
 a, a:visited {
     color: $turquoise;
     text-decoration: none;
+    transition: all 0.3s;
 
     &:hover {
         color: $purple_pale;
@@ -35,6 +36,7 @@ div.title {
     }
 
     h1 {
+        @include bold();
         &:before {
             content: "";
             width: 80px;
@@ -43,7 +45,19 @@ div.title {
             border-bottom: 1px solid;
         }
     }
-       
+}
+
+span.message {
+    display: inline-block;
+    font-style: italic;
+    @include normal();
+    vertical-align: middle;
+    padding-left: 20px;
+    font-size: 1rem;
+
+    i {
+        margin-right: 6px;
+    }
 }
 
 
@@ -95,6 +109,7 @@ div.title {
     background: white;
     vertical-align: middle;
 }
+
 /*
 ███████ ███████  █████  ██████   ██████ ██   ██ 
 ██      ██      ██   ██ ██   ██ ██      ██   ██ 
@@ -191,75 +206,6 @@ div.title {
     }
 }
 
-table.table-striped {
-    border-spacing: 0;
-    border-collapse: initial;
-    border-left: 1px solid $grey;
-    border-right: 1px solid $grey;
-    border-top: 1px solid $grey;
-
-    @include border-radius(4px); 
-}
-
-table.table-striped,
-.cc_cluster_toggle_subzone .form-check-label {
-    span {
-        text-transform: capitalize;
-    }
-    span:before {
-        font-family: "Font Awesome 6 Pro";
-        font-weight: 900;
-        display: inline-block;
-        padding: 0 6px 0 0;
-    }
-
-    span.failed:before {
-        color: $purple_pale;
-        content: "\f071";
-    }
-    span.completed:before {
-        color: $turquoise;
-        content: "\f336";
-    }
-    span.pending:before {
-        color: $yellow;
-        content: "\f28b";
-    }
-    span.running:before {
-        color: $green;
-        content: "\e29e";
-    }
-
-    tr td:first-child, tr th {
-        @include bold();
-    }
-
-    td.links {
-        text-align: center;
-        a {
-            color: $text;
-            display: inline-block;
-            padding-right: 10px;
-
-            &:last-child {
-                padding-right: 0;
-            }
-        }
-    }
-   
-    td.actions {
-        text-align: center;
-
-        a.stop {
-            color: $red-red;
-        }
-    }
-
-    th[data-sortable="false"] {
-        text-align: center;
-    }
-    
-}
 .form-switch .form-check-input {
     width: 2.8em;
     height: 1.3em;
@@ -329,3 +275,265 @@ table.table-striped,
 }
 
 
+/*
+████████  █████  ██████  ██      ███████ ███████ 
+   ██    ██   ██ ██   ██ ██      ██      ██      
+   ██    ███████ ██████  ██      █████   ███████ 
+   ██    ██   ██ ██   ██ ██      ██           ██ 
+   ██    ██   ██ ██████  ███████ ███████ ███████ 
+*/
+
+table.table-striped {
+    border-spacing: 0;
+    border-collapse: initial;
+    @include border-radius(4px); 
+    overflow: hidden;
+
+    tr:last-of-type {
+        border-bottom: 1px solid $grey;
+    }
+    td:first-of-type {
+        border-left: 1px solid $grey;
+    }
+    td:last-of-type {
+        border-right: 1px solid $grey;
+    }
+}
+
+table.table-striped,
+.cc_cluster_toggle_subzone .form-check-label {
+    span {
+        text-transform: capitalize;
+    }
+    span:before {
+        font-family: "Font Awesome 6 Pro";
+        font-weight: 900;
+        display: inline-block;
+        padding: 0 6px 0 0;
+    }
+
+    span.failed:before {
+        color: $purple_pale;
+        content: "\f071";
+    }
+    span.completed:before {
+        color: $turquoise;
+        content: "\f336";
+    }
+    span.pending:before {
+        color: $yellow;
+        content: "\f28b";
+    }
+    span.running:before {
+        color: $green;
+        content: "\e29e";
+    }
+
+    tr td:first-child, tr th {
+        @include bold();
+    }
+
+    td.links {
+        text-align: center;
+        a {
+            color: $text;
+            display: inline-block;
+            padding-right: 10px;
+
+            &:last-child {
+                padding-right: 0;
+            }
+        }
+    }
+   
+    td.actions {
+        text-align: center;
+
+        a.stop {
+            color: $red-red;
+        }
+    }
+
+    thead {
+        @include border-radius(4px); 
+        background: #54abb4;
+        background: -webkit-linear-gradient(left, #54abb4, #4c7ca3);
+        background: -moz-linear-gradient(left, #54abb4, #4c7ca3);
+        background: linear-gradient(to right, #54abb4, #4c7ca3);
+        color: white;
+
+        th {
+            padding: 14px 10px;
+        }
+    }
+
+    th[data-sortable="false"] {
+        text-align: center;
+    }
+}
+
+nav.table_nav {
+    margin-top: 50px;
+    ul.pagination {
+        justify-content: center;
+        li {
+            a.page-link {
+                color: $charcoal-pale;
+                font-size: 0.96em;
+                padding: 0.6em 1.1em;
+
+                &:focus {
+                    box-shadow: none;
+                    background: $purple;
+                    color: white;
+                }
+            }
+        }
+    }
+}
+
+/*
+██████   █████  ███████ ██   ██ ██████   ██████   █████  ██████  ██████  
+██   ██ ██   ██ ██      ██   ██ ██   ██ ██    ██ ██   ██ ██   ██ ██   ██ 
+██   ██ ███████ ███████ ███████ ██████  ██    ██ ███████ ██████  ██   ██ 
+██   ██ ██   ██      ██ ██   ██ ██   ██ ██    ██ ██   ██ ██   ██ ██   ██ 
+██████  ██   ██ ███████ ██   ██ ██████   ██████  ██   ██ ██   ██ ██████  
+*/
+
+.dashboard_job {
+
+     a.btn {
+        display: block;
+        margin-top: 40px;
+        width: 100%;
+    }
+
+    .col-md-3 .wrapper {
+        position: relative;
+        overflow: hidden;
+        padding: 22px 28px;
+        border-radius: 6px;
+
+        i {
+            position: relative;
+            z-index: 10;
+            display: inline-block;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: white;
+            background: rgba(255,255,255,0.4);
+        }
+
+        span {
+            @include bold();
+            color: white;
+            font-size: 3em;
+            display: block;
+            position: relative;
+            z-index: 10;
+        }
+
+        p {
+            color: white;
+            position: relative;
+            margin-bottom:0;
+            z-index: 10;
+        }
+    
+        &:after {
+            z-index: 1;
+            content: "";
+            display: block;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-top: 400px solid transparent;
+            border-bottom: 400px solid transparent;
+        }
+
+        &.running {
+            background: #508faa;
+            background: -webkit-radial-gradient(top right, #508faa, #55abb4);
+            background: -moz-radial-gradient(top right, #508faa, #55abb4);
+            background: radial-gradient(to bottom left, #508faa, #55abb4);
+
+            &:after {
+                border-right: 400px solid #55abb4;
+            }
+        }
+
+        &.completed {
+            background: #50968e;
+            background: -webkit-radial-gradient(top right, #50968e, #55b496);
+            background: -moz-radial-gradient(top right, #50968e, #55b496);
+            background: radial-gradient(to bottom left, #50968e, #55b496);
+
+            &:after {
+                border-right: 400px solid #55b496;
+            }
+        }
+
+        &.pending {
+            background: #ce8964;
+            background: -webkit-radial-gradient(top right, #ce8964, #dba46a);
+            background: -moz-radial-gradient(top right, #ce8964, #dba46a);
+            background: radial-gradient(to bottom left, #ce8964, #dba46a);
+
+            &:after {
+                border-right: 400px solid #dba46a;
+            }
+        }
+
+        &.stalled {
+            background: #824f82;
+            background: -webkit-radial-gradient(top right, #824f82, #8a5e8a);
+            background: -moz-radial-gradient(top right, #824f82, #8a5e8a);
+            background: radial-gradient(to bottom left, #824f82, #8a5e8a);
+
+            &:after {
+                border-right: 400px solid #8a5e8a;
+            }
+        }
+    }
+}
+
+
+
+
+/*
+███████  ██████   ██████  ████████ ███████ ██████  
+██      ██    ██ ██    ██    ██    ██      ██   ██ 
+█████   ██    ██ ██    ██    ██    █████   ██████  
+██      ██    ██ ██    ██    ██    ██      ██   ██ 
+██       ██████   ██████     ██    ███████ ██   ██ 
+*/
+
+#footer {
+    padding: 50px 0;
+    background: $cream;
+    border-top: 1px solid $cream-dark;
+    margin-top: 60px;
+    font-size: 0.96em;
+    color: $charcoal-pale;
+
+    .col-6:last-of-type {
+        text-align: right;
+
+        a {
+            color: $charcoal-pale;
+            display: inline-block;
+            padding: 0 10px;
+
+            &:last-of-type {
+                padding-right: 0;
+            }
+
+            &:hover {
+                color: $purple;
+            }
+        }
+    }
+}
