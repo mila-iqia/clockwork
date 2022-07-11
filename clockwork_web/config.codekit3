@@ -2194,13 +2194,13 @@
       "q" : 100,
       "rq" : 75
     },
-    "\/static\/js\/_timeago.min.js" : {
+    "\/static\/js\/counterup.js" : {
       "bF" : 0,
       "ft" : 64,
       "ma" : 0,
       "mi" : 1,
-      "oA" : 1,
-      "oAP" : "\/static\/js\/_timeago.min-min.js",
+      "oA" : 0,
+      "oAP" : "\/static\/js\/counterup-min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2223,6 +2223,28 @@
       "mi" : 1,
       "oA" : 0,
       "oAP" : "\/static\/js\/d3.min-min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/dashboard-min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/dashboard-min-min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/dashboard.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/dashboard-min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2256,6 +2278,28 @@
       "mi" : 1,
       "oA" : 0,
       "oAP" : "\/static\/js\/popper.min-min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/scripts-min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/scripts-min-min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/scripts.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/scripts-min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2391,12 +2435,28 @@
       "oAP" : "\/templates\/index_outside.html",
       "oF" : 0
     },
+    "\/templates\/jobs_interactive_backup.html" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/templates\/jobs_interactive_backup.html",
+      "oF" : 0
+    },
     "\/templates\/jobs_interactive.html" : {
       "cB" : 0,
       "ft" : 8192,
       "hM" : 0,
       "oA" : 0,
       "oAP" : "\/templates\/jobs_interactive.html",
+      "oF" : 0
+    },
+    "\/templates\/jobs_list_backup.html" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/templates\/jobs_list_backup.html",
       "oF" : 0
     },
     "\/templates\/jobs.html" : {

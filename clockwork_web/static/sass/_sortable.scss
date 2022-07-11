@@ -29,29 +29,22 @@ table[data-sortable] th:not([data-sortable="false"]) {
   cursor: pointer;
 }
 table[data-sortable] th:not([data-sortable="false"]):after {
-  content: "";
   visibility: hidden;
+  content: "\f0d7";
+  font-family: "Font Awesome 6 Pro";
+  font-weight: 900;
   display: inline-block;
   vertical-align: inherit;
-  height: 0;
-  width: 0;
-  border-width: 5px;
-  border-style: solid;
-  border-color: transparent;
-  margin-right: 1px;
-  margin-left: 10px;
   float: right;
 }
 table[data-sortable] th[data-sorted="true"]:after {
   visibility: visible;
 }
 table[data-sortable] th[data-sorted-direction="descending"]:after {
-  border-top-color: inherit;
-  margin-top: 8px;
+  
 }
 table[data-sortable] th[data-sorted-direction="ascending"]:after {
-  border-bottom-color: inherit;
-  margin-top: 3px;
+  content: "\f0d8";
 }
 
 table[data-sortable].sortable-theme-bootstrap thead th {
