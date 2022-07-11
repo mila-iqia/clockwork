@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="cc_subheader_banner">
+        <div class="row">
+            <div class="col s2">
+                <!-- spacing on the left -->
+            </div>
+            <div class="col s4">
+                <h4>Cluster {{cluster_name}}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s1">
+            <!-- spacing on the left -->
+        </div>
+    </div>
+
+    <!-- Global information -->
+    <div class="row">
+      <div class="col s12">
+          <h1>Global information</h1>
+      </div>
+      <div class="col s9">
+          <table class="striped">
+            <tbody>
+                <tr>
+                    <td>
+                        Organism
+                    </td>
+                    <td>
+                        {{cluster['organism']}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Timezone
+                    </td>
+                    <td>
+                        {{cluster['timezone']}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        More information
+                    </td>
+                    <td>
+                        <ul>
+                          <li style="list-style-type: circle;">
+                            <a href="{{cluster['official_documentation']}}">See the official documentation</a>
+                          </li>
+                          {% if cluster['mila_documentation'] %}
+                            <li style="list-style-type: circle;">
+                              <a href="{{cluster['mila_documentation']}}">See additional Mila documentation</a>
+                            </li>
+                          {% endif %}
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                  <td>
+                    <a href="/jobs/search?clusters_names={{cluster_name}}">
+                      Display all the jobs running on this cluster
+                    </a>
+                  </td>
+                  <td>
+                    <a href="/nodes/list?cluster_name={{cluster_name}}">
+                      Display all the jobs running on this cluster
+                    </a>
+                  </td>
+                </tr>
+            </tbody>
+          </table>
+      </div>
+    </div>
+
+    <!-- Annual allocation -->
+    <div class="row">
+      <div class="col s12">
+          <h1>Annual allocation</h1>
+      </div>
+      <div class="col s9">
+          <table class="striped">
+            <tbody>
+                <tr>
+                    <td>
+                        {{cluster['nbr_cpus']}} CPUs
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{cluster['nbr_gpus']}} GPUs
+                    </td>
+                </tr>
+            </tbody>
+          </table>
+      </div>
+    </div>
+{% endblock %}
