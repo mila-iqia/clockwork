@@ -80,11 +80,27 @@ def timezone(value):
 class SubdictValidator:
     """Validate that all keys in a dictionary have a certain format."""
 
-    def __init__(self, fields):
+    def __init__(self, fields, optional_fields={}):
         self._fields = fields
+        self._optional_fields = optional_fields
 
     def add_field(self, name, validator):
         self._fields[name] = validator
+
+    def add_optional_field(self, name, validator):
+        """
+        Add a field in the dictionary which is optional. Thus, a validator
+        function is available if the Subdict to validate contains this field,
+        but no error will be returned if this fiels is not present in the
+        Subdict to validate.
+
+        Parameters:
+        - name          The name of the field which will be verified when
+                        validating the Subdict
+        - validator     The function to validate the value associated to this
+                        field when the field is present in the Subdict to validate
+        """
+        self._optional_fields[name] = validator
 
     def __call__(self, value):
         if not isinstance(value, dict):
@@ -94,14 +110,16 @@ class SubdictValidator:
             if not isinstance(v, dict):
                 raise ConfigError("expected a dictionary value", keys=[k])
             sub = {}
-            for field_key, field_valid in self._fields.items():
+            for field_key, field_valid in list(self._fields.items()) + list(self._optional_fields.items()):
                 if field_key not in v:
-                    raise ConfigError("missing field", keys=[field_key, k])
-                try:
-                    sub[field_key] = field_valid(v[field_key])
-                except ConfigError as e:
-                    e.keys.extend([field_key, k])
-                    raise
+                    if field_key not in self._optional_fields: # If a required field is not present
+                        raise ConfigError("missing field", keys=[field_key, k])
+                else: # If the field (optional or not) is present
+                    try:
+                        sub[field_key] = field_valid(v[field_key])
+                    except ConfigError as e:
+                        e.keys.extend([field_key, k])
+                        raise
             res[k] = sub
         return res
 
