@@ -35,17 +35,17 @@ def _load_clusters_from_config():
     # Define the format of a cluster
     clusters_valid = SubdictValidator({})
     # Global information
-    clusters_valid.add_field("organism", string)
+    clusters_valid.add_optional_field("organism", string)
     clusters_valid.add_field("timezone", timezone)
     # Allocations information
     clusters_valid.add_field("account_field", string)
     clusters_valid.add_field("allocations", alloc_valid)
     # Hardware information
-    clusters_valid.add_field("nbr_cpus", int)
-    clusters_valid.add_field("nbr_gpus", int)
+    clusters_valid.add_optional_field("nbr_cpus", int)
+    clusters_valid.add_optional_field("nbr_gpus", int)
     # Links to the documentation
-    clusters_valid.add_field("official_documentation", string)
-    clusters_valid.add_field("mila_documentation", optional_string)
+    clusters_valid.add_optional_field("official_documentation", string)
+    clusters_valid.add_optional_field("mila_documentation", optional_string)
 
     # Load the clusters from the configuration file, asserting that it uses the
     # predefined format
