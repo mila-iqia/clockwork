@@ -110,11 +110,15 @@ class SubdictValidator:
             if not isinstance(v, dict):
                 raise ConfigError("expected a dictionary value", keys=[k])
             sub = {}
-            for field_key, field_valid in list(self._fields.items()) + list(self._optional_fields.items()):
+            for field_key, field_valid in list(self._fields.items()) + list(
+                self._optional_fields.items()
+            ):
                 if field_key not in v:
-                    if field_key not in self._optional_fields: # If a required field is not present
+                    if (
+                        field_key not in self._optional_fields
+                    ):  # If a required field is not present
                         raise ConfigError("missing field", keys=[field_key, k])
-                else: # If the field (optional or not) is present
+                else:  # If the field (optional or not) is present
                     try:
                         sub[field_key] = field_valid(v[field_key])
                     except ConfigError as e:
