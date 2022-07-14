@@ -39,14 +39,16 @@
       <div class="col s9">
           <table class="striped">
             <tbody>
-                <tr>
-                    <td>
-                        Organism
-                    </td>
-                    <td>
-                        {{cluster['organism']}}
-                    </td>
-                </tr>
+                {% if cluster['organism'] %}
+                  <tr>
+                      <td>
+                          Organism
+                      </td>
+                      <td>
+                          {{cluster['organism']}}
+                      </td>
+                  </tr>
+                {% endif %}
                 <tr>
                     <td>
                         Timezone
@@ -55,23 +57,28 @@
                         {{cluster['timezone']}}
                     </td>
                 </tr>
-                <tr>
-                    <td>
-                        More information
-                    </td>
-                    <td>
+                {% if cluster['official_documentation'] or cluster['mila_documentation'] %}
+                  <tr>
+                      <td>
+                          More information
+                      </td>
+                      <td>
                         <ul>
-                          <li style="list-style-type: circle;">
-                            <a href="{{cluster['official_documentation']}}">See the official documentation</a>
-                          </li>
+                          {% if cluster['official_documentation'] %}
+                            <li style="list-style-type: circle;">
+                              <a href="{{cluster['official_documentation']}}">See the official documentation</a>
+                            </li>
+                          {% endif %}
+
                           {% if cluster['mila_documentation'] %}
                             <li style="list-style-type: circle;">
                               <a href="{{cluster['mila_documentation']}}">See additional Mila documentation</a>
                             </li>
                           {% endif %}
                         </ul>
-                    </td>
-                </tr>
+                      </td>
+                  </tr>
+                {% endif %}
                 <tr>
                   <td>
                     <a href="/jobs/search?clusters_names={{cluster_name}}">
@@ -90,25 +97,32 @@
     </div>
 
     <!-- Annual allocation -->
-    <div class="row">
-      <div class="col s12">
-          <h1>Annual allocation</h1>
+    {% if cluster['nbr_cpus'] != 0 or cluster['nbr_gpus'] != 0 %}
+      <div class="row">
+        <div class="col s12">
+            <h1>Annual allocation</h1>
+        </div>
+          <div class="col s9">
+              <table class="striped">
+                <tbody>
+                    {% if cluster['nbr_cpus'] != 0 %}
+                      <tr>
+                          <td>
+                              {{cluster['nbr_cpus']}} CPUs
+                          </td>
+                      </tr>
+                    {% endif %}
+
+                    {% if cluster['nbr_gpus'] != 0 %}
+                      <tr>
+                          <td>
+                              {{cluster['nbr_gpus']}} GPUs
+                          </td>
+                      </tr>
+                    {% endif %}
+                </tbody>
+              </table>
+          </div>
       </div>
-      <div class="col s9">
-          <table class="striped">
-            <tbody>
-                <tr>
-                    <td>
-                        {{cluster['nbr_cpus']}} CPUs
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        {{cluster['nbr_gpus']}} GPUs
-                    </td>
-                </tr>
-            </tbody>
-          </table>
-      </div>
-    </div>
+    {% endif %}
 {% endblock %}
