@@ -66,6 +66,7 @@ def test_get_all_clusters():
             "nbr_cpus": 4860,  # Number of CPUs on this cluster
             "nbr_gpus": 532,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.mila.quebec/Information.html",
+            "mila_documentation": False,
         },
         "narval": {
             "organism": "Digital Research Alliance of Canada",
@@ -80,12 +81,17 @@ def test_get_all_clusters():
             "nbr_cpus": 2608,  # Number of CPUs on this cluster
             "nbr_gpus": 636,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Narval",
+            "mila_documentation": False,
         },
         "test_cluster": {
             "organism": "Mila",
             "timezone": ZoneInfo(key="America/Montreal"),
             "account_field": "test_cluster_username",
             "allocations": ["valid_fake_allocation_name", "clustergroup"],
+            "nbr_cpus": 0,
+            "nbr_gpus": 0,
+            "official_documentation": False,
+            "mila_documentation": False,
         },
     }
 
