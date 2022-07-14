@@ -85,8 +85,8 @@ class SubdictValidator:
     def __init__(self, fields):
         self._fields = fields
 
-    def add_field(self, name, validator):
-        self._fields[name] = validator
+    def add_field(self, name, validator, default=_NoDefault):
+        self._fields[name] = (validator, default)
 
     def __call__(self, value):
         if not isinstance(value, dict):
@@ -96,14 +96,20 @@ class SubdictValidator:
             if not isinstance(v, dict):
                 raise ConfigError("expected a dictionary value", keys=[k])
             sub = {}
-            for field_key, field_valid in self._fields.items():
+            for field_key, (field_valid, field_default) in list(self._fields.items()):
                 if field_key not in v:
-                    raise ConfigError("missing field", keys=[field_key, k])
-                try:
-                    sub[field_key] = field_valid(v[field_key])
-                except ConfigError as e:
-                    e.keys.extend([field_key, k])
-                    raise
+                    # key not present in config
+                    if field_default is _NoDefault:
+                        raise ConfigError("missing field", keys=[field_key, k])
+                    else:
+                        sub[field_key] = field_default
+                else:
+                    # key is present in config
+                    try:
+                        sub[field_key] = field_valid(v[field_key])
+                    except ConfigError as e:
+                        e.keys.extend([field_key, k])
+                        raise
             res[k] = sub
         return res
 
@@ -114,10 +120,9 @@ def register_config(key, default=_NoDefault, validator=anything):
     The key should be in the <domain>.<name> format, but can have
     multiple levels of dots.
 
-    `default` is the default value for this configuration option.  It
-    can remain unset and this will cause an error on access if it is
-    not present in the configuration file (this may change to an error
-    on file load in the future).
+    `default` is the default value for this configuration option. It can
+    remain unset and this will cause an error on load if it is not
+    present in the configuration file.
 
     `validator` if a function which will get the value read from the
     configuration and should validate that it is an acceptable value
@@ -146,8 +151,6 @@ def get_config(key):
         value = d[k]
     except KeyError:
         raise KeyError(f"no such config key '{key}'")
-    if value is _NoDefault:
-        raise KeyError(f"no value set for '{key}'")
     return value
 
 
@@ -190,21 +193,25 @@ def _merge_configs(new_dict, default_dict):
     # Extra keys present in new_dict are ignored.
     res = {}
     for k, v in default_dict.items():
-        nv = new_dict.get(k, _NoDefault)
-        if nv is _NoDefault:
-            # In this case we use the value from default_dict since
-            # the key is not in new_dict
+        if k not in new_dict:
+            # key not in config
             if isinstance(v, dict):
-                res[k] = _cleanup_default(v)
+                try:
+                    res[k] = _cleanup_default(v)
+                except ConfigError as e:
+                    e.keys.append(k)
+                    raise
             else:
-                # v[0] is the default value
-                res[k] = v[0]
+                if v[0] is _NoDefault:
+                    raise ConfigError("missing value for", keys=[k])
+                else:
+                    res[k] = v[0]
         else:
-            # And here we extract and validate the value from new_dict
+            # key is in config
             try:
                 if isinstance(v, dict):
                     if not isinstance(nv, dict):
-                        raise ConfigError("expected dictionary")
+                        raise ConfigError("expected dictionary", keys=[k])
                     res[k] = _merge_configs(nv, v)
                 else:
                     # v[1] is the validator
@@ -216,8 +223,18 @@ def _merge_configs(new_dict, default_dict):
 
 
 def _cleanup_default(default_dict):
-    # Remove validators in a default dict for use as configuration.
-    return {
-        k: _cleanup_default(v) if isinstance(v, dict) else v[0]
-        for k, v in default_dict.items()
-    }
+    # Remove validators and make everything has a value set in a default dict
+    # for use as configuration.
+    res = {}
+    for k, v in default_dict.items():
+        if isinstance(v, dict):
+            try:
+                res[k] = _cleanup_default(v)
+            except ConfigError as e:
+                e.keys.append(k)
+                raise
+        if v[0] is _NoDefault:
+            raise ConfigError("missing value for", keys=[k])
+        else:
+            res[k] = v[0]
+    return res

@@ -1,4 +1,6 @@
-# Don't forget to sync changes with slurm_state/config.py
+# Don't forget to sync changes with
+#  - slurm_state/config.py
+#  - scripts_test/config.py
 
 import os
 import copy
