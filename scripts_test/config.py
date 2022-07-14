@@ -208,6 +208,7 @@ def _merge_configs(new_dict, default_dict):
                     res[k] = v[0]
         else:
             # key is in config
+            nv = new_dict[k]
             try:
                 if isinstance(v, dict):
                     if not isinstance(nv, dict):
