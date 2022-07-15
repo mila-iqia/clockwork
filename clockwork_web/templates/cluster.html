@@ -21,7 +21,7 @@
                 <!-- spacing on the left -->
             </div>
             <div class="col s4">
-                <h4>Cluster {{cluster_name}}</h4>
+                <h4>{{ gettext("%(cluster_name) cluster") | format(cluster_name=cluster_name) }}</h4>
             </div>
         </div>
     </div>
@@ -34,14 +34,14 @@
     <!-- Global information -->
     <div class="row">
       <div class="col s12">
-          <h1>Global information</h1>
+          <h1>{{ gettext("Global information") }}</h1>
       </div>
       <div class="col s9">
           <table class="striped">
             <tbody>
                 <tr>
                     <td>
-                        Organism
+                        {{ gettext("Organization") }}
                     </td>
                     <td>
                         {{cluster['organism']}}
@@ -49,7 +49,7 @@
                 </tr>
                 <tr>
                     <td>
-                        Timezone
+                        {{ gettext("Timezone") }}
                     </td>
                     <td>
                         {{cluster['timezone']}}
@@ -57,16 +57,16 @@
                 </tr>
                 <tr>
                     <td>
-                        More information
+                        {{ gettext("More information") }}
                     </td>
                     <td>
                         <ul>
                           <li style="list-style-type: circle;">
-                            <a href="{{cluster['official_documentation']}}">See the official documentation</a>
+                            <a href="{{cluster['official_documentation']}}">{{ gettext("See the official documentation") }}</a>
                           </li>
                           {% if cluster['mila_documentation'] %}
                             <li style="list-style-type: circle;">
-                              <a href="{{cluster['mila_documentation']}}">See additional Mila documentation</a>
+                              <a href="{{cluster['mila_documentation']}}">{{ gettext("See additional Mila documentation") }}</a>
                             </li>
                           {% endif %}
                         </ul>
@@ -75,12 +75,12 @@
                 <tr>
                   <td>
                     <a href="/jobs/search?clusters_names={{cluster_name}}">
-                      Display all the jobs running on this cluster
+                      {{ gettext("Display all the jobs running on this cluster") }}
                     </a>
                   </td>
                   <td>
                     <a href="/nodes/list?cluster_name={{cluster_name}}">
-                      Display all the jobs running on this cluster
+                      {{ gettext("Display all the jobs running on this cluster") }}
                     </a>
                   </td>
                 </tr>
@@ -92,19 +92,19 @@
     <!-- Annual allocation -->
     <div class="row">
       <div class="col s12">
-          <h1>Annual allocation</h1>
+          <h1>{{ gettext("Annual allocation") }}</h1>
       </div>
       <div class="col s9">
           <table class="striped">
             <tbody>
                 <tr>
                     <td>
-                        {{cluster['nbr_cpus']}} CPUs
+                        {{ gettext("%(nbr_cpus) CPUs") | format(nbr_cpus=cluster['nbr_cpus']) }}
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        {{cluster['nbr_gpus']}} GPUs
+                        {{ gettext("%(nbr_gpus) GPUs") | format(nbr_gpus=cluster['nbr_gpus']) }}
                     </td>
                 </tr>
             </tbody>

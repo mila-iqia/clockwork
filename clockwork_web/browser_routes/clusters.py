@@ -53,7 +53,9 @@ def route_one():
         else:
             # Return a 404 error (Not Found) if the cluster is unknown
             return (
-                render_template("error.html", error_msg=f"This cluster is not known."),
+                render_template(
+                    "error.html", error_msg=gettext("This cluster is not known.")
+                ),
                 404,  # Not Found
             )
 
@@ -61,7 +63,7 @@ def route_one():
         # Return a 400 error (Bad Request) if no cluster_name has been provided
         return (
             render_template(
-                "error.html", error_msg=f"The argument cluster_name is missing."
+                "error.html", error_msg=gettext("The argument cluster_name is missing.")
             ),
             400,  # Bad Request
         )
