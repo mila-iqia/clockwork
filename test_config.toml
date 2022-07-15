@@ -12,6 +12,8 @@ initdb_root_username="mongoadmin"
 initdb_root_password="secret_passowrd_okay"
 connection_string="mongodb://mongoadmin:secret_passowrd_okay@mongodb:27017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false"
 
+[translation]
+translations_folder="static/locales"
 
 [clusters.test_cluster]
 account_field="test_cluster_username"

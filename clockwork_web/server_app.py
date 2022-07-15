@@ -33,6 +33,7 @@ from .rest_routes.gpu import flask_api as rest_gpu_flask_api
 from .config import register_config, get_config, string
 
 register_config("flask.secret_key", validator=string)
+register_config("translation.translations_folder", default="", validator=string)
 
 
 def create_app(extra_config: dict):
@@ -95,7 +96,7 @@ def create_app(extra_config: dict):
     # https://python-babel.github.io/flask-babel/
 
     # Set the translations directory path
-    app.config["BABEL_TRANSLATION_DIRECTORIES"] = "static/locales"
+    app.config["BABEL_TRANSLATION_DIRECTORIES"] = get_config("translation.translations_folder")
 
     # Initialize Babel
     babel = Babel(app)
