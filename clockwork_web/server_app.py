@@ -14,8 +14,9 @@ in the right place.
 # python3 -m flask run --host=0.0.0.0
 
 import os
-from flask import Flask, redirect, render_template, url_for
+from flask import Flask, g, redirect, request, render_template, url_for
 from flask_login import current_user, LoginManager
+from flask_babel import Babel
 from .browser_routes.nodes import flask_api as nodes_routes_flask_api
 from .browser_routes.jobs import flask_api as jobs_routes_flask_api
 from .browser_routes.gpu import flask_api as gpu_routes_flask_api
@@ -89,6 +90,19 @@ def create_app(extra_config: dict):
         return user
 
     login_manager.anonymous_user = AnonUser
+
+    # Internationalization
+    # https://python-babel.github.io/flask-babel/
+
+    # Set the translations directory path
+    app.config["BABEL_TRANSLATION_DIRECTORIES"] = "static/locales"
+
+    # Initialize Babel
+    babel = Babel(app)
+
+    @babel.localeselector
+    def get_locale():
+        return request.accept_languages.best_match(["fr", "en"])
 
     @app.route("/")
     def index():

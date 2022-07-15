@@ -104,7 +104,9 @@ def route_set_nbr_items_per_page():
             return (
                 render_template(
                     "error.html",
-                    error_msg=f"Wrong number of items to display per page provided to be set.",
+                    error_msg=gettext(
+                        "Wrong number of items to display per page provided to be set."
+                    ),
                 ),
                 400,  # Bad Request
             )
@@ -113,7 +115,9 @@ def route_set_nbr_items_per_page():
         return (
             render_template(
                 "error.html",
-                error_msg=f"Missing argument, or wrong format: nbr_items_per_page.",
+                error_msg=gettext(
+                    "Missing argument, or wrong format: nbr_items_per_page."
+                ),
             ),
             400,  # Bad Request
         )

@@ -116,11 +116,11 @@
             </div>
             <div class="col s3">
                 <div>
-                    <h4>jobs on clusters</h4>
+                    <h4>{{ gettext("jobs on clusters") }}</h4>
                 </div>
                 <div>
                     <!-- deep-purple lighten-1 -->
-                    <a class="waves-effect waves-light btn grey darken-1" onclick="server_refresh()"><i class="material-icons right">refresh</i>refresh</a>
+                    <a class="waves-effect waves-light btn grey darken-1" onclick="server_refresh()"><i class="material-icons right">{{ gettext("refresh") }}</i>{{ gettext("refresh") }}</a>
                 </div>
             </div>
 
@@ -128,25 +128,25 @@
             <div class="col s1 cc_toggle_zone_column">
                 <form action="#">
                     <div class="cc_toggle_zone_row" style="margin-left:20px">
-                        <span>time</span>
+                        <span>{{ gettext("time") }}</span>
                     </div>
                     <!-- we have ids in there because we want to be able to get/set their states -->
                     <div class="cc_toggle_zone_row">
                         <label>
                             <input id="time_option_1_hour" name="group1" type="radio" onclick="server_refresh()" checked />
-                            <span>1 hour</span>
+                            <span>{{ gettext("1 hour") }}</span>
                         </label>
                     </div>
                     <div class="cc_toggle_zone_row">
                         <label>
                             <input id="time_option_1_day" name="group1" type="radio" onclick="server_refresh()" />
-                            <span>1 day</span>
+                            <span>{{ gettext("1 day") }}</span>
                         </label>
                     </div>
                     <div class="cc_toggle_zone_row">
                         <label>
                             <input id="time_option_1_week" name="group1" type="radio" onclick="server_refresh()" />
-                            <span>1 week</span>
+                            <span>{{ gettext("1 week") }}</span>
                         </label>
                     </div>
                 </form>
@@ -156,18 +156,18 @@
             <div class="col s1 cc_toggle_zone_column">
                 <form action="#">
                     <div class="cc_toggle_zone_row" style="margin-left:20px">
-                        <span>users</span>
+                        <span>{{ gettext("users") }}</span>
                     </div>
                     <div class="cc_toggle_zone_row">
                         <label>
                             <input id="user_option_all" name="group3" type="radio" onclick="server_refresh()" checked />
-                            <span>all</span>
+                            <span>{{ gettext("all") }}</span>
                         </label>
                     </div>
                     <div class="cc_toggle_zone_row">
                         <label>
                             <input id="user_option_only_me" name="group3" type="radio" onclick="server_refresh()" />
-                            <span>only me</span>
+                            <span>{{ gettext("only me") }}</span>
                         </label>
                     </div>
                     <div class="cc_toggle_zone_row">

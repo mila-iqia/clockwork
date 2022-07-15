@@ -104,7 +104,9 @@ def route_list():
             return (
                 render_template(
                     "error.html",
-                    error_msg=f"Field 'relative_time' cannot be cast as a valid integer: {time1}.",
+                    error_msg=gettext(
+                        "Field 'relative_time' cannot be cast as a valid integer: %(time1)."
+                    ).format(time1=time1),
                 ),
                 400,
             )  # bad request
@@ -248,7 +250,9 @@ def route_one():
     job_id = request.args.get("job_id", None)
     if job_id is None:
         return (
-            render_template("error.html", error_msg=f"Missing argument job_id."),
+            render_template(
+                "error.html", error_msg=gettext("Missing argument job_id.")
+            ),
             400,
         )  # bad request
     f0 = get_filter_job_id(job_id)
@@ -259,13 +263,18 @@ def route_one():
 
     if len(LD_jobs) == 0:
         return render_template(
-            "error.html", error_msg=f"Found no job with job_id {job_id}."
+            "error.html",
+            error_msg=gettext("Found no job with job_id %(job_id).").format(
+                job_id=job_id
+            ),
         )
     if len(LD_jobs) > 1:
         return render_template(
             "error.html",
-            error_msg=f"Found {len(LD_jobs)} jobs with job_id {job_id}. Not sure what to do about these cases.",
-        )
+            error_msg=gettext(
+                "Found %(len_LD_jobs) jobs with job_id %(job_id)."
+            ).format(len_LD_jobs=len(LD_jobs), job_id=job_id),
+        )  # Not sure what to do about these cases.
 
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
     D_job = infer_best_guess_for_username(D_job)  # see CW-81

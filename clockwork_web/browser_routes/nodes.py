@@ -115,7 +115,7 @@ def route_one():
     elif len(LD_nodes) > 1:
         return (
             render_template(
-                "error.html", error_msg=f"Found more than one matching node"
+                "error.html", error_msg=gettext("Found more than one matching node")
             ),
             400,
         )  # bad request

@@ -1,0 +1,301 @@
+# French translations for PROJECT.
+# Copyright (C) 2022 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2022-07-14 15:23-0400\n"
+"PO-Revision-Date: 2022-07-14 15:23-0400\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: clockwork_web/browser_routes/clusters.py:56
+msgid "This cluster is not known."
+msgstr "Le cluster n'a pas été trouvé."
+
+#: clockwork_web/browser_routes/clusters.py:64
+msgid "The argument cluster_name is missing."
+msgstr "L'argument cluster_name n'a pas été renseigné."
+
+#: clockwork_web/browser_routes/gpu.py:51
+msgid "Missing argument gpu_name."
+msgstr "L'argument gpu_name n'a pas été renseigné"
+
+#: clockwork_web/browser_routes/jobs.py:107
+msgid "Field 'relative_time' cannot be cast as a valid integer: %(time1)."
+msgstr "Le champ 'relative_time' n'a pas pu être traduit pas un nombre entier valide: %(time1)"
+
+#: clockwork_web/browser_routes/jobs.py:251
+msgid "Missing argument job_id."
+msgstr "L'argument job_id n'a pas été renseigné."
+
+#: clockwork_web/browser_routes/jobs.py:262
+msgid "Found no job with job_id %(job_id)."
+msgstr "Aucun job présentant le job_id %(job_id) n'a été trouvé."
+
+#: clockwork_web/browser_routes/jobs.py:267
+msgid ""
+"Found %(len_LD_jobs) jobs with job_id %(job_id)."
+msgstr "%(len_LD_jobs) ont été trouvés lors de la recherche à partir du job_id %(job_id)"
+
+#: clockwork_web/browser_routes/nodes.py:118
+msgid "Found more than one matching node"
+msgstr "Plusieurs noeuds ont été trouvés alors qu'un seul était attendu."
+
+#: clockwork_web/browser_routes/settings.py:107
+msgid "Wrong number of items to display per page provided to be set."
+msgstr "Le nombre d'éléments à afficher par page fourni n'est pas conforme."
+
+#: clockwork_web/browser_routes/settings.py:116
+msgid "Missing argument, or wrong format: nbr_items_per_page."
+msgstr "Argument manquant, ou présentant un format incorrect: nbr_items_per_page"
+
+#: clockwork_web/templates/base.html:59
+msgid "Logged as :"
+msgstr "Connecté en tant que :"
+
+#: clockwork_web/templates/base.html:61
+msgid "Not logged in."
+msgstr "Non connecté."
+
+#: clockwork_web/templates/base.html:65
+msgid "my settings"
+msgstr "Mes préférences"
+
+#: clockwork_web/templates/base.html:73
+msgid "logout"
+msgstr "Déconnexion"
+
+#: clockwork_web/templates/base.html:84
+msgid "[link about ~this]"
+msgstr "[Lien]"
+
+#: clockwork_web/templates/base.html:87
+msgid "[link for github code]"
+msgstr "[Lien vers le Github]"
+
+#: clockwork_web/templates/cluster.html:24
+#, python-format
+msgid "%(cluster_name) cluster"
+msgstr "Cluster %(cluster_name)"
+
+#: clockwork_web/templates/cluster.html:37
+msgid "Global information"
+msgstr "Informations globales"
+
+#: clockwork_web/templates/cluster.html:44
+msgid "Organization"
+msgstr "Organisme"
+
+#: clockwork_web/templates/cluster.html:52
+msgid "Timezone"
+msgstr "Fuseau horaire"
+
+#: clockwork_web/templates/cluster.html:60
+msgid "More information"
+msgstr "Plus d'informations"
+
+#: clockwork_web/templates/cluster.html:65
+msgid "See the official documentation"
+msgstr "Lien vers la documentation officielle"
+
+#: clockwork_web/templates/cluster.html:69
+msgid "See additional Mila documentation"
+msgstr "Lien vers la documentation fournie par le Mila"
+
+#: clockwork_web/templates/cluster.html:78
+#: clockwork_web/templates/cluster.html:83
+msgid "Display all the jobs running on this cluster"
+msgstr "Afficher tous les jobs roulant sur ce cluster"
+
+#: clockwork_web/templates/cluster.html:95
+msgid "Annual allocation"
+msgstr "Allocation annuelle"
+
+#: clockwork_web/templates/cluster.html:102
+msgid "%(nbr_cpus) CPUs"
+msgstr "%(nbr_cpus) CPUs"
+
+#: clockwork_web/templates/cluster.html:107
+#, python-format
+msgid "%(nbr_gpus) GPUs"
+msgstr "%(nbr_gpus) GPUs"
+
+#: clockwork_web/templates/gpu.html:24
+msgid "GPUs"
+msgstr "GPUs"
+
+#: clockwork_web/templates/gpu.html:39
+msgid "GPU name"
+msgstr "Nom du GPU"
+
+#: clockwork_web/templates/gpu.html:40
+msgid "Vendor"
+msgstr "Vendeur"
+
+#: clockwork_web/templates/gpu.html:41
+msgid "RAM"
+msgstr "RAM"
+
+#: clockwork_web/templates/index_outside.html:32
+msgid "Please log in with your @mila.quebec account."
+msgstr "Merci de vous connecter avec votre compte @mila.quebec."
+
+#: clockwork_web/templates/index_outside.html:33
+msgid "This will create a key for the REST API automatically."
+msgstr "Cela créera automatiquement une clef pour l'API REST"
+
+#: clockwork_web/templates/jobs.html:24
+#: clockwork_web/templates/jobs_search.html:24
+msgid "jobs"
+msgstr "jobs"
+
+#: clockwork_web/templates/jobs.html:36
+#: clockwork_web/templates/jobs_search.html:36
+msgid "cluster"
+msgstr "cluster"
+
+#: clockwork_web/templates/jobs.html:37
+#: clockwork_web/templates/jobs_search.html:37
+msgid "user"
+msgstr "utilisateur"
+
+#: clockwork_web/templates/jobs.html:38
+#: clockwork_web/templates/jobs_search.html:38
+msgid "job_id"
+msgstr "job_id"
+
+#: clockwork_web/templates/jobs.html:39
+#: clockwork_web/templates/jobs_search.html:39
+msgid "job name [:20]"
+msgstr "nom du job [:20]"
+
+#: clockwork_web/templates/jobs.html:40
+#: clockwork_web/templates/jobs_search.html:40
+msgid "job_state"
+msgstr "état du job"
+
+#: clockwork_web/templates/jobs.html:41
+#: clockwork_web/templates/jobs_search.html:41
+msgid "start time"
+msgstr "date de début"
+
+#: clockwork_web/templates/jobs.html:42
+#: clockwork_web/templates/jobs_search.html:42
+msgid "end time"
+msgstr "date de fin"
+
+#: clockwork_web/templates/jobs_interactive.html:119
+msgid "jobs on clusters"
+msgstr "jobs sur les clusters"
+
+#: clockwork_web/templates/jobs_interactive.html:131
+msgid "time"
+msgstr "temps"
+
+#: clockwork_web/templates/jobs_interactive.html:137
+msgid "1 hour"
+msgstr "1 heure"
+
+#: clockwork_web/templates/jobs_interactive.html:143
+msgid "1 day"
+msgstr "1 jour"
+
+#: clockwork_web/templates/jobs_interactive.html:149
+msgid "1 week"
+msgstr "1 semaine"
+
+#: clockwork_web/templates/jobs_interactive.html:159
+msgid "users"
+msgstr "utilisateurs"
+
+#: clockwork_web/templates/jobs_interactive.html:164
+msgid "all"
+msgstr "tous"
+
+#: clockwork_web/templates/jobs_interactive.html:170
+msgid "only me"
+msgstr "moi uniquement"
+
+#: clockwork_web/templates/nodes.html:24
+msgid "nodes"
+msgstr "noeuds"
+
+#: clockwork_web/templates/nodes.html:39
+msgid "cluster_name"
+msgstr "cluster_name"
+
+#: clockwork_web/templates/nodes.html:40
+msgid "name"
+msgstr "nom"
+
+#: clockwork_web/templates/nodes.html:41
+msgid "alloc_tres"
+msgstr "alloc_tres"
+
+#: clockwork_web/templates/nodes.html:42
+msgid "cfg_tres"
+msgstr "cfg_tres"
+
+#: clockwork_web/templates/settings.html:44
+msgid "user settings %(mila_email_username)"
+msgstr "Paramètres de l'utilisateur %(mila_email_username)"
+
+#: clockwork_web/templates/settings.html:58
+msgid "CLOCKWORK_WEB_API:"
+msgstr "CLOCKWORK_WEB_API :"
+
+#: clockwork_web/templates/settings.html:60
+msgid "change key"
+msgstr "Modifier la clef"
+
+#: clockwork_web/templates/settings.html:64
+msgid "Run this command to register your account:"
+msgstr "Roulet cette commande pour enregistrer votre compte :"
+
+#: clockwork_web/templates/settings.html:66
+msgid "Get update account key"
+msgstr "Obtenir la clef de mise à jour du compte"
+
+#: clockwork_web/templates/settings.html:81
+msgid "Number of items displayed per page"
+msgstr "Nombre d'éléments à afficher par page"
+
+#: clockwork_web/templates/settings.html:103
+msgid "Dark mode"
+msgstr "Mode sombre"
+
+#: clockwork_web/templates/single_gpu.html:23
+#, python-format
+msgid "GPU %(gpu_name) information"
+msgstr "Informations sur le GPU %(gpu_name)"
+
+#: clockwork_web/templates/single_gpu.html:32
+msgid "No information has been found for GPU %(gpu_name)"
+msgstr "Aucune information n'a été trouvée pour le GPU %(gpu_name)"
+
+#: clockwork_web/templates/single_gpu.html:39
+#: clockwork_web/templates/single_job.html:39
+#: clockwork_web/templates/single_node.html:39
+msgid "key"
+msgstr "clef"
+
+#: clockwork_web/templates/single_gpu.html:40
+#: clockwork_web/templates/single_job.html:40
+#: clockwork_web/templates/single_node.html:40
+msgid "value"
+msgstr "valeur"
+
+#: clockwork_web/templates/single_job.html:24
+#: clockwork_web/templates/single_node.html:24
+msgid "single job %(job_id)"
+msgstr "Job %(job_id)"
