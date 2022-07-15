@@ -39,6 +39,8 @@
       <div class="col s9">
           <table class="striped">
             <tbody>
+
+              {% if cluster['organism'] %}
                 <tr>
                     <td>
                         {{ gettext("Organization") }}
@@ -47,68 +49,85 @@
                         {{cluster['organism']}}
                     </td>
                 </tr>
-                <tr>
-                    <td>
-                        {{ gettext("Timezone") }}
-                    </td>
-                    <td>
-                        {{cluster['timezone']}}
-                    </td>
-                </tr>
+              {% endif %}
+
+              <tr>
+                  <td>
+                      {{ gettext("Timezone") }}
+                  </td>
+                  <td>
+                      {{cluster['timezone']}}
+                  </td>
+              </tr>
+
+              {% if cluster['official_documentation'] or cluster['mila_documentation'] %}
                 <tr>
                     <td>
                         {{ gettext("More information") }}
                     </td>
                     <td>
-                        <ul>
+                      <ul>
+                        {% if cluster['official_documentation'] %}
                           <li style="list-style-type: circle;">
                             <a href="{{cluster['official_documentation']}}">{{ gettext("See the official documentation") }}</a>
                           </li>
-                          {% if cluster['mila_documentation'] %}
-                            <li style="list-style-type: circle;">
-                              <a href="{{cluster['mila_documentation']}}">{{ gettext("See additional Mila documentation") }}</a>
-                            </li>
-                          {% endif %}
-                        </ul>
+                        {% endif %}
+
+                        {% if cluster['mila_documentation'] %}
+                          <li style="list-style-type: circle;">
+                            <a href="{{cluster['mila_documentation']}}">{{ gettext("See additional Mila documentation") }}</a>
+                          </li>
+                        {% endif %}
+                      </ul>
                     </td>
                 </tr>
-                <tr>
-                  <td>
-                    <a href="/jobs/search?clusters_names={{cluster_name}}">
-                      {{ gettext("Display all the jobs running on this cluster") }}
-                    </a>
-                  </td>
-                  <td>
-                    <a href="/nodes/list?cluster_name={{cluster_name}}">
-                      {{ gettext("Display all the jobs running on this cluster") }}
-                    </a>
-                  </td>
-                </tr>
-            </tbody>
-          </table>
-      </div>
+              {% endif %}
+              <tr>
+                <td>
+                  <a href="/jobs/search?clusters_names={{cluster_name}}">
+                    {{ gettext("Display all the jobs running on this cluster") }}
+                  </a>
+                </td>
+                <td>
+                  <a href="/nodes/list?cluster_name={{cluster_name}}">
+                    {{ gettext("Display all the jobs running on this cluster") }}
+                  </a>
+                </td>
+              </tr>
+          </tbody>
+        </table>
     </div>
+  </div>
 
     <!-- Annual allocation -->
+
+  {% if cluster['nbr_cpus'] != 0 or cluster['nbr_gpus'] != 0 %}
     <div class="row">
       <div class="col s12">
           <h1>{{ gettext("Annual allocation") }}</h1>
       </div>
-      <div class="col s9">
-          <table class="striped">
-            <tbody>
-                <tr>
-                    <td>
-                        {{ gettext("%(nbr_cpus) CPUs") | format(nbr_cpus=cluster['nbr_cpus']) }}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        {{ gettext("%(nbr_gpus) GPUs") | format(nbr_gpus=cluster['nbr_gpus']) }}
-                    </td>
-                </tr>
-            </tbody>
-          </table>
-      </div>
+        <div class="col s9">
+            <table class="striped">
+              <tbody>
+                  {% if cluster['nbr_cpus'] != 0 %}
+                    <tr>
+                        <td>
+                            {{ gettext("%(nbr_cpus) CPUs") | format(nbr_cpus=cluster['nbr_cpus']) }}
+                        </td>
+                    </tr>
+                  {% endif %}
+
+                  {% if cluster['nbr_gpus'] != 0 %}
+                    <tr>
+                        <td>
+                            {{ gettext("%(nbr_gpus) GPUs") | format(nbr_gpus=cluster['nbr_gpus']) }}
+                        </td>
+                    </tr>
+                  {% endif %}
+              </tbody>
+            </table>
+        </div>
+
     </div>
+  {% endif %}
 {% endblock %}
