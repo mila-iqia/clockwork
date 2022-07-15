@@ -88,9 +88,9 @@ def test_get_all_clusters():
             "timezone": ZoneInfo(key="America/Montreal"),
             "account_field": "test_cluster_username",
             "allocations": ["valid_fake_allocation_name", "clustergroup"],
-            "nbr_cpus": 1,  # Number of CPUs on this cluster
-            "nbr_gpus": -1,  # Number of GPUs on this cluster
-            "official_documentation": "",
+            "nbr_cpus": 0,
+            "nbr_gpus": 0,
+            "official_documentation": False,
             "mila_documentation": False,
         },
     }
