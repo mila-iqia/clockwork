@@ -35,7 +35,6 @@ from .config import register_config, get_config, string
 register_config("flask.secret_key", validator=string)
 register_config("translation.translations_folder", default="", validator=string)
 
-
 def create_app(extra_config: dict):
     """Creates the Flask app with everything wired up.
 
@@ -103,7 +102,10 @@ def create_app(extra_config: dict):
 
     @babel.localeselector
     def get_locale():
-        return request.accept_languages.best_match(["fr", "en"])
+        if current_user.is_authenticated:
+            return current_user.get_language()
+        else:
+            return request.accept_languages.best_match(["fr", "en"])
 
     @app.route("/")
     def index():
@@ -112,7 +114,7 @@ def create_app(extra_config: dict):
         where people can click on the "login" button on the web interface.
         """
 
-        if current_user.is_authenticated:
+        if current_user.is_authenticated():
             print("in route for '/'; redirecting to jobs/")
             return redirect("jobs/")
         else:

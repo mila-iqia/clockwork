@@ -25,6 +25,7 @@ from clockwork_web.core.users_helper import (
     disable_dark_mode,
     set_items_per_page,
     get_default_setting_value,
+    set_language
 )
 
 
@@ -34,7 +35,6 @@ class User(UserMixin):
     `login_manager` library. For example, the fact that `get` returns
     a `None` if it fails to find the user.
     """
-
     def __init__(
         self,
         mila_email_username,
@@ -43,10 +43,7 @@ class User(UserMixin):
         mila_cluster_username=None,
         cc_account_username=None,
         cc_account_update_key=None,
-        web_settings={
-            "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
-            "dark_mode": get_default_setting_value("dark_mode"),
-        },
+        web_settings=None,
     ):
         """
         This constructor is called only by the `get` method.
@@ -58,7 +55,16 @@ class User(UserMixin):
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
         self.cc_account_update_key = cc_account_update_key
-        self.web_settings = web_settings
+        self.web_settings = {}
+        if web_settings is None:
+            self.web_settings["nbr_items_per_page"] = get_default_setting_value("nbr_items_per_page")
+            self.web_settings["dark_mode"] = get_default_setting_value("dark_mode")
+            self.web_settings["language"] = get_default_setting_value("language")
+        else:
+            self.web_settings["nbr_items_per_page"] = web_settings["nbr_items_per_page"]
+            self.web_settings["dark_mode"] = web_settings["dark_mode"]
+            self.web_settings["language"] = web_settings["language"]
+
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -180,6 +186,24 @@ class User(UserMixin):
         """
         return set_items_per_page(self.mila_email_username, nbr_items_per_page)
 
+    def settings_language_set(self, language):
+        """
+        Set a preferred language for the current user.
+
+        Parameters:
+        - language      The language chosen by the user to interact with. The
+                        available languages are listed in the configuration file.
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return set_language(self.mila_email_username, language)
+
+    def get_language(self):
+        return self.web_settings["language"]
+
 
 class AnonUser(AnonymousUserMixin):
     def __init__(self):
@@ -192,6 +216,7 @@ class AnonUser(AnonymousUserMixin):
         self.web_settings = {
             "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
             "dark_mode": get_default_setting_value("dark_mode"),
+            "language": get_default_setting_value("language")
         }
 
     def new_api_key(self):

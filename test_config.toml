@@ -14,6 +14,12 @@ connection_string="mongodb://mongoadmin:secret_passowrd_okay@mongodb:27017/?auth
 
 [translation]
 translations_folder="static/locales"
+available_languages=["en", "fr"]
+
+[settings.default_values]
+nbr_items_per_page=40
+dark_mode=false
+language="en"
 
 [clusters.test_cluster]
 account_field="test_cluster_username"

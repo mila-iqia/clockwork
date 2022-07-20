@@ -4,15 +4,17 @@ Helper functions related to the User entity.
 
 from clockwork_web.db import get_db
 
+# Import the functions from clockwork_web.config
+from clockwork_web.config import get_config, register_config, boolean as valid_boolean, string as valid_string
+
 # Dictionary referencing the expected type for each web setting entity
-web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool}
+web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool, "language": str}
 
-# Dictionary presenting the default values for the user web settings
-default_settings_values = {
-    "nbr_items_per_page": 40,  # default value for the user setting "nbr_items_per_page"
-    "dark_mode": False,  # default value of the user setting "dark_mode"
-}
 
+# Load the web settings from the configuration file
+register_config("settings.default_values.nbr_items_per_page", validator=int)
+register_config("settings.default_values.dark_mode", validator=valid_boolean)
+register_config("settings.default_values.language", validator=valid_string)
 
 def get_default_setting_value(setting_name):
     """
@@ -27,13 +29,14 @@ def get_default_setting_value(setting_name):
     Returns:
         The default value for the requested web setting
     """
+    default_settings_values = get_config("settings.default_values")
     if type(setting_name) == str and setting_name in default_settings_values:
         return default_settings_values[setting_name]
     else:
         return None
 
 
-def set_web_setting(mila_email_username, setting_key, setting_value):
+def _set_web_setting(mila_email_username, setting_key, setting_value):
     """
     Update an element of a User's web settings. The "web settings" of a
     User are preferences used in the web interface. They are stored in
@@ -146,8 +149,8 @@ def set_items_per_page(mila_email_username, nbr_items_per_page):
             return reset_items_per_page(mila_email_username)
 
         else:
-            # If it is positive, call set_web_setting
-            return set_web_setting(
+            # If it is positive, call _set_web_setting
+            return _set_web_setting(
                 mila_email_username, "nbr_items_per_page", nbr_items_per_page
             )
 
@@ -170,9 +173,9 @@ def reset_items_per_page(mila_email_username):
         - a HTTP status code (it should only return 200)
         - a message describing the state of the operation
     """
-    # Call set_web_setting and retrieve the returned status code and status
+    # Call _set_web_setting and retrieve the returned status code and status
     # message
-    (status_code, status_message) = set_web_setting(
+    (status_code, status_message) = _set_web_setting(
         mila_email_username,
         "nbr_items_per_page",
         get_default_setting_value("nbr_items_per_page"),
@@ -183,7 +186,7 @@ def reset_items_per_page(mila_email_username):
         # that the setting's value has been set to default
         return (200, "The setting has been reset to its default value.")
     else:
-        # Otherwise, returns what the function set_web_setting has returned
+        # Otherwise, returns what the function _set_web_setting has returned
         return (status_code, status_message)
 
 
@@ -250,8 +253,8 @@ def enable_dark_mode(mila_email_username):
         - a HTTP status code (it should only return 200)
         - a message describing the state of the operation
     """
-    # Call set_web_setting an return its response
-    return set_web_setting(mila_email_username, "dark_mode", True)
+    # Call _set_web_setting an return its response
+    return _set_web_setting(mila_email_username, "dark_mode", True)
 
 
 def disable_dark_mode(mila_email_username):
@@ -267,5 +270,23 @@ def disable_dark_mode(mila_email_username):
         - a HTTP status code (it should only return 200)
         - a message describing the state of the operation
     """
-    # Call set_web_setting and return its response
-    return set_web_setting(mila_email_username, "dark_mode", False)
+    # Call _set_web_setting and return its response
+    return _set_web_setting(mila_email_username, "dark_mode", False)
+
+def set_language(mila_email_username, language):
+    """
+    Set the language to use with a specific user.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users
+                                collection of the database
+
+        language                The chosen language to associate to this user
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
+    """
+    # Call _set_web_setting and return its response
+    return _set_web_setting(mila_email_username, "language", language)
