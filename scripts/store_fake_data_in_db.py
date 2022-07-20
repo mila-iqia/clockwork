@@ -5,6 +5,7 @@ from clockwork_web.db import init_db, get_db
 from clockwork_web.server_app import create_app
 from test_common.fake_data import populate_fake_data
 
+
 # Register the elements to access the database
 register_config("mongo.connection_string", "")
 register_config("mongo.database_name", "clockwork")

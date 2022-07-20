@@ -21,7 +21,7 @@
                 <!-- spacing on the left -->
             </div>
             <div class="col s4">
-                <h4>{{ gettext("%(cluster_name) cluster") | format(cluster_name=cluster_name) }}</h4>
+                <h4>{{ gettext("%s cluster" % (cluster_name,)) }}</h4>
             </div>
         </div>
     </div>
@@ -112,7 +112,7 @@
                   {% if cluster['nbr_cpus'] != 0 %}
                     <tr>
                         <td>
-                            {{ gettext("%(nbr_cpus) CPUs") | format(nbr_cpus=cluster['nbr_cpus']) }}
+                            {{ gettext("%d CPUs" % cluster['nbr_cpus']) }}
                         </td>
                     </tr>
                   {% endif %}
@@ -120,7 +120,7 @@
                   {% if cluster['nbr_gpus'] != 0 %}
                     <tr>
                         <td>
-                            {{ gettext("%(nbr_gpus) GPUs") | format(nbr_gpus=cluster['nbr_gpus']) }}
+                            {{ gettext("%d GPUs" % cluster['nbr_gpus']) }}
                         </td>
                     </tr>
                   {% endif %}

@@ -20,7 +20,7 @@
                 <!-- spacing on the left -->
             </div>
             <div class="col s4">
-                <h4>{{ gettext("GPU %(gpu_name) information") | format(gpu_name=gpu_name)}}</h4>
+                <h4>{{ gettext("GPU %s information" % (gpu_name,))}}</h4>
             </div>
         </div>
     </div>
@@ -29,7 +29,7 @@
             <!-- spacing on the left -->
         </div>
         {% if LP_gpu | length == 0 %}
-          {{ gettext("No information has been found for GPU %(gpu_name)") | format(gpu_name=gpu_name) }}.
+          {{ gettext("No information has been found for GPU %s" % (gpu_name,)) }}.
         {% else %}
           <div class="col s9" id="changeme">
               <!-- <h1>{{channel_title}}</h1> -->
