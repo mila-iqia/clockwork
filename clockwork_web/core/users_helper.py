@@ -5,7 +5,12 @@ Helper functions related to the User entity.
 from clockwork_web.db import get_db
 
 # Import the functions from clockwork_web.config
-from clockwork_web.config import get_config, register_config, boolean as valid_boolean, string as valid_string
+from clockwork_web.config import (
+    get_config,
+    register_config,
+    boolean as valid_boolean,
+    string as valid_string,
+)
 
 # Dictionary referencing the expected type for each web setting entity
 web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool, "language": str}
@@ -15,6 +20,7 @@ web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool, "language": 
 register_config("settings.default_values.nbr_items_per_page", validator=int)
 register_config("settings.default_values.dark_mode", validator=valid_boolean)
 register_config("settings.default_values.language", validator=valid_string)
+
 
 def get_default_setting_value(setting_name):
     """
@@ -272,6 +278,7 @@ def disable_dark_mode(mila_email_username):
     """
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, "dark_mode", False)
+
 
 def set_language(mila_email_username, language):
     """
