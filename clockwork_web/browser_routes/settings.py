@@ -26,6 +26,7 @@ from clockwork_web.config import register_config, get_config, string as valid_st
 
 register_config("translation.available_languages", valid_string)
 
+
 @flask_api.route("/")
 @fresh_login_required
 def route_index():
@@ -164,6 +165,7 @@ def route_unset_dark_mode():
         # Otherwise, return an error
         return (render_template("error.html", error_msg=status_message), status_code)
 
+
 @flask_api.route("/web/language/set")
 @login_required
 def route_set_language():
@@ -201,9 +203,7 @@ def route_set_language():
             return (
                 render_template(
                     "error.html",
-                    error_msg=gettext(
-                        "The requested language is unknown."
-                    ),
+                    error_msg=gettext("The requested language is unknown."),
                 ),
                 400,  # Bad Request
             )
@@ -212,9 +212,7 @@ def route_set_language():
         return (
             render_template(
                 "error.html",
-                error_msg=gettext(
-                    "Missing argument, or wrong format: language."
-                ),
+                error_msg=gettext("Missing argument, or wrong format: language."),
             ),
             400,  # Bad Request
         )

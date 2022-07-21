@@ -35,6 +35,7 @@ from .config import register_config, get_config, string
 register_config("flask.secret_key", validator=string)
 register_config("translation.translations_folder", default="", validator=string)
 
+
 def create_app(extra_config: dict):
     """Creates the Flask app with everything wired up.
 
@@ -95,7 +96,9 @@ def create_app(extra_config: dict):
     # https://python-babel.github.io/flask-babel/
 
     # Set the translations directory path
-    app.config["BABEL_TRANSLATION_DIRECTORIES"] = get_config("translation.translations_folder")
+    app.config["BABEL_TRANSLATION_DIRECTORIES"] = get_config(
+        "translation.translations_folder"
+    )
 
     # Initialize Babel
     babel = Babel(app)

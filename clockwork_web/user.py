@@ -25,7 +25,7 @@ from clockwork_web.core.users_helper import (
     disable_dark_mode,
     set_items_per_page,
     get_default_setting_value,
-    set_language
+    set_language,
 )
 
 
@@ -35,6 +35,7 @@ class User(UserMixin):
     `login_manager` library. For example, the fact that `get` returns
     a `None` if it fails to find the user.
     """
+
     def __init__(
         self,
         mila_email_username,
@@ -57,14 +58,15 @@ class User(UserMixin):
         self.cc_account_update_key = cc_account_update_key
         self.web_settings = {}
         if web_settings is None:
-            self.web_settings["nbr_items_per_page"] = get_default_setting_value("nbr_items_per_page")
+            self.web_settings["nbr_items_per_page"] = get_default_setting_value(
+                "nbr_items_per_page"
+            )
             self.web_settings["dark_mode"] = get_default_setting_value("dark_mode")
             self.web_settings["language"] = get_default_setting_value("language")
         else:
             self.web_settings["nbr_items_per_page"] = web_settings["nbr_items_per_page"]
             self.web_settings["dark_mode"] = web_settings["dark_mode"]
             self.web_settings["language"] = web_settings["language"]
-
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -216,7 +218,7 @@ class AnonUser(AnonymousUserMixin):
         self.web_settings = {
             "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
             "dark_mode": get_default_setting_value("dark_mode"),
-            "language": get_default_setting_value("language")
+            "language": get_default_setting_value("language"),
         }
 
     def new_api_key(self):
