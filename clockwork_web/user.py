@@ -15,7 +15,9 @@ about these things.
 """
 
 from flask.globals import current_app
+from flask import session
 from flask_login import UserMixin, AnonymousUserMixin
+from flask_babel import gettext
 
 import secrets
 
@@ -50,6 +52,7 @@ class User(UserMixin):
         This constructor is called only by the `get` method.
         We never call it directly.
         """
+        print("Init User")
         self.mila_email_username = mila_email_username
         self.status = status
         self.clockwork_api_key = clockwork_api_key
@@ -131,7 +134,7 @@ class User(UserMixin):
         )
         if res.modified_count != 1:
             self.clockwork_api_key = old_key
-            raise ValueError("could not modify api key")
+            raise ValueError(gettext("could not modify api key"))
 
     def new_update_key(self):
         """
@@ -144,7 +147,7 @@ class User(UserMixin):
             {"$set": {"cc_account_update_key": self.cc_account_update_key}},
         )
         if res.modified_count != 1:
-            raise ValueError("could not modify update key")
+            raise ValueError(gettext("could not modify update key"))
 
     ###
     #   Web settings
@@ -215,12 +218,46 @@ class AnonUser(AnonymousUserMixin):
         self.cc_account_username = None
         self.mila_cluster_username = None
         self.cc_account_update_key = None
-        self.web_settings = {
-            "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
-            "dark_mode": get_default_setting_value("dark_mode"),
-            "language": get_default_setting_value("language"),
-        }
+        self.web_settings = {}
+        self.web_settings["nbr_items_per_page"] = get_default_setting_value("nbr_items_per_page")
+        self.web_settings["dark_mode"] = get_default_setting_value("dark_mode")
+        self.web_settings["language"] = None
+        print("Reinitialize AnonUser")
 
     def new_api_key(self):
         # We don't want to touch the database for this.
         self.clockwork_api_key = secrets.token_hex(32)
+
+    def settings_dark_mode_enable(self):
+        """
+        Enable the dark mode display option for the User.
+
+        Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
+        """
+        try:
+            self.web_settings["dark_mode"] = True
+            return (200, gettext("The dark_mode has been enabled."))
+        except Exception as e:
+            return (500, gettext("An error occurred."))
+
+    def settings_dark_mode_disable(self):
+        """
+        Disable the dark mode display option for the User.
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (it should only return 200)
+            - a message describing the state of the operation
+        """
+        try:
+            self.web_settings["dark_mode"] = False
+            return (200, gettext("The dark_mode has been disabled."))
+        except Exception as e:
+            return (500, gettext("An error occurred."))
+            
+    def get_language(self):
+        print("Get language user")
+        return self.web_settings["language"]
