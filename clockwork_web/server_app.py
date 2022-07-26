@@ -115,11 +115,12 @@ def create_app(extra_config: dict):
             # If no language has been previously determined, use the browser's
             # preferred language and store it to the session
             if "language" not in session:
-                browser_language = request.accept_languages.best_match(get_config("translation.available_languages"))
+                browser_language = request.accept_languages.best_match(
+                    get_config("translation.available_languages")
+                )
                 session["language"] = browser_language
 
             return session["language"]
-
 
     @app.route("/")
     def index():

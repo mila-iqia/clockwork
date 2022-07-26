@@ -52,7 +52,6 @@ class User(UserMixin):
         This constructor is called only by the `get` method.
         We never call it directly.
         """
-        print("Init User")
         self.mila_email_username = mila_email_username
         self.status = status
         self.clockwork_api_key = clockwork_api_key
@@ -219,10 +218,11 @@ class AnonUser(AnonymousUserMixin):
         self.mila_cluster_username = None
         self.cc_account_update_key = None
         self.web_settings = {}
-        self.web_settings["nbr_items_per_page"] = get_default_setting_value("nbr_items_per_page")
+        self.web_settings["nbr_items_per_page"] = get_default_setting_value(
+            "nbr_items_per_page"
+        )
         self.web_settings["dark_mode"] = get_default_setting_value("dark_mode")
         self.web_settings["language"] = None
-        print("Reinitialize AnonUser")
 
     def new_api_key(self):
         # We don't want to touch the database for this.
@@ -257,7 +257,6 @@ class AnonUser(AnonymousUserMixin):
             return (200, gettext("The dark_mode has been disabled."))
         except Exception as e:
             return (500, gettext("An error occurred."))
-            
+
     def get_language(self):
-        print("Get language user")
         return self.web_settings["language"]
