@@ -10,7 +10,7 @@ from flask import render_template, request, send_file
 from flask import jsonify
 
 # https://flask.palletsprojects.com/en/1.1.x/appcontext/
-from flask import g
+from flask import g, session
 
 from flask_login import current_user, fresh_login_required, login_required
 
@@ -167,7 +167,6 @@ def route_unset_dark_mode():
 
 
 @flask_api.route("/web/language/set")
-@login_required
 def route_set_language():
     """
     Set a new preferred language to display the website for the current user.
@@ -181,23 +180,28 @@ def route_set_language():
     if language:
         # Check if the language is supported
         if language in get_config("translation.available_languages"):
-            # If the language is known, update the preferred language of the
-            # current user and retrieve the status code and status message
-            # associated to this operation
-            (
-                status_code,
-                status_message,
-            ) = current_user.settings_language_set(language)
-
-            if status_code == 200:
-                # If a success has been return, redirect to the settings page
-                return redirect("/settings")
-            else:
-                # Otherwise, return an error
-                return (
-                    render_template("error.html", error_msg=status_message),
+            if current_user.is_authenticated:
+                # If the language is known, update the preferred language of the
+                # current user and retrieve the status code and status message
+                # associated to this operation
+                (
                     status_code,
-                )
+                    status_message,
+                ) = current_user.settings_language_set(language)
+
+                if status_code == 200:
+                    # If a success has been return, redirect to the home page
+                    return redirect("/")
+                else:
+                    # Otherwise, return an error
+                    return (
+                        render_template("error.html", error_msg=status_message),
+                        status_code,
+                    )
+            else:
+                # If the user is not authenticated, store it to the current session
+                session["language"] = language
+                return redirect("/")
         else:
             # Otherwise, return a Bad Request error and redirect to the error page
             return (
@@ -208,7 +212,8 @@ def route_set_language():
                 400,  # Bad Request
             )
     else:
-        # If nbr_items_per_page does not exist, return Bad Request
+        # If the language argument is not provided or presents a unexpected type,
+        # return Bad Request
         return (
             render_template(
                 "error.html",
