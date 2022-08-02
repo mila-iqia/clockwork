@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="cc_subheader_banner">
+        <div class="row">
+            <div class="col s2">
+                <!-- spacing on the left -->
+            </div>
+            <div class="col s4">
+                <h4>{{username}}</h4>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <!-- Account(s) -->
+        <h1>Accounts</h1>
+        {% for account_field in account_fields %}
+          {% if account_field in user and user[account_field] is not none %}
+            <div class="row">
+              <div class="col s3">
+                <b>{{user[account_field]}}</b>
+              </div>
+              <div class="col s9">
+                For clusters
+                {% for cluster_name in account_fields[account_field] %}
+                  <a href="/clusters/one?cluster_name={{cluster_name}}">{{cluster_name}} </a>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        <!-- Picture -->
+        {% if "personal_picture" in user %}
+          <img src="{{user['personal_picture']}}"
+        {% else %}
+          <img src="{{url_for('static', filename='images/users/no_picture.jpg')}}">
+        {% endif %}
+
+    </div>
+{% endblock %}

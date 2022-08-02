@@ -1,8 +1,9 @@
 """
-Helper functions related to the User entity.
+Helper functions related to the User entity and the users entries from the databas.
 """
 
 from clockwork_web.db import get_db
+
 
 # Dictionary referencing the expected type for each web setting entity
 web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool}
