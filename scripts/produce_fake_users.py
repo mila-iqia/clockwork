@@ -8,6 +8,7 @@ import re
 import os
 import argparse
 import json
+import random
 
 """
     The "fake users" are going to have the following structure.
@@ -33,6 +34,8 @@ def get_predefined_fake_users(N=20):
 
     Every 10th user is going to have a disabled account
     because that's something that we'll want to test.
+
+    Every 3rd user is going to present a personal picture.
     """
 
     L_cc_clusters = ["beluga", "graham", "cedar", "narval"]
@@ -75,6 +78,18 @@ def get_predefined_fake_users(N=20):
                 "account": account,
                 "cluster_name": cluster_name,
             }
+
+        # Add a link to a personal picture every 3rd user
+        example_pictures = [
+            "https://mila.quebec/wp-content/uploads/2019/08/guillaume_alain_400x700-400x400.jpg",
+            "https://mila.quebec/wp-content/uploads/2016/03/moi-e1459380871782.jpg",
+            "https://mila.quebec/wp-content/uploads/2021/12/20210704_143122-509x676.jpg",
+        ]  # Set of links to some sample pictures retrieved from the Mila website
+        if n % 3 == 0:
+            D_user["personal_picture"] = example_pictures[
+                random.randint(0, len(example_pictures) - 1)
+            ]
+
         return D_user
 
     return [gen_single_user(n) for n in range(N)]
