@@ -22,8 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install black==22.3.0 coverage
-        pip install pybabel
+        pip install black==22.3.0 coverage pybabel
     - name: Check code with Black
       run: |
         black --check .
