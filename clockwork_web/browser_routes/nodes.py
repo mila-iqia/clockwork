@@ -23,6 +23,7 @@ from flask_login import (
     current_user,
     login_required,
 )
+from flask_babel import gettext
 
 # As described on
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
