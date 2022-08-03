@@ -27,9 +27,11 @@ jobs:
       run: |
         black --check .
     - name: Compile translation files
-      run: pybabel compile -i clockwork_web/static/locales/fr/LC_MESSAGES/messages.po -o clockwork_web/static/locales/fr/LC_MESSAGES/check_messages.mo
+      run: |
+        pybabel compile -i clockwork_web/static/locales/fr/LC_MESSAGES/messages.po -o clockwork_web/static/locales/fr/LC_MESSAGES/check_messages.mo
     - name: Assert the translation files are the same
-      run: if ! cmp clockwork_web/static/locales/fr/LC_MESSAGES/messages.mo clockwork_web/static/locales/fr/LC_MESSAGES/check_messages.mo; then exit 3; fi
+      run: |
+        if ! cmp clockwork_web/static/locales/fr/LC_MESSAGES/messages.mo clockwork_web/static/locales/fr/LC_MESSAGES/check_messages.mo; then exit 3; fi
     - name: Run tests
       run: |
         sh test.sh
