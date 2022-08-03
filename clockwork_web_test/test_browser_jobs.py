@@ -112,10 +112,7 @@ def test_list_invalid_time(client):
     response = client.get(f"/jobs/list?relative_time=this_is_not_a_valid_relative_time")
     assert response.status_code == 400
 
-    assert (
-        b"cannot be cast as a valid integer:"
-        in response.data
-    )
+    assert b"cannot be cast as a valid integer:" in response.data
 
 
 def test_jobs(client, fake_data: dict[list[dict]]):
