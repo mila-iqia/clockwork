@@ -24,19 +24,19 @@ msgstr "Le cluster n'a pas été trouvé."
 
 #: clockwork_web/browser_routes/clusters.py:64
 msgid "The argument cluster_name is missing."
-msgstr "L'argument cluster_name n'a pas été renseigné."
+msgstr "L'argument cluster_name est manquant."
 
 #: clockwork_web/browser_routes/gpu.py:51
 msgid "Missing argument gpu_name."
-msgstr "L'argument gpu_name n'a pas été renseigné"
+msgstr "L'argument gpu_name est manquant."
 
 #: clockwork_web/browser_routes/jobs.py:107
 msgid "Field 'relative_time' cannot be cast as a valid integer: %(time1)."
-msgstr "Le champ 'relative_time' n'a pas pu être traduit pas un nombre entier valide: %(time1)"
+msgstr "Le champ 'relative_time' n'a pas pu être converti en nombre entier valide: %(time1)"
 
 #: clockwork_web/browser_routes/jobs.py:251
 msgid "Missing argument job_id."
-msgstr "L'argument job_id n'a pas été renseigné."
+msgstr "L'argument job_id est manquant."
 
 #: clockwork_web/browser_routes/jobs.py:262
 msgid "Found no job with job_id %(job_id)."
@@ -86,7 +86,7 @@ msgstr "[Lien vers le Github]"
 #: clockwork_web/templates/cluster.html:24
 #, python-format
 msgid "%(cluster_name) cluster"
-msgstr "Cluster %(cluster_name)"
+msgstr "Grappe %(cluster_name)"
 
 #: clockwork_web/templates/cluster.html:37
 msgid "Global information"
@@ -110,7 +110,7 @@ msgstr "Lien vers la documentation officielle"
 
 #: clockwork_web/templates/cluster.html:69
 msgid "See additional Mila documentation"
-msgstr "Lien vers la documentation fournie par le Mila"
+msgstr "Lien vers la documentation fournie par Mila"
 
 #: clockwork_web/templates/cluster.html:78
 #: clockwork_web/templates/cluster.html:83
@@ -182,7 +182,7 @@ msgstr "nom du job [:20]"
 #: clockwork_web/templates/jobs.html:40
 #: clockwork_web/templates/jobs_search.html:40
 msgid "job_state"
-msgstr "état du job"
+msgstr "job_state"
 
 #: clockwork_web/templates/jobs.html:41
 #: clockwork_web/templates/jobs_search.html:41
@@ -248,7 +248,7 @@ msgstr "cfg_tres"
 
 #: clockwork_web/templates/settings.html:44
 msgid "user settings %(mila_email_username)"
-msgstr "Paramètres de l'utilisateur %(mila_email_username)"
+msgstr "paramètres de l'utilisateur %(mila_email_username)"
 
 #: clockwork_web/templates/settings.html:58
 msgid "CLOCKWORK_WEB_API:"
@@ -256,11 +256,11 @@ msgstr "CLOCKWORK_WEB_API :"
 
 #: clockwork_web/templates/settings.html:60
 msgid "change key"
-msgstr "Modifier la clef"
+msgstr "modifier la clef"
 
 #: clockwork_web/templates/settings.html:64
 msgid "Run this command to register your account:"
-msgstr "Roulet cette commande pour enregistrer votre compte :"
+msgstr "Rouler cette commande pour enregistrer votre compte :"
 
 #: clockwork_web/templates/settings.html:66
 msgid "Get update account key"
@@ -298,4 +298,4 @@ msgstr "valeur"
 #: clockwork_web/templates/single_job.html:24
 #: clockwork_web/templates/single_node.html:24
 msgid "single job %(job_id)"
-msgstr "Job %(job_id)"
+msgstr "job %(job_id)"
