@@ -35,7 +35,7 @@ def _load_clusters_from_config():
     # Define the format of a cluster
     clusters_valid = SubdictValidator({})
     # Global information
-    clusters_valid.add_field("organism", optional_string, default=False)
+    clusters_valid.add_field("organization", optional_string, default=False)
     clusters_valid.add_field("timezone", timezone)
     # Allocations information
     clusters_valid.add_field("account_field", string)
