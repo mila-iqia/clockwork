@@ -109,7 +109,7 @@ def route_set_nbr_items_per_page():
                 render_template(
                     "error.html",
                     error_msg=gettext(
-                        "Wrong number of items to display per page provided to be set."
+                        "Invalid choice for number of items to display per page."
                     ),
                 ),
                 400,  # Bad Request
