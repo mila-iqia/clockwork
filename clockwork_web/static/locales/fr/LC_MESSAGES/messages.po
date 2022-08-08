@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-04 17:08-0400\n"
+"POT-Creation-Date: 2022-08-08 08:47-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -83,11 +83,11 @@ msgstr "Choix invalide pour le nombre d'éléments à afficher par page."
 msgid "Missing argument, or wrong format: nbr_items_per_page."
 msgstr "Argument manquant, ou présentant un format incorrect: nbr_items_per_page"
 
-#: clockwork_web/browser_routes/settings.py:211
+#: clockwork_web/browser_routes/settings.py:208
 msgid "The requested language is unknown."
 msgstr "La langue demandée est inconnue."
 
-#: clockwork_web/browser_routes/settings.py:221
+#: clockwork_web/browser_routes/settings.py:218
 #, fuzzy
 msgid "Missing argument, or wrong format: language."
 msgstr "Argument manquant, ou présentant un format incorrect: nbr_items_per_page"
@@ -164,14 +164,6 @@ msgstr "Vendeur"
 #: clockwork_web/templates/gpu.html:41
 msgid "RAM"
 msgstr "RAM"
-
-#: clockwork_web/templates/index_outside.html:32
-msgid "Please log in with your @mila.quebec account."
-msgstr "Merci de vous connecter avec votre compte @mila.quebec."
-
-#: clockwork_web/templates/index_outside.html:33
-msgid "This will create a key for the REST API automatically."
-msgstr "Cela créera automatiquement une clef pour l'API REST"
 
 #: clockwork_web/templates/jobs.html:24
 #: clockwork_web/templates/jobs_search.html:24
@@ -328,3 +320,9 @@ msgstr "valeur"
 
 #~ msgid "single job %(job_id)"
 #~ msgstr "job %(job_id)"
+
+#~ msgid "Please log in with your @mila.quebec account."
+#~ msgstr "Merci de vous connecter avec votre compte @mila.quebec."
+
+#~ msgid "This will create a key for the REST API automatically."
+#~ msgstr "Cela créera automatiquement une clef pour l'API REST"
