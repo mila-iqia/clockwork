@@ -168,9 +168,10 @@ def route_unset_dark_mode():
 
 
 @flask_api.route("/web/language/set")
+@login_required
 def route_set_language():
     """
-    Set a new preferred language to display the website for the current user.
+    Set a new preferred language to display the website for the current authenticated user.
 
     .. :quickref: update the preferred language in the current user's settings
     """
@@ -181,28 +182,24 @@ def route_set_language():
     if language:
         # Check if the language is supported
         if language in get_config("translation.available_languages"):
-            if current_user.is_authenticated:
-                # If the language is known, update the preferred language of the
-                # current user and retrieve the status code and status message
-                # associated to this operation
-                (
-                    status_code,
-                    status_message,
-                ) = current_user.settings_language_set(language)
+            # If the language is known, update the preferred language of the
+            # current user and retrieve the status code and status message
+            # associated to this operation
+            (
+                status_code,
+                status_message,
+            ) = current_user.settings_language_set(language)
 
-                if status_code == 200:
-                    # If a success has been return, redirect to the home page
-                    return redirect("/")
-                else:
-                    # Otherwise, return an error
-                    return (
-                        render_template("error.html", error_msg=status_message),
-                        status_code,
-                    )
-            else:
-                # If the user is not authenticated, store it to the current session
-                session["language"] = language
+            if status_code == 200:
+                # If a success has been return, redirect to the home page
                 return redirect("/")
+            else:
+                # Otherwise, return an error
+                return (
+                    render_template("error.html", error_msg=status_message),
+                    status_code,
+                )
+
         else:
             # Otherwise, return a Bad Request error and redirect to the error page
             return (
