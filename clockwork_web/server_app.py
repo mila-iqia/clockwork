@@ -14,7 +14,7 @@ in the right place.
 # python3 -m flask run --host=0.0.0.0
 
 import os
-from flask import Flask, redirect, render_template, url_for
+from flask import Flask, redirect, url_for
 from flask_login import current_user, LoginManager
 from .browser_routes.nodes import flask_api as nodes_routes_flask_api
 from .browser_routes.jobs import flask_api as jobs_routes_flask_api
@@ -30,6 +30,8 @@ from .rest_routes.nodes import flask_api as rest_nodes_flask_api
 from .rest_routes.gpu import flask_api as rest_gpu_flask_api
 
 from .config import register_config, get_config, string
+
+from .core.users_helper import render_customized_template
 
 register_config("flask.secret_key", validator=string)
 
@@ -101,7 +103,7 @@ def create_app(extra_config: dict):
             print("in route for '/'; redirecting to jobs/")
             return redirect("jobs/")
         else:
-            print("in route for '/'; render_template('index_outside.html')")
-            return render_template("index_outside.html")
+            print("in route for '/'; render_customized_template('index_outside.html')")
+            return render_customized_template("index_outside.html")
 
     return app
