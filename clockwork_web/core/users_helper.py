@@ -2,17 +2,32 @@
 Helper functions related to the User entity.
 """
 
+from flask_login import current_user
+from flask import render_template
+
 from clockwork_web.db import get_db
 
-# Dictionary referencing the expected type for each web setting entity
-web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool}
 
-# Dictionary presenting the default values for the user web settings
-default_settings_values = {
-    "nbr_items_per_page": 40,  # default value for the user setting "nbr_items_per_page"
-    "dark_mode": False,  # default value of the user setting "dark_mode"
-}
+def get_default_web_settings_values():
+    """
+    Get a dictionary associating each user web setting to its default value.
 
+    Returns:
+        A dictionary associating each user web setting to its default value.
+    """
+    default_settings_values = {
+        "nbr_items_per_page": 40,  # default value for the user setting "nbr_items_per_page"
+        "dark_mode": False,  # default value of the user setting "dark_mode"
+    }
+
+def get_web_settings_types():
+    """
+    Get a dictionary referencing the expected type for each web setting entity
+
+    Returns:
+        A dictionary associating each web setting to its expected type.
+    """
+    return {"nbr_items_per_page": int, "dark_mode": bool}
 
 def get_default_setting_value(setting_name):
     """
@@ -27,6 +42,7 @@ def get_default_setting_value(setting_name):
     Returns:
         The default value for the requested web setting
     """
+    default_settings_values = get_default_web_settings_values()
     if type(setting_name) == str and setting_name in default_settings_values:
         return default_settings_values[setting_name]
     else:
@@ -109,6 +125,9 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
         True if the type of setting_value and the expected type for an element
         related to setting_key match. False otherwise.
     """
+    # Retrieve the types expected for each web setting
+    web_settings_types = get_web_settings_types()
+
     # If the element has a registered expected type
     if setting_key in web_settings_types:
         # The problem here is that isinstance(True,int) returns True
@@ -269,3 +288,23 @@ def disable_dark_mode(mila_email_username):
     """
     # Call set_web_setting and return its response
     return set_web_setting(mila_email_username, "dark_mode", False)
+
+def render_customized_template(
+        template_name_or_list,
+        **context
+    ):
+    """
+    Wraps the Flask function render_template in order to send the user's web
+    settings to the rendered HTML page.
+
+    Parameters:
+        template_name_or_list   The name of the template to render. If a list is
+                                given, the first name to exist will be rendered.
+        context                 The variables to make available in the template.
+
+    Returns:
+        The template rendered by Flask, and containing the web_settings of the
+        current user
+    """
+    context["web_settings"] = current_user.get_web_settings()
+    return render_template(template_name_or_list, **context)
