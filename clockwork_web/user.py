@@ -179,9 +179,7 @@ class User(UserMixin):
         the current user.
 
         Parameters:
-        - nbr_items_per_page    The preferred number of items to display per
-                                page for the User, ie the value to save in
-                                its settings
+        - nbr_items_per_page    The preferred number of items to display per page for the User, ie the value to save in its settings
 
         Returns:
             A tuple containing
@@ -195,8 +193,7 @@ class User(UserMixin):
         Set a preferred language for the current user.
 
         Parameters:
-        - language      The language chosen by the user to interact with. The
-                        available languages are listed in the configuration file.
+        - language      The language chosen by the user to interact with. The available languages are listed in the configuration file.
 
         Returns:
             A tuple containing
