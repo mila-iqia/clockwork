@@ -48,7 +48,9 @@ def route_one():
     gpu_name = request.args.get("gpu_name", None)
     if gpu_name is None:
         return (
-            render_customized_template("error.html", error_msg=f"Missing argument gpu_name."),
+            render_customized_template(
+                "error.html", error_msg=f"Missing argument gpu_name."
+            ),
             400,  # Bad Request
         )
 

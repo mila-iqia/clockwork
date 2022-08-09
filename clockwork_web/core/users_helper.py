@@ -20,6 +20,7 @@ def get_default_web_settings_values():
         "dark_mode": False,  # default value of the user setting "dark_mode"
     }
 
+
 def get_web_settings_types():
     """
     Get a dictionary referencing the expected type for each web setting entity
@@ -28,6 +29,7 @@ def get_web_settings_types():
         A dictionary associating each web setting to its expected type.
     """
     return {"nbr_items_per_page": int, "dark_mode": bool}
+
 
 def get_default_setting_value(setting_name):
     """
@@ -289,10 +291,8 @@ def disable_dark_mode(mila_email_username):
     # Call set_web_setting and return its response
     return set_web_setting(mila_email_username, "dark_mode", False)
 
-def render_customized_template(
-        template_name_or_list,
-        **context
-    ):
+
+def render_customized_template(template_name_or_list, **context):
     """
     Wraps the Flask function render_template in order to send the user's web
     settings to the rendered HTML page.
