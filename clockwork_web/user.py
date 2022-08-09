@@ -113,8 +113,12 @@ class User(UserMixin):
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
                 cc_account_update_key=e["cc_account_update_key"],
-                nbr_items_per_page=e["web_settings"]["nbr_items_per_page"] if "nbr_items_per_page" in e["web_settings"] else get_default_setting_value("nbr_items_per_page"),
-                dark_mode=e["web_settings"]["dark_mode"] if "dark_mode" in e["web_settings"] else get_default_setting_value("dark_mode")
+                nbr_items_per_page=e["web_settings"]["nbr_items_per_page"]
+                if "nbr_items_per_page" in e["web_settings"]
+                else get_default_setting_value("nbr_items_per_page"),
+                dark_mode=e["web_settings"]["dark_mode"]
+                if "dark_mode" in e["web_settings"]
+                else get_default_setting_value("dark_mode"),
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
