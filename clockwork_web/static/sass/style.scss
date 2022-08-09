@@ -60,6 +60,13 @@ span.message {
     }
 }
 
+i.fa-arrows-rotate {
+    transition: all 0.3s;
+
+    .rotate-360 {
+        @include rotate(360deg);
+    }
+}
 
 /*
 ██   ██ ███████  █████  ██████  ███████ ██████  
@@ -99,8 +106,46 @@ span.message {
     text-align: right;
     max-width: 40px;
     .dropdown-menu {
-        padding: 10px;
+        padding: 10px 20px;
         white-space: nowrap;
+        margin-top: -30px;
+        border-color: $grey;
+        text-align: center;
+
+        .triangle-right {
+            width: 0;
+            height: 0;
+            right: -10px;
+            top: 33px;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid $grey;
+            position: absolute;
+        }
+
+        .triangle-right:after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-top: 9px solid transparent;
+            border-bottom: 9px solid transparent;
+            border-left: 9px solid white;
+            position: absolute;
+            top: -9px;
+            right: 1px;
+        }
+        p {
+            margin-bottom: 5px;
+        }
+        a.btn {
+            margin: 0 auto;
+            display: inline-block;
+            background: $turquoise;
+            color: white;
+        }
+        strong {
+            color: $red;
+        }
     }
 }
 
@@ -118,12 +163,79 @@ span.message {
 ███████ ███████ ██   ██ ██   ██  ██████ ██   ██ 
 */
 
-.searchform {
+#formBlock {
     background-image: url(../images/top_bg.png);
     background-repeat: no-repeat;
     background-position: top center;
     background-size: 100% 100%;
-    padding: 60px 0;
+    margin-bottom: 40px;
+}
+#mainCollapse {
+    border-top: 1px solid lighten($charcoal-pale, 20%);
+    display: block !important;
+    height: auto !important;
+    padding-top: 40px;
+    position: relative;
+
+    h1 {
+        a {
+            color: black;
+        }
+        i {
+            opacity: 1;
+            transition: all 0.3s;
+            display: block;
+            content: "\f055";
+            font-family: "Font Awesome 6 Pro";
+            font-weight: 900;
+            float: left;
+            font-size: 0.8em;
+            line-height: 1.5em;
+            margin-left: -42px;
+            background: -webkit-radial-gradient(top right, $red, $red-red);
+            background: -moz-radial-gradient(top right, $red, $red-red);
+            background: radial-gradient(to bottom left, $red, $red-red);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    }
+    
+    .container {
+        position: relative;
+        z-index: 2;
+    }
+    &:after {
+        display: block;
+        content: "";
+        width: 100%;
+        height: 147px;
+        position: absolute;
+        bottom: 0;
+        transition: all 0.3s;
+        opacity: 1;
+        background-image: url(../images/bg_search_top.png);
+        background-repeat: repeat-x;
+        background-position: top center;
+        z-index: 1;
+    }
+
+    &.show {
+
+        h1 i {
+            opacity: 0;
+            @include rotate(-360deg);
+        }
+
+        &:after {
+            opacity: 0;
+        }
+    }
+}
+
+.searchform {
+    .container form {
+        padding: 20px 0 60px 0;
+    }
 
     .cc_toggle_zone_column {
         height: 100%;
@@ -302,17 +414,17 @@ table.table-striped {
 
 table.table-striped,
 .cc_cluster_toggle_subzone .form-check-label {
-    span {
+    span.status {
         text-transform: capitalize;
     }
-    span:before {
+    span.status:before {
         font-family: "Font Awesome 6 Pro";
         font-weight: 900;
         display: inline-block;
         padding: 0 6px 0 0;
     }
 
-    span.failed:before {
+    span.failed:before, span.out_of_memory:before, span.cancelled:before, span.timeout:before, span.failed:before {
         color: $purple_pale;
         content: "\f071";
     }
@@ -324,7 +436,7 @@ table.table-striped,
         color: $yellow;
         content: "\f28b";
     }
-    span.running:before {
+    span.running:before, span.completing:before {
         color: $green;
         content: "\e29e";
     }
@@ -400,6 +512,13 @@ nav.table_nav {
 ██████  ██   ██ ███████ ██   ██ ██████   ██████  ██   ██ ██   ██ ██████  
 */
 
+.dashboard_bg {
+    background-image: url(../images/top_bg.png);
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: 100% 100%;
+    padding: 60px 0;
+}
 .dashboard_job {
 
      a.btn {

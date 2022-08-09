@@ -55,30 +55,39 @@
 
         }
 
+        var readableusername = retrieve_username_from_email("{{ mila_email_username }}");
+
         function server_refresh() {
             /* This fetches from the server.
-
                 - read the values of the toggle switches
                 - set the value for query_filter
+                - animate the icon
              */
 
-            read_query_filter()
-            read_display_filter()
+            read_query_filter();
+            read_display_filter();
+            
+            rotate_icon = document.querySelector('#spinner');
+            rotate_icon.classList.add("fa-spin");
+            // .5 seconds later, hide the splash
+            setTimeout(function() {
+              rotate_icon.classList.remove("fa-spin");
+            }, 2000);
 
-            console.log(query_filter);
-            console.log(display_filter);
+            //console.log(query_filter);
+            //console.log(display_filter);
 
             // note that `launch_refresh_all_data` comes from "jobs.ps"
             launch_refresh_all_data(query_filter, display_filter);
-            console.log("server_refresh() called");
+
+            //console.log("server_refresh() called");
+
+            setTimeout(server_refresh, 30000);
         }
-
-        var readableusername = retrieve_username_from_email("{{ mila_email_username }}");
     </script>
-
 {% endblock %}
 {% block content %}
-    <div class="searchform">
+    <div class="dashboard_bg searchform">
         <div class="container">
             <div class="row">
                 <div class="col-12">
@@ -136,7 +145,7 @@
             <div class="col-12">
                 <div class="title float-start">
                     <i class="fa-solid fa-list-check"></i>
-                    <h1>YOUR JOBS<span class="message"><i class="fa-solid fa-arrows-rotate"></i>This list will auto-refresh! </span></h1>
+                    <h1>YOUR JOBS<span class="message"><i id="spinner" class="fa-solid fa-arrows-rotate"></i>This list will auto-refresh! </span></h1>
                 </div>
                 <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
             </div>
@@ -146,7 +155,7 @@
 
                 <!-- <h1>{{channel_title}}</h1> -->
 
-                <table class="table table-striped table-hover table-responsive" data-sortable id="table_98429387">
+                <table class="table table-striped table-hover table-responsive" data-sortable id="dashboard_table">
                     <!-- This table starts empty and is populated automatically when the DOM is ready. -->
                 </table>
 

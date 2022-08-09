@@ -1,1 +1,0 @@
-const counterUp=window.counterUp.default,callback=e=>{e.forEach((e=>{const t=e.target;e.isIntersecting&&counterUp(t,{duration:900,delay:50})}))},IO=new IntersectionObserver(callback,{threshold:1});for(var slides=document.getElementsByClassName("num"),i=0;i<slides.length;i++)IO.observe(slides.item(i));
