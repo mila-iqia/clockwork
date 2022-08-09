@@ -41,6 +41,7 @@ from clockwork_web.core.nodes_helper import (
     strip_artificial_fields_from_node,
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
+from clockwork_web.core.users_helper import render_customized_template
 
 # Note that flask_api.route('/') will lead to a redirection with "/nodes", and pytest might not like that.
 
