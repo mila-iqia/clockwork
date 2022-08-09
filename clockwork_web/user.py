@@ -62,7 +62,7 @@ class User(UserMixin):
         self.web_settings = {}
         # For each given web setting value, store it
         if nbr_items_per_page:
-            self.web_setting["nbr_items_per_page"] = nbr_items_per_page
+            self.web_settings["nbr_items_per_page"] = nbr_items_per_page
         if dark_mode:
             self.web_settings["dark_mode"] = dark_mode
         # For each ungiven web setting value, store its default value
@@ -113,7 +113,8 @@ class User(UserMixin):
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
                 cc_account_update_key=e["cc_account_update_key"],
-                web_settings=e["web_settings"],
+                nbr_items_per_page=e["web_settings"]["nbr_items_per_page"] if "nbr_items_per_page" in e["web_settings"] else get_default_setting_value("nbr_items_per_page"),
+                dark_mode=e["web_settings"]["dark_mode"] if "dark_mode" in e["web_settings"] else get_default_setting_value("dark_mode")
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
