@@ -19,6 +19,7 @@ def get_default_web_settings_values():
         "nbr_items_per_page": 40,  # default value for the user setting "nbr_items_per_page"
         "dark_mode": False,  # default value of the user setting "dark_mode"
     }
+    return default_settings_values
 
 
 def get_web_settings_types():
