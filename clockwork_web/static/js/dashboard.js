@@ -70,7 +70,7 @@ var TimeAgo = (function() {
 const refresh_endpoint = "/jobs/list?want_json=True"
 
 // This id is used to identify the table to populate in the associated HTML file
-const id_of_table_to_populate = "table_98429387" // hardcoded into jobs.html also
+const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html also
 
 /*  The point of having those two global variables
     is that you can externally call `refresh_display(display_filter)`.
@@ -262,7 +262,7 @@ function populate_table(response_contents) {
     th = document.createElement('th'); th.innerHTML = "Cluster"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "Job ID"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "Job name [:20]"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "Job_state"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "Job state"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "Start time"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "End time"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "Links"; th.setAttribute("data-sortable", "false"); tr.appendChild(th);
@@ -285,7 +285,7 @@ function populate_table(response_contents) {
         //td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
         //kaweb - using the job state as a shorthand to insert icons through CSS
         td = document.createElement('td'); td.innerHTML = (
-            "<span class=\"" + job_state + "\">" + job_state + "</span>"); tr.appendChild(td);
+            "<span class=\"status " + job_state + "\">" + job_state + "</span>"); tr.appendChild(td);
 
         // start time
         td = document.createElement('td');
