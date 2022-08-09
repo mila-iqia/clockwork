@@ -249,7 +249,9 @@ def route_one():
     job_id = request.args.get("job_id", None)
     if job_id is None:
         return (
-            render_customized_template("error.html", error_msg=f"Missing argument job_id."),
+            render_customized_template(
+                "error.html", error_msg=f"Missing argument job_id."
+            ),
             400,
         )  # bad request
     f0 = get_filter_job_id(job_id)

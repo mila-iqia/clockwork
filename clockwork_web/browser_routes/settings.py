@@ -24,6 +24,7 @@ flask_api = Blueprint("settings", __name__)
 from clockwork_web.user import User
 from clockwork_web.core.users_helper import render_customized_template
 
+
 @flask_api.route("/")
 @fresh_login_required
 def route_index():
@@ -135,7 +136,10 @@ def route_set_dark_mode():
         return {}  # TODO: I'm not sure this is the correct way to do this
     else:
         # Otherwise, return an error
-        return (render_customized_template("error.html", error_msg=status_message), status_code)
+        return (
+            render_customized_template("error.html", error_msg=status_message),
+            status_code,
+        )
 
 
 @flask_api.route("/web/dark_mode/unset")
@@ -155,4 +159,7 @@ def route_unset_dark_mode():
         return {}  # TODO: I'm not sure this is the correct way to do this
     else:
         # Otherwise, return an error
-        return (render_customized_template("error.html", error_msg=status_message), status_code)
+        return (
+            render_customized_template("error.html", error_msg=status_message),
+            status_code,
+        )

@@ -45,7 +45,7 @@ class User(UserMixin):
         cc_account_username=None,
         cc_account_update_key=None,
         nbr_items_per_page=None,
-        dark_mode=None
+        dark_mode=None,
     ):
         """
         This constructor is called only by the `get` method.
@@ -59,7 +59,7 @@ class User(UserMixin):
         self.cc_account_update_key = cc_account_update_key
 
         # Initialize an empty dictionary
-        self.web_settings={}
+        self.web_settings = {}
         # For each given web setting value, store it
         if nbr_items_per_page:
             self.web_setting["nbr_items_per_page"] = nbr_items_per_page
@@ -68,7 +68,9 @@ class User(UserMixin):
         # For each ungiven web setting value, store its default value
         for setting_name in get_web_settings_types():
             if setting_name not in self.web_settings:
-                self.web_settings[setting_name] = get_default_setting_value(setting_name)
+                self.web_settings[setting_name] = get_default_setting_value(
+                    setting_name
+                )
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -208,7 +210,9 @@ class User(UserMixin):
         returned_web_settings = {}
         for setting_name in get_web_settings_types():
             if setting_name not in self.web_settings:
-                returned_web_settings[setting_name] = get_default_setting_value(setting_name)
+                returned_web_settings[setting_name] = get_default_setting_value(
+                    setting_name
+                )
             else:
                 returned_web_settings[setting_name] = self.web_settings[setting_name]
         return returned_web_settings
@@ -236,5 +240,7 @@ class AnonUser(AnonymousUserMixin):
         """
         returned_web_settings = {}
         for setting_name in get_web_settings_types():
-            returned_web_settings[setting_name] = get_default_setting_value(setting_name)
+            returned_web_settings[setting_name] = get_default_setting_value(
+                setting_name
+            )
         return returned_web_settings
