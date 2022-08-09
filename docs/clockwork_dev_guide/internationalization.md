@@ -168,6 +168,7 @@ pybabel init -i clockwork_web/static/locales/messages.pot -d clockwork_web/stati
 ```
 
 4. [Manually] Fill the missing translations in the `.po` file.
+   In our case, the only `.po` file to fill is the Frecnh one, and is located at the following path: `clockwork_web/static/locales/fr/LC_MESSAGES/messages.po`.
 
 5. ([Command line (but this is done by the clockwork_web and clockwork_dev Dockers)] Compile the translation files (to create `.mo` files).)
 
@@ -198,6 +199,7 @@ pybabel update -i clockwork_web/static/locales/messages.pot -d clockwork_web/sta
 ```
 
 4. [Manually] Fill the missing translations in the `.po` file.
+   In our case, the only `.po` file to fill is the Frecnh one, and is located at the following path: `clockwork_web/static/locales/fr/LC_MESSAGES/messages.po`.
 
 5. ([Command line (but this is done by the clockwork_web and clockwork_dev Dockers)] Compile the translation files (to create `.mo` files)).
 
