@@ -41,7 +41,7 @@ def route_one():
     provided gpu_name has not been found in the database.
     Returns an error message otherwise. The potential returned error
     is:
-        - 400 ("Bad Request") if the gpu_name is missing.
+    - 400 ("Bad Request") if the gpu_name is missing.
 
     .. :quickref: display the information of one GPU as formatted HTML
     """

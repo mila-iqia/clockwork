@@ -156,13 +156,13 @@ def route_search():
     - "nbr_items_per_page".
 
     - "user_name" refers to any of the three alternatives to identify a user,
-    and it will match any of them.
+      and it will match any of them.
     - "clusters_names" refers to the cluster(s) on which we are looking for the jobs
     - "states" refers to the state(s) of the jobs we are looking for
     - "page_num" is optional and used for the pagination: it is a positive integer
-    presenting the number of the current page
+      presenting the number of the current page
     - "nbr_items_per_page" is optional and used for the pagination: it is a
-    positive integer presenting the number of items to display per page
+      positive integer presenting the number of items to display per page
 
     .. :quickref: list all Slurm job as formatted html
     """
