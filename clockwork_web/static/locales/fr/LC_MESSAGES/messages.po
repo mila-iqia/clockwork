@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-10 03:40-0400\n"
+"POT-Creation-Date: 2022-08-10 06:46-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -38,11 +38,11 @@ msgstr "Une erreur est survenue."
 msgid "The dark_mode has been disabled."
 msgstr "Le mode sombre a été désactivé."
 
-#: clockwork_web/browser_routes/clusters.py:58
+#: clockwork_web/browser_routes/clusters.py:59
 msgid "The cluster associated to 'cluster_name' is not known."
 msgstr "La grappe de calcul associée à 'cluster_name' est inconnue."
 
-#: clockwork_web/browser_routes/clusters.py:67
+#: clockwork_web/browser_routes/clusters.py:70
 msgid "The argument cluster_name is missing."
 msgstr "L'argument cluster_name est manquant."
 
@@ -73,6 +73,10 @@ msgstr ""
 #: clockwork_web/browser_routes/nodes.py:119
 msgid "Found more than one matching node"
 msgstr "Plusieurs noeuds ont été trouvés alors qu'un seul était attendu."
+
+#: clockwork_web/browser_routes/nodes.py:130
+msgid "(missing node name)"
+msgstr "(nom du noeud manquant)"
 
 #: clockwork_web/browser_routes/settings.py:111
 #, fuzzy
