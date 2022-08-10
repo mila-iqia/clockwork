@@ -46,7 +46,7 @@ def get_default_setting_value(setting_name):
         The default value for the requested web setting
     """
     default_settings_values = get_default_web_settings_values()
-    if type(setting_name) == str and setting_name in default_settings_values:
+    if isinstance(setting_name, str) and setting_name in default_settings_values:
         return default_settings_values[setting_name]
     else:
         return None
@@ -293,7 +293,7 @@ def disable_dark_mode(mila_email_username):
     return set_web_setting(mila_email_username, "dark_mode", False)
 
 
-def render_customized_template(template_name_or_list, **context):
+def render_template_with_user_settings(template_name_or_list, **context):
     """
     Wraps the Flask function render_template in order to send the user's web
     settings to the rendered HTML page.

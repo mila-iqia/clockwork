@@ -41,7 +41,7 @@ from clockwork_web.core.nodes_helper import (
     strip_artificial_fields_from_node,
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
-from clockwork_web.core.users_helper import render_customized_template
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 # Note that flask_api.route('/') will lead to a redirection with "/nodes", and pytest might not like that.
 
@@ -85,7 +85,7 @@ def route_list():
     LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
 
     # Display the HTML page
-    return render_customized_template(
+    return render_template_with_user_settings(
         "nodes.html",
         LD_nodes=LD_nodes,
         mila_email_username=current_user.mila_email_username,
@@ -110,12 +110,14 @@ def route_one():
 
     if len(LD_nodes) == 0:
         return (
-            render_customized_template("error.html", error_msg=f"Node not found"),
+            render_template_with_user_settings(
+                "error.html", error_msg=f"Node not found"
+            ),
             400,
         )  # bad request
     elif len(LD_nodes) > 1:
         return (
-            render_customized_template(
+            render_template_with_user_settings(
                 "error.html", error_msg=f"Found more than one matching node"
             ),
             400,
@@ -126,7 +128,7 @@ def route_one():
     # need to format it as list of tuples for the template (unless I'm mistaken)
     LP_single_node = list(sorted(D_node.items(), key=lambda e: e[0]))
 
-    return render_customized_template(
+    return render_template_with_user_settings(
         "single_node.html",
         LP_single_node=LP_single_node,
         mila_email_username=current_user.mila_email_username,

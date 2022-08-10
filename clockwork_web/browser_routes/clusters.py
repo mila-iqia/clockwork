@@ -6,7 +6,7 @@ from flask import Blueprint, request
 from flask_login import current_user, login_required
 
 from clockwork_web.core.clusters_helper import get_all_clusters
-from clockwork_web.core.users_helper import render_customized_template
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 flask_api = Blueprint("clusters", __name__)
 
@@ -45,7 +45,7 @@ def route_one():
     if cluster_name:
         if cluster_name in D_clusters:
             # Return a HTML page presenting the requested cluster's information
-            return render_customized_template(
+            return render_template_with_user_settings(
                 "cluster.html",
                 cluster_name=cluster_name,
                 cluster=D_clusters[cluster_name],
@@ -54,7 +54,7 @@ def route_one():
         else:
             # Return a 404 error (Not Found) if the cluster is unknown
             return (
-                render_customized_template(
+                render_template_with_user_settings(
                     "error.html", error_msg=f"This cluster is not known."
                 ),
                 404,  # Not Found
@@ -63,7 +63,7 @@ def route_one():
     else:
         # Return a 400 error (Bad Request) if no cluster_name has been provided
         return (
-            render_customized_template(
+            render_template_with_user_settings(
                 "error.html", error_msg=f"The argument cluster_name is missing."
             ),
             400,  # Bad Request

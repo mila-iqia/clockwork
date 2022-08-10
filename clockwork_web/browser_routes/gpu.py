@@ -3,7 +3,7 @@ from flask.json import jsonify
 from flask_login import current_user, login_required
 
 from clockwork_web.core.gpu_helper import get_gpu_info, get_gpu_list
-from clockwork_web.core.users_helper import render_customized_template
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 
 flask_api = Blueprint("gpu", __name__)
@@ -23,7 +23,7 @@ def route_list():
     """
     LD_gpus = get_gpu_list()
 
-    return render_customized_template(
+    return render_template_with_user_settings(
         "gpu.html",
         LD_gpus=LD_gpus,
         mila_email_username=current_user.mila_email_username,
@@ -48,7 +48,7 @@ def route_one():
     gpu_name = request.args.get("gpu_name", None)
     if gpu_name is None:
         return (
-            render_customized_template(
+            render_template_with_user_settings(
                 "error.html", error_msg=f"Missing argument gpu_name."
             ),
             400,  # Bad Request
@@ -58,7 +58,7 @@ def route_one():
     D_gpu = get_gpu_info(gpu_name)
     # Need to format it as list of tuples for the template
     LP_gpu = list(sorted(D_gpu.items(), key=lambda e: e[0]))
-    return render_customized_template(
+    return render_template_with_user_settings(
         "single_gpu.html",
         LP_gpu=LP_gpu,
         gpu_name=gpu_name,
