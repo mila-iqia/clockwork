@@ -34,7 +34,7 @@ from flask_login import (
 
 from .user import User
 from clockwork_web.config import register_config, get_config, string as valid_string
-from clockwork_web.core.users_helper import render_customized_template
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 
 register_config("google.client_id", "", validator=valid_string)
@@ -163,27 +163,27 @@ def route_callback():
     if userinfo.get("email_verified"):
         users_email = userinfo["email"]
     else:
-        return render_customized_template(
+        return render_template_with_user_settings(
             "error.html",
             error_msg="User email not available or not verified by Google.",
         )
 
     if not users_email.endswith("@mila.quebec"):
-        return render_customized_template(
+        return render_template_with_user_settings(
             "error.html", error_msg="We accept only accounts from @mila.quebec"
         )
 
     user = User.get(users_email)
 
     if user is None:
-        return render_customized_template(
+        return render_template_with_user_settings(
             "error.html",
             error_msg=f"User not available, contact support for more information",
         )
     # At this point in the code, the user cannot possibly be `None`.
 
     if user.status != "enabled":
-        return render_customized_template(
+        return render_template_with_user_settings(
             "error.html",
             error_msg="The user retrieved does not have its status as 'enabled'.",
         )
@@ -218,7 +218,7 @@ if os.environ.get("CLOCKWORK_ENABLE_TESTING_LOGIN", "") == "True":
         user_id = request.args.get("user_id")
         user = User.get(user_id)
         if user is None or user.status != "enabled":
-            return render_customized_template(
+            return render_template_with_user_settings(
                 "error.html",
                 error_msg=f"Invalid user",
             )

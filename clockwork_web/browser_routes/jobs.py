@@ -30,7 +30,7 @@ from flask_login import (
 from flask import Blueprint
 
 from clockwork_web.core.utils import to_boolean
-from clockwork_web.core.users_helper import render_customized_template
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 flask_api = Blueprint("jobs", __name__)
 
@@ -103,7 +103,7 @@ def route_list():
         except Exception as inst:
             print(inst)
             return (
-                render_customized_template(
+                render_template_with_user_settings(
                     "error.html",
                     error_msg=f"Field 'relative_time' cannot be cast as a valid integer: {time1}.",
                 ),
@@ -132,7 +132,7 @@ def route_list():
         return jsonify(LD_jobs)
     else:
         # Otherwise, display the HTML page
-        return render_customized_template(
+        return render_template_with_user_settings(
             "jobs.html",
             LD_jobs=LD_jobs,
             mila_email_username=current_user.mila_email_username,
@@ -222,7 +222,7 @@ def route_search():
     ]
 
     # Display the HTML page
-    return render_customized_template(
+    return render_template_with_user_settings(
         "jobs_search.html",
         LD_jobs=LD_jobs,
         mila_email_username=current_user.mila_email_username,
@@ -249,7 +249,7 @@ def route_one():
     job_id = request.args.get("job_id", None)
     if job_id is None:
         return (
-            render_customized_template(
+            render_template_with_user_settings(
                 "error.html", error_msg=f"Missing argument job_id."
             ),
             400,
@@ -261,11 +261,11 @@ def route_one():
     LD_jobs = get_jobs(filter)
 
     if len(LD_jobs) == 0:
-        return render_customized_template(
+        return render_template_with_user_settings(
             "error.html", error_msg=f"Found no job with job_id {job_id}."
         )
     if len(LD_jobs) > 1:
-        return render_customized_template(
+        return render_template_with_user_settings(
             "error.html",
             error_msg=f"Found {len(LD_jobs)} jobs with job_id {job_id}. Not sure what to do about these cases.",
         )
@@ -276,7 +276,7 @@ def route_one():
     # let's sort alphabetically by keys
     LP_single_job = list(sorted(D_job["slurm"].items(), key=lambda e: e[0]))
 
-    return render_customized_template(
+    return render_template_with_user_settings(
         "single_job.html",
         LP_single_job=LP_single_job,
         job_id=job_id,
@@ -293,7 +293,7 @@ def route_interactive():
     """
     Not implemented.
     """
-    return render_customized_template(
+    return render_template_with_user_settings(
         "jobs_interactive.html",
         mila_email_username=current_user.mila_email_username,
     )

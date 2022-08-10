@@ -31,7 +31,7 @@ from .rest_routes.gpu import flask_api as rest_gpu_flask_api
 
 from .config import register_config, get_config, string
 
-from .core.users_helper import render_customized_template
+from .core.users_helper import render_template_with_user_settings
 
 register_config("flask.secret_key", validator=string)
 
@@ -103,7 +103,9 @@ def create_app(extra_config: dict):
             print("in route for '/'; redirecting to jobs/")
             return redirect("jobs/")
         else:
-            print("in route for '/'; render_customized_template('index_outside.html')")
-            return render_customized_template("index_outside.html")
+            print(
+                "in route for '/'; render_template_with_user_settings('index_outside.html')"
+            )
+            return render_template_with_user_settings("index_outside.html")
 
     return app
