@@ -26,7 +26,7 @@ has to be translated. For this purpose, you can follow the next steps:
     ```
     pybabel extract -F clockwork_web/babel.cfg -o clockwork_web/static/locales/messages.pot clockwork_web/
     ```
-3. **Update the pre-existing translaton file(s) (`.po` file(s))**. This is done through the command line.
+3. **Update the pre-existing translation file(s) (`.po` file(s))**. This is done through the command line.
     ```
     pybabel update -i clockwork_web/static/locales/messages.pot -d clockwork_web/static/locales/
     ```
