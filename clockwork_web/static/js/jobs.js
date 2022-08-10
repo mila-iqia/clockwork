@@ -210,7 +210,7 @@ function populate_table(response_contents) {
         let tr = document.createElement('tr');
         let td;
         td = document.createElement('td'); td.innerHTML = D_job_slurm["cluster_name"]; tr.appendChild(td);
-        td = document.createElement('td'); td.innerHTML = retrieve_username_from_email(D_job["cw"]["mila_email_username"]); tr.appendChild(td); // TODO : add href for meaningful people pertaining to single user ?
+        td = document.createElement('td'); td.innerHTML = "<a href=\"/users/one?username="+D_job['cw']['mila_email_username']+"\">"+retrieve_username_from_email(D_job["cw"]["mila_email_username"])+"</a>"; tr.appendChild(td); // TODO : add href for meaningful people pertaining to single user ?
         td = document.createElement('td'); td.innerHTML = (
             "<a href=\"" + "/jobs/one?job_id=" + D_job_slurm["job_id"] + "\">" + D_job_slurm["job_id"] + "</a>"); tr.appendChild(td);
         td = document.createElement('td'); td.innerHTML = (D_job_slurm["name"] ? D_job_slurm["name"] : "").substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)

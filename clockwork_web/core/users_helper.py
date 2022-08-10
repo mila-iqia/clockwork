@@ -1,5 +1,5 @@
 """
-Helper functions related to the User entity.
+Helper functions related to the User entity and the users entries from the databas.
 """
 
 from flask_login import current_user
