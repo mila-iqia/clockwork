@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-10 06:46-0400\n"
+"POT-Creation-Date: 2022-08-10 15:05-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -74,7 +74,7 @@ msgstr ""
 msgid "Found more than one matching node"
 msgstr "Plusieurs noeuds ont été trouvés alors qu'un seul était attendu."
 
-#: clockwork_web/browser_routes/nodes.py:130
+#: clockwork_web/browser_routes/nodes.py:129
 msgid "(missing node name)"
 msgstr "(nom du noeud manquant)"
 
