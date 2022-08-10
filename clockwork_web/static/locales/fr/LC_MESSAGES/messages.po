@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-08 08:47-0400\n"
+"POT-Creation-Date: 2022-08-10 03:40-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -26,21 +26,21 @@ msgstr "la clef API n'a pas pu être modifiée"
 msgid "could not modify update key"
 msgstr "la clef de mise à jour n'a pas pu être modifiée"
 
-#: clockwork_web/user.py:242
+#: clockwork_web/user.py:239
 msgid "The dark_mode has been enabled."
 msgstr "Le mode sombre a été activé."
 
-#: clockwork_web/user.py:244 clockwork_web/user.py:259
+#: clockwork_web/user.py:241 clockwork_web/user.py:256
 msgid "An error occurred."
 msgstr "Une erreur est survenue."
 
-#: clockwork_web/user.py:257
+#: clockwork_web/user.py:254
 msgid "The dark_mode has been disabled."
 msgstr "Le mode sombre a été désactivé."
 
 #: clockwork_web/browser_routes/clusters.py:58
-msgid "This cluster is not known."
-msgstr "Ce cluster est inconnu."
+msgid "The cluster associated to 'cluster_name' is not known."
+msgstr "La grappe de calcul associée à 'cluster_name' est inconnue."
 
 #: clockwork_web/browser_routes/clusters.py:67
 msgid "The argument cluster_name is missing."
@@ -326,3 +326,4 @@ msgstr "valeur"
 
 #~ msgid "This will create a key for the REST API automatically."
 #~ msgstr "Cela créera automatiquement une clef pour l'API REST"
+

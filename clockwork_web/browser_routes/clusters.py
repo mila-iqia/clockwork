@@ -55,7 +55,7 @@ def route_one():
             # Return a 404 error (Not Found) if the cluster is unknown
             return (
                 render_template(
-                    "error.html", error_msg=gettext("This cluster is not known.")
+                    "error.html", error_msg=gettext("The cluster associated to 'cluster_name' is not known.")
                 ),
                 404,  # Not Found
             )
