@@ -1,8 +1,8 @@
 jQuery(document).ready(function($){
-    $('.num').counterUp({
-        delay: 10,
-        time: 1000
-    });
+    //$('.num').counterUp({
+    //    delay: 10,
+    //    time: 1000
+    //});
 
     search_table = document.querySelector('#search_table');
     if (search_table) Sortable.initTable(search_table);
