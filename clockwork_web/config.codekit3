@@ -116,6 +116,14 @@
       "oAP" : "\/browser_routes\/__pycache__\/__init__.cpython-39.pyc",
       "oF" : 0
     },
+    "\/browser_routes\/__pycache__\/clusters.cpython-39.pyc" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/browser_routes\/__pycache__\/clusters.cpython-39.pyc",
+      "oF" : 0
+    },
     "\/browser_routes\/__pycache__\/gpu.cpython-39.pyc" : {
       "cB" : 0,
       "ft" : 8192,
@@ -146,6 +154,14 @@
       "hM" : 0,
       "oA" : 0,
       "oAP" : "\/browser_routes\/__pycache__\/settings.cpython-39.pyc",
+      "oF" : 0
+    },
+    "\/browser_routes\/clusters.py" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/browser_routes\/clusters.py",
       "oF" : 0
     },
     "\/browser_routes\/gpu.py" : {
@@ -204,6 +220,14 @@
       "oAP" : "\/core\/__pycache__\/__init__.cpython-39.pyc",
       "oF" : 0
     },
+    "\/core\/__pycache__\/clusters_helper.cpython-39.pyc" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/core\/__pycache__\/clusters_helper.cpython-39.pyc",
+      "oF" : 0
+    },
     "\/core\/__pycache__\/gpu_helper.cpython-39.pyc" : {
       "cB" : 0,
       "ft" : 8192,
@@ -228,12 +252,36 @@
       "oAP" : "\/core\/__pycache__\/nodes_helper.cpython-39.pyc",
       "oF" : 0
     },
+    "\/core\/__pycache__\/pagination_helper.cpython-39.pyc" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/core\/__pycache__\/pagination_helper.cpython-39.pyc",
+      "oF" : 0
+    },
+    "\/core\/__pycache__\/users_helper.cpython-39.pyc" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/core\/__pycache__\/users_helper.cpython-39.pyc",
+      "oF" : 0
+    },
     "\/core\/__pycache__\/utils.cpython-39.pyc" : {
       "cB" : 0,
       "ft" : 8192,
       "hM" : 0,
       "oA" : 0,
       "oAP" : "\/core\/__pycache__\/utils.cpython-39.pyc",
+      "oF" : 0
+    },
+    "\/core\/clusters_helper.py" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/core\/clusters_helper.py",
       "oF" : 0
     },
     "\/core\/gpu_helper.py" : {
@@ -258,6 +306,22 @@
       "hM" : 0,
       "oA" : 0,
       "oAP" : "\/core\/nodes_helper.py",
+      "oF" : 0
+    },
+    "\/core\/pagination_helper.py" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/core\/pagination_helper.py",
+      "oF" : 0
+    },
+    "\/core\/users_helper.py" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/core\/users_helper.py",
       "oF" : 0
     },
     "\/core\/utils.py" : {
@@ -500,7 +564,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/bootstrap\/js\/bootstrap.bundle-min.js",
+      "oAP" : "\/static\/bootstrap\/js\/bootstrap.bundle.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -519,7 +583,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/bootstrap\/js\/bootstrap.bundle.min-min.js",
+      "oAP" : "\/static\/bootstrap\/js\/bootstrap.bundle.min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -538,7 +602,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/bootstrap\/js\/bootstrap.esm-min.js",
+      "oAP" : "\/static\/bootstrap\/js\/bootstrap.esm.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -557,7 +621,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/bootstrap\/js\/bootstrap.esm.min-min.js",
+      "oAP" : "\/static\/bootstrap\/js\/bootstrap.esm.min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -576,7 +640,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/bootstrap\/js\/bootstrap-min.js",
+      "oAP" : "\/static\/bootstrap\/js\/bootstrap.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -595,7 +659,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/bootstrap\/js\/bootstrap.min-min.js",
+      "oAP" : "\/static\/bootstrap\/js\/bootstrap.min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -1937,6 +2001,26 @@
       "oF" : 0,
       "pg" : 0
     },
+    "\/static\/css\/darkmode.css" : {
+      "aP" : 1,
+      "bl" : 0,
+      "ci" : 0,
+      "co" : 0,
+      "ft" : 16,
+      "ma" : 0,
+      "oA" : 0,
+      "oAP" : "\/static\/css\/darkmode-min.css",
+      "oF" : 0,
+      "pg" : 0
+    },
+    "\/static\/css\/darkmode.css.map" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/static\/css\/darkmode.css.map",
+      "oF" : 0
+    },
     "\/static\/css\/fontawesome.min.css" : {
       "aP" : 1,
       "bl" : 0,
@@ -2116,40 +2200,53 @@
       "oAP" : "\/static\/favicons\/site.webmanifest",
       "oF" : 0
     },
-    "\/static\/images\/clockwork_cluster_0.5x.png" : {
+    "\/static\/images\/bg_search_top.png" : {
       "ft" : 32768,
-      "iS" : 128097,
+      "iS" : 2691,
       "oA" : 0,
-      "oAP" : "\/static\/images\/clockwork_cluster_0.5x.png",
+      "oAP" : "\/static\/images\/bg_search_top.png",
       "oF" : 0,
-      "oIPL" : 0,
-      "opt" : 0,
+      "oIPL" : 1,
+      "opt" : 1,
       "oT" : 1,
       "ou" : "lpckwebp-none",
       "q" : 100,
       "rq" : 75
     },
-    "\/static\/images\/grafana_logo.png" : {
+    "\/static\/images\/dark-bg_search_top.png" : {
       "ft" : 32768,
-      "iS" : 13089,
+      "iS" : 1880,
       "oA" : 0,
-      "oAP" : "\/static\/images\/grafana_logo.png",
+      "oAP" : "\/static\/images\/dark-bg_search_top.png",
       "oF" : 0,
-      "oIPL" : 0,
-      "opt" : 0,
+      "oIPL" : 1,
+      "opt" : 1,
       "oT" : 1,
       "ou" : "lpckwebp-none",
       "q" : 100,
       "rq" : 75
     },
-    "\/static\/images\/logo_cw-invert.png" : {
+    "\/static\/images\/dark-logo_cw.png" : {
       "ft" : 32768,
       "iS" : 62745,
       "oA" : 0,
-      "oAP" : "\/static\/images\/logo_cw-invert.png",
+      "oAP" : "\/static\/images\/dark-logo_cw.png",
       "oF" : 0,
       "oIPL" : 0,
       "opt" : 0,
+      "oT" : 1,
+      "ou" : "lpckwebp-none",
+      "q" : 100,
+      "rq" : 75
+    },
+    "\/static\/images\/dark-top_bg.png" : {
+      "ft" : 32768,
+      "iS" : 184319,
+      "oA" : 0,
+      "oAP" : "\/static\/images\/dark-top_bg.png",
+      "oF" : 0,
+      "oIPL" : 1,
+      "opt" : 1,
       "oT" : 1,
       "ou" : "lpckwebp-none",
       "q" : 100,
@@ -2168,27 +2265,14 @@
       "q" : 100,
       "rq" : 75
     },
-    "\/static\/images\/outline_book_black_48dp.png" : {
-      "ft" : 32768,
-      "iS" : 424,
-      "oA" : 0,
-      "oAP" : "\/static\/images\/outline_book_black_48dp.png",
-      "oF" : 0,
-      "oIPL" : 0,
-      "opt" : 0,
-      "oT" : 1,
-      "ou" : "lpckwebp-none",
-      "q" : 100,
-      "rq" : 75
-    },
     "\/static\/images\/top_bg.png" : {
       "ft" : 32768,
       "iS" : 249925,
       "oA" : 0,
       "oAP" : "\/static\/images\/top_bg.png",
       "oF" : 0,
-      "oIPL" : 0,
-      "opt" : 0,
+      "oIPL" : 1,
+      "opt" : 1,
       "oT" : 1,
       "ou" : "lpckwebp-none",
       "q" : 100,
@@ -2200,7 +2284,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/counterup-min.js",
+      "oAP" : "\/static\/js\/counterup.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2211,7 +2295,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/d3-min.js",
+      "oAP" : "\/static\/js\/d3.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2222,7 +2306,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/d3.min-min.js",
+      "oAP" : "\/static\/js\/d3.min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2233,7 +2317,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/dashboard-min-min.js",
+      "oAP" : "\/static\/js\/dashboard-min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2244,7 +2328,18 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/dashboard-min.js",
+      "oAP" : "\/static\/js\/dashboard.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/dashboard.min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/dashboard.min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2255,7 +2350,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/jobs-min-min.js",
+      "oAP" : "\/static\/js\/jobs-min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2266,7 +2361,84 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/jobs-min.js",
+      "oAP" : "\/static\/js\/jobs.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/jquery-3.6.0.min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/jquery-3.6.0.min.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/jquery.counterup.min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/jquery.counterup.min.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/jquery.waypoints.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/jquery.waypoints.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/jquery.waypoints.min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/jquery.waypoints.min.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/livestamp.min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/livestamp.min.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/moment-with-locales.min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/moment-with-locales.min.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/moment-with-locales.min.min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/moment-with-locales.min.min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2277,18 +2449,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/popper.min-min.js",
-      "oF" : 0,
-      "sC" : 3,
-      "tS" : 0
-    },
-    "\/static\/js\/scripts-min.js" : {
-      "bF" : 0,
-      "ft" : 64,
-      "ma" : 0,
-      "mi" : 1,
-      "oA" : 0,
-      "oAP" : "\/static\/js\/scripts-min-min.js",
+      "oAP" : "\/static\/js\/popper.min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2299,7 +2460,18 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/scripts-min.js",
+      "oAP" : "\/static\/js\/scripts.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/scripts.min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/scripts.min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2310,7 +2482,7 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/sortable.min-min.js",
+      "oAP" : "\/static\/js\/sortable.min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2321,7 +2493,29 @@
       "ma" : 0,
       "mi" : 1,
       "oA" : 0,
-      "oAP" : "\/static\/js\/timeago.min-min.js",
+      "oAP" : "\/static\/js\/timeago.min.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/user.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/user.min.js",
+      "oF" : 0,
+      "sC" : 3,
+      "tS" : 0
+    },
+    "\/static\/js\/user.min.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/js\/user.min.min.js",
       "oF" : 0,
       "sC" : 3,
       "tS" : 0
@@ -2351,6 +2545,21 @@
       "ma" : 1,
       "oA" : 1,
       "oAP" : "\/static\/css\/_variables.css",
+      "oF" : 0,
+      "oS" : 0,
+      "pg" : 0,
+      "sct" : 0
+    },
+    "\/static\/sass\/darkmode.scss" : {
+      "aP" : 0,
+      "bl" : 0,
+      "co" : 0,
+      "dP" : 10,
+      "ec" : 1,
+      "ft" : 4,
+      "ma" : 1,
+      "oA" : 0,
+      "oAP" : "\/static\/css\/darkmode.css",
       "oF" : 0,
       "oS" : 0,
       "pg" : 0,
@@ -2411,6 +2620,14 @@
       "oAP" : "\/templates\/base.html",
       "oF" : 0
     },
+    "\/templates\/cluster.html" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/templates\/cluster.html",
+      "oF" : 0
+    },
     "\/templates\/error.html" : {
       "cB" : 0,
       "ft" : 8192,
@@ -2435,14 +2652,6 @@
       "oAP" : "\/templates\/index_outside.html",
       "oF" : 0
     },
-    "\/templates\/jobs_interactive_backup.html" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/templates\/jobs_interactive_backup.html",
-      "oF" : 0
-    },
     "\/templates\/jobs_interactive.html" : {
       "cB" : 0,
       "ft" : 8192,
@@ -2451,12 +2660,12 @@
       "oAP" : "\/templates\/jobs_interactive.html",
       "oF" : 0
     },
-    "\/templates\/jobs_list_backup.html" : {
+    "\/templates\/jobs_search.html" : {
       "cB" : 0,
       "ft" : 8192,
       "hM" : 0,
       "oA" : 0,
-      "oAP" : "\/templates\/jobs_list_backup.html",
+      "oAP" : "\/templates\/jobs_search.html",
       "oF" : 0
     },
     "\/templates\/jobs.html" : {
@@ -3869,7 +4078,7 @@
     },
     "languageDefaultsJS" : {
       "autoOutputAction" : 0,
-      "autoOutputPathFilenamePattern" : "*-min.js",
+      "autoOutputPathFilenamePattern" : "*.min.js",
       "autoOutputPathRelativePath" : "\/min",
       "autoOutputPathReplace1" : "",
       "autoOutputPathReplace2" : "",
