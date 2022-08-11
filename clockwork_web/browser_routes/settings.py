@@ -6,7 +6,7 @@ import time
 import secrets
 
 from flask import Flask, Response, url_for, request, redirect, make_response, Markup
-from flask import render_template, request, send_file
+from flask import request, send_file
 from flask import jsonify
 
 # https://flask.palletsprojects.com/en/1.1.x/appcontext/
@@ -24,8 +24,9 @@ flask_api = Blueprint("settings", __name__)
 
 from clockwork_web.user import User
 from clockwork_web.config import register_config, get_config, string as valid_string
-
 register_config("translation.available_languages", valid_string)
+
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 
 @flask_api.route("/")
@@ -36,12 +37,11 @@ def route_index():
     .. :quickref: access the settings page as html
     """
     # Display the user's settings as HTML
-    return render_template(
+    return render_template_with_user_settings(
         "settings.html",
         mila_email_username=current_user.mila_email_username,
         clockwork_api_key=current_user.clockwork_api_key,
         cc_account_update_key=current_user.cc_account_update_key,
-        web_settings=current_user.web_settings,
     )
 
 
@@ -100,13 +100,15 @@ def route_set_nbr_items_per_page():
             else:
                 # Otherwise, return an error
                 return (
-                    render_template("error.html", error_msg=status_message),
+                    render_template_with_user_settings(
+                        "error.html", error_msg=status_message
+                    ),
                     status_code,
                 )
         else:
             # Otherwise, return a Bad Request error and redirect to the error page
             return (
-                render_template(
+                render_template_with_user_settings(
                     "error.html",
                     error_msg=gettext(
                         "Invalid choice for number of items to display per page."
@@ -117,7 +119,7 @@ def route_set_nbr_items_per_page():
     else:
         # If nbr_items_per_page does not exist, return Bad Request
         return (
-            render_template(
+            render_template_with_user_settings(
                 "error.html",
                 error_msg=gettext(
                     "Missing argument, or wrong format: nbr_items_per_page."
@@ -144,7 +146,10 @@ def route_set_dark_mode():
         return {}  # TODO: I'm not sure this is the correct way to do this
     else:
         # Otherwise, return an error
-        return (render_template("error.html", error_msg=status_message), status_code)
+        return (
+            render_template_with_user_settings("error.html", error_msg=status_message),
+            status_code,
+        )
 
 
 @flask_api.route("/web/dark_mode/unset")
@@ -164,7 +169,7 @@ def route_unset_dark_mode():
         return {}  # TODO: I'm not sure this is the correct way to do this
     else:
         # Otherwise, return an error
-        return (render_template("error.html", error_msg=status_message), status_code)
+        return render_template_with_user_settings("error.html", error_msg=status_message), status_code
 
 
 @flask_api.route("/web/language/set")
@@ -218,4 +223,3 @@ def route_set_language():
                 error_msg=gettext("Missing argument, or wrong format: language."),
             ),
             400,  # Bad Request
-        )

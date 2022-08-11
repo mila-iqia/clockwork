@@ -14,12 +14,13 @@ in the right place.
 # python3 -m flask run --host=0.0.0.0
 
 import os
-from flask import Flask, g, redirect, request, render_template, url_for, session
+from flask import Flask, redirect, url_for
 from flask_login import current_user, LoginManager
 from flask_babel import Babel
 from .browser_routes.nodes import flask_api as nodes_routes_flask_api
 from .browser_routes.jobs import flask_api as jobs_routes_flask_api
 from .browser_routes.gpu import flask_api as gpu_routes_flask_api
+from .browser_routes.users import flask_api as users_routes_flask_api
 from .browser_routes.clusters import flask_api as clusters_routes_flask_api
 from .browser_routes.settings import flask_api as settings_routes_flask_api
 
@@ -31,6 +32,8 @@ from .rest_routes.nodes import flask_api as rest_nodes_flask_api
 from .rest_routes.gpu import flask_api as rest_gpu_flask_api
 
 from .config import register_config, get_config, string, string_list
+
+from .core.users_helper import render_template_with_user_settings
 
 register_config("flask.secret_key", validator=string)
 register_config("translation.translations_folder", default="", validator=string)
@@ -56,6 +59,7 @@ def create_app(extra_config: dict):
 
     app.register_blueprint(nodes_routes_flask_api, url_prefix="/nodes")
     app.register_blueprint(jobs_routes_flask_api, url_prefix="/jobs")
+    app.register_blueprint(users_routes_flask_api, url_prefix="/users")
     app.register_blueprint(gpu_routes_flask_api, url_prefix="/gpu")
     app.register_blueprint(clusters_routes_flask_api, url_prefix="/clusters")
     app.register_blueprint(settings_routes_flask_api, url_prefix="/settings")
@@ -133,7 +137,9 @@ def create_app(extra_config: dict):
             print("in route for '/'; redirecting to jobs/")
             return redirect("jobs/")
         else:
-            print("in route for '/'; render_template('index_outside.html')")
-            return render_template("index_outside.html")
+            print(
+                "in route for '/'; render_template_with_user_settings('index_outside.html')"
+            )
+            return render_template_with_user_settings("index_outside.html")
 
     return app
