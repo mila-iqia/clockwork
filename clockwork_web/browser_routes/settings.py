@@ -223,3 +223,4 @@ def route_set_language():
                 error_msg=gettext("Missing argument, or wrong format: language."),
             ),
             400,  # Bad Request
+        )
