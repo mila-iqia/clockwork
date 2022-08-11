@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-11 04:22-0400\n"
+"POT-Creation-Date: 2022-08-11 04:54-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -75,6 +75,7 @@ msgid "Found more than one matching node"
 msgstr "Plusieurs noeuds ont été trouvés alors qu'un seul était attendu."
 
 #: clockwork_web/browser_routes/nodes.py:129
+#, fuzzy
 msgid "(missing node name)"
 msgstr "(nom du noeud manquant)"
 
@@ -296,20 +297,25 @@ msgstr "Mode sombre"
 
 #: clockwork_web/templates/single_gpu.html:39
 #: clockwork_web/templates/single_job.html:39
-#: clockwork_web/templates/single_node.html:40
+#: clockwork_web/templates/single_node.html:39
 msgid "key"
 msgstr "clef"
 
 #: clockwork_web/templates/single_gpu.html:40
 #: clockwork_web/templates/single_job.html:40
-#: clockwork_web/templates/single_node.html:41
+#: clockwork_web/templates/single_node.html:40
 msgid "value"
 msgstr "valeur"
 
+#: clockwork_web/templates/single_job.html:24
+#, fuzzy, python-format
+msgid "single job %(job_id)s"
+msgstr "job %(job_id)s"
+
 #: clockwork_web/templates/single_node.html:24
-#, fuzzy
-msgid "single node %(node_name)"
-msgstr "(nom du noeud manquant)"
+#, fuzzy, python-format
+msgid "single node %(node_name)s"
+msgstr "noeud %(node_name)s"
 
 #~ msgid "Wrong number of items to display per page provided to be set."
 #~ msgstr "Le nombre d'éléments à afficher par page fourni n'est pas conforme."
@@ -328,9 +334,6 @@ msgstr "(nom du noeud manquant)"
 
 #~ msgid "No information has been found for GPU %(gpu_name)"
 #~ msgstr "Aucune information n'a été trouvée pour le GPU %(gpu_name)"
-
-#~ msgid "single job %(job_id)"
-#~ msgstr "job %(job_id)"
 
 #~ msgid "Please log in with your @mila.quebec account."
 #~ msgstr "Merci de vous connecter avec votre compte @mila.quebec."
