@@ -23,6 +23,7 @@ from flask_login import (
     current_user,
     login_required,
 )
+from flask_babel import gettext
 
 # As described on
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
@@ -105,7 +106,9 @@ def route_list():
             return (
                 render_template_with_user_settings(
                     "error.html",
-                    error_msg=f"Field 'relative_time' cannot be cast as a valid integer: {time1}.",
+                    error_msg=gettext(
+                        "Field 'relative_time' cannot be cast as a valid integer: %(time1)."
+                    ).format(time1=time1),
                 ),
                 400,
             )  # bad request
@@ -154,13 +157,13 @@ def route_search():
     - "nbr_items_per_page".
 
     - "user_name" refers to any of the three alternatives to identify a user,
-    and it will match any of them.
+      and it will match any of them.
     - "clusters_names" refers to the cluster(s) on which we are looking for the jobs
     - "states" refers to the state(s) of the jobs we are looking for
     - "page_num" is optional and used for the pagination: it is a positive integer
-    presenting the number of the current page
+      presenting the number of the current page
     - "nbr_items_per_page" is optional and used for the pagination: it is a
-    positive integer presenting the number of items to display per page
+      positive integer presenting the number of items to display per page
 
     .. :quickref: list all Slurm job as formatted html
     """
@@ -267,8 +270,10 @@ def route_one():
     if len(LD_jobs) > 1:
         return render_template_with_user_settings(
             "error.html",
-            error_msg=f"Found {len(LD_jobs)} jobs with job_id {job_id}. Not sure what to do about these cases.",
-        )
+            error_msg=gettext(
+                "Found %(len_LD_jobs) jobs with job_id %(job_id)."
+            ).format(len_LD_jobs=len(LD_jobs), job_id=job_id),
+        )  # Not sure what to do about these cases.
 
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
     D_job = infer_best_guess_for_username(D_job)  # see CW-81

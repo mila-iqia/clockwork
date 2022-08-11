@@ -31,3 +31,8 @@ RUN pip install -r /requirements_state.txt && rm -rf /root/.cache
 
 COPY slurm_state_test/requirements.txt /requirements_state_test.txt
 RUN pip install -r /requirements_state_test.txt && rm -rf /root/.cache
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

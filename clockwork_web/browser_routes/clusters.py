@@ -4,6 +4,7 @@ Browser routes dealing with the "cluster" entity
 
 from flask import Blueprint, request
 from flask_login import current_user, login_required
+from flask_babel import gettext
 
 from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.users_helper import render_template_with_user_settings
