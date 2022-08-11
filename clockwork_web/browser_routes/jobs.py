@@ -11,7 +11,7 @@ from collections import defaultdict
 # https://stackoverflow.com/questions/3206344/passing-html-to-template-using-flask-jinja2
 
 from flask import Flask, Response, url_for, request, redirect, make_response, Markup
-from flask import render_template, request, send_file
+from flask import request, send_file
 from flask import jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.wsgi import FileWrapper
@@ -23,6 +23,7 @@ from flask_login import (
     current_user,
     login_required,
 )
+from flask_babel import gettext
 
 # As described on
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
@@ -30,6 +31,7 @@ from flask_login import (
 from flask import Blueprint
 
 from clockwork_web.core.utils import to_boolean
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 flask_api = Blueprint("jobs", __name__)
 
@@ -102,9 +104,11 @@ def route_list():
         except Exception as inst:
             print(inst)
             return (
-                render_template(
+                render_template_with_user_settings(
                     "error.html",
-                    error_msg=f"Field 'relative_time' cannot be cast as a valid integer: {time1}.",
+                    error_msg=gettext(
+                        "Field 'relative_time' cannot be cast as a valid integer: %(time1)."
+                    ).format(time1=time1),
                 ),
                 400,
             )  # bad request
@@ -131,7 +135,7 @@ def route_list():
         return jsonify(LD_jobs)
     else:
         # Otherwise, display the HTML page
-        return render_template(
+        return render_template_with_user_settings(
             "jobs.html",
             LD_jobs=LD_jobs,
             mila_email_username=current_user.mila_email_username,
@@ -153,13 +157,13 @@ def route_search():
     - "nbr_items_per_page".
 
     - "user_name" refers to any of the three alternatives to identify a user,
-    and it will match any of them.
+      and it will match any of them.
     - "clusters_names" refers to the cluster(s) on which we are looking for the jobs
     - "states" refers to the state(s) of the jobs we are looking for
     - "page_num" is optional and used for the pagination: it is a positive integer
-    presenting the number of the current page
+      presenting the number of the current page
     - "nbr_items_per_page" is optional and used for the pagination: it is a
-    positive integer presenting the number of items to display per page
+      positive integer presenting the number of items to display per page
 
     .. :quickref: list all Slurm job as formatted html
     """
@@ -221,7 +225,7 @@ def route_search():
     ]
 
     # Display the HTML page
-    return render_template(
+    return render_template_with_user_settings(
         "jobs_search.html",
         LD_jobs=LD_jobs,
         mila_email_username=current_user.mila_email_username,
@@ -248,7 +252,9 @@ def route_one():
     job_id = request.args.get("job_id", None)
     if job_id is None:
         return (
-            render_template("error.html", error_msg=f"Missing argument job_id."),
+            render_template_with_user_settings(
+                "error.html", error_msg=f"Missing argument job_id."
+            ),
             400,
         )  # bad request
     f0 = get_filter_job_id(job_id)
@@ -258,24 +264,37 @@ def route_one():
     LD_jobs = get_jobs(filter)
 
     if len(LD_jobs) == 0:
-        return render_template(
+        return render_template_with_user_settings(
             "error.html", error_msg=f"Found no job with job_id {job_id}."
         )
     if len(LD_jobs) > 1:
-        return render_template(
+        return render_template_with_user_settings(
             "error.html",
-            error_msg=f"Found {len(LD_jobs)} jobs with job_id {job_id}. Not sure what to do about these cases.",
-        )
+            error_msg=gettext(
+                "Found %(len_LD_jobs) jobs with job_id %(job_id)."
+            ).format(len_LD_jobs=len(LD_jobs), job_id=job_id),
+        )  # Not sure what to do about these cases.
 
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
     D_job = infer_best_guess_for_username(D_job)  # see CW-81
 
     # let's sort alphabetically by keys
-    LP_single_job = list(sorted(D_job["slurm"].items(), key=lambda e: e[0]))
+    LP_single_job_slurm = list(sorted(D_job["slurm"].items(), key=lambda e: e[0]))
+    D_single_job_cw = D_job["cw"]
+    # Add an element "cw_username" to D_job["cw"] in order to avoid additional
+    # operations in the template
+    if (
+        "mila_email_username" in D_single_job_cw
+        and D_single_job_cw["mila_email_username"]
+    ):
+        D_single_job_cw["mila_username"] = D_single_job_cw["mila_email_username"].split(
+            "@"
+        )[0]
 
-    return render_template(
+    return render_template_with_user_settings(
         "single_job.html",
-        LP_single_job=LP_single_job,
+        LP_single_job_slurm=LP_single_job_slurm,
+        D_single_job_cw=D_single_job_cw,
         job_id=job_id,
         mila_email_username=current_user.mila_email_username,
     )
@@ -290,7 +309,7 @@ def route_interactive():
     """
     Not implemented.
     """
-    return render_template(
+    return render_template_with_user_settings(
         "jobs_interactive.html",
         mila_email_username=current_user.mila_email_username,
     )

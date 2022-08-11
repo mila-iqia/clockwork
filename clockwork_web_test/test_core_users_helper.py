@@ -5,6 +5,7 @@ Tests for the clockwork_web.core.users_helper functions.
 import pytest
 
 from clockwork_web.core.users_helper import *
+from clockwork_web.core.users_helper import _set_web_setting
 from clockwork_web.db import init_db, get_db
 
 
@@ -27,7 +28,7 @@ def test_get_default_setting_value_nbr_items_per_page():
     """
     Test the function get_default_setting_value when setting_name is "nbr_items_per_page".
     """
-    assert get_default_setting_value("nbr_items_per_page") == 40
+    assert get_default_setting_value("nbr_items_per_page") == 25
 
 
 def test_get_default_setting_value_dark_mode():
@@ -39,7 +40,7 @@ def test_get_default_setting_value_dark_mode():
 
 def test_set_web_setting_with_unknown_user(app, fake_data):
     """
-    Test the function set_web_setting with an unknown user.
+    Test the function _set_web_setting with an unknown user.
 
     Parameters:
     - app           The scope of our tests, used to set the context (to access MongoDB)
@@ -50,7 +51,7 @@ def test_set_web_setting_with_unknown_user(app, fake_data):
         # Set the dark mode for unexisting user to True and get the status code of the operation
         # (in this case, we have valid setting_key and setting_value)
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
-        (status_code, _) = set_web_setting(
+        (status_code, _) = _set_web_setting(
             unknown_mila_email_username, "dark_mode", True
         )
 
@@ -63,7 +64,7 @@ def test_set_web_setting_with_unknown_user(app, fake_data):
 
 def test_set_web_setting_with_wrong_setting_key(app, fake_data):
     """
-    Test the function set_web_setting with a known user, but an unexsting
+    Test the function _set_web_setting with a known user, but an unexsting
     setting_key
 
     Parameters:
@@ -78,9 +79,9 @@ def test_set_web_setting_with_wrong_setting_key(app, fake_data):
 
     # Use the app context
     with app.app_context():
-        # Set an unexisting setting by using set_web_setting and get the status code of the operation
+        # Set an unexisting setting by using _set_web_setting and get the status code of the operation
         unexisting_setting = "settingdoesnotexist"
-        (status_code, _) = set_web_setting(
+        (status_code, _) = _set_web_setting(
             known_mila_email_username, unexisting_setting, 42
         )
 
@@ -99,7 +100,7 @@ def test_set_web_setting_incorrect_value_for_existing_setting(
     app, fake_data, setting_key, setting_value
 ):
     """
-    Test the function set_web_setting with a known user, but an incorrect value
+    Test the function _set_web_setting with a known user, but an incorrect value
     type for the setting nbr_items_per_page
 
     Parameters:
@@ -120,7 +121,7 @@ def test_set_web_setting_incorrect_value_for_existing_setting(
     # Use the app context
     with app.app_context():
         # Try to set a wrong value type for the setting and get the status code of the operation
-        (status_code, _) = set_web_setting(
+        (status_code, _) = _set_web_setting(
             known_mila_email_username, setting_key, setting_value
         )
 
@@ -137,7 +138,7 @@ def test_set_web_setting_incorrect_value_for_existing_setting(
 )
 def test_set_web_setting_set_nbr_items_per_page(app, fake_data, value):
     """
-    Test the function set_web_setting with a known user for the setting
+    Test the function _set_web_setting with a known user for the setting
     nbr_items_per_page
 
     Parameters:
@@ -158,7 +159,7 @@ def test_set_web_setting_set_nbr_items_per_page(app, fake_data, value):
         previous_nbr_items_per_page = known_user["web_settings"]["nbr_items_per_page"]
 
         # Set the setting nbr_items_per_page of the user to value and get the status code of the operation
-        (status_code, _) = set_web_setting(
+        (status_code, _) = _set_web_setting(
             known_mila_email_username, "nbr_items_per_page", value
         )
 
@@ -186,7 +187,7 @@ def test_set_web_setting_set_nbr_items_per_page(app, fake_data, value):
 
 def test_set_web_setting_set_dark_mode(app, fake_data):
     """
-    Test the function set_web_setting with a known user. Modify the value for
+    Test the function _set_web_setting with a known user. Modify the value for
     the setting dark_mode
 
     Parameters:
@@ -209,7 +210,7 @@ def test_set_web_setting_set_dark_mode(app, fake_data):
         # was False, and to False if its previous value was True
         new_dark_mode = not previous_dark_mode
         # ... set this new value and get the status code of the operation
-        (status_code, _) = set_web_setting(
+        (status_code, _) = _set_web_setting(
             known_mila_email_username, "dark_mode", new_dark_mode
         )
 
@@ -560,7 +561,7 @@ def test_enable_dark_mode_success(app, fake_data):
         known_user = fake_data["users"][0]
 
         # First set its dark mode option to False and get the status code of the operation
-        (status_code, _) = set_web_setting(
+        (status_code, _) = _set_web_setting(
             known_user["mila_email_username"], "dark_mode", False
         )
 
@@ -635,7 +636,7 @@ def test_disable_dark_mode_success(app, fake_data):
         known_user = fake_data["users"][0]
 
         # First set its dark mode option to True and get the status code of the operation
-        (status_code, _) = set_web_setting(
+        (status_code, _) = _set_web_setting(
             known_user["mila_email_username"], "dark_mode", True
         )
 

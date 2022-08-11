@@ -21,7 +21,7 @@
                 <!-- spacing on the left -->
             </div>
             <div class="col s4">
-                <h4>Cluster {{cluster_name}}</h4>
+                <h4>{{ gettext("%s cluster" % (cluster_name,)) }}</h4>
             </div>
         </div>
     </div>
@@ -34,81 +34,100 @@
     <!-- Global information -->
     <div class="row">
       <div class="col s12">
-          <h1>Global information</h1>
+          <h1>{{ gettext("Global information") }}</h1>
       </div>
       <div class="col s9">
           <table class="striped">
             <tbody>
+
+              {% if cluster['organization'] %}
                 <tr>
                     <td>
-                        Organism
+                        {{ gettext("Organization") }}
                     </td>
                     <td>
-                        {{cluster['organism']}}
+                        {{cluster['organization']}}
                     </td>
                 </tr>
+              {% endif %}
+
+              <tr>
+                  <td>
+                      {{ gettext("Timezone") }}
+                  </td>
+                  <td>
+                      {{cluster['timezone']}}
+                  </td>
+              </tr>
+
+              {% if cluster['official_documentation'] or cluster['mila_documentation'] %}
                 <tr>
                     <td>
-                        Timezone
+                        {{ gettext("More information") }}
                     </td>
                     <td>
-                        {{cluster['timezone']}}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        More information
-                    </td>
-                    <td>
-                        <ul>
+                      <ul>
+                        {% if cluster['official_documentation'] %}
                           <li style="list-style-type: circle;">
-                            <a href="{{cluster['official_documentation']}}">See the official documentation</a>
+                            <a href="{{cluster['official_documentation']}}">{{ gettext("See the official documentation") }}</a>
                           </li>
-                          {% if cluster['mila_documentation'] %}
-                            <li style="list-style-type: circle;">
-                              <a href="{{cluster['mila_documentation']}}">See additional Mila documentation</a>
-                            </li>
-                          {% endif %}
-                        </ul>
+                        {% endif %}
+
+                        {% if cluster['mila_documentation'] %}
+                          <li style="list-style-type: circle;">
+                            <a href="{{cluster['mila_documentation']}}">{{ gettext("See additional Mila documentation") }}</a>
+                          </li>
+                        {% endif %}
+                      </ul>
                     </td>
                 </tr>
-                <tr>
-                  <td>
-                    <a href="/jobs/search?clusters_names={{cluster_name}}">
-                      Display all the jobs running on this cluster
-                    </a>
-                  </td>
-                  <td>
-                    <a href="/nodes/list?cluster_name={{cluster_name}}">
-                      Display all the jobs running on this cluster
-                    </a>
-                  </td>
-                </tr>
-            </tbody>
-          </table>
-      </div>
+              {% endif %}
+              <tr>
+                <td>
+                  <a href="/jobs/search?clusters_names={{cluster_name}}">
+                    {{ gettext("Display all the jobs running on this cluster") }}
+                  </a>
+                </td>
+                <td>
+                  <a href="/nodes/list?cluster_name={{cluster_name}}">
+                    {{ gettext("Display all the jobs running on this cluster") }}
+                  </a>
+                </td>
+              </tr>
+          </tbody>
+        </table>
     </div>
+  </div>
 
     <!-- Annual allocation -->
+
+  {% if cluster['nbr_cpus'] != 0 or cluster['nbr_gpus'] != 0 %}
     <div class="row">
       <div class="col s12">
-          <h1>Annual allocation</h1>
+          <h1>{{ gettext("Annual allocation") }}</h1>
       </div>
-      <div class="col s9">
-          <table class="striped">
-            <tbody>
-                <tr>
-                    <td>
-                        {{cluster['nbr_cpus']}} CPUs
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        {{cluster['nbr_gpus']}} GPUs
-                    </td>
-                </tr>
-            </tbody>
-          </table>
-      </div>
+        <div class="col s9">
+            <table class="striped">
+              <tbody>
+                  {% if cluster['nbr_cpus'] != 0 %}
+                    <tr>
+                        <td>
+                            {{ gettext("%d CPUs" % cluster['nbr_cpus']) }}
+                        </td>
+                    </tr>
+                  {% endif %}
+
+                  {% if cluster['nbr_gpus'] != 0 %}
+                    <tr>
+                        <td>
+                            {{ gettext("%d GPUs" % cluster['nbr_gpus']) }}
+                        </td>
+                    </tr>
+                  {% endif %}
+              </tbody>
+            </table>
+        </div>
+
     </div>
+  {% endif %}
 {% endblock %}

@@ -27,6 +27,12 @@
                         </div>
                     </div>
                 </div>
+
+                <!--
+                    Note for Kim: Want to include this some place?
+                    <h4>{{ gettext("single job %(job_id)s", job_id=job_id) }}</h4>
+                -->
+
                 <table class="table table-striped table-hover table-responsive" data-sortable id="search_table">
                     <thead>
                         <tr>
@@ -41,6 +47,12 @@
                             {% if k in ['batch_host'] and v != None %}
                                 <!-- TODO : Implement this link because it doesn't work now. -->
                                 <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
+                            {% elif k == "username" %}
+                                <td>
+                                  <a href="/users/one?username={{D_single_job_cw['mila_username']}}">
+                                    {{v}}
+                                  </a>
+                                </td>
                             {% else %}
                                 <td>{{v}}</td>
                             {% endif %}
