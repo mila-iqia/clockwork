@@ -62,7 +62,9 @@ class User(UserMixin):
         self.cc_account_username = cc_account_username
         self.cc_account_update_key = cc_account_update_key
         for k in ["nbr_items_per_page", "dark_mode", "language"]:
-            if k in web_settings and not is_correct_type_for_web_setting(k, web_settings[k]):
+            if k in web_settings and not is_correct_type_for_web_setting(
+                k, web_settings[k]
+            ):
                 del web_settings[k]
         self.web_settings = get_default_web_settings_values() | web_settings
 
