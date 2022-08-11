@@ -126,13 +126,18 @@ def route_one():
 
     # Strip the _id element from the node
     D_node = strip_artificial_fields_from_node(LD_nodes[0])  # the one and only
-    # need to format it as list of tuples for the template (unless I'm mistaken)
-    LP_single_node = list(sorted(D_node.items(), key=lambda e: e[0]))
 
-    node_name = D_node.get("slurm", {}).get("name", gettext("(missing node name)"))
+    # Note that D_node contains the "slurm" field (which we want to list)
+    # and the "cw" field (which we will omit in the front-end for now).
+
+    D_node_slurm = D_node.get("slurm", {})
+    # need to format it as list of tuples for the template (unless I'm mistaken)
+    LP_single_node_slurm = list(sorted(D_node_slurm.items(), key=lambda e: e[0]))
+
+    node_name = D_node_slurm.get("name", gettext("(missing node name)"))
     return render_template_with_user_settings(
         "single_node.html",
-        LP_single_node=LP_single_node,
+        LP_single_node_slurm=LP_single_node_slurm,
         node_name=node_name,
         mila_email_username=current_user.mila_email_username,
     )

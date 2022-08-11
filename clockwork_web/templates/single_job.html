@@ -41,7 +41,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for (k, v) in LP_single_job %}
+                        {% for (k, v) in LP_single_job_slurm %}
                         <tr>
                             <td>{{k}}</td>
                             {% if k in ['batch_host'] and v != None %}
