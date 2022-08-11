@@ -53,7 +53,10 @@ def get_default_setting_value(setting_name):
     Returns:
         The default value for the requested web setting
     """
-    return get_default_web_settings_values().get(setting_name, None)
+    if isinstance(setting_name, str):
+        return get_default_web_settings_values().get(setting_name, None)
+    else:
+        return None
 
 
 def _set_web_setting(mila_email_username, setting_key, setting_value):
