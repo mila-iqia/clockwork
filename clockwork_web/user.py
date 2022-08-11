@@ -106,7 +106,7 @@ class User(UserMixin):
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
                 cc_account_update_key=e["cc_account_update_key"],
-                web_settings=e["web_settings"]
+                web_settings=e["web_settings"],
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
