@@ -120,6 +120,17 @@ msgstr "Afficher tous les jobs roulant sur ce cluster"
 
 The format is very similar to the `.pot` file, but the translations are provided.
 
+##### Case of "fuzzy" translations
+When generating the translation file (`.po`) from the template file (`.pot`), Babel can guess some translations from similar ones. They have to be manually checked when editing the file manually. Once it is done, the translator can delete the word `fuzzy` from the translation description. It is important to be noted that fuzzy translations are not compiled in the `.mo` files.
+
+A fuzzy translation is indicated as follows in the `.po` file:
+```
+   #: clockwork_web/browser_routes/nodes.py:129
+   #, fuzzy
+   msgid "(missing node name)"
+   msgstr "(nom du noeud manquant)"
+```
+
 #### The compiled translation files (`.mo` files)
 ##### Description
 Each compiled translation file (`.mo` file) is related to one specific language, such as the translation file (`.po` file) on which it is based. This file is generated from the translation file (`.po`) and does not require further modification after that. Flask directly uses the `.mo` files to handle the translation.
