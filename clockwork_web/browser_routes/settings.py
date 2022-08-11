@@ -24,6 +24,7 @@ flask_api = Blueprint("settings", __name__)
 
 from clockwork_web.user import User
 from clockwork_web.config import register_config, get_config, string as valid_string
+
 register_config("translation.available_languages", valid_string)
 
 from clockwork_web.core.users_helper import render_template_with_user_settings
@@ -169,7 +170,10 @@ def route_unset_dark_mode():
         return {}  # TODO: I'm not sure this is the correct way to do this
     else:
         # Otherwise, return an error
-        return render_template_with_user_settings("error.html", error_msg=status_message), status_code
+        return (
+            render_template_with_user_settings("error.html", error_msg=status_message),
+            status_code,
+        )
 
 
 @flask_api.route("/web/language/set")

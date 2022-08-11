@@ -6,6 +6,7 @@ from flask_login import current_user
 from flask import render_template
 
 from clockwork_web.db import get_db
+
 # Import the functions from clockwork_web.config
 from clockwork_web.config import (
     get_config,
@@ -299,6 +300,7 @@ def disable_dark_mode(mila_email_username):
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, "dark_mode", False)
 
+
 def set_language(mila_email_username, language):
     """
     Set the language to use with a specific user.
@@ -317,6 +319,7 @@ def set_language(mila_email_username, language):
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, "language", language)
 
+
 def render_template_with_user_settings(template_name_or_list, **context):
     """
     Wraps the Flask function render_template in order to send the user's web
@@ -333,4 +336,3 @@ def render_template_with_user_settings(template_name_or_list, **context):
     """
     context["web_settings"] = current_user.get_web_settings()
     return render_template(template_name_or_list, **context)
-
