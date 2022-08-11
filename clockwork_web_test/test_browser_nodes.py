@@ -140,7 +140,14 @@ def test_nodes_with_filter(client, fake_data: dict[list[dict]], cluster_name):
 
     # Yes, "sephiroth" is a fake cluster name. There are no entries in the data for it.
 
-    response = client.get(f"/nodes/list?cluster_name={cluster_name}")
+    # We use `nbr_items_per_page=1000000` to avoid a situation where the expected result
+    # ends up on the second or later page. Not 100% sure that this is necessary,
+    # but it certainly takes care a situation where this test failed because nodes
+    # were missing from the response.
+
+    response = client.get(
+        f"/nodes/list?cluster_name={cluster_name}&nbr_items_per_page=1000000"
+    )
 
     for D_node in fake_data["nodes"]:
         if D_node["slurm"]["cluster_name"] == cluster_name:

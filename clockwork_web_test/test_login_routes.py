@@ -152,4 +152,4 @@ def test_logout(client_with_login, requests_mock):
 
     resp = client_with_login.get("/")
     assert resp.status_code == 200
-    assert b"Not logged in" in resp.data
+    assert b"Please log in with your @mila.quebec account" in resp.data
