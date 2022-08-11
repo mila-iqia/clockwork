@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-10 15:05-0400\n"
+"POT-Creation-Date: 2022-08-11 04:22-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
 "Language-Team: fr <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: clockwork_web/user.py:136
 msgid "could not modify api key"
@@ -265,6 +265,11 @@ msgstr "alloc_tres"
 msgid "cfg_tres"
 msgstr "cfg_tres"
 
+#: clockwork_web/templates/settings.html:44
+#, python-format
+msgid "user settings %(mila_email_username)s"
+msgstr "paramètres de l'utilisateur %(mila_email_username)s"
+
 #: clockwork_web/templates/settings.html:58
 msgid "CLOCKWORK_WEB_API:"
 msgstr "CLOCKWORK_WEB_API :"
@@ -291,15 +296,20 @@ msgstr "Mode sombre"
 
 #: clockwork_web/templates/single_gpu.html:39
 #: clockwork_web/templates/single_job.html:39
-#: clockwork_web/templates/single_node.html:39
+#: clockwork_web/templates/single_node.html:40
 msgid "key"
 msgstr "clef"
 
 #: clockwork_web/templates/single_gpu.html:40
 #: clockwork_web/templates/single_job.html:40
-#: clockwork_web/templates/single_node.html:40
+#: clockwork_web/templates/single_node.html:41
 msgid "value"
 msgstr "valeur"
+
+#: clockwork_web/templates/single_node.html:24
+#, fuzzy
+msgid "single node %(node_name)"
+msgstr "(nom du noeud manquant)"
 
 #~ msgid "Wrong number of items to display per page provided to be set."
 #~ msgstr "Le nombre d'éléments à afficher par page fourni n'est pas conforme."
@@ -312,9 +322,6 @@ msgstr "valeur"
 
 #~ msgid "%(nbr_gpus) GPUs"
 #~ msgstr "%(nbr_gpus) GPUs"
-
-#~ msgid "user settings %(mila_email_username)"
-#~ msgstr "paramètres de l'utilisateur %(mila_email_username)"
 
 #~ msgid "GPU %(gpu_name) information"
 #~ msgstr "Informations sur le GPU %(gpu_name)"
