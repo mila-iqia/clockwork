@@ -61,9 +61,10 @@ class User(UserMixin):
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
         self.cc_account_update_key = cc_account_update_key
-        self.web_settings = get_default_web_settings_values() | web_settings
         for k in ["nbr_items_per_page", "dark_mode", "language"]:
-            is_correct_type_for_web_setting(k, self.web_settings[k])
+            if not is_correct_type_for_web_setting(k, self.web_settings[k]):
+                del self.web_settings[k]
+        self.web_settings = get_default_web_settings_values() | web_settings
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
