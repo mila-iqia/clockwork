@@ -1,7 +1,6 @@
 from flask import Blueprint, Markup, request
 from flask.json import jsonify
 from flask_login import current_user, login_required
-
 from clockwork_web.core.gpu_helper import get_gpu_info, get_gpu_list
 from clockwork_web.core.users_helper import render_template_with_user_settings
 
@@ -41,7 +40,7 @@ def route_one():
     provided gpu_name has not been found in the database.
     Returns an error message otherwise. The potential returned error
     is:
-        - 400 ("Bad Request") if the gpu_name is missing.
+    - 400 ("Bad Request") if the gpu_name is missing.
 
     .. :quickref: display the information of one GPU as formatted HTML
     """

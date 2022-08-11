@@ -66,6 +66,7 @@ def get_predefined_fake_users(N=20):
             "web_settings": {
                 "nbr_items_per_page": 40,  # TODO: centralize this value
                 "dark_mode": False,
+                "language": "en" if (n % 2 == 0) else "fr",
             },
         }
 

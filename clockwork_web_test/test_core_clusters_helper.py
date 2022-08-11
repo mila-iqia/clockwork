@@ -14,7 +14,7 @@ def test_get_all_clusters():
     """
     D_expected_clusters = {
         "beluga": {
-            "organism": "Digital Research Alliance of Canada",
+            "organization": "Digital Research Alliance of Canada",
             "timezone": ZoneInfo(key="America/Montreal"),
             "account_field": "cc_account_username",
             "allocations": [
@@ -29,7 +29,7 @@ def test_get_all_clusters():
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#beluga",
         },
         "cedar": {
-            "organism": "Digital Research Alliance of Canada",
+            "organization": "Digital Research Alliance of Canada",
             "timezone": ZoneInfo(key="America/Vancouver"),
             "account_field": "cc_account_username",
             "allocations": [
@@ -44,7 +44,7 @@ def test_get_all_clusters():
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#cedar",
         },
         "graham": {
-            "organism": "Digital Research Alliance of Canada",
+            "organization": "Digital Research Alliance of Canada",
             "timezone": ZoneInfo(key="America/Toronto"),
             "account_field": "cc_account_username",
             "allocations": [
@@ -59,7 +59,7 @@ def test_get_all_clusters():
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#graham",
         },
         "mila": {
-            "organism": "Mila",
+            "organization": "Mila",
             "timezone": ZoneInfo(key="America/Montreal"),
             "account_field": "mila_cluster_username",
             "allocations": "*",
@@ -69,7 +69,7 @@ def test_get_all_clusters():
             "mila_documentation": False,
         },
         "narval": {
-            "organism": "Digital Research Alliance of Canada",
+            "organization": "Digital Research Alliance of Canada",
             "timezone": ZoneInfo(key="America/Montreal"),
             "account_field": "cc_account_username",
             "allocations": [
@@ -84,7 +84,7 @@ def test_get_all_clusters():
             "mila_documentation": False,
         },
         "test_cluster": {
-            "organism": "Mila",
+            "organization": "Mila",
             "timezone": ZoneInfo(key="America/Montreal"),
             "account_field": "test_cluster_username",
             "allocations": ["valid_fake_allocation_name", "clustergroup"],

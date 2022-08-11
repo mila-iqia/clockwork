@@ -21,7 +21,7 @@
                 <!-- spacing on the left -->
             </div>
             <div class="col s4">
-                <h4>single job {{job_id}}</h4>
+                <h4>{{ gettext("single node %(node_name)s", node_name=node_name) }}</h4>                
             </div>
         </div>
     </div>
@@ -32,12 +32,12 @@
         <div class="col s9" id="changeme">
 
             <!-- <h1>{{channel_title}}</h1> -->
-            
+
             <table class="striped">
                 <thead>
                     <tr>
-                        <th>key</th>
-                        <th>value</th>
+                        <th>{{ gettext("key") }}</th>
+                        <th>{{ gettext("value") }}</th>
                     </tr>
                 </thead>
                 <tbody>

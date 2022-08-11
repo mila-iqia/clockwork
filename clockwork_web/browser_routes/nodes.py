@@ -23,6 +23,7 @@ from flask_login import (
     current_user,
     login_required,
 )
+from flask_babel import gettext
 
 # As described on
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
@@ -128,8 +129,10 @@ def route_one():
     # need to format it as list of tuples for the template (unless I'm mistaken)
     LP_single_node = list(sorted(D_node.items(), key=lambda e: e[0]))
 
+    node_name = D_node.get("slurm", {}).get("name", gettext("(missing node name)"))
     return render_template_with_user_settings(
         "single_node.html",
         LP_single_node=LP_single_node,
+        node_name=node_name,
         mila_email_username=current_user.mila_email_username,
     )

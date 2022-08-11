@@ -15,7 +15,9 @@ about these things.
 """
 
 from flask.globals import current_app
+from flask import session
 from flask_login import UserMixin, AnonymousUserMixin
+from flask_babel import gettext
 
 import secrets
 
@@ -23,8 +25,10 @@ from .db import get_db
 from clockwork_web.core.users_helper import (
     enable_dark_mode,
     disable_dark_mode,
+    get_default_web_settings_values,
     set_items_per_page,
     get_default_setting_value,
+    set_language,
     is_correct_type_for_web_setting,
     get_default_web_settings_values,
 )
@@ -45,8 +49,7 @@ class User(UserMixin):
         mila_cluster_username=None,
         cc_account_username=None,
         cc_account_update_key=None,
-        nbr_items_per_page=None,
-        dark_mode=None,
+        web_settings={},
     ):
         """
         This constructor is called only by the `get` method.
@@ -58,17 +61,12 @@ class User(UserMixin):
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
         self.cc_account_update_key = cc_account_update_key
-
-        # Initialize an empty dictionary
-        self.web_settings = {}
-        # For each given web setting value, store it
-        if nbr_items_per_page and is_correct_type_for_web_setting(
-            "nbr_items_per_page", nbr_items_per_page
-        ):
-            self.web_settings["nbr_items_per_page"] = nbr_items_per_page
-        if dark_mode and is_correct_type_for_web_setting("dark_mode", dark_mode):
-            self.web_settings["dark_mode"] = dark_mode
-        self.web_settings = get_default_web_settings_values() | self.web_settings
+        for k in ["nbr_items_per_page", "dark_mode", "language"]:
+            if k in web_settings and not is_correct_type_for_web_setting(
+                k, web_settings[k]
+            ):
+                del web_settings[k]
+        self.web_settings = get_default_web_settings_values() | web_settings
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -111,13 +109,7 @@ class User(UserMixin):
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
                 cc_account_update_key=e["cc_account_update_key"],
-                nbr_items_per_page=e["web_settings"].get(
-                    "nbr_items_per_page",
-                    get_default_setting_value("nbr_items_per_page"),
-                ),
-                dark_mode=e["web_settings"].get(
-                    "dark_mode", get_default_setting_value("dark_mode")
-                ),
+                web_settings=e["web_settings"],
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
@@ -139,7 +131,7 @@ class User(UserMixin):
         )
         if res.modified_count != 1:
             self.clockwork_api_key = old_key
-            raise ValueError("could not modify api key")
+            raise ValueError(gettext("could not modify api key"))
 
     def new_update_key(self):
         """
@@ -152,7 +144,7 @@ class User(UserMixin):
             {"$set": {"cc_account_update_key": self.cc_account_update_key}},
         )
         if res.modified_count != 1:
-            raise ValueError("could not modify update key")
+            raise ValueError(gettext("could not modify update key"))
 
     ###
     #   Web settings
@@ -185,9 +177,7 @@ class User(UserMixin):
         the current user.
 
         Parameters:
-        - nbr_items_per_page    The preferred number of items to display per
-                                page for the User, ie the value to save in
-                                its settings
+        - nbr_items_per_page    The preferred number of items to display per page for the User, ie the value to save in its settings
 
         Returns:
             A tuple containing
@@ -195,6 +185,23 @@ class User(UserMixin):
             - a message describing the state of the operation
         """
         return set_items_per_page(self.mila_email_username, nbr_items_per_page)
+
+    def settings_language_set(self, language):
+        """
+        Set a preferred language for the current user.
+
+        Parameters:
+        - language      The language chosen by the user to interact with. The available languages are listed in the configuration file.
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return set_language(self.mila_email_username, language)
+
+    def get_language(self):
+        return self.web_settings["language"]
 
     def get_web_settings(self):
         """
@@ -222,10 +229,15 @@ class AnonUser(AnonymousUserMixin):
         self.cc_account_username = None
         self.mila_cluster_username = None
         self.cc_account_update_key = None
+        self.web_settings = get_default_web_settings_values()
+        self.web_settings["language"] = None
 
     def new_api_key(self):
         # We don't want to touch the database for this.
         self.clockwork_api_key = secrets.token_hex(32)
+
+    def get_language(self):
+        return self.web_settings["language"]
 
     def get_web_settings(self):
         """
@@ -234,4 +246,4 @@ class AnonUser(AnonymousUserMixin):
         Returns:
             A dictionary presenting the default web settings.
         """
-        return get_default_web_settings_values()
+        return self.web_settings

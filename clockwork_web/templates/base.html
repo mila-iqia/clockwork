@@ -56,13 +56,13 @@
           <div>
             <!-- TODO : add a conditional here in the template -->
             {% if mila_email_username: %}
-              Logged as : {{mila_email_username}}
+              {{ gettext("Logged as :") }} {{mila_email_username}}
             {% else %}
-              Not logged in.
+              {{ gettext("Not logged in.") }}
             {% endif %}
           </div>
           <div>
-            <a href="{{url_for('settings.route_index')}}">my settings</a>
+            <a href="{{url_for('settings.route_index')}}">{{ gettext("my settings") }}</a>
             <!-- This would be fine, but it doesn't look good.
             <a href="/settings">
               <i class="material-icons">settings</i>
@@ -70,7 +70,7 @@
             -->
           </div>
           <div>
-            <a href="{{url_for('login.route_logout')}}">logout</a>
+            <a href="{{url_for('login.route_logout')}}">{{ gettext("logout") }}</a>
             <!-- This would be fine, but it doesn't look good.
               <a class="waves-effect waves-light btn-small grey darken-1" href="/login/logout">
               logout
@@ -81,10 +81,10 @@
         </div>
         <div class="cc_header_right_col">
           <div>
-            [link about ~this]
+            {{ gettext("[link about ~this]") }}
           </div>
           <div>
-            [link for github code]
+            {{ gettext("[link for github code]") }}
           </div>
         </div>
       </div>
