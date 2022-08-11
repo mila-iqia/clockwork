@@ -41,7 +41,7 @@
                 <!-- spacing on the left -->
             </div>
             <div class="col s4">
-                <h4>{{ gettext("user settings %s" % (mila_email_username,)) }}</h4>
+              <h4>{{ gettext("user settings %(mila_email_username)s", mila_email_username=mila_email_username) }}</h4>
             </div>
         </div>
     </div>
