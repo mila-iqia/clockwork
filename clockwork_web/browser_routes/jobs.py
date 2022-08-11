@@ -11,7 +11,7 @@ from collections import defaultdict
 # https://stackoverflow.com/questions/3206344/passing-html-to-template-using-flask-jinja2
 
 from flask import Flask, Response, url_for, request, redirect, make_response, Markup
-from flask import render_template, request, send_file
+from flask import request, send_file
 from flask import jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.wsgi import FileWrapper
@@ -30,6 +30,7 @@ from flask_login import (
 from flask import Blueprint
 
 from clockwork_web.core.utils import to_boolean
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 flask_api = Blueprint("jobs", __name__)
 
@@ -102,7 +103,7 @@ def route_list():
         except Exception as inst:
             print(inst)
             return (
-                render_template(
+                render_template_with_user_settings(
                     "error.html",
                     error_msg=f"Field 'relative_time' cannot be cast as a valid integer: {time1}.",
                 ),
@@ -131,7 +132,7 @@ def route_list():
         return jsonify(LD_jobs)
     else:
         # Otherwise, display the HTML page
-        return render_template(
+        return render_template_with_user_settings(
             "jobs.html",
             LD_jobs=LD_jobs,
             mila_email_username=current_user.mila_email_username,
@@ -221,7 +222,7 @@ def route_search():
     ]
 
     # Display the HTML page
-    return render_template(
+    return render_template_with_user_settings(
         "jobs_search.html",
         LD_jobs=LD_jobs,
         mila_email_username=current_user.mila_email_username,
@@ -248,7 +249,9 @@ def route_one():
     job_id = request.args.get("job_id", None)
     if job_id is None:
         return (
-            render_template("error.html", error_msg=f"Missing argument job_id."),
+            render_template_with_user_settings(
+                "error.html", error_msg=f"Missing argument job_id."
+            ),
             400,
         )  # bad request
     f0 = get_filter_job_id(job_id)
@@ -258,11 +261,11 @@ def route_one():
     LD_jobs = get_jobs(filter)
 
     if len(LD_jobs) == 0:
-        return render_template(
+        return render_template_with_user_settings(
             "error.html", error_msg=f"Found no job with job_id {job_id}."
         )
     if len(LD_jobs) > 1:
-        return render_template(
+        return render_template_with_user_settings(
             "error.html",
             error_msg=f"Found {len(LD_jobs)} jobs with job_id {job_id}. Not sure what to do about these cases.",
         )
@@ -283,7 +286,7 @@ def route_one():
             "@"
         )[0]
 
-    return render_template(
+    return render_template_with_user_settings(
         "single_job.html",
         LP_single_job_slurm=LP_single_job_slurm,
         D_single_job_cw=D_single_job_cw,
@@ -301,7 +304,7 @@ def route_interactive():
     """
     Not implemented.
     """
-    return render_template(
+    return render_template_with_user_settings(
         "jobs_interactive.html",
         mila_email_username=current_user.mila_email_username,
     )
