@@ -58,9 +58,9 @@ def test_single_job_missing_423908482367(client):
 
     job_id = "423908482367"
 
-    response = client.get("/jobs/one?job_id=423908482367")
+    response = client.get("/jobs/one?job_id={}".format(job_id))
     assert "text/html" in response.content_type
-    assert b"Found no job with job_id 423908482367" in response.data
+    assert b"Found no job with job_id" in response.data
 
 
 def test_single_job_no_id(client):
@@ -112,10 +112,7 @@ def test_list_invalid_time(client):
     response = client.get(f"/jobs/list?relative_time=this_is_not_a_valid_relative_time")
     assert response.status_code == 400
 
-    assert (
-        b"cannot be cast as a valid integer: this_is_not_a_valid_relative_time"
-        in response.data
-    )
+    assert b"cannot be cast as a valid integer:" in response.data
 
 
 def test_jobs(client, fake_data: dict[list[dict]]):

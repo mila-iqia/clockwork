@@ -20,6 +20,7 @@ Welcome to Clockwork's documentation!
 
    clockwork_dev_guide/main
    clockwork_dev_guide/gpu
+   clockwork_dev_guide/internationalization
    clockwork_dev_guide/slurm_state
 
 .. toctree::

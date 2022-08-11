@@ -40,12 +40,10 @@
 			<div class="col-12">
 				  <div class="title float-start">
 					  <i class="fa-solid fa-user"></i>
-					  <h1>User settings<span class="message"></h1>
+					  <h1>{{ gettext("User settings %(mila_email_username)s", mila_email_username=mila_email_username) }}<span class="message"></h1>
 				  </div>
 			  </div>
 		</div>
-	
-
 		<div class="row">
 			<div class="col-12">
 				
@@ -61,18 +59,18 @@
 					</dd>
 
 					<!-- Items per page -->
-					<dt class="col-4">Number of items displayed per page</dt>
+					<dt class="col-4">{{ gettext("Number of items displayed per page") }}</dt>
 		  			<dd class="col-8">
 						<select class="form-select" name="nbr_items_per_page_selection" id="nbr_items_per_page_selection" onchange="select_nbr_items_per_page(this)">
 							<option value='{{web_settings["nbr_items_per_page"]}}'>{{web_settings["nbr_items_per_page"]}}</option>
-							<option value="1">1</option>
+							<option value="25">25</option>
 							<option value="50">50</option>
 							<option value="100">100</option>
 						</select>
 					</dd>
 		 
 					<!-- Dark mode -->
-			  		<dt class="col-4"><label for="dark_mode_toggle">Dark mode</label></dt>
+			  		<dt class="col-4"><label for="dark_mode_toggle">{{ gettext("Dark mode") }}</label></dt>
 		 			<dd class="col-8">
 						<div class="form-check form-switch">
 							{% if web_settings["dark_mode"] %}
@@ -85,7 +83,6 @@
 					</dd>
 
 				</dl>
-
 		  </div>
 		</div>
 	</div>
