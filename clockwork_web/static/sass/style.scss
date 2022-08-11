@@ -532,16 +532,32 @@ nav.table_nav {
         overflow: hidden;
         padding: 22px 28px;
         border-radius: 6px;
+        height: 200px;
 
         i {
             position: relative;
             z-index: 10;
-            display: inline-block;
+            display: block;
+            width: 39px;
             padding: 12px;
             border-radius: 6px;
             margin-bottom: 20px;
             color: white;
             background: rgba(255,255,255,0.4);
+        }
+
+        span.hidden {
+            display: none;
+        }
+
+        i.fa-arrows-rotate {
+            background: transparent;
+            display: none;
+            margin: 18px 0 14px;
+
+            &.fa-spin {
+                display: inline-block;
+            }
         }
 
         span {

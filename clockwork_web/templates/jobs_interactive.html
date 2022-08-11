@@ -67,16 +67,24 @@
             read_query_filter();
             read_display_filter();
             
-            rotate_icon = document.querySelector('#spinner');
-            rotate_icon.classList.add("fa-spin");
-            // .5 seconds later, hide the splash
-            setTimeout(function() {
-              rotate_icon.classList.remove("fa-spin");
-            }, 2000);
+            var rotate_icons = document.querySelectorAll("i.fa-arrows-rotate");
+            rotate_icons.forEach((rotate_icon) => {
+                rotate_icon.classList.add("fa-spin");
+                // .5 seconds later, hide the splash
+                setTimeout(function() {
+                  rotate_icon.classList.remove("fa-spin");
+                }, 2000);
+            });
 
-            //console.log(query_filter);
-            //console.log(display_filter);
-
+            var nums = document.querySelectorAll("span.num");
+            nums.forEach((num) => {
+                num.classList.add("hidden");
+                // .5 seconds later, hide the splash
+                setTimeout(function() {
+                  num.classList.remove("hidden");
+                }, 2000);
+            });
+            
             // note that `launch_refresh_all_data` comes from "jobs.ps"
             launch_refresh_all_data(query_filter, display_filter);
 
@@ -103,7 +111,8 @@
                 <div class="col-md-3 col-xs-12">
                     <div class="wrapper running">
                         <i class="fa-solid fa-timer"></i>
-                        <span class="num">34</span>
+                        <span id="dashboard_running" class="num"></span>
+                        <i class="fa-solid fa-arrows-rotate"></i>
                         <p>Running jobs</p>
                     </div>
                 </div>
@@ -111,7 +120,8 @@
                 <div class="col-md-3 col-xs-12">
                     <div class="wrapper completed">
                         <i class="fa-solid fa-badge-check"></i>
-                        <span class="num">12</span>
+                        <span id="dashboard_completed" class="num"></span>
+                        <i class="fa-solid fa-arrows-rotate"></i>
                         <p>Completed jobs</p>
                     </div>
                 </div>
@@ -119,7 +129,8 @@
                 <div class="col-md-3 col-xs-12">
                     <div class="wrapper pending">
                         <i class="fa-solid fa-circle-pause"></i>
-                        <span class="num">17</span>
+                        <span id="dashboard_pending" class="num"></span>
+                        <i class="fa-solid fa-arrows-rotate"></i>
                         <p>Pending jobs</p>
                     </div>
                 </div>
@@ -127,7 +138,8 @@
                 <div class="col-md-3 col-xs-12">
                     <div class="wrapper stalled">
                         <i class="fa-solid fa-triangle-exclamation"></i>
-                        <span class="num">4</span>
+                        <span id="dashboard_stalled" class="num"></span>
+                        <i class="fa-solid fa-arrows-rotate"></i>
                         <p>Stalled jobs</p>
                     </div>
                 </div>

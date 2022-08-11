@@ -10,10 +10,10 @@
 
 //date stuff
 var TimeAgo = (function() {
-  var self = {};
+var self = {};
   
   // Public Methods
-  self.locales = {
+self.locales = {
     prefix: '',
     sufix:  'ago',
     
@@ -28,9 +28,9 @@ var TimeAgo = (function() {
     months:  '%d months',
     year:    'about a year',
     years:   '%d years'
-  };
+};
   
-  self.inWords = function(timeAgo) {
+self.inWords = function(timeAgo) {
     var seconds = Math.floor((new Date() - parseInt(timeAgo)) / 1000),
         separator = this.locales.separator || ' ',
         words = this.locales.prefix + separator,
@@ -41,29 +41,29 @@ var TimeAgo = (function() {
           day:    seconds / 86400,
           hour:   seconds / 3600,
           minute: seconds / 60
-        };
+    };
     
     var distance = this.locales.seconds;
     
     for (var key in intervals) {
-      interval = Math.floor(intervals[key]);
+        interval = Math.floor(intervals[key]);
       
-      if (interval > 1) {
-        distance = this.locales[key + 's'];
-        break;
-      } else if (interval === 1) {
-        distance = this.locales[key];
-        break;
-      }
+        if (interval > 1) {
+            distance = this.locales[key + 's'];
+            break;
+        } else if (interval === 1) {
+            distance = this.locales[key];
+            break;
+        }
     }
     
-    distance = distance.replace(/%d/i, interval);
-    words += distance + separator + this.locales.sufix;
+        distance = distance.replace(/%d/i, interval);
+        words += distance + separator + this.locales.sufix;
 
-    return words.trim();
-  };
+        return words.trim();
+    };
   
-  return self;
+    return self;
 }());
 
 // We set up a request to retrieve the jobs list as JSON
@@ -165,6 +165,8 @@ function refresh_display(display_filter) {
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)
     });
+    //kaweb - attempt to count results
+    count_jobs(latest_filtered_response_contents);
 }
 
 
@@ -347,6 +349,42 @@ function populate_table(response_contents) {
             td0.innerHTML = "<a href=\"" + url + "\">" + note_info["title"] + "</a>";
             */
 
+}
+
+function count_jobs(response_contents) {
+
+    let running = document.getElementById("dashboard_running");
+    let completed = document.getElementById("dashboard_completed");
+    let pending = document.getElementById("dashboard_pending");
+    let stalled = document.getElementById("dashboard_stalled");
+
+    let counter_running = 0;
+    let counter_completed = 0;
+    let counter_pending = 0;
+    let counter_stalled = 0;
+
+    /* then add the information for all the jobs */
+    [].forEach.call(response_contents, function(D_job) {
+        D_job_slurm = D_job["slurm"];
+        job_state = D_job_slurm["job_state"].toLowerCase();
+
+        if (job_state == "running" || job_state == "completing") {
+            counter_running++;
+        } 
+        if (job_state == "completed") {
+            counter_completed++;
+        } 
+        if (job_state == "pending") {
+            counter_pending++;
+        } 
+        if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled") {
+            counter_stalled++;
+        } 
+    });
+    running.textContent = counter_running;
+    completed.textContent = counter_completed;
+    pending.textContent = counter_pending;
+    stalled.textContent = counter_stalled;
 }
 
 function retrieve_username_from_email(email) {

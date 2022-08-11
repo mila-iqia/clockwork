@@ -12356,16 +12356,29 @@ nav.table_nav ul.pagination li a.page-link:focus {
   overflow: hidden;
   padding: 22px 28px;
   border-radius: 6px;
+  height: 200px;
 }
 .dashboard_job .col-md-3 .wrapper i {
   position: relative;
   z-index: 10;
-  display: inline-block;
+  display: block;
+  width: 39px;
   padding: 12px;
   border-radius: 6px;
   margin-bottom: 20px;
   color: white;
   background: rgba(255, 255, 255, 0.4);
+}
+.dashboard_job .col-md-3 .wrapper span.hidden {
+  display: none;
+}
+.dashboard_job .col-md-3 .wrapper i.fa-arrows-rotate {
+  background: transparent;
+  display: none;
+  margin: 18px 0 14px;
+}
+.dashboard_job .col-md-3 .wrapper i.fa-arrows-rotate.fa-spin {
+  display: inline-block;
 }
 .dashboard_job .col-md-3 .wrapper span {
   font-weight: bold;

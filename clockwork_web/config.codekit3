@@ -2652,14 +2652,6 @@
       "oAP" : "\/templates\/index_outside.html",
       "oF" : 0
     },
-    "\/templates\/jobs_interactive_backup.html" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/templates\/jobs_interactive_backup.html",
-      "oF" : 0
-    },
     "\/templates\/jobs_interactive.html" : {
       "cB" : 0,
       "ft" : 8192,
@@ -2682,14 +2674,6 @@
       "hM" : 0,
       "oA" : 0,
       "oAP" : "\/templates\/jobs.html",
-      "oF" : 0
-    },
-    "\/templates\/kaweb_jobs.html" : {
-      "cB" : 0,
-      "ft" : 8192,
-      "hM" : 0,
-      "oA" : 0,
-      "oAP" : "\/templates\/kaweb_jobs.html",
       "oF" : 0
     },
     "\/templates\/nodes.html" : {
