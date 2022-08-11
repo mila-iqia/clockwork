@@ -25,6 +25,8 @@ from clockwork_web.core.users_helper import (
     disable_dark_mode,
     set_items_per_page,
     get_default_setting_value,
+    is_correct_type_for_web_setting,
+    get_default_web_settings_values,
 )
 
 
@@ -43,10 +45,8 @@ class User(UserMixin):
         mila_cluster_username=None,
         cc_account_username=None,
         cc_account_update_key=None,
-        web_settings={
-            "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
-            "dark_mode": get_default_setting_value("dark_mode"),
-        },
+        nbr_items_per_page=None,
+        dark_mode=None,
     ):
         """
         This constructor is called only by the `get` method.
@@ -58,7 +58,17 @@ class User(UserMixin):
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
         self.cc_account_update_key = cc_account_update_key
-        self.web_settings = web_settings
+
+        # Initialize an empty dictionary
+        self.web_settings = {}
+        # For each given web setting value, store it
+        if nbr_items_per_page and is_correct_type_for_web_setting(
+            "nbr_items_per_page", nbr_items_per_page
+        ):
+            self.web_settings["nbr_items_per_page"] = nbr_items_per_page
+        if dark_mode and is_correct_type_for_web_setting("dark_mode", dark_mode):
+            self.web_settings["dark_mode"] = dark_mode
+        self.web_settings = get_default_web_settings_values() | self.web_settings
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -101,7 +111,13 @@ class User(UserMixin):
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
                 cc_account_update_key=e["cc_account_update_key"],
-                web_settings=e["web_settings"],
+                nbr_items_per_page=e["web_settings"].get(
+                    "nbr_items_per_page",
+                    get_default_setting_value("nbr_items_per_page"),
+                ),
+                dark_mode=e["web_settings"].get(
+                    "dark_mode", get_default_setting_value("dark_mode")
+                ),
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
@@ -180,6 +196,23 @@ class User(UserMixin):
         """
         return set_items_per_page(self.mila_email_username, nbr_items_per_page)
 
+    def get_web_settings(self):
+        """
+        Retrieve the web settings of the user, ie:
+        - whether or not the dark mode is activated (dark_mode)
+        - the language to use with this user (language)
+        - the number of elements to display in a page presenting a list (nbr_items_per_page)
+
+        Returns:
+            A dictionary presenting the following format:
+            {
+                "dark_mode": <boolean>,
+                "language": <string>,
+                "nbr_items_per_page": <integer>
+            }
+        """
+        return get_default_web_settings_values() | self.web_settings
+
 
 class AnonUser(AnonymousUserMixin):
     def __init__(self):
@@ -189,11 +222,16 @@ class AnonUser(AnonymousUserMixin):
         self.cc_account_username = None
         self.mila_cluster_username = None
         self.cc_account_update_key = None
-        self.web_settings = {
-            "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
-            "dark_mode": get_default_setting_value("dark_mode"),
-        }
 
     def new_api_key(self):
         # We don't want to touch the database for this.
         self.clockwork_api_key = secrets.token_hex(32)
+
+    def get_web_settings(self):
+        """
+        Gets default web settings, as the AnonUser is not authenticated.
+
+        Returns:
+            A dictionary presenting the default web settings.
+        """
+        return get_default_web_settings_values()
