@@ -25,9 +25,12 @@ from .db import get_db
 from clockwork_web.core.users_helper import (
     enable_dark_mode,
     disable_dark_mode,
+    get_default_web_settings_values,
     set_items_per_page,
     get_default_setting_value,
     set_language,
+    is_correct_type_for_web_setting,
+    get_default_web_settings_values,
 )
 
 
@@ -46,7 +49,7 @@ class User(UserMixin):
         mila_cluster_username=None,
         cc_account_username=None,
         cc_account_update_key=None,
-        web_settings=None,
+        web_settings={},
     ):
         """
         This constructor is called only by the `get` method.
@@ -58,17 +61,9 @@ class User(UserMixin):
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
         self.cc_account_update_key = cc_account_update_key
-        self.web_settings = {}
-        if web_settings is None:
-            self.web_settings["nbr_items_per_page"] = get_default_setting_value(
-                "nbr_items_per_page"
-            )
-            self.web_settings["dark_mode"] = get_default_setting_value("dark_mode")
-            self.web_settings["language"] = get_default_setting_value("language")
-        else:
-            self.web_settings["nbr_items_per_page"] = web_settings["nbr_items_per_page"]
-            self.web_settings["dark_mode"] = web_settings["dark_mode"]
-            self.web_settings["language"] = web_settings["language"]
+        self.web_settings = get_default_web_settings_values() | web_settings
+        for k in ["nbr_items_per_page", "dark_mode", "language"]:
+            is_correct_type_for_web_setting(k, self.web_settings[k])
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -111,7 +106,13 @@ class User(UserMixin):
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
                 cc_account_update_key=e["cc_account_update_key"],
-                web_settings=e["web_settings"],
+                nbr_items_per_page=e["web_settings"].get(
+                    "nbr_items_per_page",
+                    get_default_setting_value("nbr_items_per_page"),
+                ),
+                dark_mode=e["web_settings"].get(
+                    "dark_mode", get_default_setting_value("dark_mode")
+                ),
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
@@ -205,6 +206,23 @@ class User(UserMixin):
     def get_language(self):
         return self.web_settings["language"]
 
+    def get_web_settings(self):
+        """
+        Retrieve the web settings of the user, ie:
+        - whether or not the dark mode is activated (dark_mode)
+        - the language to use with this user (language)
+        - the number of elements to display in a page presenting a list (nbr_items_per_page)
+
+        Returns:
+            A dictionary presenting the following format:
+            {
+                "dark_mode": <boolean>,
+                "language": <string>,
+                "nbr_items_per_page": <integer>
+            }
+        """
+        return get_default_web_settings_values() | self.web_settings
+
 
 class AnonUser(AnonymousUserMixin):
     def __init__(self):
@@ -214,46 +232,21 @@ class AnonUser(AnonymousUserMixin):
         self.cc_account_username = None
         self.mila_cluster_username = None
         self.cc_account_update_key = None
-        self.web_settings = {}
-        self.web_settings["nbr_items_per_page"] = get_default_setting_value(
-            "nbr_items_per_page"
-        )
-        self.web_settings["dark_mode"] = get_default_setting_value("dark_mode")
+        self.web_settings = get_default_web_settings_values()
         self.web_settings["language"] = None
 
     def new_api_key(self):
         # We don't want to touch the database for this.
         self.clockwork_api_key = secrets.token_hex(32)
 
-    def settings_dark_mode_enable(self):
-        """
-        Enable the dark mode display option for the User.
-
-        Returns:
-        A tuple containing
-        - a HTTP status code (it should only return 200)
-        - a message describing the state of the operation
-        """
-        try:
-            self.web_settings["dark_mode"] = True
-            return (200, gettext("The dark_mode has been enabled."))
-        except Exception as e:
-            return (500, gettext("An error occurred."))
-
-    def settings_dark_mode_disable(self):
-        """
-        Disable the dark mode display option for the User.
-
-        Returns:
-            A tuple containing
-            - a HTTP status code (it should only return 200)
-            - a message describing the state of the operation
-        """
-        try:
-            self.web_settings["dark_mode"] = False
-            return (200, gettext("The dark_mode has been disabled."))
-        except Exception as e:
-            return (500, gettext("An error occurred."))
-
     def get_language(self):
         return self.web_settings["language"]
+
+    def get_web_settings(self):
+        """
+        Gets default web settings, as the AnonUser is not authenticated.
+
+        Returns:
+            A dictionary presenting the default web settings.
+        """
+        return self.web_settings

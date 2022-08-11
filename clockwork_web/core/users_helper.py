@@ -1,9 +1,11 @@
 """
-Helper functions related to the User entity.
+Helper functions related to the User entity and the users entries from the databas.
 """
 
-from clockwork_web.db import get_db
+from flask_login import current_user
+from flask import render_template
 
+from clockwork_web.db import get_db
 # Import the functions from clockwork_web.config
 from clockwork_web.config import (
     get_config,
@@ -12,14 +14,30 @@ from clockwork_web.config import (
     string as valid_string,
 )
 
-# Dictionary referencing the expected type for each web setting entity
-web_settings_types = {"nbr_items_per_page": int, "dark_mode": bool, "language": str}
-
-
 # Load the web settings from the configuration file
 register_config("settings.default_values.nbr_items_per_page", validator=int)
 register_config("settings.default_values.dark_mode", validator=valid_boolean)
 register_config("settings.default_values.language", validator=valid_string)
+
+
+def get_default_web_settings_values():
+    """
+    Get a dictionary associating each user web setting to its default value.
+
+    Returns:
+        A dictionary associating each user web setting to its default value.
+    """
+    return get_config("settings.default_values").copy()
+
+
+def get_web_settings_types():
+    """
+    Get a dictionary referencing the expected type for each web setting entity
+
+    Returns:
+        A dictionary associating each web setting to its expected type.
+    """
+    return {"nbr_items_per_page": int, "dark_mode": bool, "language": str}
 
 
 def get_default_setting_value(setting_name):
@@ -35,11 +53,7 @@ def get_default_setting_value(setting_name):
     Returns:
         The default value for the requested web setting
     """
-    default_settings_values = get_config("settings.default_values")
-    if type(setting_name) == str and setting_name in default_settings_values:
-        return default_settings_values[setting_name]
-    else:
-        return None
+    return get_default_web_settings_values().get(setting_name, None)
 
 
 def _set_web_setting(mila_email_username, setting_key, setting_value):
@@ -118,6 +132,9 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
         True if the type of setting_value and the expected type for an element
         related to setting_key match. False otherwise.
     """
+    # Retrieve the types expected for each web setting
+    web_settings_types = get_web_settings_types()
+
     # If the element has a registered expected type
     if setting_key in web_settings_types:
         # The problem here is that isinstance(True,int) returns True
@@ -279,7 +296,6 @@ def disable_dark_mode(mila_email_username):
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, "dark_mode", False)
 
-
 def set_language(mila_email_username, language):
     """
     Set the language to use with a specific user.
@@ -297,3 +313,21 @@ def set_language(mila_email_username, language):
     """
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, "language", language)
+
+def render_template_with_user_settings(template_name_or_list, **context):
+    """
+    Wraps the Flask function render_template in order to send the user's web
+    settings to the rendered HTML page.
+
+    Parameters:
+        template_name_or_list   The name of the template to render. If a list is
+                                given, the first name to exist will be rendered.
+        context                 The variables to make available in the template.
+
+    Returns:
+        The template rendered by Flask, and containing the web_settings of the
+        current user
+    """
+    context["web_settings"] = current_user.get_web_settings()
+    return render_template(template_name_or_list, **context)
+
