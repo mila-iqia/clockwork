@@ -1,0 +1,163 @@
+@charset "UTF-8";
+/*
+ ██████  ██████  ██       ██████  ██    ██ ██████  ███████ 
+██      ██    ██ ██      ██    ██ ██    ██ ██   ██ ██      
+██      ██    ██ ██      ██    ██ ██    ██ ██████  ███████ 
+██      ██    ██ ██      ██    ██ ██    ██ ██   ██      ██ 
+ ██████  ██████  ███████  ██████   ██████  ██   ██ ███████ 
+*/
+/*
+ ██████  ██████  ███    ███ ███    ███  ██████  ███    ██ 
+██      ██    ██ ████  ████ ████  ████ ██    ██ ████   ██ 
+██      ██    ██ ██ ████ ██ ██ ████ ██ ██    ██ ██ ██  ██ 
+██      ██    ██ ██  ██  ██ ██  ██  ██ ██    ██ ██  ██ ██ 
+ ██████  ██████  ██      ██ ██      ██  ██████  ██   ████ 
+*/
+body {
+  background: black;
+  color: #f3f3f3;
+}
+
+a, a:visited {
+  color: #54abb4;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+a:hover, a:visited:hover {
+  color: #8a5e8a;
+}
+
+div.title {
+  color: white;
+}
+
+.navbar-collapse .navbar-nav a.nav-link {
+  color: white;
+}
+.navbar-collapse ul.dropdown-menu {
+  color: #f3f3f3;
+  background: #2a2a2e;
+}
+.navbar-collapse ul.dropdown-menu a {
+  color: #54abb4;
+}
+
+.top {
+  background: #2a2a2e;
+}
+
+#formBlock {
+  background-image: url(../images/dark-top_bg.png);
+}
+
+#mainCollapse {
+  border-top: 1px solid #aaaaaa;
+}
+#mainCollapse h1 a {
+  color: white;
+}
+#mainCollapse:after {
+  background-image: url(../images/dark-bg_search_top.png);
+}
+
+.searchform .cc_toggle_zone_column {
+  border: 1px solid #c6c6c6;
+}
+.searchform .row .col-md-4:nth-child(2) .cc_toggle_zone_row:nth-child(even),
+.searchform .row .col-md-4:nth-child(3) .cc_toggle_zone_row:nth-child(even) {
+  background: #2a2a2e;
+}
+.searchform .cc_toggle_zone_row a i[title="Cluster documentation"] {
+  color: #f3f3f3;
+}
+.searchform .cc_toggle_zone_row a:hover i {
+  color: #8a5e8a;
+}
+
+.form-switch .form-check-input {
+  background-color: #c6c6c6;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:checked {
+  background-color: #6f0070;
+  border-color: #6f0070;
+}
+
+.form-radio .form-check-input:checked {
+  background-color: #6f0070;
+  border-color: #6f0070;
+}
+
+.form-radio .form-check-input:focus, .form-radio .form-check-input:active {
+  background: #6f0070;
+  box-shadow: 0 0 0 0.25rem #9bced3;
+}
+
+.form-switch .form-check-input:focus {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  box-shadow: 0 0 0 0.25rem #9bced3;
+}
+
+table.table-striped {
+  background: #2a2a2e;
+  color: #f3f3f3;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+table.table-striped tr:last-of-type {
+  border-bottom: 1px solid #2a2a2e;
+}
+table.table-striped td {
+  border-bottom: 1px solid #121213;
+}
+table.table-striped td:first-of-type {
+  border-left: 1px solid #2a2a2e;
+}
+table.table-striped td:last-of-type {
+  border-right: 1px solid #2a2a2e;
+}
+table.table-striped.table-hover > tbody > tr:hover > * {
+  background: #202023;
+  color: white;
+}
+
+table.table-striped td.links a,
+.cc_cluster_toggle_subzone .form-check-label td.links a {
+  color: #f3f3f3;
+}
+table.table-striped thead,
+.cc_cluster_toggle_subzone .form-check-label thead {
+  background: #54abb4;
+  background: -webkit-linear-gradient(left, #54abb4, #4c7ca3);
+  background: -moz-linear-gradient(left, #54abb4, #4c7ca3);
+  background: linear-gradient(to right, #54abb4, #4c7ca3);
+  color: white;
+}
+
+nav.table_nav ul.pagination li a.page-link {
+  color: #777777;
+}
+nav.table_nav ul.pagination li a.page-link:focus {
+  box-shadow: none;
+  background: #6f0070;
+  color: white;
+}
+
+/*
+███████  ██████   ██████  ████████ ███████ ██████  
+██      ██    ██ ██    ██    ██    ██      ██   ██ 
+█████   ██    ██ ██    ██    ██    █████   ██████  
+██      ██    ██ ██    ██    ██    ██      ██   ██ 
+██       ██████   ██████     ██    ███████ ██   ██ 
+*/
+#footer {
+  background: #2a2a2e;
+  border-top: 1px solid black;
+  color: #f3f3f3;
+}
+#footer .col-6:last-of-type a {
+  color: #f3f3f3;
+}
+
+/*# sourceMappingURL=darkmode.css.map */

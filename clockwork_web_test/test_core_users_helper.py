@@ -28,7 +28,7 @@ def test_get_default_setting_value_nbr_items_per_page():
     """
     Test the function get_default_setting_value when setting_name is "nbr_items_per_page".
     """
-    assert get_default_setting_value("nbr_items_per_page") == 40
+    assert get_default_setting_value("nbr_items_per_page") == 25
 
 
 def test_get_default_setting_value_dark_mode():

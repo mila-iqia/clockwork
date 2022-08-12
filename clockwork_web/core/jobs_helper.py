@@ -155,6 +155,7 @@ def strip_artificial_fields_from_job(D_job):
 #         "CANCELLED": "ERROR",
 #     },
 # ):
+# ):
 #     """
 #     This function doesn't make much sense if you don't filter anything ahead of time.
 #     Otherwise you'll get values for jobs that have been over for very long.

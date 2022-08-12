@@ -17,7 +17,7 @@ translations_folder="static/locales"
 available_languages=["en", "fr"]
 
 [settings.default_values]
-nbr_items_per_page=40
+nbr_items_per_page=25
 dark_mode=false
 language="en"
 
