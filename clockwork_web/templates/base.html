@@ -1,104 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    {% block head %}
-    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"  media="screen,projection"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwork_cluster.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pygment_trac.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<head>
+			{% block head %}
+			<!-- <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"  media="screen,projection"/> -->
+			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwork_cluster.css') }}"> -->
+			<link rel="stylesheet" href="{{ url_for('static', filename='css/pygment_trac.css') }}">
+			<link href="{{ url_for('static', filename='css/fontawesome.min.css') }}" rel="stylesheet">
+			<link href="{{ url_for('static', filename='css/solid.min.css') }}" rel="stylesheet">
 
-    <!-- That wonderful typewriter font. -->
-    <link href="https://fonts.googleapis.com/css?family=Amiri&display=swap" rel="stylesheet">
-    <style type="text/css" media="screen, print">
-        @font-face {
-          font-family: "Ailerons";
-          src: url("{{ url_for('static', filename='fonts/Ailerons-Regular.otf') }}");
-        }
-        @font-face {
-          font-family: "Anurati";
-          src: url("{{ url_for('static', filename='fonts/Anurati-Regular.otf') }}");
-        }
-        @font-face {
-          font-family: "Neuton";
-          src: url("{{ url_for('static', filename='fonts/Neuton-Light.ttf') }}");
-        }
-      </style>
+			<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <title>A Clockwork Cluster : {% block title %}{% endblock %}</title>
-    {% endblock %}
-</head>
-<body>
-    <!-- <div id="content"> -->
-    <div class="row">
-      <div class="col s1">
-        <!-- spacing on the left -->
-      </div>
-      <div class="col s5">
-        <a href="{{url_for('index')}}">
-          <img src="{{ url_for('static', filename='images/clockwork_cluster_0.5x.png')}}" width='50%'>
-        </a>
-      </div>
+			{# "web_settings" appears to be undefined outside of the settings page.
+				{% if web_settings["dark_mode"] %}
+					<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+				{% endif %}
+			#}
+			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}"> -->
 
-      <div class="col s1">
-        <!-- spacing -->
-      </div>
-      <div class="col s4">
-        <div class="cc_header_right_col">
-          <div>
-            <a href="https://docs.mila.quebec">Mila docs</a>
-          </div>
-          <div>
-            <a href="https://dashboard.server.mila.quebec">Mila dashboard</a>
-          </div>
-        </div>
-        <div class="cc_header_right_col">
-          <div>
-            <!-- TODO : add a conditional here in the template -->
-            {% if mila_email_username: %}
-              {{ gettext("Logged as :") }} {{mila_email_username}}
-            {% else %}
-              {{ gettext("Not logged in.") }}
-            {% endif %}
-          </div>
-          <div>
-            <a href="{{url_for('settings.route_index')}}">{{ gettext("my settings") }}</a>
-            <!-- This would be fine, but it doesn't look good.
-            <a href="/settings">
-              <i class="material-icons">settings</i>
-            </a>
-            -->
-          </div>
-          <div>
-            <a href="{{url_for('login.route_logout')}}">{{ gettext("logout") }}</a>
-            <!-- This would be fine, but it doesn't look good.
-              <a class="waves-effect waves-light btn-small grey darken-1" href="/login/logout">
-              logout
-              <i class="material-icons right">exit_to_app</i>
-              </a>
-            -->
-          </div>
-        </div>
-        <div class="cc_header_right_col">
-          <div>
-            {{ gettext("[link about ~this]") }}
-          </div>
-          <div>
-            {{ gettext("[link for github code]") }}
-          </div>
-        </div>
-      </div>
-    </div>
+			<link rel="preconnect" href="https://fonts.googleapis.com">
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+			<link href="https://fonts.googleapis.com/css2?family=Asap+Condensed:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+			
+			<link rel="apple-touch-icon" sizes="120x120" href="{{ url_for('static', filename='favicons/apple-touch-icon.png') }}">
+			<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicons/favicon-32x32.png') }}">
+			<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicons/favicon-16x16.png') }}">
+			<link rel="manifest" href="{{ url_for('static', filename='favicons/site.webmanifest') }}">
+			<link rel="mask-icon" href="{{ url_for('static', filename='favicons/safari-pinned-tab.svg') }}" color="#5bbad5">
+			<link rel="shortcut icon" href="{{ url_for('static', filename='favicons/favicon.ico') }}">
 
-    {% block content %}{% endblock %}
-    <!-- </div> -->
-    <!--
-    <div id="footer">
-        {% block footer %}
-        &copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.
-        {% endblock %}
-    </div>
-    -->
-    <script type="text/javascript" src="{{ url_for('static', filename='js/materialize.min.js') }}"></script>
+			<script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+			<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+
+			<script type="text/javascript" src="{{ url_for('static', filename='js/sortable.min.js') }}"></script>
+			<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.waypoints.min.js') }}"></script>
+			<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.counterup.min.js') }}"></script>
+			<script type="text/javascript" src="{{ url_for('static', filename='js/moment-with-locales.min.js') }}"></script>
+			<script type="text/javascript" src="{{ url_for('static', filename='js/livestamp.min.js') }}"></script>
+
+			<script type="text/javascript" src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+
+			<meta name="msapplication-TileColor" content="#ffffff">
+			<meta name="msapplication-config" content="{{ url_for('static', filename='favicons/browserconfig.xml') }}">
+			<meta name="theme-color" content="#ffffff">
+
+			<title>Clockwork - {% block title %}{% endblock %}</title>
+			{% endblock %}
+	</head>
+	<body>
+		<div class="container-fluid px-0">
+			<div class="top align-items-center row g-0">
+				<div class="col-xxl-1 d-none d-xxl-block"></div>
+				<div class="col">
+					<a href="{{url_for('index')}}">
+						
+						{# "web_settings" appears to be undefined outside of the settings page.
+							{% if web_settings["dark_mode"] %}
+								<img class="logo" src="{{ url_for('static', filename='images/dark-logo_cw.png')}}" />
+							{% else %}
+								<img class="logo" src="{{ url_for('static', filename='images/logo_cw.png')}}" />
+							{% endif %}
+						#}
+						<img class="logo" src="{{ url_for('static', filename='images/logo_cw.png')}}" />
+					</a>
+				</div>
+				
+				<div class="col">
+					<nav class="navbar-expand-lg">
+						<div class="container-fluid">
+						    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+						      <span class="navbar-toggler-icon"></span>
+						    </button>
+							<div class="collapse navbar-collapse" id="navbarSupportedContent">
+								<ul class="navbar-nav mb-2 mb-lg-0">
+									<li class="nav-item"><a class="nav-link" href="{{url_for('index')}}"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+									<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_search')}}"><i class="fa-solid fa-list-check"></i> Jobs</a></li>
+									<!-- Temporarily hidden 
+										<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_index')}}"><i class="fa-solid fa-circle-nodes"></i> Clusters</a></li>-->
+									<li class="nav-item"><a class="nav-link" href="{{url_for('settings.route_index')}}"><i class="fa-solid fa-gears"></i> Settings</a></li>
+									
+									 <li class="nav-item dropdown">
+							        	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-arrow-up-right-from-square"></i> External</a>
+						        		<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+								            <li><h3>Mila</h3></li>
+											<li><a class="dropdown-item" href="https://dashboard.server.mila.quebec" target="_blank">Dashboard</a></li>
+											<li><a class="dropdown-item" href="https://docs.mila.quebec" target="_blank">Documentation</a></li>
+											<li><hr class="dropdown-divider"></li>
+											<li><h3>Clockwork</h3></li>
+											<li><a class="dropdown-item" href="#" target="_blank">Documentation</a></li>
+											<li><a class="dropdown-item" href="#" target="_blank">Github</a></li>
+						        		</ul>
+							        </li>
+								</ul>
+							</div>
+						</div>
+					</nav>
+				</div>
+				<div class="col login">
+					<!-- TODO : add a conditional here in the template -->
+					{% if mila_email_username: %}
+						<div class="btn-group dropstart">
+							<a class="user_loggedin" data-bs-toggle="dropdown" data-bs-offset="-34,20" aria-expanded="false" href="#"><i class="fa-solid fa-user-check"></i></a>
+							<div class="dropdown-menu">
+								<div class="triangle-right"></div>
+								<p>Logged in as <strong>{{mila_email_username}}</strong></p>
+								<a class="btn" href="{{url_for('login.route_logout')}}">Logout? <i class="fa-solid fa-person-to-portal"></i></a>
+							</div>
+						</div>
+					{% else %}
+						<!-- not logged in -->
+					{% endif %}
+				</div>
+				<div class="col-xxl-1 d-none d-xxl-block"></div>
+			</div>
+		</div>
+
+		{% block form %}
+		{% if request.path != '/jobs/interactive' %}
+			<div id="formBlock">
+				<div class="search_button formCollapse collapse" id="mainCollapse">
+					<div class="container">
+						<div class="row">
+			                <div class="col-12">
+			                    <div class="title float-end">
+			                        <i class="fa-solid fa-magnifying-glass"></i>
+			                        <h1><a data-bs-toggle="collapse" data-bs-target=".formCollapse" aria-expanded="false" href="#mainCollapse #collapseForm" aria-controls="mainCollapse collapseForm"><i class="fa-solid fa-circle-plus"></i>SEARCH</a></h1>
+			                    </div>
+			                    <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
+			                </div>
+			            </div> <!-- end header row -->
+			        </div>
+
+					<div class="searchform formCollapse collapse" id="collapseForm">
+				        <div class="container">
+				            <form class="searchform" method="get">
+				                <div class="row">
+				                    <!-- users -->
+				                    <div class="col-sm-12 col-md-4">
+				                        <div class="cc_toggle_zone_column user_group">
+				                            <div class="cc_toggle_zone_row row_title">
+				                                <span>Filter by user</span>
+				                            </div>
+				                            <div class="cc_toggle_zone_row form-radio">
+				                                <input class="form-check-input" id="user_option_all" name="user_name" type="radio" checked data-no-submit />
+				                                <label for="user_option_all" class="form-label">
+				                                    <span>All users</span>
+				                                </label>
+				                            </div>
+				                            <div class="cc_toggle_zone_row form-radio">
+				                                <input class="form-check-input" id="user_option_only_me" name="user_name" value="{{mila_email_username}}" type="radio" data-no-submit />
+				                                <label for="user_option_only_me" class="form-label">
+				                                    <span>Only me</span>
+				                                </label>
+				                            </div>
+				                            <div class="cc_toggle_zone_row form-radio form-check-group">
+				                                <input class="form-check-input" id="user_option_other" name="user_name" type="radio" />
+				                                <label for="user_option_other" class="form-label">
+				                                    <input type="text" class="form-control" id="user_option_other_textarea" name="user_name" placeholder="Other user..." disabled="disabled" data-no-submit>
+				                                </label>
+				                            </div>
+				                        </div>
+				                    </div>
+
+				                    <!-- toggling clusters -->
+				                    <div class="col-sm-12 col-md-4">
+				                        <div class="cc_toggle_zone_column">
+				                            <div class="cc_toggle_zone_row row_title">
+				                                <span>Filter by cluster</span>
+				                            </div>
+
+				                            <!-- toggle beluga -->
+				                            <div class="cc_toggle_zone_row">
+				                                <a href="https://docs.computecanada.ca/wiki/Beluga" target="_blank">
+				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
+				                                </a>
+				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
+				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
+				                                </a>
+				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
+				                                    <label class="form-check-label" for="cluster_toggle_lever_beluga" class="cc_cluster_toggle_name">beluga</label>
+				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_beluga" name="clusters_names" value="beluga" checked data-no-submit>
+				                                </div>
+				                            </div>
+
+				                            <!-- toggle cedar -->
+				                            <div class="cc_toggle_zone_row">
+				                                <a href="https://docs.computecanada.ca/wiki/Cedar" target="_blank">
+				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
+				                                </a>
+				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
+				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
+				                                </a>
+				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
+				                                    <label class="form-check-label" for="cluster_toggle_lever_cedar" class="cc_cluster_toggle_name">cedar</label>
+				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_cedar" name="clusters_names" value="cedar" checked data-no-submit>
+				                                </div>
+				                            </div>
+
+				                            <!-- toggle graham -->
+				                             <div class="cc_toggle_zone_row">
+				                                <a href="https://docs.computecanada.ca/wiki/Graham" target="_blank">
+				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
+				                                </a>
+				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
+				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
+				                                </a>
+				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
+				                                    <label class="form-check-label" for="cluster_toggle_lever_graham" class="cc_cluster_toggle_name">graham</label>
+				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_graham" name="clusters_names" value="graham" checked data-no-submit>
+				                                </div>
+				                            </div>
+
+				                            <!-- toggle mila -->
+				                            <div class="cc_toggle_zone_row">
+				                                <a href="https://docs.mila.quebec" target="_blank">
+				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
+				                                </a>
+				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
+				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
+				                                </a>
+				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
+				                                    <label class="form-check-label" for="cluster_toggle_lever_mila" class="cc_cluster_toggle_name">mila</label>
+				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_mila" name="clusters_names" value="mila" checked data-no-submit>
+				                                </div>
+				                            </div>
+				                        </div>
+				                    </div>
+
+				                    <!-- toggling status -->
+				                    <div class="col-sm-12 col-md-4">
+				                        <div class="cc_toggle_zone_column">
+				                            <div class="cc_toggle_zone_row row_title">
+				                                <span>Filter by status</span>
+				                            </div>
+
+				                            <!-- toggle completed -->
+				                            <div class="cc_toggle_zone_row">
+				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
+				                                    <label class="form-check-label" for="status_toggle_lever_completed" class="status_toggle_lever_completed"><span class="status completed">Completed</span></label>
+				                                    <input class="form-check-input float-end" type="checkbox" name="states" id="status_toggle_lever_completed" value="COMPLETED" checked data-no-submit>
+				                                </div>
+				                            </div>
+
+				                            <!-- toggle running -->
+				                            <div class="cc_toggle_zone_row">
+				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
+				                                    <label class="form-check-label" for="status_toggle_lever_running" class="status_toggle_lever_running"><span class="status running">Running</span></label>
+				                                    <input class="form-check-input float-end" type="checkbox" name="states" id="status_toggle_lever_running" value="RUNNING" checked data-no-submit>
+				                                </div>
+				                            </div>
+
+				                            <!-- toggle pending -->
+				                            <div class="cc_toggle_zone_row">
+				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
+				                                    <label class="form-check-label" for="status_toggle_lever_pending" class="status_toggle_lever_pending"><span class="status pending">Pending</span></label>
+				                                    <input class="form-check-input float-end" type="checkbox" name="states" id="status_toggle_lever_pending" value="PENDING" checked data-no-submit>
+				                                </div>
+				                            </div>
+
+				                            <!-- toggle any errors -->
+				                             <div class="cc_toggle_zone_row">
+				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
+				                                    <label class="form-check-label" for="status_toggle_lever_any_errors" class="status_toggle_lever_any_errors"><span class="status failed">Any errors</span></label>
+				                                    <input class="form-check-input float-end" type="checkbox" name="states" id="status_toggle_lever_any_errors" value="FAILED" checked data-no-submit>
+				                                </div>
+				                            </div>
+				                        </div>
+				                    </div> 
+				                </div> <!-- end search form row-->
+
+				                 <div class="row">
+				                    <!-- button -->
+				                    <div class="col-sm-12 col-md-4 offset-md-8">
+				                        <button type="submit" class="btn btn-red mb-3">Run search</button>
+				                    </div>
+				                </div>
+				            </form>
+
+				        </div> <!-- end header container -->
+				    </div>
+				</div>
+			</div>
+		{% endif %}
+		{% endblock %}
+			
+		
+		{% block content %}{% endblock %}
+		
+		{% block footer %}
+			<div id="footer">
+				<div class="container">
+					<div class="row">
+						<div class="col-6">
+							&copy; 2022 MILA. All rights reserved.
+						</div>
+						<div class="col-6">
+							<a href="">Feedback and bug reports</a> | <a href="">Privacy policy <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endblock %}
+
 </body>
 </html>

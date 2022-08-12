@@ -1,0 +1,49 @@
+/*
+ ██████  ██████  ██       ██████  ██    ██ ██████  ███████ 
+██      ██    ██ ██      ██    ██ ██    ██ ██   ██ ██      
+██      ██    ██ ██      ██    ██ ██    ██ ██████  ███████ 
+██      ██    ██ ██      ██    ██ ██    ██ ██   ██      ██ 
+ ██████  ██████  ███████  ██████   ██████  ██   ██ ███████ 
+*/
+
+$charcoal: #2a2a2e;
+$charcoal-pale: #777777;
+$grey: #c6c6c6;
+
+$cream: #f3f3f3;
+$cream-dark: #e8e8e8;
+
+$turquoise: #54abb4;
+$turquoise-blue: #4c7ba3;
+
+$red: #d05c4c;
+$red-red: #bc4445;
+
+$purple: #6f0070;
+$purple-pale: #8a5e8a;
+
+$green: #55b496;
+
+$yellow: #dba46a;
+
+$text: #505050;
+
+
+@mixin bold() {
+    font-weight: bold;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+@mixin normal() {
+    font-weight: normal;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+}
+
+@mixin rotate($degrees) {
+    -webkit-transform: rotate($degrees);
+    -moz-transform: rotate($degrees);
+    -ms-transform: rotate($degrees);
+    -o-transform: rotate($degrees);
+    transform: rotate($degrees);
+}
