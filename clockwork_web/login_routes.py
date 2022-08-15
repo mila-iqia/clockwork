@@ -213,11 +213,6 @@ if os.environ.get("CLOCKWORK_ENABLE_TESTING_LOGIN", "") == "True":
     # the app is run in testing mode.
     @flask_api.route("/testing")
     def route_test_login():
-        # Removing this assertion because we use a development version
-        # that does not disable logins yet allows us to log as anyone.
-        # That development version is protected behind a VPN.
-        # assert current_app.testing
-
         user_id = request.args.get("user_id")
         user = User.get(user_id)
         if user is None or user.status != "enabled":
