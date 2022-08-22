@@ -1,0 +1,802 @@
+[
+  {
+    "single_page_duration": 0.05452442169189453,
+    "nbr_skipped_items": 0,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07384061813354492
+  },
+  {
+    "single_page_duration": 0.06333208084106445,
+    "nbr_skipped_items": 1,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.0731208324432373
+  },
+  {
+    "single_page_duration": 0.05733084678649902,
+    "nbr_skipped_items": 3,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07285857200622559
+  },
+  {
+    "single_page_duration": 0.06910586357116699,
+    "nbr_skipped_items": 5,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07505273818969727
+  },
+  {
+    "single_page_duration": 0.062058210372924805,
+    "nbr_skipped_items": 7,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07324028015136719
+  },
+  {
+    "single_page_duration": 0.07209253311157227,
+    "nbr_skipped_items": 9,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07342100143432617
+  },
+  {
+    "single_page_duration": 0.0816812515258789,
+    "nbr_skipped_items": 11,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07541584968566895
+  },
+  {
+    "single_page_duration": 0.0898900032043457,
+    "nbr_skipped_items": 13,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 94,
+    "count_duration": 0.07488632202148438
+  },
+  {
+    "single_page_duration": 0.07742524147033691,
+    "nbr_skipped_items": 15,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07658123970031738
+  },
+  {
+    "single_page_duration": 0.07080268859863281,
+    "nbr_skipped_items": 17,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07522821426391602
+  },
+  {
+    "single_page_duration": 0.06702542304992676,
+    "nbr_skipped_items": 18,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07526278495788574
+  },
+  {
+    "single_page_duration": 0.08278512954711914,
+    "nbr_skipped_items": 20,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.08721804618835449
+  },
+  {
+    "single_page_duration": 0.07871198654174805,
+    "nbr_skipped_items": 22,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 92,
+    "count_duration": 0.07412552833557129
+  },
+  {
+    "single_page_duration": 0.07778668403625488,
+    "nbr_skipped_items": 24,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07313013076782227
+  },
+  {
+    "single_page_duration": 0.0727074146270752,
+    "nbr_skipped_items": 26,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.0729832649230957
+  },
+  {
+    "single_page_duration": 0.07935070991516113,
+    "nbr_skipped_items": 28,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 97,
+    "count_duration": 0.07233428955078125
+  },
+  {
+    "single_page_duration": 0.07880997657775879,
+    "nbr_skipped_items": 30,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 95,
+    "count_duration": 0.07312965393066406
+  },
+  {
+    "single_page_duration": 0.08035087585449219,
+    "nbr_skipped_items": 32,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 93,
+    "count_duration": 0.07498717308044434
+  },
+  {
+    "single_page_duration": 0.07849502563476562,
+    "nbr_skipped_items": 34,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 96,
+    "count_duration": 0.07260942459106445
+  },
+  {
+    "single_page_duration": 0.07778453826904297,
+    "nbr_skipped_items": 35,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 83,
+    "count_duration": 0.07379508018493652
+  },
+  {
+    "single_page_duration": 0.07810473442077637,
+    "nbr_skipped_items": 37,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.0727691650390625
+  },
+  {
+    "single_page_duration": 0.07891654968261719,
+    "nbr_skipped_items": 39,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 91,
+    "count_duration": 0.07289266586303711
+  },
+  {
+    "single_page_duration": 0.07851886749267578,
+    "nbr_skipped_items": 41,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 86,
+    "count_duration": 0.07206320762634277
+  },
+  {
+    "single_page_duration": 0.07831406593322754,
+    "nbr_skipped_items": 43,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 82,
+    "count_duration": 0.0768270492553711
+  },
+  {
+    "single_page_duration": 0.08069252967834473,
+    "nbr_skipped_items": 45,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 71,
+    "count_duration": 0.07305288314819336
+  },
+  {
+    "single_page_duration": 0.07869935035705566,
+    "nbr_skipped_items": 47,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 67,
+    "count_duration": 0.0727992057800293
+  },
+  {
+    "single_page_duration": 0.07870316505432129,
+    "nbr_skipped_items": 49,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 77,
+    "count_duration": 0.07268142700195312
+  },
+  {
+    "single_page_duration": 0.07818055152893066,
+    "nbr_skipped_items": 51,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 99,
+    "count_duration": 0.07252907752990723
+  },
+  {
+    "single_page_duration": 0.07444381713867188,
+    "nbr_skipped_items": 52,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 100,
+    "count_duration": 0.07265782356262207
+  },
+  {
+    "single_page_duration": 0.07800602912902832,
+    "nbr_skipped_items": 54,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 67,
+    "count_duration": 0.07246899604797363
+  },
+  {
+    "single_page_duration": 0.07831263542175293,
+    "nbr_skipped_items": 56,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 83,
+    "count_duration": 0.07294774055480957
+  },
+  {
+    "single_page_duration": 0.08593153953552246,
+    "nbr_skipped_items": 58,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 74,
+    "count_duration": 0.07244396209716797
+  },
+  {
+    "single_page_duration": 0.07779693603515625,
+    "nbr_skipped_items": 60,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 61,
+    "count_duration": 0.07229733467102051
+  },
+  {
+    "single_page_duration": 0.07776188850402832,
+    "nbr_skipped_items": 62,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 64,
+    "count_duration": 0.0723114013671875
+  },
+  {
+    "single_page_duration": 0.07938957214355469,
+    "nbr_skipped_items": 64,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 93,
+    "count_duration": 0.0726463794708252
+  },
+  {
+    "single_page_duration": 0.0777273178100586,
+    "nbr_skipped_items": 66,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 61,
+    "count_duration": 0.07214665412902832
+  },
+  {
+    "single_page_duration": 0.07777023315429688,
+    "nbr_skipped_items": 68,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 60,
+    "count_duration": 0.07385420799255371
+  },
+  {
+    "single_page_duration": 0.08691644668579102,
+    "nbr_skipped_items": 69,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 50,
+    "count_duration": 0.07260727882385254
+  },
+  {
+    "single_page_duration": 0.07990288734436035,
+    "nbr_skipped_items": 71,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 45,
+    "count_duration": 0.07288885116577148
+  },
+  {
+    "single_page_duration": 0.07792496681213379,
+    "nbr_skipped_items": 73,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 49,
+    "count_duration": 0.07352995872497559
+  },
+  {
+    "single_page_duration": 0.07790350914001465,
+    "nbr_skipped_items": 75,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 69,
+    "count_duration": 0.07336902618408203
+  },
+  {
+    "single_page_duration": 0.07750868797302246,
+    "nbr_skipped_items": 77,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 36,
+    "count_duration": 0.07282638549804688
+  },
+  {
+    "single_page_duration": 0.07793021202087402,
+    "nbr_skipped_items": 79,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 46,
+    "count_duration": 0.07322192192077637
+  },
+  {
+    "single_page_duration": 0.07729911804199219,
+    "nbr_skipped_items": 81,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 53,
+    "count_duration": 0.0736854076385498
+  },
+  {
+    "single_page_duration": 0.07689476013183594,
+    "nbr_skipped_items": 83,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 52,
+    "count_duration": 0.07341742515563965
+  },
+  {
+    "single_page_duration": 0.0774831771850586,
+    "nbr_skipped_items": 85,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 33,
+    "count_duration": 0.07244610786437988
+  },
+  {
+    "single_page_duration": 0.07965636253356934,
+    "nbr_skipped_items": 86,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 29,
+    "count_duration": 0.07212638854980469
+  },
+  {
+    "single_page_duration": 0.07699370384216309,
+    "nbr_skipped_items": 88,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 26,
+    "count_duration": 0.0733635425567627
+  },
+  {
+    "single_page_duration": 0.07716774940490723,
+    "nbr_skipped_items": 90,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 48,
+    "count_duration": 0.07369470596313477
+  },
+  {
+    "single_page_duration": 0.07811951637268066,
+    "nbr_skipped_items": 92,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 32,
+    "count_duration": 0.07256317138671875
+  },
+  {
+    "single_page_duration": 0.08163285255432129,
+    "nbr_skipped_items": 94,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 40,
+    "count_duration": 0.07466936111450195
+  },
+  {
+    "single_page_duration": 0.07967925071716309,
+    "nbr_skipped_items": 96,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 28,
+    "count_duration": 0.07299065589904785
+  },
+  {
+    "single_page_duration": 0.07788443565368652,
+    "nbr_skipped_items": 98,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 6,
+    "count_duration": 0.07313275337219238
+  },
+  {
+    "single_page_duration": 0.0764780044555664,
+    "nbr_skipped_items": 100,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 41,
+    "count_duration": 0.07242703437805176
+  },
+  {
+    "single_page_duration": 0.07768559455871582,
+    "nbr_skipped_items": 102,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 10,
+    "count_duration": 0.07321286201477051
+  },
+  {
+    "single_page_duration": 0.07861852645874023,
+    "nbr_skipped_items": 103,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 42,
+    "count_duration": 0.07578229904174805
+  },
+  {
+    "single_page_duration": 0.07680583000183105,
+    "nbr_skipped_items": 105,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 31,
+    "count_duration": 0.0733790397644043
+  },
+  {
+    "single_page_duration": 0.07840180397033691,
+    "nbr_skipped_items": 107,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 3,
+    "count_duration": 0.07222676277160645
+  },
+  {
+    "single_page_duration": 0.07724809646606445,
+    "nbr_skipped_items": 109,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 19,
+    "count_duration": 0.07291960716247559
+  },
+  {
+    "single_page_duration": 0.07682037353515625,
+    "nbr_skipped_items": 111,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 15,
+    "count_duration": 0.0764620304107666
+  },
+  {
+    "single_page_duration": 0.07761406898498535,
+    "nbr_skipped_items": 113,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 22,
+    "count_duration": 0.07324433326721191
+  },
+  {
+    "single_page_duration": 0.07741975784301758,
+    "nbr_skipped_items": 115,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 13,
+    "count_duration": 0.07741785049438477
+  },
+  {
+    "single_page_duration": 0.07791471481323242,
+    "nbr_skipped_items": 117,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 14,
+    "count_duration": 0.0721900463104248
+  },
+  {
+    "single_page_duration": 0.07908272743225098,
+    "nbr_skipped_items": 119,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.0732719898223877
+  },
+  {
+    "single_page_duration": 0.08523321151733398,
+    "nbr_skipped_items": 120,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 28,
+    "count_duration": 0.09096097946166992
+  },
+  {
+    "single_page_duration": 0.07777690887451172,
+    "nbr_skipped_items": 122,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07209396362304688
+  },
+  {
+    "single_page_duration": 0.0798177719116211,
+    "nbr_skipped_items": 124,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 13,
+    "count_duration": 0.07237696647644043
+  },
+  {
+    "single_page_duration": 0.08776283264160156,
+    "nbr_skipped_items": 126,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07288765907287598
+  },
+  {
+    "single_page_duration": 0.0771951675415039,
+    "nbr_skipped_items": 128,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 1,
+    "count_duration": 0.07256221771240234
+  },
+  {
+    "single_page_duration": 0.0762934684753418,
+    "nbr_skipped_items": 130,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07533097267150879
+  },
+  {
+    "single_page_duration": 0.0790245532989502,
+    "nbr_skipped_items": 132,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07459044456481934
+  },
+  {
+    "single_page_duration": 0.08005046844482422,
+    "nbr_skipped_items": 134,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07262158393859863
+  },
+  {
+    "single_page_duration": 0.07706212997436523,
+    "nbr_skipped_items": 136,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07257437705993652
+  },
+  {
+    "single_page_duration": 0.07702326774597168,
+    "nbr_skipped_items": 137,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07223320007324219
+  },
+  {
+    "single_page_duration": 0.07692885398864746,
+    "nbr_skipped_items": 139,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07252383232116699
+  },
+  {
+    "single_page_duration": 0.07738447189331055,
+    "nbr_skipped_items": 141,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07282686233520508
+  },
+  {
+    "single_page_duration": 0.0781409740447998,
+    "nbr_skipped_items": 143,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07410502433776855
+  },
+  {
+    "single_page_duration": 0.07673478126525879,
+    "nbr_skipped_items": 145,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07221436500549316
+  },
+  {
+    "single_page_duration": 0.07736039161682129,
+    "nbr_skipped_items": 147,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07170367240905762
+  },
+  {
+    "single_page_duration": 0.07746601104736328,
+    "nbr_skipped_items": 149,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07287812232971191
+  },
+  {
+    "single_page_duration": 0.07697439193725586,
+    "nbr_skipped_items": 151,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07554960250854492
+  },
+  {
+    "single_page_duration": 0.07758975028991699,
+    "nbr_skipped_items": 153,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07289576530456543
+  },
+  {
+    "single_page_duration": 0.07672858238220215,
+    "nbr_skipped_items": 154,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07241487503051758
+  },
+  {
+    "single_page_duration": 0.0776057243347168,
+    "nbr_skipped_items": 156,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07235169410705566
+  },
+  {
+    "single_page_duration": 0.07680201530456543,
+    "nbr_skipped_items": 158,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07545042037963867
+  },
+  {
+    "single_page_duration": 0.07630610466003418,
+    "nbr_skipped_items": 160,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07256078720092773
+  },
+  {
+    "single_page_duration": 0.07680821418762207,
+    "nbr_skipped_items": 162,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07283663749694824
+  },
+  {
+    "single_page_duration": 0.07811284065246582,
+    "nbr_skipped_items": 164,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07326054573059082
+  },
+  {
+    "single_page_duration": 0.07811856269836426,
+    "nbr_skipped_items": 166,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07378292083740234
+  },
+  {
+    "single_page_duration": 0.07741117477416992,
+    "nbr_skipped_items": 168,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07410860061645508
+  },
+  {
+    "single_page_duration": 0.07718515396118164,
+    "nbr_skipped_items": 170,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07271766662597656
+  },
+  {
+    "single_page_duration": 0.07928109169006348,
+    "nbr_skipped_items": 171,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07431793212890625
+  },
+  {
+    "single_page_duration": 0.07698225975036621,
+    "nbr_skipped_items": 173,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07227301597595215
+  },
+  {
+    "single_page_duration": 0.07737016677856445,
+    "nbr_skipped_items": 175,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07279324531555176
+  },
+  {
+    "single_page_duration": 0.07838034629821777,
+    "nbr_skipped_items": 177,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07328581809997559
+  },
+  {
+    "single_page_duration": 0.08148312568664551,
+    "nbr_skipped_items": 179,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.08026695251464844
+  },
+  {
+    "single_page_duration": 0.0790708065032959,
+    "nbr_skipped_items": 181,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07239770889282227
+  },
+  {
+    "single_page_duration": 0.07684087753295898,
+    "nbr_skipped_items": 183,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.0725250244140625
+  },
+  {
+    "single_page_duration": 0.07739734649658203,
+    "nbr_skipped_items": 185,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07244300842285156
+  },
+  {
+    "single_page_duration": 0.07689166069030762,
+    "nbr_skipped_items": 187,
+    "nbr_items_to_display": 100,
+    "total_inserted": 100091,
+    "nbr_results_on_page": 0,
+    "count_duration": 0.07555937767028809
+  }
+]

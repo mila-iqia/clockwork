@@ -31,9 +31,9 @@ def one_plot_index_vs_no_index(
     # this value is the same everywhere, or else you have violated your assumptions
     nbr_items_to_display = D_source_index["LD_data"][0]["nbr_items_to_display"]
     for e in D_source_index["LD_data"]:
-        assert ["nbr_items_to_display"] == nbr_items_to_display
+        assert e["nbr_items_to_display"] == nbr_items_to_display
     for e in D_source_no_index["LD_data"]:
-        assert ["nbr_items_to_display"] == nbr_items_to_display
+        assert e["nbr_items_to_display"] == nbr_items_to_display
 
     # get the data that you want to use for plotting
     L_x_index = [D_data["nbr_skipped_items"]       for D_data in D_source_index["LD_data"]]
@@ -46,15 +46,15 @@ def one_plot_index_vs_no_index(
     plt.plot(L_x_no_index, L_y_no_index, label="without index")
 
     # TODO have these labels as text instead
-    plt.axhline(y=index_count_mean_duration, label="count with index", style="--")
-    plt.axhline(y=no_index_count_mean_duration, label="count without index", style="--")
+    plt.axhline(y=index_count_mean_duration, label="count with index", linestyle="--", color='black', linewidth=1.5)
+    plt.axhline(y=no_index_count_mean_duration, label="count without index", linestyle="--", color='black', linewidth=1.5)
 
     pylab.savefig(output_path_png, dpi=250)
     pylab.close()
     print(f"Wrote {output_path_png}.")
 
     with open(output_path_json, "w") as f:
-        json.write(dict(
+        json.dump(dict(
             L_x_index=L_x_index, L_y_index=L_y_index,
             L_x_no_index=L_x_no_index, L_y_no_index=L_y_no_index,
             nbr_items_to_display=nbr_items_to_display,
@@ -75,13 +75,13 @@ def run():
                         dict(path="benchmark_queries_and_counts_2_4_1e5.json",
                             nbr_users=2, nbr_clusters=4, N=1e5, Nstr="1e5", LD_data=[])]
     else:
-        LD_sources = [  dict(   path="benchmark_queries_and_counts_200_4_1e5.json", want_index=False,
+        LD_sources = [  dict(   path="benchmarks/queries_and_count_200_4_1e5.json", want_index=False,
                                 nbr_users=200, nbr_clusters=4, N=1e5, label="1e5", LD_data=[]),
-                        dict(   path="benchmark_queries_and_counts_200_4_1e6.json", want_index=False,
+                        dict(   path="benchmarks/queries_and_count_200_4_1e6.json", want_index=False,
                                 nbr_users=200, nbr_clusters=4, N=1e6, label="1e6", LD_data=[]),
-                        dict(   path="benchmark_queries_and_counts_200_4_1e5i.json", want_index=True,
+                        dict(   path="benchmarks/queries_and_count_200_4_1e5i.json", want_index=True,
                                 nbr_users=200, nbr_clusters=4, N=1e5, label="1e5i", LD_data=[]),
-                        dict(   path="benchmark_queries_and_counts_200_4_1e6i.json", want_index=True,
+                        dict(   path="benchmarks/queries_and_count_200_4_1e6i.json", want_index=True,
                                 nbr_users=200, nbr_clusters=4, N=1e6, label="1e6i", LD_data=[])]
 
     # start by loading the data from the json sources
@@ -89,13 +89,14 @@ def run():
         with open(D_source["path"], "r") as f:
             D_source["LD_data"] = json.load(f)
 
-    one_plot_index_vs_no_index(LD_sources[0], LD_sources[2],
-        "benchmark_queries_and_counts_200_4_1e5.png",
-        "benchmark_queries_and_counts_200_4_1e5.json")
+    if False:
+        one_plot_index_vs_no_index(LD_sources[0], LD_sources[2],
+            "benchmark_queries_and_counts_200_4_1e5.png",
+            "benchmark_queries_and_counts_200_4_1e5.json")
 
     one_plot_index_vs_no_index(LD_sources[1], LD_sources[3],
-        "benchmark_queries_and_counts_200_4_1e6.png",
-        "benchmark_queries_and_counts_200_4_1e6.json")
+        "benchmarks/benchmark_queries_and_counts_200_4_1e6.png",
+        "benchmarks/benchmark_queries_and_counts_200_4_1e6.json")
 
 
 

@@ -71,8 +71,8 @@ def run():
     want_repopulate_db = True
     want_create_index = False # True
     want_create_index_str = "i" if want_create_index else ""
-    total_database_size_target = 1e6
-    total_database_size_target_str = "1e6"
+    total_database_size_target = 1e5
+    total_database_size_target_str = "1e5"
 
     app = create_app(extra_config={"TESTING": True, "LOGIN_DISABLED": True})
     with app.app_context():
