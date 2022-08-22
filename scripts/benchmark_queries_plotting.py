@@ -22,6 +22,9 @@ def one_plot_index_vs_no_index(
     output_path_png,
     output_path_json):
 
+    assert D_source_index["want_index"] == True
+    assert D_source_no_index["want_index"] == False
+
     # this value is supposed to be more or less constant throughout,
     # and by eye inspection it is the case so we don't need to bother
     # with tracking and plotting stddev (it would be more of a distraction)
@@ -42,15 +45,30 @@ def one_plot_index_vs_no_index(
     L_x_no_index = [D_data["nbr_skipped_items"]    for D_data in D_source_no_index["LD_data"]]
     L_y_no_index = [D_data["single_page_duration"] for D_data in D_source_no_index["LD_data"]]
 
-    plt.plot(L_x_index, L_y_index, label="with index")
-    plt.plot(L_x_no_index, L_y_no_index, label="without index")
+    x_midpoint = np.array(L_x_index + L_x_no_index).max()/2
+
+    fig = plt.figure()
+    ax = fig.add_subplot()
+
+    ax.plot(L_x_index, L_y_index, label="with index")
+    ax.plot(L_x_no_index, L_y_no_index, label="without index")
 
     # TODO have these labels as text instead
-    plt.axhline(y=index_count_mean_duration, label="count with index", linestyle="--", color='black', linewidth=1.5)
-    plt.axhline(y=no_index_count_mean_duration, label="count without index", linestyle="--", color='black', linewidth=1.5)
+    ax.axhline(y=index_count_mean_duration, label="count with index", linestyle="--", color='black', linewidth=1.5)
+    ax.axhline(y=no_index_count_mean_duration, label="count without index", linestyle="--", color='black', linewidth=1.5)
 
-    pylab.savefig(output_path_png, dpi=250)
-    pylab.close()
+    # offsets can be -0.003 with no-log scale, but with logs you need something more adaptive
+    ax.text(x_midpoint/2, index_count_mean_duration*0.8, f"count with index : {index_count_mean_duration:.4f}", fontsize=8)
+    ax.text(x_midpoint/2, no_index_count_mean_duration*0.8, f"count without index : {no_index_count_mean_duration:.4f}", fontsize=8)
+
+    plt.xlabel("number of items skipped to arrive to given page")
+    plt.ylabel("duration in seconds (less is better)")
+    plt.title("costs of queries with pagination vs 'count' of whole query")
+
+    plt.yscale('log')
+
+    plt.savefig(output_path_png, dpi=250)
+    plt.close()
     print(f"Wrote {output_path_png}.")
 
     with open(output_path_json, "w") as f:
@@ -62,9 +80,6 @@ def one_plot_index_vs_no_index(
             no_index_count_mean_duration=no_index_count_mean_duration), f)
         print(f"Wrote {output_path_json}.")
 
-    plt.xlabel("number of items skipped to arrive to given page")
-    plt.ylabel("duration in seconds (less is better)")
-    plt.title("costs of queries with pagination vs 'count' of whole query")
 
 
 def run():
@@ -89,12 +104,11 @@ def run():
         with open(D_source["path"], "r") as f:
             D_source["LD_data"] = json.load(f)
 
-    if False:
-        one_plot_index_vs_no_index(LD_sources[0], LD_sources[2],
-            "benchmark_queries_and_counts_200_4_1e5.png",
-            "benchmark_queries_and_counts_200_4_1e5.json")
+    one_plot_index_vs_no_index(LD_sources[2], LD_sources[0],
+        "benchmarks/benchmark_queries_and_counts_200_4_1e5.png",
+        "benchmarks/benchmark_queries_and_counts_200_4_1e5.json")
 
-    one_plot_index_vs_no_index(LD_sources[1], LD_sources[3],
+    one_plot_index_vs_no_index(LD_sources[3], LD_sources[1],
         "benchmarks/benchmark_queries_and_counts_200_4_1e6.png",
         "benchmarks/benchmark_queries_and_counts_200_4_1e6.json")
 
