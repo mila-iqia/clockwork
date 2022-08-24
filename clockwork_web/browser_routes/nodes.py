@@ -75,11 +75,13 @@ def route_list():
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
 
-    # Retrieve the nodes, by applying the filters and the pagination
-    LD_nodes = get_nodes(
+    # Retrieve the nodes, by applying the filters and the pagination,
+    # and the number of nodes corresponding to the filter without the pagination
+    (LD_nodes, nbr_total_nodes) = get_nodes(
         filter,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
+        count=True,  # We want the result as a tuple (nodes_list, nodes_count)
     )
 
     # Format the nodes (by withdrawing the "_id" element of each node)
@@ -91,6 +93,7 @@ def route_list():
         LD_nodes=LD_nodes,
         mila_email_username=current_user.mila_email_username,
         page_num=pagination_page_num,
+        nbr_total_nodes=nbr_total_nodes,
     )
 
 

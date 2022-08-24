@@ -65,7 +65,10 @@ def combine_all_mongodb_filters(*mongodb_filters):
 
 
 def get_jobs(
-    mongodb_filter: dict = {}, nbr_skipped_items=None, nbr_items_to_display=None
+    mongodb_filter: dict = {},
+    nbr_skipped_items=None,
+    nbr_items_to_display=None,
+    count=False,
 ):
     """
     Talk to the database and get the information.
@@ -76,6 +79,10 @@ def get_jobs(
                                 MongoDB database
         nbr_skipped_items       Number of elements to skip while listing the jobs
         nbr_items_to_display    Number of jobs to display
+        count                   Whether or not we are interested by the number of
+                                unpagined jobs. If it is True, the result is a tuple
+                                (jobs_list, count). Otherwise, only the jobs list
+                                is returned
 
     Returns:
         Returns a list of dict with the properties of jobs.
@@ -101,6 +108,14 @@ def get_jobs(
         )
     else:
         LD_jobs = list(mc["jobs"].find(mongodb_filter))
+
+    if count:
+        # Get the number of filtered jobs (not paginated)
+        nbr_total_jobs = mc["jobs"].count_documents(mongodb_filter)
+
+        # Return the retrieved jobs and the number of unpagined jobs
+        return (LD_jobs, nbr_total_jobs)
+
     # Return the retrieved jobs
     return LD_jobs
 

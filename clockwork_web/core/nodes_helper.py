@@ -24,7 +24,10 @@ def get_filter_node_name(node_name):
 
 
 def get_nodes(
-    mongodb_filter: dict = {}, nbr_skipped_items=None, nbr_items_to_display=None
+    mongodb_filter: dict = {},
+    nbr_skipped_items=None,
+    nbr_items_to_display=None,
+    count=False,
 ) -> list:
     """
     Talk to the database and get the information.
@@ -35,9 +38,16 @@ def get_nodes(
                                 MongoDB database
         nbr_skipped_items       Number of elements to skip while listing the jobs
         nbr_items_to_display    Number of jobs to display
+        count                   Whether or not we are interested by the number of
+                                unpagined nodes. If it is True, the result is
+                                a tuple (nodes_list, count). Otherwise, only the nodes
+                                list is returned
 
     Returns:
-        Returns a list of dict with the properties of nodes.
+        Returns a list of dictionaries with the properties of the listed nodes if count is False
+        Otherwise, returns a tuple containing, as first element, a list of dictionaries with
+        the properties of the listed nodes, and as second element, the number of
+        nodes corresponding to the mongodb_filter.
     """
     # Assert that the two pagination elements (nbr_skipped_items and
     # nbr_items_to_display) are respectively positive and strictly positive
@@ -50,7 +60,8 @@ def get_nodes(
 
     # Retrieve the database
     mc = get_db()
-    # Get the nodes from it
+
+    # Get the filtered and paginated nodes from it
     if nbr_skipped_items != None and nbr_items_to_display:
         LD_nodes = list(
             mc["nodes"]
@@ -60,6 +71,14 @@ def get_nodes(
         )
     else:
         LD_nodes = list(mc["nodes"].find(mongodb_filter))
+
+    if count:
+        # Get the number of filtered nodes (not paginated)
+        nbr_total_nodes = mc["nodes"].count_documents(mongodb_filter)
+
+        # Return the retrieved nodes and the number of unpagined nodes
+        return (LD_nodes, nbr_total_nodes)
+
     # Return the retrieved nodes
     return LD_nodes
 
