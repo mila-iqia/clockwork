@@ -9,7 +9,22 @@ so that gcloud can run it with the equivalent of
 That leads here, to this file, which is just a barebone launcher.
 """
 
-import os
+
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+sentry_sdk.init(
+    dsn="https://b6e60faf045544efb6755842d3b18fbb@o1375930.ingest.sentry.io/6685284",
+    integrations=[
+        FlaskIntegration(),
+    ],
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0
+)
+
 from .config import get_config, register_config, boolean
 from .server_app import create_app
 
