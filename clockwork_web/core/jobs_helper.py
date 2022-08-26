@@ -54,6 +54,12 @@ def combine_all_mongodb_filters(*mongodb_filters):
     """
     Creates a big AND clause if more than one argument is given.
     Drops out all the filters that are empty dict.
+
+    Parameters:
+        mongodb_filters     One or more filter(s) we want to combine
+
+    Return:
+        A concatenation of the filters given as input
     """
     non_empty_mongodb_filters = [mf for mf in mongodb_filters if mf]
     if len(non_empty_mongodb_filters) == 0:
@@ -106,6 +112,7 @@ def get_jobs(
             .skip(nbr_skipped_items)
             .limit(nbr_items_to_display)
         )
+
     else:
         LD_jobs = list(mc["jobs"].find(mongodb_filter))
 
