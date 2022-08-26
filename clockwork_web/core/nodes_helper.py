@@ -36,8 +36,8 @@ def get_nodes(
         mongodb_filter          A concatenation of the filters to apply in order
                                 to select the nodes we want to retrieve from the
                                 MongoDB database
-        nbr_skipped_items       Number of elements to skip while listing the jobs
-        nbr_items_to_display    Number of jobs to display
+        nbr_skipped_items       Number of elements to skip while listing the nodess
+        nbr_items_to_display    Number of nodes to display
         count                   Whether or not we are interested by the number of
                                 unpagined nodes. If it is True, the result is
                                 a tuple (nodes_list, count). Otherwise, only the nodes
