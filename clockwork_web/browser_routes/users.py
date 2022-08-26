@@ -1,10 +1,11 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request
 from flask_login import current_user, login_required
 
 flask_api = Blueprint("users", __name__)
 
 from clockwork_web.core.users_helper import get_users_one
 from clockwork_web.core.clusters_helper import get_account_fields
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 
 @flask_api.route("/one")
@@ -24,7 +25,9 @@ def route_one():
     username = request.args.get("username", None)
     if username is None:
         return (
-            render_template("error.html", error_msg=f"Missing argument username."),
+            render_template_with_user_settings(
+                "error.html", error_msg=f"Missing argument username."
+            ),
             400,  # Bad Request
         )
 
@@ -41,7 +44,7 @@ def route_one():
     D_account_fields = get_account_fields()
 
     if D_user is not None:
-        return render_template(
+        return render_template_with_user_settings(
             "single_user.html",
             username=username,
             user=D_user,
@@ -50,7 +53,7 @@ def route_one():
         )
     else:
         return (
-            render_template(
+            render_template_with_user_settings(
                 "error.html", error_msg=f"The requested user has not been found."
             ),
             404,  # Not Found
