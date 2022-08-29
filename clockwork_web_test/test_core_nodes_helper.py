@@ -20,7 +20,7 @@ def test_get_nodes_without_filters_or_pagination(app, fake_data):
     # Use the app context
     with app.app_context():
         # Retrieve the nodes we want to list
-        LD_retrieved_nodes = get_nodes()
+        (LD_retrieved_nodes, nodes_count) = get_nodes()
 
         # Withdraw the "_id" element of the retrieved nodes
         LD_retrieved_nodes = [
@@ -29,6 +29,7 @@ def test_get_nodes_without_filters_or_pagination(app, fake_data):
 
         # Assert that they correspond to the nodes we expect
         assert LD_retrieved_nodes == fake_data["nodes"]
+        assert nodes_count == None
 
 
 @pytest.mark.parametrize(
@@ -52,7 +53,7 @@ def test_get_nodes_with_pagination(app, fake_data, page_num, nbr_items_per_page)
         )
 
         # Retrieve the nodes we want to list
-        LD_retrieved_nodes = get_nodes(
+        (LD_retrieved_nodes, nodes_count) = get_nodes(
             nbr_skipped_items=nbr_skipped_items,
             nbr_items_to_display=nbr_items_to_display,
         )
@@ -69,6 +70,7 @@ def test_get_nodes_with_pagination(app, fake_data, page_num, nbr_items_per_page)
                 nbr_skipped_items : nbr_skipped_items + nbr_items_to_display
             ]
         )
+        assert nodes_count == None
 
 
 def test_get_and_count_nodes_without_filters_or_pagination(app, fake_data):

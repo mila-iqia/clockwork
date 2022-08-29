@@ -91,7 +91,9 @@ def get_jobs(
                                 is returned
 
     Returns:
-        Returns a list of dict with the properties of jobs.
+        Returns a tuple. The first element is a list of dictionaries with the properties of jobs.
+        The second element is the number of unpagined jobs corresponding to the mongodb_filter if
+        count is True; the second element is None otherwise.
     """
     # Assert that the two pagination elements (nbr_skipped_items and
     # nbr_items_to_display) are respectively positive and strictly positive
@@ -116,15 +118,16 @@ def get_jobs(
     else:
         LD_jobs = list(mc["jobs"].find(mongodb_filter))
 
+    # Set nbr_total_jobs
     if count:
         # Get the number of filtered jobs (not paginated)
         nbr_total_jobs = mc["jobs"].count_documents(mongodb_filter)
+    else:
+        # If count is False, nbr_total_jobs is None
+        nbr_total_jobs = None
 
-        # Return the retrieved jobs and the number of unpagined jobs
-        return (LD_jobs, nbr_total_jobs)
-
-    # Return the retrieved jobs
-    return LD_jobs
+    # Return the retrieved jobs and the number of unpagined jobs (if requested)
+    return (LD_jobs, nbr_total_jobs)
 
 
 def update_job_user_dict(mongodb_filter: dict, new_user_dict: dict):
