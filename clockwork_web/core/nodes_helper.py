@@ -44,10 +44,9 @@ def get_nodes(
                                 list is returned
 
     Returns:
-        Returns a list of dictionaries with the properties of the listed nodes if count is False
-        Otherwise, returns a tuple containing, as first element, a list of dictionaries with
-        the properties of the listed nodes, and as second element, the number of
-        nodes corresponding to the mongodb_filter.
+        Returns a tuple. The first element is a list of dictionaries with the properties of the listed nodes.
+        The second element is the number of nodes corresponding to the mongodb_filter if count
+        is True, None otherwise.
     """
     # Assert that the two pagination elements (nbr_skipped_items and
     # nbr_items_to_display) are respectively positive and strictly positive
@@ -75,12 +74,12 @@ def get_nodes(
     if count:
         # Get the number of filtered nodes (not paginated)
         nbr_total_nodes = mc["nodes"].count_documents(mongodb_filter)
+    else:
+        # If count is False, nbr_total_nodes is None
+        nbr_total_nodes = None
 
-        # Return the retrieved nodes and the number of unpagined nodes
-        return (LD_nodes, nbr_total_nodes)
-
-    # Return the retrieved nodes
-    return LD_nodes
+    # Return the retrieved nodes and the number of unpagined nodes
+    return (LD_nodes, nbr_total_nodes)
 
 
 def strip_artificial_fields_from_node(D_node):

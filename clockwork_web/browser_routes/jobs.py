@@ -213,7 +213,7 @@ def route_search():
     # Retrieve the jobs and display them
     ###
     # Retrieve the jobs, by applying the filters and the pagination
-    LD_jobs = get_jobs(
+    (LD_jobs, _) = get_jobs(
         filter,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
@@ -263,7 +263,7 @@ def route_one():
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
 
-    LD_jobs = get_jobs(filter)
+    (LD_jobs, _) = get_jobs(filter)
 
     if len(LD_jobs) == 0:
         return render_template_with_user_settings(

@@ -110,7 +110,7 @@ def route_one():
     f0 = get_filter_node_name(request.args.get("node_name", None))
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
-    LD_nodes = get_nodes(filter)
+    (LD_nodes, _) = get_nodes(filter)
 
     if len(LD_nodes) == 0:
         return (
