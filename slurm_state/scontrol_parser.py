@@ -142,6 +142,7 @@ JOB_FIELD_MAP = {
     "SuspendTime": ignore,
     "SecsPreSuspend": ignore,
     "LastSchedEval": ignore,
+    "Scheduler": ignore,
     "Partition": rename(id, "partition"),
     "AllocNode:Sid": ignore,
     # All the fields pertaining to hardware allocated,
