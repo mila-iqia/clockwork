@@ -27,7 +27,7 @@ def get_nodes(
     mongodb_filter: dict = {},
     nbr_skipped_items=None,
     nbr_items_to_display=None,
-    count=False,
+    want_count=False,
 ) -> list:
     """
     Talk to the database and get the information.
@@ -38,14 +38,14 @@ def get_nodes(
                                 MongoDB database
         nbr_skipped_items       Number of elements to skip while listing the nodess
         nbr_items_to_display    Number of nodes to display
-        count                   Whether or not we are interested by the number of
+        want_count                   Whether or not we are interested by the number of
                                 unpagined nodes. If it is True, the result is
-                                a tuple (nodes_list, count). Otherwise, only the nodes
+                                a tuple (nodes_list, nodes_count). Otherwise, only the nodes
                                 list is returned
 
     Returns:
         Returns a tuple. The first element is a list of dictionaries with the properties of the listed nodes.
-        The second element is the number of nodes corresponding to the mongodb_filter if count
+        The second element is the number of nodes corresponding to the mongodb_filter if want_count
         is True, None otherwise.
     """
     # Assert that the two pagination elements (nbr_skipped_items and
@@ -71,11 +71,11 @@ def get_nodes(
     else:
         LD_nodes = list(mc["nodes"].find(mongodb_filter))
 
-    if count:
+    if want_count:
         # Get the number of filtered nodes (not paginated)
         nbr_total_nodes = mc["nodes"].count_documents(mongodb_filter)
     else:
-        # If count is False, nbr_total_nodes is None
+        # If want_count is False, nbr_total_nodes is None
         nbr_total_nodes = None
 
     # Return the retrieved nodes and the number of unpagined nodes

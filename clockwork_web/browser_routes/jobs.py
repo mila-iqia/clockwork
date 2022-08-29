@@ -121,7 +121,7 @@ def route_list():
         filter,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
-        count=True,  # We want the result as a tuple (jobs_list, jobs_count)
+        want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
     )
 
     # TODO : You might want to stop doing the `infer_best_guess_for_username`

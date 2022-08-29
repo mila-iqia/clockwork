@@ -81,7 +81,7 @@ def route_list():
         filter,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
-        count=True,  # We want the result as a tuple (nodes_list, nodes_count)
+        want_count=True,  # We want the result as a tuple (nodes_list, nodes_count)
     )
 
     # Format the nodes (by withdrawing the "_id" element of each node)

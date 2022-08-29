@@ -75,7 +75,7 @@ def test_get_jobs_with_pagination(app, fake_data, page_num, nbr_items_per_page):
 
 def test_get_and_count_jobs_without_filters_or_pagination(app, fake_data):
     """
-    Test the function get_jobs when count is True and all the jobs are requested.
+    Test the function get_jobs when want_count is True and all the jobs are requested.
 
     Parameters:
         app         The scope of our tests, used to set the context (to access MongoDB)
@@ -84,7 +84,7 @@ def test_get_and_count_jobs_without_filters_or_pagination(app, fake_data):
     # Use the app context
     with app.app_context():
         # Retrieve the jobs we want to list
-        (LD_retrieved_jobs, nbr_total_jobs) = get_jobs(count=True)
+        (LD_retrieved_jobs, nbr_total_jobs) = get_jobs(want_count=True)
 
         # Withdraw the "_id" element of the retrieved jobs
         LD_retrieved_jobs = [
@@ -106,7 +106,7 @@ def test_get_and_count_jobs_with_pagination(
     app, fake_data, page_num, nbr_items_per_page
 ):
     """
-    Test the function get_jobs when count is True, and when providing only pagination parameters.
+    Test the function get_jobs when want_count is True, and when providing only pagination parameters.
 
     Parameters:
         app                 The scope of our tests, used to set the context (to access MongoDB)
@@ -125,7 +125,7 @@ def test_get_and_count_jobs_with_pagination(
         (LD_retrieved_jobs, nbr_total_jobs) = get_jobs(
             nbr_skipped_items=nbr_skipped_items,
             nbr_items_to_display=nbr_items_to_display,
-            count=True,
+            want_count=True,
         )
 
         # Withdraw the "_id" element of the retrieved jobs
@@ -152,7 +152,7 @@ def test_get_and_count_jobs_by_mail_with_pagination(
     app, fake_data, page_num, nbr_items_per_page
 ):
     """
-    Test the function get_jobs when looking for the jobs of a specific user and when count is True.
+    Test the function get_jobs when looking for the jobs of a specific user and when want_count is True.
 
     Parameters:
         app                 The scope of our tests, used to set the context (to access MongoDB)
@@ -176,7 +176,7 @@ def test_get_and_count_jobs_by_mail_with_pagination(
             mongodb_filter=filter,
             nbr_skipped_items=nbr_skipped_items,
             nbr_items_to_display=nbr_items_to_display,
-            count=True,
+            want_count=True,
         )
 
         # Withdraw the "_id" element of the retrieved jobs
@@ -208,7 +208,7 @@ def test_get_and_count_jobs_by_cluster_and_state_with_pagination(
     app, fake_data, page_num, nbr_items_per_page
 ):
     """
-    Test the function get_jobs when looking for the jobs of a specific user and when count is True.
+    Test the function get_jobs when looking for the jobs of a specific user and when want_count is True.
 
     Parameters:
         app                 The scope of our tests, used to set the context (to access MongoDB)
@@ -238,7 +238,7 @@ def test_get_and_count_jobs_by_cluster_and_state_with_pagination(
             mongodb_filter=filter,
             nbr_skipped_items=nbr_skipped_items,
             nbr_items_to_display=nbr_items_to_display,
-            count=True,
+            want_count=True,
         )
 
         # Withdraw the "_id" element of the retrieved jobs
