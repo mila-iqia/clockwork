@@ -104,10 +104,10 @@ def run():
                                 nbr_users=200, nbr_clusters=4, N=1e5, label="1e5s", LD_data=[]),
                         dict(   path="benchmarks/queries_and_count_200_4_1e6s.json", want_index=False, want_sort=True,
                                 nbr_users=200, nbr_clusters=4, N=1e6, label="1e6s", LD_data=[]),
-                        dict(   path="benchmarks/queries_and_count_200_4_1e5si.json", want_index=True, want_sort=True,
-                                nbr_users=200, nbr_clusters=4, N=1e5, label="1e5si", LD_data=[]),
-                        dict(   path="benchmarks/queries_and_count_200_4_1e6si.json", want_index=True, want_sort=True,
-                                nbr_users=200, nbr_clusters=4, N=1e6, label="1e6si", LD_data=[])
+                        dict(   path="benchmarks/queries_and_count_200_4_1e5is.json", want_index=True, want_sort=True,
+                                nbr_users=200, nbr_clusters=4, N=1e5, label="1e5is", LD_data=[]),
+                        dict(   path="benchmarks/queries_and_count_200_4_1e6is.json", want_index=True, want_sort=True,
+                                nbr_users=200, nbr_clusters=4, N=1e6, label="1e6is", LD_data=[])
                                 ]
 
     # start by loading the data from the json sources

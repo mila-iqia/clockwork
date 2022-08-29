@@ -76,8 +76,8 @@ def run():
     want_create_index_str = "i" if want_create_index else ""
     want_sort = True
     want_sort_str = "s" if want_sort else ""
-    total_database_size_target = 1e6
-    total_database_size_target_str = "1e6"
+    total_database_size_target = 1e5
+    total_database_size_target_str = "1e5"
 
     app = create_app(extra_config={"TESTING": True, "LOGIN_DISABLED": True})
     with app.app_context():
@@ -122,7 +122,6 @@ def run():
         # would get cached and it would run faster.
 
         LD_results = []
-
         total_expected_to_be_found = total_inserted / nbr_clusters / nbr_users
 
         for nbr_skipped_items in np.linspace(0, int(total_expected_to_be_found*1.5), 100):
@@ -134,7 +133,7 @@ def run():
             # We just need a fair idea over the domain, with 100 measurements.
 
             mongodb_filter = {"$and": [
-                {"slurm.cluster_name": get_random_cluster_name(nbr_clusters)},
+                {"slurm.cluster_name":  get_random_cluster_name(nbr_clusters)},
                 {"cw.mila_email_username": get_random_mila_email_username(nbr_users)},
                 ]}
 
@@ -154,6 +153,24 @@ def run():
                     .limit(nbr_items_to_display)
                 )
             single_page_duration = time.time() - start_timestamp
+
+            # We should as well validate that the sort(...) wasn't just affecting
+            # each page individually, but indeed sorted the whole collection.
+            # Here we'll start by verifying that the results are sorted within
+            # a given request.
+
+            # We put this here because we don't want this to be part of the
+            # benchmark for timing the operation itself.
+            if want_sort:
+                A = np.array([e["slurm"]["submit_time"] for e in results])
+                # https://stackoverflow.com/questions/47004506/check-if-a-numpy-array-is-sorted
+                assert np.all(A[:-1] <= A[1:]), A
+                #for (a,b) in zip(results, results[1:]):
+                #    assert a["slurm"]["submit_time"] <= b["slurm"]["submit_time"]
+                #    assert latest_submit_time_seen <= a["slurm"]["submit_time"], (
+                #        f'{latest_submit_time_seen} <= {a["slurm"]["submit_time"]} is not True'
+                #    )
+                #    latest_submit_time_seen = a["slurm"]["submit_time"]  # no need for a max()
 
             start_timestamp = time.time()
             # https://www.mongodb.com/docs/manual/reference/method/db.collection.count/
