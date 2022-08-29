@@ -27,6 +27,7 @@ from test_common.fake_data import populate_fake_data
 from clockwork_web.db import init_db, get_db
 from clockwork_web.server_app import create_app
 from tqdm import tqdm
+import pymongo
 
 def get_random_cluster_name(nbr_clusters):
     return "cluster_name_%d" % np.random.randint(low=0, high=nbr_clusters)
@@ -51,6 +52,8 @@ def insert_more_fake_data(db, nbr_users=10, nbr_clusters=4):
         D_job["cw"]["mila_email_username"] = get_random_mila_email_username(nbr_users)
         # let's just change job_id in case this messes up some index internally
         D_job["slurm"]["job_id"] = np.random.randint(low=0, high=1e9)
+        # don't have the same timestamps for the jobs in order to test sorting with that
+        D_job["slurm"]["submit_time"] = D_job["slurm"]["submit_time"] + np.random.rand()*5000
 
     # del fake_data["nodes"]
     # del fake_data["users"]
@@ -69,10 +72,12 @@ def run():
     # nbr_users, nbr_clusters = (2, 4)
     nbr_items_to_display = 100
     want_repopulate_db = True
-    want_create_index = False # True
+    want_create_index = True # False
     want_create_index_str = "i" if want_create_index else ""
-    total_database_size_target = 1e5
-    total_database_size_target_str = "1e5"
+    want_sort = True
+    want_sort_str = "s" if want_sort else ""
+    total_database_size_target = 1e6
+    total_database_size_target_str = "1e6"
 
     app = create_app(extra_config={"TESTING": True, "LOGIN_DISABLED": True})
     with app.app_context():
@@ -134,11 +139,20 @@ def run():
                 ]}
 
             start_timestamp = time.time()
-            results = list(db["jobs"]
-                .find(mongodb_filter)
-                .skip(nbr_skipped_items)
-                .limit(nbr_items_to_display)
-            )
+            if want_sort:
+                results = list(db["jobs"]
+                    .find(mongodb_filter)
+                    # should be create some kind of index for that?
+                    .sort("slurm.submit_time", pymongo.ASCENDING)
+                    .skip(nbr_skipped_items)
+                    .limit(nbr_items_to_display)
+                )
+            else:
+                results = list(db["jobs"]
+                    .find(mongodb_filter)
+                    .skip(nbr_skipped_items)
+                    .limit(nbr_items_to_display)
+                )
             single_page_duration = time.time() - start_timestamp
 
             start_timestamp = time.time()
@@ -158,7 +172,7 @@ def run():
                         count_duration=count_duration)
             )
 
-    with open(f"/clockwork/scripts/benchmarks/queries_and_count_{nbr_users}_{nbr_clusters}_{total_database_size_target_str}{want_create_index_str}.json", "w") as f:
+    with open(f"/clockwork/scripts/benchmarks/queries_and_count_{nbr_users}_{nbr_clusters}_{total_database_size_target_str}{want_create_index_str}{want_sort_str}.json", "w") as f:
         json.dump(LD_results, f, indent=2)
 
 if __name__ == "__main__":

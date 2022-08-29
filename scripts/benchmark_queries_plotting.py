@@ -20,7 +20,8 @@ def one_plot_index_vs_no_index(
     D_source_index,
     D_source_no_index,
     output_path_png,
-    output_path_json):
+    output_path_json,
+    title_suffix=""):
 
     assert D_source_index["want_index"] == True
     assert D_source_no_index["want_index"] == False
@@ -63,7 +64,7 @@ def one_plot_index_vs_no_index(
 
     plt.xlabel("number of items skipped to arrive to given page")
     plt.ylabel("duration in seconds (less is better)")
-    plt.title("costs of queries with pagination vs 'count' of whole query")
+    plt.title(f"costs of queries with pagination vs 'count' of whole query{title_suffix}")
 
     plt.yscale('log')
 
@@ -90,14 +91,24 @@ def run():
                         dict(path="benchmark_queries_and_counts_2_4_1e5.json",
                             nbr_users=2, nbr_clusters=4, N=1e5, Nstr="1e5", LD_data=[])]
     else:
-        LD_sources = [  dict(   path="benchmarks/queries_and_count_200_4_1e5.json", want_index=False,
+        LD_sources = [  dict(   path="benchmarks/queries_and_count_200_4_1e5.json", want_index=False, want_sort=False,
                                 nbr_users=200, nbr_clusters=4, N=1e5, label="1e5", LD_data=[]),
-                        dict(   path="benchmarks/queries_and_count_200_4_1e6.json", want_index=False,
+                        dict(   path="benchmarks/queries_and_count_200_4_1e6.json", want_index=False, want_sort=False,
                                 nbr_users=200, nbr_clusters=4, N=1e6, label="1e6", LD_data=[]),
-                        dict(   path="benchmarks/queries_and_count_200_4_1e5i.json", want_index=True,
+                        dict(   path="benchmarks/queries_and_count_200_4_1e5i.json", want_index=True, want_sort=False,
                                 nbr_users=200, nbr_clusters=4, N=1e5, label="1e5i", LD_data=[]),
-                        dict(   path="benchmarks/queries_and_count_200_4_1e6i.json", want_index=True,
-                                nbr_users=200, nbr_clusters=4, N=1e6, label="1e6i", LD_data=[])]
+                        dict(   path="benchmarks/queries_and_count_200_4_1e6i.json", want_index=True, want_sort=False,
+                                nbr_users=200, nbr_clusters=4, N=1e6, label="1e6i", LD_data=[]),
+                        #
+                        dict(   path="benchmarks/queries_and_count_200_4_1e5s.json", want_index=False, want_sort=True,
+                                nbr_users=200, nbr_clusters=4, N=1e5, label="1e5s", LD_data=[]),
+                        dict(   path="benchmarks/queries_and_count_200_4_1e6s.json", want_index=False, want_sort=True,
+                                nbr_users=200, nbr_clusters=4, N=1e6, label="1e6s", LD_data=[]),
+                        dict(   path="benchmarks/queries_and_count_200_4_1e5si.json", want_index=True, want_sort=True,
+                                nbr_users=200, nbr_clusters=4, N=1e5, label="1e5si", LD_data=[]),
+                        dict(   path="benchmarks/queries_and_count_200_4_1e6si.json", want_index=True, want_sort=True,
+                                nbr_users=200, nbr_clusters=4, N=1e6, label="1e6si", LD_data=[])
+                                ]
 
     # start by loading the data from the json sources
     for D_source in LD_sources:
@@ -112,6 +123,20 @@ def run():
         "benchmarks/benchmark_queries_and_counts_200_4_1e6.png",
         "benchmarks/benchmark_queries_and_counts_200_4_1e6.json")
 
+    one_plot_index_vs_no_index(LD_sources[2+4], LD_sources[0+4],
+        "benchmarks/benchmark_queries_and_counts_200_4_1e5s.png",
+        "benchmarks/benchmark_queries_and_counts_200_4_1e5s.json",
+        title_suffix=", with sort by slurm.submit_time")
+
+    one_plot_index_vs_no_index(LD_sources[3+4], LD_sources[1+4],
+        "benchmarks/benchmark_queries_and_counts_200_4_1e6s.png",
+        "benchmarks/benchmark_queries_and_counts_200_4_1e6s.json",
+        title_suffix=", with sort by slurm.submit_time")
+
+    # This won't the best plots that you could want to compare
+    # with sorting and without sorting, but they'll do fine.
+    # We initially set out to compare index vs no_index, and not
+    # the effects of a sort.
 
 
 if __name__ == "__main__":
