@@ -194,6 +194,7 @@ JOB_FIELD_MAP = {
     "Comment": rename(maybe_null_string_to_none_object, "comment"),
     "CPU_max_freq": ignore,
     "Switches": ignore,
+    "NtaskPerTRES": ignore,
 }
 
 
