@@ -3,7 +3,10 @@ from flask_login import current_user, login_required
 
 flask_api = Blueprint("users", __name__)
 
-from clockwork_web.core.users_helper import get_users_one, render_template_with_user_settings
+from clockwork_web.core.users_helper import (
+    get_users_one,
+    render_template_with_user_settings,
+)
 from clockwork_web.core.clusters_helper import get_account_fields
 
 
