@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request
 from flask_login import current_user, login_required
 
 flask_api = Blueprint("users", __name__)
@@ -62,7 +62,7 @@ def route_one():
         )
     else:
         return (
-            render_template(
+            render_template_with_user_settings(
                 "error.html",
                 error_msg=f"The requested user has not been found.",
                 previous_request_args=previous_request_args,
