@@ -300,10 +300,13 @@ def client_side_user_updates(LD_users_DB, LD_users_LDAP):
             entry = DD_users_LDAP[meu]
             entry["cc_account_username"] = None
             entry["clockwork_api_key"] = None
-            entry["web_settings"] = {
-                "nbr_items_per_page": 40,  # TODO: centralize
-                "dark_mode": False,
-            }
+            entry["cc_account_update_key"] = None
+            # Any web_settings not present will pull values
+            # from `get_default_web_settings_values()` later down
+            # the road. It would actually be better to leave them out
+            # at this point and not fill them with anything hardcoded.
+            # Just make sure you make this a dict, though.
+            entry["web_settings"] = {}
             assert "status" in entry  # sanity check
         else:
             # User is in DB and in LDAP. Update it carefully and don't
