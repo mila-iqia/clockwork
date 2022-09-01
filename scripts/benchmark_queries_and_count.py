@@ -74,10 +74,12 @@ def run():
     want_repopulate_db = True
     want_create_index = True # False
     want_create_index_str = "i" if want_create_index else ""
+    want_create_index_submit_time = True # False
+    want_create_index_submit_time_str = "t" if want_create_index_submit_time else ""    
     want_sort = True
     want_sort_str = "s" if want_sort else ""
-    total_database_size_target = 1e5
-    total_database_size_target_str = "1e5"
+    total_database_size_target = 1e6
+    total_database_size_target_str = "1e6"
 
     app = create_app(extra_config={"TESTING": True, "LOGIN_DISABLED": True})
     with app.app_context():
@@ -117,6 +119,12 @@ def run():
             )
         index_building_duration = time.time() - start_timestamp
         print(f"building the index took {index_building_duration:.3f}s")
+
+        if want_create_index_submit_time:
+            db["jobs"].create_index(
+                "slurm.submit_time",
+                name="slurm_submit_time",
+            )
 
         # Note that if we were running the same request all the time, maybe some things
         # would get cached and it would run faster.
@@ -189,7 +197,7 @@ def run():
                         count_duration=count_duration)
             )
 
-    with open(f"/clockwork/scripts/benchmarks/queries_and_count_{nbr_users}_{nbr_clusters}_{total_database_size_target_str}{want_create_index_str}{want_sort_str}.json", "w") as f:
+    with open(f"/clockwork/scripts/benchmarks/queries_and_count_{nbr_users}_{nbr_clusters}_{total_database_size_target_str}{want_create_index_str}{want_create_index_submit_time_str}{want_sort_str}.json", "w") as f:
         json.dump(LD_results, f, indent=2)
 
 if __name__ == "__main__":
