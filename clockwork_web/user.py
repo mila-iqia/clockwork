@@ -96,7 +96,10 @@ class User(UserMixin):
         # to just return the first instance of that user (ignoring the rest),
         # because that might hide more problems downstream.
         if len(L) not in [0, 1]:
-            print("Found %d users with email %s. This can't happen." % (len(L), mila_email_username))
+            print(
+                "Found %d users with email %s. This can't happen."
+                % (len(L), mila_email_username)
+            )
             return None
         elif len(L) == 0:
             return None
