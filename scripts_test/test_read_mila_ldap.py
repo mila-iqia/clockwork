@@ -257,9 +257,9 @@ def test_client_side_user_updates_web_settings_new_user():
 
     # Check if the web settings have correctly been set
     for user in LD_users_to_update_or_insert:
-         # as per discussion around CW-170, we're not going to hardcode
-         # some default web settings because they're already represented
-         # in a config file elsewhere (which isn't accessible from here)
+        # as per discussion around CW-170, we're not going to hardcode
+        # some default web settings because they're already represented
+        # in a config file elsewhere (which isn't accessible from here)
         assert user["web_settings"] == {}
 
 
