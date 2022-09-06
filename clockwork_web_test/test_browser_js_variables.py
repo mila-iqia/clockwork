@@ -35,7 +35,6 @@ def test_presence_of_web_settings_javascript_variable(client, route, fake_data):
 
     response = client.get(full_route)
     assert response.status_code == 200
-    #    # Don't test for that, because the request for "/nodes/one" is actually a bad request.
 
     body_text = response.get_data(as_text=True)
 
