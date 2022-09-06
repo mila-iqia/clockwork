@@ -42,9 +42,10 @@ jQuery(document).ready(function($){
                 if ($(this).is(":checked")) states.push( $(this).val() );
             });
 
-            $('form#nbr_per_page').find("select[name='nbr_items_per_page']").each(function(){
-                nbr = $(this).val();
-            });
+            // not a real solution to GEN-160
+            //$('form#nbr_per_page').find("select[name='nbr_items_per_page']").each(function(){
+            //    nbr = $(this).val();
+            //});
 
             clusters = clusters.toString();
             states = states.toString();
@@ -54,8 +55,8 @@ jQuery(document).ready(function($){
             }
             params['clusters_names'] = clusters;
             params['states'] = states;
-            if (nbr) {
-                params['nbr_items_per_page'] = nbr;
+            if (web_settings['nbr_items_per_page']) {
+                params['nbr_items_per_page'] = web_settings['nbr_items_per_page'];
             }
 
             var formData = $.param( params );
