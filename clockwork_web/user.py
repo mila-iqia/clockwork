@@ -260,4 +260,3 @@ class AnonUser(AnonymousUserMixin):
     def settings_dark_mode_disable(self):
         # Returns (status_code, status_message).
         return (200, "")
-
