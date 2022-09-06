@@ -8,6 +8,7 @@ from clockwork_web.core.users_helper import (
     render_template_with_user_settings,
 )
 from clockwork_web.core.clusters_helper import get_account_fields
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 
 @flask_api.route("/one")
