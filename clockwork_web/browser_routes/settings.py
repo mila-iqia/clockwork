@@ -103,7 +103,7 @@ def route_set_nbr_items_per_page():
                 status_message,
             ) = current_user.settings_nbr_items_per_page_set(nbr_items_per_page)
 
-            if status_code == 200:GEN-160
+            if status_code == 200:
                 # If a success has been return, redirect to the settings page
                 return redirect("/settings")
             else:
