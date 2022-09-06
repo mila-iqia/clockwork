@@ -205,14 +205,16 @@ def route_set_language():
             else:
                 # Otherwise, return an error
                 return (
-                    render_template("error.html", error_msg=status_message),
+                    render_template_with_user_settings(
+                        "error.html", error_msg=status_message
+                    ),
                     status_code,
                 )
 
         else:
             # Otherwise, return a Bad Request error and redirect to the error page
             return (
-                render_template(
+                render_template_with_user_settings(
                     "error.html",
                     error_msg=gettext("The requested language is unknown."),
                 ),
@@ -222,7 +224,7 @@ def route_set_language():
         # If the language argument is not provided or presents a unexpected type,
         # return Bad Request
         return (
-            render_template(
+            render_template_with_user_settings(
                 "error.html",
                 error_msg=gettext("Missing argument, or wrong format: language."),
             ),
