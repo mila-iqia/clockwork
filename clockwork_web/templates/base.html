@@ -37,6 +37,17 @@
 			<script type="text/javascript" src="{{ url_for('static', filename='js/moment-with-locales.min.js') }}"></script>
 			<script type="text/javascript" src="{{ url_for('static', filename='js/livestamp.min.js') }}"></script>
 
+            <script type="text/javascript">
+				// We need to prevent autoescape of this in order to have a proper variable
+				// without some clumsy escaping of the single quotes that messes up the representation
+				// and sabotages the attempt at JSON.parse({{web_settings}})
+				// This works but bites the dusk with "False" not being a thing in JS.
+				//     var web_settings2 = {% autoescape false %} {{web_settings}} {% endautoescape %}
+				// This works and seems like a safer route because it might help contain certain accidental errors.
+				var web_settings = {% autoescape false %} JSON.parse('{{web_settings_json_str}}') {% endautoescape %}
+            </script>
+
+
 			<script type="text/javascript" src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
 
 			<meta name="msapplication-TileColor" content="#ffffff">
