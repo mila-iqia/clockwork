@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-08-11 05:03-0400\n"
+"POT-Creation-Date: 2022-09-07 13:56-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -18,105 +18,45 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
 
-#: clockwork_web/user.py:136
+#: clockwork_web/user.py:137
 msgid "could not modify api key"
 msgstr "la clef API n'a pas pu être modifiée"
 
-#: clockwork_web/user.py:149
+#: clockwork_web/user.py:150
 msgid "could not modify update key"
 msgstr "la clef de mise à jour n'a pas pu être modifiée"
 
-#: clockwork_web/user.py:239
-msgid "The dark_mode has been enabled."
-msgstr "Le mode sombre a été activé."
-
-#: clockwork_web/user.py:241 clockwork_web/user.py:256
-msgid "An error occurred."
-msgstr "Une erreur est survenue."
-
-#: clockwork_web/user.py:254
-msgid "The dark_mode has been disabled."
-msgstr "Le mode sombre a été désactivé."
-
-#: clockwork_web/browser_routes/clusters.py:59
-msgid "The cluster associated to 'cluster_name' is not known."
-msgstr "La grappe de calcul associée à 'cluster_name' est inconnue."
-
-#: clockwork_web/browser_routes/clusters.py:70
-msgid "The argument cluster_name is missing."
-msgstr "L'argument cluster_name est manquant."
-
-#: clockwork_web/browser_routes/gpu.py:52
-msgid "Missing argument gpu_name."
-msgstr "L'argument gpu_name est manquant."
-
-#: clockwork_web/browser_routes/jobs.py:108
+#: clockwork_web/browser_routes/jobs.py:109
 msgid "Field 'relative_time' cannot be cast as a valid integer: %(time1)."
 msgstr ""
 "Le champ 'relative_time' n'a pas pu être converti en nombre entier "
 "valide: %(time1)"
 
-#: clockwork_web/browser_routes/jobs.py:255
-msgid "Missing argument job_id."
-msgstr "L'argument job_id est manquant."
-
-#: clockwork_web/browser_routes/jobs.py:268
-msgid "Found no job with job_id %(job_id)."
-msgstr "Aucun job présentant le job_id %(job_id) n'a été trouvé."
-
-#: clockwork_web/browser_routes/jobs.py:275
+#: clockwork_web/browser_routes/jobs.py:273
 msgid "Found %(len_LD_jobs) jobs with job_id %(job_id)."
 msgstr ""
 "%(len_LD_jobs) ont été trouvés lors de la recherche à partir du job_id "
 "%(job_id)"
 
-#: clockwork_web/browser_routes/nodes.py:119
-msgid "Found more than one matching node"
-msgstr "Plusieurs noeuds ont été trouvés alors qu'un seul était attendu."
-
-#: clockwork_web/browser_routes/nodes.py:129
+#: clockwork_web/browser_routes/nodes.py:137
 msgid "(missing node name)"
 msgstr "(nom du noeud manquant)"
 
-#: clockwork_web/browser_routes/settings.py:111
+#: clockwork_web/browser_routes/settings.py:114
 msgid "Invalid choice for number of items to display per page."
 msgstr "Choix invalide pour le nombre d'éléments à afficher par page."
 
-#: clockwork_web/browser_routes/settings.py:122
+#: clockwork_web/browser_routes/settings.py:125
 msgid "Missing argument, or wrong format: nbr_items_per_page."
 msgstr "Argument manquant, ou présentant un format incorrect: nbr_items_per_page"
 
-#: clockwork_web/browser_routes/settings.py:208
+#: clockwork_web/browser_routes/settings.py:219
 msgid "The requested language is unknown."
 msgstr "La langue demandée est inconnue."
 
-#: clockwork_web/browser_routes/settings.py:218
+#: clockwork_web/browser_routes/settings.py:229
 msgid "Missing argument, or wrong format: language."
 msgstr "Argument manquant, ou présentant un format incorrect: language"
-
-#: clockwork_web/templates/base.html:59
-msgid "Logged as :"
-msgstr "Connecté en tant que :"
-
-#: clockwork_web/templates/base.html:61
-msgid "Not logged in."
-msgstr "Non connecté."
-
-#: clockwork_web/templates/base.html:65
-msgid "my settings"
-msgstr "Mes préférences"
-
-#: clockwork_web/templates/base.html:73
-msgid "logout"
-msgstr "Déconnexion"
-
-#: clockwork_web/templates/base.html:84
-msgid "[link about ~this]"
-msgstr "[Lien]"
-
-#: clockwork_web/templates/base.html:87
-msgid "[link for github code]"
-msgstr "[Lien vers le Github]"
 
 #: clockwork_web/templates/cluster.html:37
 msgid "Global information"
@@ -143,9 +83,12 @@ msgid "See additional Mila documentation"
 msgstr "Lien vers la documentation fournie par Mila"
 
 #: clockwork_web/templates/cluster.html:88
-#: clockwork_web/templates/cluster.html:93
 msgid "Display all the jobs running on this cluster"
 msgstr "Afficher tous les jobs roulant sur ce cluster"
+
+#: clockwork_web/templates/cluster.html:93
+msgid "Display all the nodes of this cluster"
+msgstr "Afficher tous les noeuds présents dans ce cluster"
 
 #: clockwork_web/templates/cluster.html:107
 msgid "Annual allocation"
@@ -168,80 +111,36 @@ msgid "RAM"
 msgstr "RAM"
 
 #: clockwork_web/templates/jobs.html:24
-#: clockwork_web/templates/jobs_search.html:24
 msgid "jobs"
 msgstr "jobs"
 
 #: clockwork_web/templates/jobs.html:36
-#: clockwork_web/templates/jobs_search.html:36
 msgid "cluster"
 msgstr "cluster"
 
 #: clockwork_web/templates/jobs.html:37
-#: clockwork_web/templates/jobs_search.html:37
 msgid "user"
 msgstr "utilisateur"
 
 #: clockwork_web/templates/jobs.html:38
-#: clockwork_web/templates/jobs_search.html:38
 msgid "job_id"
 msgstr "job_id"
 
 #: clockwork_web/templates/jobs.html:39
-#: clockwork_web/templates/jobs_search.html:39
 msgid "job name [:20]"
 msgstr "nom du job [:20]"
 
 #: clockwork_web/templates/jobs.html:40
-#: clockwork_web/templates/jobs_search.html:40
 msgid "job_state"
 msgstr "job_state"
 
 #: clockwork_web/templates/jobs.html:41
-#: clockwork_web/templates/jobs_search.html:41
 msgid "start time"
 msgstr "date de début"
 
 #: clockwork_web/templates/jobs.html:42
-#: clockwork_web/templates/jobs_search.html:42
 msgid "end time"
 msgstr "date de fin"
-
-#: clockwork_web/templates/jobs_interactive.html:119
-msgid "jobs on clusters"
-msgstr "jobs sur les clusters"
-
-#: clockwork_web/templates/jobs_interactive.html:123
-msgid "refresh"
-msgstr "rafraîchir"
-
-#: clockwork_web/templates/jobs_interactive.html:131
-msgid "time"
-msgstr "temps"
-
-#: clockwork_web/templates/jobs_interactive.html:137
-msgid "1 hour"
-msgstr "1 heure"
-
-#: clockwork_web/templates/jobs_interactive.html:143
-msgid "1 day"
-msgstr "1 jour"
-
-#: clockwork_web/templates/jobs_interactive.html:149
-msgid "1 week"
-msgstr "1 semaine"
-
-#: clockwork_web/templates/jobs_interactive.html:159
-msgid "users"
-msgstr "utilisateurs"
-
-#: clockwork_web/templates/jobs_interactive.html:164
-msgid "all"
-msgstr "tous"
-
-#: clockwork_web/templates/jobs_interactive.html:170
-msgid "only me"
-msgstr "moi uniquement"
 
 #: clockwork_web/templates/nodes.html:24
 msgid "nodes"
@@ -263,48 +162,30 @@ msgstr "alloc_tres"
 msgid "cfg_tres"
 msgstr "cfg_tres"
 
-#: clockwork_web/templates/settings.html:44
-#, python-format
-msgid "user settings %(mila_email_username)s"
+#: clockwork_web/templates/settings.html:43
+#, fuzzy, python-format
+msgid "User settings %(mila_email_username)s"
 msgstr "paramètres de l'utilisateur %(mila_email_username)s"
 
-#: clockwork_web/templates/settings.html:58
-msgid "CLOCKWORK_WEB_API:"
-msgstr "CLOCKWORK_WEB_API :"
-
-#: clockwork_web/templates/settings.html:60
-msgid "change key"
-msgstr "modifier la clef"
-
-#: clockwork_web/templates/settings.html:64
-msgid "Run this command to register your account:"
-msgstr "Rouler cette commande pour enregistrer votre compte :"
-
-#: clockwork_web/templates/settings.html:66
-msgid "Get update account key"
-msgstr "Obtenir la clef de mise à jour du compte"
-
-#: clockwork_web/templates/settings.html:81
+#: clockwork_web/templates/settings.html:62
 msgid "Number of items displayed per page"
 msgstr "Nombre d'éléments à afficher par page"
 
-#: clockwork_web/templates/settings.html:103
+#: clockwork_web/templates/settings.html:73
 msgid "Dark mode"
 msgstr "Mode sombre"
 
 #: clockwork_web/templates/single_gpu.html:39
-#: clockwork_web/templates/single_job.html:39
 #: clockwork_web/templates/single_node.html:39
 msgid "key"
 msgstr "clef"
 
 #: clockwork_web/templates/single_gpu.html:40
-#: clockwork_web/templates/single_job.html:40
 #: clockwork_web/templates/single_node.html:40
 msgid "value"
 msgstr "valeur"
 
-#: clockwork_web/templates/single_job.html:24
+#: clockwork_web/templates/single_job.html:33
 #, python-format
 msgid "single job %(job_id)s"
 msgstr "job %(job_id)s"
@@ -337,4 +218,88 @@ msgstr "noeud %(node_name)s"
 
 #~ msgid "This will create a key for the REST API automatically."
 #~ msgstr "Cela créera automatiquement une clef pour l'API REST"
+
+#~ msgid "The dark_mode has been enabled."
+#~ msgstr "Le mode sombre a été activé."
+
+#~ msgid "An error occurred."
+#~ msgstr "Une erreur est survenue."
+
+#~ msgid "The dark_mode has been disabled."
+#~ msgstr "Le mode sombre a été désactivé."
+
+#~ msgid "The cluster associated to 'cluster_name' is not known."
+#~ msgstr "La grappe de calcul associée à 'cluster_name' est inconnue."
+
+#~ msgid "The argument cluster_name is missing."
+#~ msgstr "L'argument cluster_name est manquant."
+
+#~ msgid "Missing argument gpu_name."
+#~ msgstr "L'argument gpu_name est manquant."
+
+#~ msgid "Missing argument job_id."
+#~ msgstr "L'argument job_id est manquant."
+
+#~ msgid "Found no job with job_id %(job_id)."
+#~ msgstr "Aucun job présentant le job_id %(job_id) n'a été trouvé."
+
+#~ msgid "Found more than one matching node"
+#~ msgstr "Plusieurs noeuds ont été trouvés alors qu'un seul était attendu."
+
+#~ msgid "Logged as :"
+#~ msgstr "Connecté en tant que :"
+
+#~ msgid "Not logged in."
+#~ msgstr "Non connecté."
+
+#~ msgid "my settings"
+#~ msgstr "Mes préférences"
+
+#~ msgid "logout"
+#~ msgstr "Déconnexion"
+
+#~ msgid "[link about ~this]"
+#~ msgstr "[Lien]"
+
+#~ msgid "[link for github code]"
+#~ msgstr "[Lien vers le Github]"
+
+#~ msgid "jobs on clusters"
+#~ msgstr "jobs sur les clusters"
+
+#~ msgid "refresh"
+#~ msgstr "rafraîchir"
+
+#~ msgid "time"
+#~ msgstr "temps"
+
+#~ msgid "1 hour"
+#~ msgstr "1 heure"
+
+#~ msgid "1 day"
+#~ msgstr "1 jour"
+
+#~ msgid "1 week"
+#~ msgstr "1 semaine"
+
+#~ msgid "users"
+#~ msgstr "utilisateurs"
+
+#~ msgid "all"
+#~ msgstr "tous"
+
+#~ msgid "only me"
+#~ msgstr "moi uniquement"
+
+#~ msgid "CLOCKWORK_WEB_API:"
+#~ msgstr "CLOCKWORK_WEB_API :"
+
+#~ msgid "change key"
+#~ msgstr "modifier la clef"
+
+#~ msgid "Run this command to register your account:"
+#~ msgstr "Rouler cette commande pour enregistrer votre compte :"
+
+#~ msgid "Get update account key"
+#~ msgstr "Obtenir la clef de mise à jour du compte"
 
