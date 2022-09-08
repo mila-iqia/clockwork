@@ -151,15 +151,15 @@ def route_search():
 
     Can take optional arguments:
     - "user_name"
-    - "clusters_names"
-    - "states"
+    - "cluster_name"
+    - "state"
     - "page_num"
     - "nbr_items_per_page".
 
     - "user_name" refers to any of the three alternatives to identify a user,
       and it will match any of them.
-    - "clusters_names" refers to the cluster(s) on which we are looking for the jobs
-    - "states" refers to the state(s) of the jobs we are looking for
+    - "cluster_name" refers to the cluster(s) on which we are looking for the jobs
+    - "state" refers to the state(s) of the jobs we are looking for
     - "page_num" is optional and used for the pagination: it is a positive integer
       presenting the number of the current page
     - "nbr_items_per_page" is optional and used for the pagination: it is a
@@ -171,12 +171,12 @@ def route_search():
     user_name = request.args.get("user_name", None)
 
     clusters_names = []
-    raw_clusters_names = request.args.getlist("clusters_names")
+    raw_clusters_names = request.args.getlist("cluster_name")
     if len(raw_clusters_names) == 1:
         clusters_names = get_custom_array_from_request_args(raw_clusters_names[0])
 
     states = []
-    raw_states = request.args.getlist("states")
+    raw_states = request.args.getlist("state")
     if len(raw_states) == 1:
         states = get_custom_array_from_request_args(raw_states[0])
 

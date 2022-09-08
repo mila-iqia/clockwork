@@ -34,11 +34,11 @@ jQuery(document).ready(function($){
                 }
             });
 
-            $(this).find("input[name='clusters_names']").each(function(){
+            $(this).find("input[name='cluster_name']").each(function(){
                 if ($(this).is(":checked")) clusters.push( $(this).val() );
             });
             
-            $(this).find("input[name='states']").each(function(){
+            $(this).find("input[name='state']").each(function(){
                 if ($(this).is(":checked")) states.push( $(this).val() );
             });
 
@@ -53,8 +53,8 @@ jQuery(document).ready(function($){
             if (user) {
                 params['user_name'] = user;
             }
-            params['clusters_names'] = clusters;
-            params['states'] = states;
+            params['cluster_name'] = clusters;
+            params['state'] = states;
             if (web_settings['nbr_items_per_page']) {
                 params['nbr_items_per_page'] = web_settings['nbr_items_per_page'];
             }
