@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-07 13:56-0400\n"
+"POT-Creation-Date: 2022-09-07 15:57-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -141,6 +141,38 @@ msgstr "date de début"
 #: clockwork_web/templates/jobs.html:42
 msgid "end time"
 msgstr "date de fin"
+
+#: clockwork_web/templates/jobs_interactive.html:104
+msgid "Welcome back"
+msgstr "Bienvenue"
+
+#: clockwork_web/templates/jobs_interactive.html:116
+msgid "Running jobs"
+msgstr "Jobs roulantes"
+
+#: clockwork_web/templates/jobs_interactive.html:125
+msgid "Completed jobs"
+msgstr "Jobs complétées"
+
+#: clockwork_web/templates/jobs_interactive.html:134
+msgid "Pending jobs"
+msgstr "Jobs en attente"
+
+#: clockwork_web/templates/jobs_interactive.html:143
+msgid "Stalled jobs"
+msgstr "Jobs bloquées"
+
+#: clockwork_web/templates/jobs_interactive.html:148
+msgid "See all jobs"
+msgstr "Voir toutes les jobs"
+
+#: clockwork_web/templates/jobs_interactive.html:160
+msgid "YOUR JOBS"
+msgstr "VOS JOBS"
+
+#: clockwork_web/templates/jobs_interactive.html:160
+msgid "This list will auto-refresh!"
+msgstr "Cette liste s'auto-rafraîchira !"
 
 #: clockwork_web/templates/nodes.html:24
 msgid "nodes"
