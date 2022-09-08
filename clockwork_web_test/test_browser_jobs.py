@@ -300,14 +300,14 @@ def test_route_search(
     # - user_name
     if user_name is not None:
         request_line += "user_name={}&".format(user_name)
-    # - clusters_names
+    # - cluster_name
     if len(clusters_names) > 0:
         for cluster_name in clusters_names:
-            request_line += "clusters_names={}&".format(cluster_name)
-    # - states
+            request_line += "cluster_name={}&".format(cluster_name)
+    # - state
     if len(states) > 0:
         for state in states:
-            request_line += "states={}&".format(state)
+            request_line += "state={}&".format(state)
     # - page_num
     if page_num:
         request_line += "page_num={}&".format(page_num)
