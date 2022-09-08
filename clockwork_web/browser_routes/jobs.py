@@ -30,7 +30,7 @@ from flask_babel import gettext
 # this is what allows the factorization into many files.
 from flask import Blueprint
 
-from clockwork_web.core.utils import to_boolean
+from clockwork_web.core.utils import to_boolean, get_custom_array_from_request_args
 from clockwork_web.core.users_helper import render_template_with_user_settings
 
 flask_api = Blueprint("jobs", __name__)
@@ -169,8 +169,16 @@ def route_search():
     """
     # Retrieve the parameters used to filter the jobs
     user_name = request.args.get("user_name", None)
-    clusters_names = request.args.getlist("clusters_names", None)
-    states = request.args.getlist("states", None)
+
+    clusters_names = []
+    raw_clusters_names = request.args.getlist("clusters_names")
+    if len(raw_clusters_names) == 1:
+        clusters_names = get_custom_array_from_request_args(raw_clusters_names[0])
+
+    states = []
+    raw_states = request.args.getlist("states")
+    if len(raw_states) == 1:
+        states = get_custom_array_from_request_args(raw_states[0])
 
     # Retrieve the pagination parameters
     pagination_page_num = request.args.get("page_num", type=int, default="1")
