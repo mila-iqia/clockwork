@@ -7,6 +7,7 @@
 	</style>
 	<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
 	<script type="text/javascript" src="{{ url_for('static', filename='js/user.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/settings.js') }}"></script>
 	<script>
 		{% autoescape false %}
 		{{extra_js}}
@@ -62,10 +63,7 @@
 					<dt class="col-4">{{ gettext("Number of items displayed per page") }}</dt>
 		  			<dd class="col-8">
 						<select class="form-select" name="nbr_items_per_page_selection" id="nbr_items_per_page_selection" onchange="select_nbr_items_per_page(this)">
-							<option value='{{web_settings["nbr_items_per_page"]}}'>{{web_settings["nbr_items_per_page"]}}</option>
-							<option value="25">25</option>
-							<option value="50">50</option>
-							<option value="100">100</option>
+							<!-- This is filled through the javascript -->
 						</select>
 					</dd>
 		 
@@ -86,5 +84,10 @@
 		  </div>
 		</div>
 	</div>
+	<script>
+		// Fill the dropdown menu allowing to chose the preferred number of elements to
+		// display in a listing page
+		fill_nbr_items_per_page_dropdown_menu({{web_settings["nbr_items_per_page"]}});
+	</script>
 
 {% endblock %}
