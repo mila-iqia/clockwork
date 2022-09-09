@@ -323,8 +323,8 @@ msgstr "noeud %(node_name)s"
 #~ msgid "only me"
 #~ msgstr "moi uniquement"
 
-#~ msgid "CLOCKWORK_WEB_API:"
-#~ msgstr "CLOCKWORK_WEB_API :"
+#~ msgid "CLOCKWORK_API_KEY:"
+#~ msgstr "CLOCKWORK_API_KEY :"
 
 #~ msgid "change key"
 #~ msgstr "modifier la clef"
