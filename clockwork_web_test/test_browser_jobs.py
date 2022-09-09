@@ -302,12 +302,10 @@ def test_route_search(
         request_line += "user_name={}&".format(user_name)
     # - cluster_name
     if len(clusters_names) > 0:
-        for cluster_name in clusters_names:
-            request_line += "cluster_name={}&".format(cluster_name)
+        request_line += "cluster_name={}&".format(",".join(clusters_names))
     # - state
     if len(states) > 0:
-        for state in states:
-            request_line += "state={}&".format(state)
+        request_line += "state={}&".format(",".join(states))
     # - page_num
     if page_num:
         request_line += "page_num={}&".format(page_num)

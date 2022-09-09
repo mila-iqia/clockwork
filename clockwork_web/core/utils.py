@@ -37,13 +37,12 @@ def get_custom_array_from_request_args(request_arg):
     Returns:
         An array containing one or more strings.
     """
-    # Initialise the array
-    returned_strings = []
-
     # For each element of the splitted request_arg, add it to the array
-    for str_element in request_arg.split(","):
-        if str_element != "":
-            returned_strings.append(str_element)
-
-    # Return the array
-    return returned_strings
+    if request_arg is not None:
+        return [
+            element.replace(" ", "")
+            for element in request_arg.split(",")
+            if len(element)
+        ]
+    else:
+        return []
