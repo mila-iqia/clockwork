@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-07 15:57-0400\n"
+"POT-Creation-Date: 2022-09-09 10:57-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
 "Language-Team: fr <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.9.1\n"
 
 #: clockwork_web/user.py:137
 msgid "could not modify api key"
@@ -32,13 +32,13 @@ msgstr ""
 "Le champ 'relative_time' n'a pas pu être converti en nombre entier "
 "valide: %(time1)"
 
-#: clockwork_web/browser_routes/jobs.py:273
+#: clockwork_web/browser_routes/jobs.py:275
 msgid "Found %(len_LD_jobs) jobs with job_id %(job_id)."
 msgstr ""
 "%(len_LD_jobs) ont été trouvés lors de la recherche à partir du job_id "
 "%(job_id)"
 
-#: clockwork_web/browser_routes/nodes.py:137
+#: clockwork_web/browser_routes/nodes.py:140
 msgid "(missing node name)"
 msgstr "(nom du noeud manquant)"
 
@@ -194,16 +194,16 @@ msgstr "alloc_tres"
 msgid "cfg_tres"
 msgstr "cfg_tres"
 
-#: clockwork_web/templates/settings.html:43
+#: clockwork_web/templates/settings.html:44
 #, fuzzy, python-format
 msgid "User settings %(mila_email_username)s"
 msgstr "paramètres de l'utilisateur %(mila_email_username)s"
 
-#: clockwork_web/templates/settings.html:62
+#: clockwork_web/templates/settings.html:63
 msgid "Number of items displayed per page"
 msgstr "Nombre d'éléments à afficher par page"
 
-#: clockwork_web/templates/settings.html:73
+#: clockwork_web/templates/settings.html:71
 msgid "Dark mode"
 msgstr "Mode sombre"
 
@@ -322,9 +322,6 @@ msgstr "noeud %(node_name)s"
 
 #~ msgid "only me"
 #~ msgstr "moi uniquement"
-
-#~ msgid "CLOCKWORK_API_KEY:"
-#~ msgstr "CLOCKWORK_API_KEY :"
 
 #~ msgid "change key"
 #~ msgstr "modifier la clef"
