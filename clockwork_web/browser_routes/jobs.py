@@ -169,16 +169,10 @@ def route_search():
     """
     # Retrieve the parameters used to filter the jobs
     user_name = request.args.get("user_name", None)
-
-    clusters_names = []
-    raw_clusters_names = request.args.getlist("cluster_name")
-    if len(raw_clusters_names) == 1:
-        clusters_names = get_custom_array_from_request_args(raw_clusters_names[0])
-
-    states = []
-    raw_states = request.args.getlist("state")
-    if len(raw_states) == 1:
-        states = get_custom_array_from_request_args(raw_states[0])
+    clusters_names = get_custom_array_from_request_args(
+        request.args.get("cluster_name")
+    )
+    states = get_custom_array_from_request_args(request.args.get("state"))
 
     # Retrieve the pagination parameters
     pagination_page_num = request.args.get("page_num", type=int, default="1")
