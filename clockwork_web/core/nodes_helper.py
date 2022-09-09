@@ -38,15 +38,18 @@ def get_nodes(
                                 MongoDB database
         nbr_skipped_items       Number of elements to skip while listing the nodess
         nbr_items_to_display    Number of nodes to display
-        want_count                   Whether or not we are interested by the number of
-                                unpagined nodes. If it is True, the result is
-                                a tuple (nodes_list, nodes_count). Otherwise, only the nodes
-                                list is returned
+        want_count              Whether or not we are interested by the number of
+                                unpaginated nodes.
 
     Returns:
-        Returns a tuple. The first element is a list of dictionaries with the properties of the listed nodes.
-        The second element is the number of nodes corresponding to the mongodb_filter if want_count
-        is True, None otherwise.
+        Returns a tuple (nodes_list, nodes_count or None).
+        The first element is a list of dictionaries with the properties of the listed nodes.
+        In general we expect len(nodes_list) to be nbr_items_to_display if
+        we found sufficiently many matches.
+
+        The second element contains the total number nodes of found with the mongodb_filter,
+        counting the whole database and not just one page. It is None if want_count is False.
+
     """
     # Assert that the two pagination elements (nbr_skipped_items and
     # nbr_items_to_display) are respectively positive and strictly positive

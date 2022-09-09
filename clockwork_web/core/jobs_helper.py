@@ -85,15 +85,18 @@ def get_jobs(
                                 MongoDB database
         nbr_skipped_items       Number of elements to skip while listing the jobs
         nbr_items_to_display    Number of jobs to display
-        want_count                   Whether or not we are interested by the number of
-                                unpagined jobs. If it is True, the result is a tuple
-                                (jobs_list, jobs_count). Otherwise, only the jobs list
-                                is returned
+        want_count              Whether or not we are interested by the number of
+                                unpaginated jobs.
 
     Returns:
-        Returns a tuple. The first element is a list of dictionaries with the properties of jobs.
-        The second element is the number of unpagined jobs corresponding to the mongodb_filter if
-        want_count is True; the second element is None otherwise.
+        Returns a tuple (jobs_list, jobs_count or None).
+        The first element is a list of dictionaries with the properties of jobs.
+        In general we expect len(jobs_list) to be nbr_items_to_display if
+        we found sufficiently many matches.
+
+        The second element contains the total number of jobs found with the mongodb_filter,
+        counting the whole database and not just one page. It is None if want_count is False.
+
     """
     # Assert that the two pagination elements (nbr_skipped_items and
     # nbr_items_to_display) are respectively positive and strictly positive
