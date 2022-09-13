@@ -218,12 +218,22 @@ def main_read_jobs_and_update_collection(
                 )
 
     if want_commit_to_db:
-        result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
+        if L_updates_to_do:
+            assert jobs_collection is not None
+            print("jobs_collection.bulk_write(L_updates_to_do)")
+            result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
+            print(result.bulk_api_result)
+        else:
+            print("Empty list found for update to jobs_collection."
+                  "This is unexpected and might be the sign of a problem.")
+
         if L_user_updates:
-            users_collection.bulk_write(
+            print("results = users_collection.bulk_write(L_user_updates, upsert=False)")
+            results = users_collection.bulk_write(
                 L_user_updates,
                 upsert=False,  # this should never create new users.
             )
+            print(result.bulk_api_result)
 
         mongo_update_duration = time.time() - timestamp_start
         print(
@@ -294,8 +304,15 @@ def main_read_nodes_and_update_collection(
         )
 
     if want_commit_to_db:
-        result = nodes_collection.bulk_write(L_updates_to_do)  #  <- the actual work
-        # print(result.bulk_api_result)
+        if L_updates_to_do:
+            assert nodes_collection is not None
+            print("nodes_collection.bulk_write(L_updates_to_do)")
+            result = nodes_collection.bulk_write(L_updates_to_do)  #  <- the actual work
+            print(result.bulk_api_result)
+        else:
+            print("Empty list found for update to nodes_collection."
+                  "This is unexpected and might be the sign of a problem.")
+
         mongo_update_duration = time.time() - timestamp_start
         print(
             f"Bulk write for {len(L_updates_to_do)} node entries in mongodb took {mongo_update_duration} seconds."
@@ -332,7 +349,10 @@ def main_read_users_and_update_collection(
             )
         )
 
-    result = users_collection.bulk_write(L_updates_to_do)
+    if L_updates_to_do:
+        print("result = users_collection.bulk_write(L_updates_to_do)")
+        result = users_collection.bulk_write(L_updates_to_do)
+        print(result.bulk_api_result)
     mongo_update_duration = time.time() - timestamp_start
     print(
         f"Bulk write for {len(L_updates_to_do)} user entries in mongodb took {mongo_update_duration} seconds."
