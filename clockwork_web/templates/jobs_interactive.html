@@ -101,7 +101,7 @@
                 <div class="col-12">
                     <div class="title float-start">
                         <i class="fa-solid fa-user"></i>
-                        <h1>Welcome back <script>document.writeln(readableusername);</script>!<span class="message"><i class="fa-solid fa-list-check"></i>You currently have: </span></h1>
+                        <h1>{{ gettext("Welcome back") }} <script>document.writeln(readableusername);</script>!<span class="message"><i class="fa-solid fa-list-check"></i>You currently have: </span></h1>
                     </div>
                     <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
                 </div>
@@ -113,7 +113,7 @@
                         <i class="fa-solid fa-timer"></i>
                         <span id="dashboard_running" class="num"></span>
                         <i class="fa-solid fa-arrows-rotate"></i>
-                        <p>Running jobs</p>
+                        <p>{{ gettext("Running jobs") }}</p>
                     </div>
                 </div>
 
@@ -122,7 +122,7 @@
                         <i class="fa-solid fa-badge-check"></i>
                         <span id="dashboard_completed" class="num"></span>
                         <i class="fa-solid fa-arrows-rotate"></i>
-                        <p>Completed jobs</p>
+                        <p>{{ gettext("Completed jobs") }}</p>
                     </div>
                 </div>
 
@@ -131,7 +131,7 @@
                         <i class="fa-solid fa-circle-pause"></i>
                         <span id="dashboard_pending" class="num"></span>
                         <i class="fa-solid fa-arrows-rotate"></i>
-                        <p>Pending jobs</p>
+                        <p>{{ gettext("Pending jobs") }}</p>
                     </div>
                 </div>
 
@@ -140,12 +140,12 @@
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         <span id="dashboard_stalled" class="num"></span>
                         <i class="fa-solid fa-arrows-rotate"></i>
-                        <p>Stalled jobs</p>
+                        <p>{{ gettext("Stalled jobs") }}</p>
                     </div>
                 </div>
 
                 <div class="col-md-3 offset-md-9 col-xs-12">
-                    <a class="btn btn-red mb-3" href="/jobs/search">See all jobs</a>
+                    <a class="btn btn-red mb-3" href="/jobs/search">{{ gettext("See all jobs") }}</a>
                 </div>
             </div>
 
@@ -157,7 +157,7 @@
             <div class="col-12">
                 <div class="title float-start">
                     <i class="fa-solid fa-list-check"></i>
-                    <h1>YOUR JOBS<span class="message"><i id="spinner" class="fa-solid fa-arrows-rotate"></i>This list will auto-refresh! </span></h1>
+                    <h1>{{ gettext("YOUR JOBS") }}<span class="message"><i id="spinner" class="fa-solid fa-arrows-rotate"></i>{{ gettext("This list will auto-refresh!") }}</span></h1>
                 </div>
                 <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
             </div>

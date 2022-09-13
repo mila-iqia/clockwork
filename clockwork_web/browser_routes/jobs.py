@@ -127,10 +127,11 @@ def route_list():
     filter = combine_all_mongodb_filters(f0, f1)
 
     # Retrieve the jobs, by applying the filters and the pagination
-    LD_jobs = get_jobs(
+    (LD_jobs, nbr_total_jobs) = get_jobs(
         filter,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
+        want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
     )
 
     # TODO : You might want to stop doing the `infer_best_guess_for_username`
@@ -150,6 +151,7 @@ def route_list():
             LD_jobs=LD_jobs,
             mila_email_username=current_user.mila_email_username,
             page_num=pagination_page_num,
+            nbr_total_jobs=nbr_total_jobs,
             previous_request_args=previous_request_args,
         )
 
@@ -233,7 +235,7 @@ def route_search():
     # Retrieve the jobs and display them
     ###
     # Retrieve the jobs, by applying the filters and the pagination
-    LD_jobs = get_jobs(
+    (LD_jobs, _) = get_jobs(
         filter,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
@@ -299,7 +301,7 @@ def route_one():
     f1 = get_filter_cluster_name(cluster_name)
     filter = combine_all_mongodb_filters(f0, f1)
 
-    LD_jobs = get_jobs(filter)
+    (LD_jobs, _) = get_jobs(filter)
 
     # Return error messages if the number of retrieved jobs is 0 or more than 1
     if len(LD_jobs) == 0:
