@@ -359,4 +359,3 @@ def route_interactive():
         "jobs_interactive.html",
         mila_email_username=current_user.mila_email_username,
     )
-
