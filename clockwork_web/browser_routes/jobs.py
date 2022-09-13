@@ -60,10 +60,9 @@ def route_index():
 @login_required
 def route_list():
     """
-    Can take optional args "cluster_name", "user", "relative_time".
+    Can take optional args "cluster_name", "username", "relative_time".
 
-    "user" refers to any of the three alternatives to identify a user,
-    and it will match any of them.
+    "username" refers to the Mila email of a user.
     "relative_time" refers to how many seconds to go back in time to list jobs.
     "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
     "page_num" is optional and used for the pagination: it is a positive integer
@@ -96,10 +95,10 @@ def route_list():
     )
 
     # Define the filter to select the jobs
-    user_name = request.args.get("user", None)
-    previous_request_args["user_name"] = user_name
-    if user_name is not None:
-        f0 = {"cw.mila_email_username": user_name}
+    username = request.args.get("username", None)
+    previous_request_args["username"] = username
+    if username is not None:
+        f0 = {"cw.mila_email_username": username}
     else:
         f0 = {}
 
@@ -162,13 +161,13 @@ def route_search():
     Display a list of jobs, which can be filtered by user, cluster and state.
 
     Can take optional arguments:
-    - "user_name"
+    - "username"
     - "clusters_names"
     - "states"
     - "page_num"
     - "nbr_items_per_page".
 
-    - "user_name" refers to any of the three alternatives to identify a user,
+    - "username" refers to the Mila email identifying a user,
       and it will match any of them.
     - "clusters_names" refers to the cluster(s) on which we are looking for the jobs
     - "states" refers to the state(s) of the jobs we are looking for
@@ -183,8 +182,8 @@ def route_search():
     previous_request_args = {}
 
     # Retrieve the parameters used to filter the jobs
-    user_name = request.args.get("user_name", None)
-    previous_request_args["user_name"] = user_name
+    username = request.args.get("username", None)
+    previous_request_args["username"] = username
 
     clusters_names = request.args.getlist("clusters_names", None)
     previous_request_args["clusters_names"] = clusters_names
@@ -210,8 +209,8 @@ def route_search():
     # Define the filters to select the jobs
     ###
     # Define the user filter
-    if user_name is not None:
-        f0 = {"cw.mila_email_username": user_name}
+    if username is not None:
+        f0 = {"cw.mila_email_username": username}
     else:
         f0 = {}
 
@@ -347,15 +346,15 @@ def route_one():
 
 # TODO : Everything below has not yet been ported to the new system.
 
-"""
+
 @flask_api.route("/interactive")
 @login_required
 def route_interactive():
-    
-    Not implemented.
-    
+    """
+    Displays the list of the current user's jobs.
+    """
     return render_template_with_user_settings(
         "jobs_interactive.html",
         mila_email_username=current_user.mila_email_username,
     )
-"""
+
