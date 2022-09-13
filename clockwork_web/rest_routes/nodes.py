@@ -33,7 +33,7 @@ def route_api_v1_nodes_list():
     # Set up filters related to the constraints (here, not so much)
     filter = get_filter_cluster_name(request.args.get("cluster_name", None))
     # Get a list of the nodes corresponding to the filters
-    LD_nodes = get_nodes(filter)
+    (LD_nodes, _) = get_nodes(filter)
     # Delete the _id element of each node
     LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
     # Return the nodes
@@ -54,7 +54,7 @@ def route_api_v1_nodes_one():
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
 
-    LD_nodes = get_nodes(filter)
+    (LD_nodes, _) = get_nodes(filter)
 
     if len(LD_nodes) == 0:
         # Not a great when missing the value we want, but it's an acceptable answer.
@@ -98,13 +98,13 @@ def route_api_v1_nodes_one_gpu():
     filter = combine_all_mongodb_filters(node_filter, cluster_filter)
 
     # Retrieve the corresponding node, according to the filters
-    node_information = get_nodes(filter)
+    (LD_nodes, _) = get_nodes(filter)
 
     # Check if the node has been correctly retrieved
-    if len(node_information) == 1:
+    if len(LD_nodes) == 1:
         # Get the GPU name
         try:
-            gpu_name = node_information[0]["cw"]["gpu"]["cw_name"]
+            gpu_name = LD_nodes[0]["cw"]["gpu"]["cw_name"]
         except:
             return {}
         # Retrieve the GPU information

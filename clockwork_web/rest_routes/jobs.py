@@ -57,7 +57,7 @@ def route_api_v1_jobs_list():
     f2 = get_filter_cluster_name(request.args.get("cluster_name", None))
 
     filter = combine_all_mongodb_filters(f0, f1, f2)
-    LD_jobs = get_jobs(filter)
+    (LD_jobs, _) = get_jobs(filter)
 
     # TODO : Potential redesign. See CW-81.
     LD_jobs = [
@@ -82,7 +82,7 @@ def route_api_v1_jobs_one():
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
 
-    LD_jobs = get_jobs(filter)
+    (LD_jobs, _) = get_jobs(filter)
 
     if len(LD_jobs) == 0:
         # Not a great when missing the value we want, but it's an acceptable answer.
@@ -134,7 +134,7 @@ def route_api_v1_jobs_user_dict_update():
     # We are going to have to check for "array_job_id" and "array_task_id"
     # if those are supplied to identify jobs in situations where the "job_id"
     # are "cluster_name" are insufficient.
-    LD_jobs = get_jobs(filter)
+    (LD_jobs, _) = get_jobs(filter)
     # Note that `filter` gets reused later to commit again to the database.
 
     if len(LD_jobs) == 0:
