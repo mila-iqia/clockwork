@@ -207,7 +207,7 @@ JOB_FIELD_MAP = {
     # but on 2022-09-14 it crept up on Cedar
     "NtasksPerTRES": ignore,
     # seen on 2022-09-14
-    "KillOInInvalidDependent": ignore
+    "KillOInInvalidDependent": ignore,
 }
 
 
@@ -304,7 +304,7 @@ NODE_FIELD_MAP = {
     "NextState": ignore,
     "Port": ignore,
     # found on Narval on 2022-09-14
-    "LastBusyTime": ignore
+    "LastBusyTime": ignore,
 }
 
 
