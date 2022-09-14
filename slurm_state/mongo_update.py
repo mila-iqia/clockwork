@@ -20,6 +20,11 @@ clusters_valid.add_field("timezone", timezone)
 clusters_valid.add_field("account_field", string)
 clusters_valid.add_field("update_field", optional_string)
 
+def pprint_bulk_result(result):
+    if "upserted" in result.bulk_api_result:
+        # too long and not necessary
+        del result.bulk_api_result["upserted"]
+    print(result.bulk_api_result)
 
 def fetch_slurm_report_jobs(cluster_name, scontrol_report_path):
     return _fetch_slurm_report_helper(job_parser, cluster_name, scontrol_report_path)
@@ -222,18 +227,18 @@ def main_read_jobs_and_update_collection(
             assert jobs_collection is not None
             print("jobs_collection.bulk_write(L_updates_to_do)")
             result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
-            print(result.bulk_api_result)
+            pprint_bulk_result(result)
         else:
             print("Empty list found for update to jobs_collection."
                   "This is unexpected and might be the sign of a problem.")
 
         if L_user_updates:
             print("results = users_collection.bulk_write(L_user_updates, upsert=False)")
-            results = users_collection.bulk_write(
+            result = users_collection.bulk_write(
                 L_user_updates,
                 upsert=False,  # this should never create new users.
             )
-            print(result.bulk_api_result)
+            pprint_bulk_result(result)
 
         mongo_update_duration = time.time() - timestamp_start
         print(
@@ -308,7 +313,7 @@ def main_read_nodes_and_update_collection(
             assert nodes_collection is not None
             print("nodes_collection.bulk_write(L_updates_to_do)")
             result = nodes_collection.bulk_write(L_updates_to_do)  #  <- the actual work
-            print(result.bulk_api_result)
+            pprint_bulk_result(result)
         else:
             print("Empty list found for update to nodes_collection."
                   "This is unexpected and might be the sign of a problem.")
@@ -352,7 +357,7 @@ def main_read_users_and_update_collection(
     if L_updates_to_do:
         print("result = users_collection.bulk_write(L_updates_to_do)")
         result = users_collection.bulk_write(L_updates_to_do)
-        print(result.bulk_api_result)
+        pprint_bulk_result(result)
     mongo_update_duration = time.time() - timestamp_start
     print(
         f"Bulk write for {len(L_updates_to_do)} user entries in mongodb took {mongo_update_duration} seconds."
