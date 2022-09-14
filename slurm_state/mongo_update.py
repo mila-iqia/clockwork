@@ -20,11 +20,13 @@ clusters_valid.add_field("timezone", timezone)
 clusters_valid.add_field("account_field", string)
 clusters_valid.add_field("update_field", optional_string)
 
+
 def pprint_bulk_result(result):
     if "upserted" in result.bulk_api_result:
         # too long and not necessary
         del result.bulk_api_result["upserted"]
     print(result.bulk_api_result)
+
 
 def fetch_slurm_report_jobs(cluster_name, scontrol_report_path):
     return _fetch_slurm_report_helper(job_parser, cluster_name, scontrol_report_path)
@@ -229,8 +231,10 @@ def main_read_jobs_and_update_collection(
             result = jobs_collection.bulk_write(L_updates_to_do)  #  <- the actual work
             pprint_bulk_result(result)
         else:
-            print("Empty list found for update to jobs_collection."
-                  "This is unexpected and might be the sign of a problem.")
+            print(
+                "Empty list found for update to jobs_collection."
+                "This is unexpected and might be the sign of a problem."
+            )
 
         if L_user_updates:
             print("results = users_collection.bulk_write(L_user_updates, upsert=False)")
@@ -315,8 +319,10 @@ def main_read_nodes_and_update_collection(
             result = nodes_collection.bulk_write(L_updates_to_do)  #  <- the actual work
             pprint_bulk_result(result)
         else:
-            print("Empty list found for update to nodes_collection."
-                  "This is unexpected and might be the sign of a problem.")
+            print(
+                "Empty list found for update to nodes_collection."
+                "This is unexpected and might be the sign of a problem."
+            )
 
         mongo_update_duration = time.time() - timestamp_start
         print(
