@@ -205,7 +205,9 @@ JOB_FIELD_MAP = {
     "NtaskPerTRES": ignore,
     # this one was handled in a special way,
     # but on 2022-09-14 it crept up on Cedar
-    "NtasksPerTRES": ignore
+    "NtasksPerTRES": ignore,
+    # seen on 2022-09-14
+    "KillOInInvalidDependent": ignore
 }
 
 
