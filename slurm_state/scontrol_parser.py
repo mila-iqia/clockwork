@@ -55,9 +55,10 @@ def dynrename(fn, ctx_key):
 def user_id_splitting(f, ctx, res):
     # needs to match things like
     #    aaaa(123871)
-    # and also
     #    aaaa.bbbbbb(123871)
-    m = re.match(r"^([\w\.]+)\((\d+)\)$", f)
+    #    aaaa-ccc.bbbbbb(123871)
+
+    m = re.match(r"^([\w\.\-]+)\((\d+)\)$", f)
     if m:
         res["username"] = m.group(1)
         res["uid"] = int(m.group(2))
