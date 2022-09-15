@@ -245,6 +245,7 @@ def get_nbr_items_per_page(mila_email_username):
         else:
             return v
 
+
 def get_users_one(mila_email_username):
     """
     Retrieve a user from the database, based on its mila_email_username.
