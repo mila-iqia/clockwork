@@ -60,9 +60,16 @@ def route_list():
 
     .. :quickref: list all Slurm nodes as formatted html
     """
+
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Retrieve the pagination parameters
     pagination_page_num = request.args.get("page_num", type=int, default="1")
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
+    previous_request_args["page_num"] = pagination_page_num
+    previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
+
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
     (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
         current_user.mila_email_username,
@@ -70,9 +77,16 @@ def route_list():
         pagination_nbr_items_per_page,
     )
 
+    # Retrieve the arguments given in order to search the expected nodes
+    node_name = request.args.get("node_name", None)
+    previous_request_args["node_name"] = node_name
+
+    cluster_name = request.args.get("cluster_name", None)
+    previous_request_args["cluster_name"] = cluster_name
+
     # Define the filters to select the nodes
-    f0 = get_filter_node_name(request.args.get("node_name", None))
-    f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
+    f0 = get_filter_node_name(node_name)
+    f1 = get_filter_cluster_name(cluster_name)
     filter = combine_all_mongodb_filters(f0, f1)
 
     # Retrieve the nodes, by applying the filters and the pagination,
@@ -94,6 +108,7 @@ def route_list():
         mila_email_username=current_user.mila_email_username,
         page_num=pagination_page_num,
         nbr_total_nodes=nbr_total_nodes,
+        previous_request_args=previous_request_args,
     )
 
 
@@ -106,23 +121,38 @@ def route_one():
 
     .. :quickref: list one Slurm node as formatted html
     """
+    # Initialize the request arguments (it is further transferred to the expected HTML)
+    previous_request_args = {}
 
-    f0 = get_filter_node_name(request.args.get("node_name", None))
-    f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
+    # Retrieve the arguments given in order to search the node
+    node_name = request.args.get("node_name", None)
+    previous_request_args["node_name"] = node_name
+
+    cluster_name = request.args.get("cluster_name", None)
+    previous_request_args["cluster_name"] = cluster_name
+
+    # Set up the filters
+    f0 = get_filter_node_name(node_name)
+    f1 = get_filter_cluster_name(cluster_name)
     filter = combine_all_mongodb_filters(f0, f1)
     (LD_nodes, _) = get_nodes(filter)
 
+    # Return an error if 0 or more than 1 node(s) are retrieved
     if len(LD_nodes) == 0:
         return (
             render_template_with_user_settings(
-                "error.html", error_msg=f"Node not found"
+                "error.html",
+                error_msg=f"Node not found",
+                previous_request_args=previous_request_args,
             ),
             400,
         )  # bad request
     elif len(LD_nodes) > 1:
         return (
             render_template_with_user_settings(
-                "error.html", error_msg=f"Found more than one matching node"
+                "error.html",
+                error_msg=f"Found more than one matching node",
+                previous_request_args=previous_request_args,
             ),
             400,
         )  # bad request
@@ -143,4 +173,5 @@ def route_one():
         LP_single_node_slurm=LP_single_node_slurm,
         node_name=node_name,
         mila_email_username=current_user.mila_email_username,
+        previous_request_args=previous_request_args,
     )
