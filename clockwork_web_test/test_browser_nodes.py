@@ -58,7 +58,9 @@ def test_nodes_with_both_pagination_options(
         nbr_items_per_page  The number of nodes we want to display per page
     """
     # Get the response
-    response = client.get(f"/nodes/list?page_num={page_num}&nbr_items_per_page={nbr_items_per_page}")
+    response = client.get(
+        f"/nodes/list?page_num={page_num}&nbr_items_per_page={nbr_items_per_page}"
+    )
 
     # Retrieve the bounds of the interval of index in which the expected nodes
     # are contained
