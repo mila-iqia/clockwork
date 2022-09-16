@@ -27,8 +27,15 @@ def test_nodes(client, fake_data: dict[list[dict]]):
     are going to put the fake data in the database for us.
     """
     response = client.get("/nodes/list")
+
+    # Sort the nodes contained in the fake data by name, then cluster name
+    sorted_all_nodes = sorted(
+        fake_data["nodes"],
+        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    )
+
     for i in range(0, get_default_setting_value("nbr_items_per_page")):
-        D_node = fake_data["nodes"][i]
+        D_node = sorted_all_nodes[i]
         assert D_node["slurm"]["name"].encode("utf-8") in response.data
 
 
@@ -51,7 +58,7 @@ def test_nodes_with_both_pagination_options(
         nbr_items_per_page  The number of nodes we want to display per page
     """
     # Get the response
-    response = client.get("/nodes/list?page_num={}&nbr_items_per_page={}")
+    response = client.get(f"/nodes/list?page_num={page_num}&nbr_items_per_page={nbr_items_per_page}")
 
     # Retrieve the bounds of the interval of index in which the expected nodes
     # are contained
@@ -59,10 +66,16 @@ def test_nodes_with_both_pagination_options(
         None, page_num, nbr_items_per_page
     )
 
+    # Sort the nodes contained in the fake data by name, then cluster name
+    sorted_all_nodes = sorted(
+        fake_data["nodes"],
+        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    )
+
     # Assert that the retrieved nodes correspond to the expected nodes
     for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(fake_data):
-            D_node = fake_data["nodes"][i]
+        if i < len(sorted_all_nodes):
+            D_node = sorted_all_nodes[i]
             assert D_node["slurm"]["name"].encode("utf-8") in response.data
 
 
@@ -83,18 +96,24 @@ def test_nodes_with_page_num_pagination_option(
         nbr_items_per_page  The number of nodes we want to display per page
     """
     # Get the response
-    response = client.get("/nodes/list?page_num={}&nbr_items_per_page={}")
+    response = client.get(f"/nodes/list?page_num={page_num}")
 
     # Retrieve the bounds of the interval of index in which the expected nodes
     # are contained
     (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
         None, page_num, None
     )
-    # Assert that the retrieved nodes correspond to the expected nodes
 
+    # Sort the nodes contained in the fake data by name, then cluster name
+    sorted_all_nodes = sorted(
+        fake_data["nodes"],
+        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    )
+
+    # Assert that the retrieved nodes correspond to the expected nodes
     for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(fake_data):
-            D_node = fake_data["nodes"][i]
+        if i < len(sorted_all_nodes):
+            D_node = sorted_all_nodes[i]
             assert D_node["slurm"]["name"].encode("utf-8") in response.data
 
 
@@ -114,18 +133,24 @@ def test_nodes_with_page_num_pagination_option(
         nbr_items_per_page  The number of nodes we want to display per page
     """
     # Get the response
-    response = client.get("/nodes/list?page_num={}&nbr_items_per_page={}")
+    response = client.get(f"/nodes/list?nbr_items_per_page={nbr_items_per_page}")
 
     # Retrieve the bounds of the interval of index in which the expected nodes
     # are contained
     (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
         None, None, nbr_items_per_page
     )
-    # Assert that the retrieved nodes correspond to the expected nodes
 
+    # Sort the nodes contained in the fake data by name, then cluster name
+    sorted_all_nodes = sorted(
+        fake_data["nodes"],
+        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    )
+
+    # Assert that the retrieved nodes correspond to the expected nodes
     for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(fake_data):
-            D_node = fake_data["nodes"][i]
+        if i < len(sorted_all_nodes):
+            D_node = sorted_all_nodes[i]
             assert D_node["slurm"]["name"].encode("utf-8") in response.data
 
 
@@ -149,7 +174,13 @@ def test_nodes_with_filter(client, fake_data: dict[list[dict]], cluster_name):
         f"/nodes/list?cluster_name={cluster_name}&nbr_items_per_page=1000000"
     )
 
-    for D_node in fake_data["nodes"]:
+    # Sort the nodes contained in the fake data by name, then cluster name
+    sorted_all_nodes = sorted(
+        fake_data["nodes"],
+        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    )
+
+    for D_node in sorted_all_nodes:
         if D_node["slurm"]["cluster_name"] == cluster_name:
             assert D_node["slurm"]["name"].encode("utf-8") in response.data
         else:

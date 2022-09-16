@@ -27,8 +27,14 @@ def test_get_nodes_without_filters_or_pagination(app, fake_data):
             strip_artificial_fields_from_node(D_node) for D_node in LD_retrieved_nodes
         ]
 
+        # Sort the nodes contained in the fake data by name, then cluster name
+        sorted_all_nodes = sorted(
+            fake_data["nodes"],
+            key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+        )
+
         # Assert that they correspond to the nodes we expect
-        assert LD_retrieved_nodes == fake_data["nodes"]
+        assert LD_retrieved_nodes == sorted_all_nodes
         assert nodes_count == None
 
 
@@ -63,10 +69,16 @@ def test_get_nodes_with_pagination(app, fake_data, page_num, nbr_items_per_page)
             strip_artificial_fields_from_node(D_node) for D_node in LD_retrieved_nodes
         ]
 
+        # Sort the nodes contained in the fake data by name, then cluster name
+        sorted_all_nodes = sorted(
+            fake_data["nodes"],
+            key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+        )
+
         # Assert that they correspond to the nodes we expect
         assert (
             LD_retrieved_nodes
-            == fake_data["nodes"][
+            == sorted_all_nodes[
                 nbr_skipped_items : nbr_skipped_items + nbr_items_to_display
             ]
         )
@@ -91,12 +103,18 @@ def test_get_and_count_nodes_without_filters_or_pagination(app, fake_data):
             strip_artificial_fields_from_node(D_node) for D_node in LD_retrieved_nodes
         ]
 
+        # Sort the nodes contained in the fake data by name, then cluster name
+        sorted_all_nodes = sorted(
+            fake_data["nodes"],
+            key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+        )
+
         # Assert that they correspond to the nodes we expect
-        assert LD_retrieved_nodes == fake_data["nodes"]
+        assert LD_retrieved_nodes == sorted_all_nodes
 
         # Assert that the number nbr_total_nodes correspond to the filters without pagination
         # Here, we do not use filter nor pagination. Thus, this number should be the number of nodes
-        assert nbr_total_nodes == len(fake_data["nodes"])
+        assert nbr_total_nodes == len(sorted_all_nodes)
 
 
 @pytest.mark.parametrize(
@@ -133,10 +151,16 @@ def test_get_and_count_nodes_with_pagination(
             strip_artificial_fields_from_node(D_node) for D_node in LD_retrieved_nodes
         ]
 
+        # Sort the nodes contained in the fake data by name, then cluster name
+        sorted_all_nodes = sorted(
+            fake_data["nodes"],
+            key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+        )
+
         # Assert that they correspond to the nodes we expect
         assert (
             LD_retrieved_nodes
-            == fake_data["nodes"][
+            == sorted_all_nodes[
                 nbr_skipped_items : nbr_skipped_items + nbr_items_to_display
             ]
         )
@@ -144,7 +168,7 @@ def test_get_and_count_nodes_with_pagination(
         # Assert that the retrieved number correspond to the expected number of nodes
         # Here, we only apply pagination and not filters, so that the expected number
         # is the total of nodes in the database
-        assert nbr_total_nodes == len(fake_data["nodes"])
+        assert nbr_total_nodes == len(sorted_all_nodes)
 
 
 # ---------------------
@@ -187,9 +211,15 @@ def test_get_and_count_nodes_by_cluster_name_with_pagination(
             strip_artificial_fields_from_node(D_node) for D_node in LD_retrieved_nodes
         ]
 
+        # Sort the nodes contained in the fake data by name, then cluster name
+        sorted_all_nodes = sorted(
+            fake_data["nodes"],
+            key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+        )
+
         # Retrieve the expected nodes
         LD_expected_nodes = []
-        for D_node in fake_data["nodes"]:
+        for D_node in sorted_all_nodes:
             if D_node["slurm"]["cluster_name"] == cluster_name:
                 LD_expected_nodes.append(D_node)
 

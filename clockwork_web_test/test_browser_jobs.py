@@ -123,7 +123,7 @@ def test_jobs(client, fake_data: dict[list[dict]]):
     Note that the `client` fixture depends on other fixtures that
     are going to put the fake data in the database for us.
     """
-    # Sort the jobs contained in the fake data by submit time
+    # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
         key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
@@ -153,7 +153,7 @@ def test_jobs_with_both_pagination_options(
         page_num            The number of the page displaying the jobs
         nbr_items_per_page  The number of jobs we want to display per page
     """
-    # Sort the jobs contained in the fake data by submit time
+    # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
         key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
@@ -192,7 +192,7 @@ def test_jobs_with_page_num_pagination_option(
         fake_data           The data our tests are based on
         page_num            The number of the page displaying the jobs
     """
-    # Sort the jobs contained in the fake data by submit time
+    # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
         key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
@@ -229,7 +229,7 @@ def test_jobs_with_page_num_pagination_option(
         fake_data           The data our tests are based on
         nbr_items_per_page  The number of jobs we want to display per page
     """
-    # Sort the jobs contained in the fake data by submit time
+    # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
         key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
@@ -299,7 +299,7 @@ def test_route_search(
     ignore_clusters_names_filter = len(clusters_names) < 1
     ignore_states_filter = len(states) < 1
 
-    # Sort the jobs contained in the fake data by submit time
+    # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
         key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
