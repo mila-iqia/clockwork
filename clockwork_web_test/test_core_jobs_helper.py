@@ -27,8 +27,14 @@ def test_get_jobs_without_filters_or_pagination(app, fake_data):
             strip_artificial_fields_from_job(D_job) for D_job in LD_retrieved_jobs
         ]
 
+        # Sort the jobs contained in the fake data by submit time
+        sorted_all_jobs = sorted(
+            fake_data["jobs"],
+            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+        )
+
         # Assert that they correspond to the jobs we expect
-        assert LD_retrieved_jobs == fake_data["jobs"]
+        assert LD_retrieved_jobs == sorted_all_jobs
         assert jobs_count == None
 
 
@@ -63,10 +69,16 @@ def test_get_jobs_with_pagination(app, fake_data, page_num, nbr_items_per_page):
             strip_artificial_fields_from_job(D_job) for D_job in LD_retrieved_jobs
         ]
 
+        # Sort the jobs contained in the fake data by submit time
+        sorted_all_jobs = sorted(
+            fake_data["jobs"],
+            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+        )
+
         # Assert that they correspond to the jobs we expect
         assert (
             LD_retrieved_jobs
-            == fake_data["jobs"][
+            == sorted_all_jobs[
                 nbr_skipped_items : nbr_skipped_items + nbr_items_to_display
             ]
         )
@@ -91,12 +103,18 @@ def test_get_and_count_jobs_without_filters_or_pagination(app, fake_data):
             strip_artificial_fields_from_job(D_job) for D_job in LD_retrieved_jobs
         ]
 
+        # Sort the jobs contained in the fake data by submit time
+        sorted_all_jobs = sorted(
+            fake_data["jobs"],
+            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+        )
+
         # Assert that they correspond to the jobs we expect
-        assert LD_retrieved_jobs == fake_data["jobs"]
+        assert LD_retrieved_jobs == sorted_all_jobs
 
         # Assert that the number nbr_total_jobs correspond to the filters without pagination
         # Here, we do not use filter nor pagination. Thus, this number should be the number of jobs
-        assert nbr_total_jobs == len(fake_data["jobs"])
+        assert nbr_total_jobs == len(sorted_all_jobs)
 
 
 @pytest.mark.parametrize(
@@ -133,10 +151,16 @@ def test_get_and_count_jobs_with_pagination(
             strip_artificial_fields_from_job(D_job) for D_job in LD_retrieved_jobs
         ]
 
+        # Sort the jobs contained in the fake data by submit time
+        sorted_all_jobs = sorted(
+            fake_data["jobs"],
+            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+        )
+
         # Assert that they correspond to the jobs we expect
         assert (
             LD_retrieved_jobs
-            == fake_data["jobs"][
+            == sorted_all_jobs[
                 nbr_skipped_items : nbr_skipped_items + nbr_items_to_display
             ]
         )
@@ -144,7 +168,7 @@ def test_get_and_count_jobs_with_pagination(
         # Assert that the retrieved number correspond to the expected number of jobs
         # Here, we only apply pagination and not filters, so that the expected number
         # is the total of jobs in the database
-        assert nbr_total_jobs == len(fake_data["jobs"])
+        assert nbr_total_jobs == len(sorted_all_jobs)
 
 
 @pytest.mark.parametrize("page_num, nbr_items_per_page", [(1, 10), (3, 2)])
@@ -184,9 +208,15 @@ def test_get_and_count_jobs_by_mail_with_pagination(
             strip_artificial_fields_from_job(D_job) for D_job in LD_retrieved_jobs
         ]
 
+        # Sort the jobs contained in the fake data by submit time
+        sorted_all_jobs = sorted(
+            fake_data["jobs"],
+            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+        )
+
         # Retrieve the expected jobs
         LD_expected_jobs = []
-        for D_job in fake_data["jobs"]:
+        for D_job in sorted_all_jobs:
             if D_job["cw"]["mila_email_username"] == mila_email_username:
                 LD_expected_jobs.append(D_job)
 
@@ -246,9 +276,15 @@ def test_get_and_count_jobs_by_cluster_and_state_with_pagination(
             strip_artificial_fields_from_job(D_job) for D_job in LD_retrieved_jobs
         ]
 
+        # Sort the jobs contained in the fake data by submit time
+        sorted_all_jobs = sorted(
+            fake_data["jobs"],
+            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+        )
+
         # Retrieve the expected jobs
         LD_expected_jobs = []
-        for D_job in fake_data["jobs"]:
+        for D_job in sorted_all_jobs:
             if (D_job["slurm"]["cluster_name"] in L_clusters) and (
                 D_job["slurm"]["job_state"] in L_states
             ):
