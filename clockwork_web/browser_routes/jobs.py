@@ -196,7 +196,6 @@ def route_search():
     states = get_custom_array_from_request_args(request.args.get("state"))
     previous_request_args["state"] = states
 
-
     # Retrieve the pagination parameters
     pagination_page_num = request.args.get("page_num", type=int, default="1")
     previous_request_args["page_num"] = pagination_page_num
