@@ -80,7 +80,7 @@ def test_list_jobs_for_a_given_random_user(client, fake_data):
     # the usual validator doesn't work on the html contents
     _, username = helper_list_jobs_for_a_given_random_user(fake_data)
 
-    response = client.get(f"/jobs/list?user={username}")
+    response = client.get(f"/jobs/list?username={username}")
 
     assert "text/html" in response.content_type
     assert username.encode("utf-8") in response.data
@@ -91,7 +91,7 @@ def test_list_jobs_invalid_username(client, username):
     """
     Make a request to /jobs/list.
     """
-    response = client.get(f"/jobs/list?user={username}")
+    response = client.get(f"/jobs/list?username={username}")
     assert "text/html" in response.content_type
     assert username.encode("utf-8") not in response.data  # notice the NOT
 
