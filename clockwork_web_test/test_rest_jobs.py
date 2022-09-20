@@ -90,7 +90,8 @@ def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_he
     validator, username = helper_list_jobs_for_a_given_random_user(fake_data)
 
     response = client.get(
-        f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers
+        f"/api/v1/clusters/jobs/list?username={username}",
+        headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
     LD_jobs = response.get_json()
@@ -103,7 +104,8 @@ def test_api_list_invalid_username(client, valid_rest_auth_headers, username):
     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
     """
     response = client.get(
-        f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers
+        f"/api/v1/clusters/jobs/list?username={username}",
+        headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
     LD_jobs = response.get_json()
