@@ -179,61 +179,24 @@
 				                                <span>Filter by cluster</span>
 				                            </div>
 
-				                            <!-- toggle beluga -->
-				                            <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.computecanada.ca/wiki/Beluga" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_beluga" class="cc_cluster_toggle_name">beluga</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_beluga" name="cluster_name" value="beluga" checked data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle cedar -->
-				                            <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.computecanada.ca/wiki/Cedar" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_cedar" class="cc_cluster_toggle_name">cedar</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_cedar" name="cluster_name" value="cedar" checked data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle graham -->
-				                             <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.computecanada.ca/wiki/Graham" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_graham" class="cc_cluster_toggle_name">graham</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_graham" name="cluster_name" value="graham" checked data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle mila -->
-				                            <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.mila.quebec" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_mila" class="cc_cluster_toggle_name">mila</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_mila" name="cluster_name" value="mila" checked data-no-submit>
-				                                </div>
-				                            </div>
+											{% for D_cluster in clusters %}
+												<!-- toggle for a cluster-->
+												<div class="cc_toggle_zone_row">
+													<!-- official documentation-->
+													<a href="{{D_cluster['official_documentation']}}" target="_blank">
+														<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
+													</a>
+													<!-- Grafana -->
+													<a href="https://dashboard.server.mila.quebec/" target="_blank">
+														<i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
+													</a>
+													<!-- cluster toggle -->
+													<div class="cc_cluster_toggle_subzone form-check form-switch">
+														<label class="form-check-label" for="cluster_toggle_lever_{{D_cluster}}" class="cc_cluster_toggle_name">{{D_cluster}}</label>
+														<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{D_cluster}}" name="cluster_name" value="{{D_cluster}}" checked data-no-submit>
+													</div>													
+												</div>
+											{% endfor %}
 				                        </div>
 				                    </div>
 

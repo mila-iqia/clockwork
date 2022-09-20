@@ -15,6 +15,7 @@ from clockwork_web.config import (
     boolean as valid_boolean,
     string as valid_string,
 )
+from clockwork_web.core.clusters_helper import get_all_clusters
 
 # Load the web settings from the configuration file
 register_config("settings.default_values.nbr_items_per_page", validator=int)
@@ -340,5 +341,8 @@ def render_template_with_user_settings(template_name_or_list, **context):
     ] = current_user.get_web_settings()  # used for templates (old way)
     # used for the actual `web_settings` variable from "base.html" (prompted by GEN-160)
     context["web_settings_json_str"] = json.dumps(context["web_settings"])
+
+    # Send the clusters infos to the template
+    context["clusters"] = get_all_clusters()
 
     return render_template(template_name_or_list, **context)
