@@ -216,7 +216,7 @@ def test_jobs_user_dict_update_successful_update(
                 "to_be_left_untouched": "can't touch this",
             },
         }
-        if cluster_name in ["cedar", "graham", "beluga"]:
+        if cluster_name in ["cedar", "graham", "beluga", "narval"]:
             if update_allowed:
                 D_job["cw"]["cc_account_username"] = D_user["cc_account_username"]
             else:
