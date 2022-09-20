@@ -68,11 +68,16 @@ def get_nodes(
         LD_nodes = list(
             mc["nodes"]
             .find(mongodb_filter)
+            .sort([["slurm.name", 1], ["slurm.cluster_name", 1]])
             .skip(nbr_skipped_items)
             .limit(nbr_items_to_display)
         )
     else:
-        LD_nodes = list(mc["nodes"].find(mongodb_filter))
+        LD_nodes = list(
+            mc["nodes"]
+            .find(mongodb_filter)
+            .sort([["slurm.name", 1], ["slurm.cluster_name", 1]])
+        )
 
     if want_count:
         # Get the number of filtered nodes (not paginated)
