@@ -10,11 +10,10 @@
 
 			<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-			{# "web_settings" appears to be undefined outside of the settings page.
-				{% if web_settings["dark_mode"] %}
-					<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
-				{% endif %}
-			#}
+			{% if web_settings["dark_mode"] %}
+				<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+			{% endif %}
+
 			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}"> -->
 
 			<link rel="preconnect" href="https://fonts.googleapis.com">
