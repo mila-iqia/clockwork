@@ -41,6 +41,7 @@ def get_filter_after_end_time(end_time):
     if end_time is None:
         return {}
     else:
+
         # This can throw exceptions when "end_time" is invalid.
         return {
             "$or": [
@@ -114,12 +115,17 @@ def get_jobs(
         LD_jobs = list(
             mc["jobs"]
             .find(mongodb_filter)
+            .sort([["slurm.submit_time", 1], ["slurm.job_id", 1]])
             .skip(nbr_skipped_items)
             .limit(nbr_items_to_display)
         )
 
     else:
-        LD_jobs = list(mc["jobs"].find(mongodb_filter))
+        LD_jobs = list(
+            mc["jobs"]
+            .find(mongodb_filter)
+            .sort([["slurm.submit_time", 1], ["slurm.job_id", 1]])
+        )
 
     # Set nbr_total_jobs
     if want_count:

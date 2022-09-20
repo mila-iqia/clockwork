@@ -103,8 +103,10 @@ def test_list_time(client, fake_data):
     response = client.get(f"/jobs/list?relative_time={relative_mid_end_time}")
     assert response.status_code == 200
     assert "text/html" in response.content_type
-    assert b"RUNNING" in response.data
-    assert b"PENDING" in response.data
+
+    body_text = response.get_data(as_text=True)
+    # assert "RUNNING" in body_text # Now that the jobs are sorted, and as we are expecting 25 jobs to be displayed by default, there is no more RUNNING jobs on this list for the current fake data
+    assert "PENDING" in body_text
 
 
 def test_list_invalid_time(client):
@@ -123,9 +125,15 @@ def test_jobs(client, fake_data: dict[list[dict]]):
     Note that the `client` fixture depends on other fixtures that
     are going to put the fake data in the database for us.
     """
+    # Sort the jobs contained in the fake data by submit time, then by job id
+    sorted_all_jobs = sorted(
+        fake_data["jobs"],
+        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+    )
+
     response = client.get("/jobs/list")
     for i in range(0, get_default_setting_value("nbr_items_per_page")):
-        D_job = fake_data["jobs"][i]
+        D_job = sorted_all_jobs[i]
         assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
 
 
@@ -147,8 +155,16 @@ def test_jobs_with_both_pagination_options(
         page_num            The number of the page displaying the jobs
         nbr_items_per_page  The number of jobs we want to display per page
     """
+    # Sort the jobs contained in the fake data by submit time, then by job id
+    sorted_all_jobs = sorted(
+        fake_data["jobs"],
+        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+    )
+
     # Get the response
-    response = client.get("/jobs/list?page_num={}&nbr_items_per_page={}")
+    response = client.get(
+        f"/jobs/list?page_num={page_num}&nbr_items_per_page={nbr_items_per_page}"
+    )
 
     # Retrieve the bounds of the interval of index in which the expected jobs
     # are contained
@@ -158,8 +174,8 @@ def test_jobs_with_both_pagination_options(
 
     # Assert that the retrieved jobs correspond to the expected jobs
     for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(fake_data):
-            D_job = fake_data["jobs"][i]
+        if i < len(sorted_all_jobs):
+            D_job = sorted_all_jobs[i]
             assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
 
 
@@ -177,10 +193,15 @@ def test_jobs_with_page_num_pagination_option(
                             fake data in the database for us
         fake_data           The data our tests are based on
         page_num            The number of the page displaying the jobs
-        nbr_items_per_page  The number of jobs we want to display per page
     """
+    # Sort the jobs contained in the fake data by submit time, then by job id
+    sorted_all_jobs = sorted(
+        fake_data["jobs"],
+        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+    )
+
     # Get the response
-    response = client.get("/jobs/list?page_num={}&nbr_items_per_page={}")
+    response = client.get(f"/jobs/list?page_num={page_num}")
 
     # Retrieve the bounds of the interval of index in which the expected jobs
     # are contained
@@ -190,8 +211,8 @@ def test_jobs_with_page_num_pagination_option(
     # Assert that the retrieved jobs correspond to the expected jobs
 
     for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(fake_data):
-            D_job = fake_data["jobs"][i]
+        if i < len(sorted_all_jobs):
+            D_job = sorted_all_jobs[i]
             assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
 
 
@@ -210,19 +231,25 @@ def test_jobs_with_page_num_pagination_option(
         fake_data           The data our tests are based on
         nbr_items_per_page  The number of jobs we want to display per page
     """
+    # Sort the jobs contained in the fake data by submit time, then by job id
+    sorted_all_jobs = sorted(
+        fake_data["jobs"],
+        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+    )
+
     # Get the response
-    response = client.get("/jobs/list?page_num={}&nbr_items_per_page={}")
+    response = client.get(f"/jobs/list?nbr_items_per_page={nbr_items_per_page}")
 
     # Retrieve the bounds of the interval of index in which the expected jobs
     # are contained
     (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
         None, None, nbr_items_per_page
     )
-    # Assert that the retrieved jobs correspond to the expected jobs
 
+    # Assert that the retrieved jobs correspond to the expected jobs
     for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(fake_data):
-            D_job = fake_data["jobs"][i]
+        if i < len(sorted_all_jobs):
+            D_job = sorted_all_jobs[i]
             assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
 
 
@@ -274,8 +301,14 @@ def test_route_search(
     ignore_clusters_names_filter = len(clusters_names) < 1
     ignore_states_filter = len(states) < 1
 
+    # Sort the jobs contained in the fake data by submit time, then by job id
+    sorted_all_jobs = sorted(
+        fake_data["jobs"],
+        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+    )
+
     # For each job, determine if it could be expected (before applying the pagination)
-    for D_job in fake_data["jobs"]:
+    for D_job in sorted_all_jobs:
         # Retrieve the values we may want to test
         retrieved_username = D_job["cw"]["mila_email_username"]
         retrieved_cluster_name = D_job["slurm"]["cluster_name"]
