@@ -60,9 +60,9 @@ def route_index():
 @login_required
 def route_list():
     """
-    Can take optional args "cluster_name", "user", "relative_time".
+    Can take optional args "cluster_name", "username", "relative_time".
 
-    "user" refers to any of the three alternatives to identify a user,
+    "username" refers to any of the @mila.quebec identity of the user,
     and it will match any of them.
     "relative_time" refers to how many seconds to go back in time to list jobs.
     "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
@@ -88,9 +88,9 @@ def route_list():
     )
 
     # Define the filter to select the jobs
-    user_name = request.args.get("user", None)
-    if user_name is not None:
-        f0 = {"cw.mila_email_username": user_name}
+    username = request.args.get("username", None)
+    if username is not None:
+        f0 = {"cw.mila_email_username": username}
     else:
         f0 = {}
 
