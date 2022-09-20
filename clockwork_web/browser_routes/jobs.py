@@ -96,7 +96,7 @@ def route_list():
     # Define the filter to select the jobs
     username = request.args.get("username", None)
     previous_request_args["username"] = username
-    
+
     if username is not None:
         f0 = {"cw.mila_email_username": username}
     else:
