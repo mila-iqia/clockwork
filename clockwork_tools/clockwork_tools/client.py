@@ -101,7 +101,7 @@ class ClockworkToolsBaseClient:
     # For endpoints requiring `params` we could use **kwargs instead,
     # but let's use explicit arguments instead.
     def jobs_list(
-        self, user=None, relative_time=None, cluster_name: str = None
+        self, username=None, relative_time=None, cluster_name: str = None
     ) -> list[dict[str, any]]:
         """REST call to api/v1/clusters/jobs/list.
 
@@ -109,7 +109,7 @@ class ClockworkToolsBaseClient:
         from the specified cluster.
 
         Args:
-            user (str): Name of user. Matches any of the three possible kinds of usernames.
+            username (str): Name of user.
             relative_time (int): How many seconds to go back in time to list jobs.
             cluster_name (str): Name of cluster.
 
@@ -120,7 +120,7 @@ class ClockworkToolsBaseClient:
         endpoint = "api/v1/clusters/jobs/list"
         params = {}
         for (k, a) in [
-            ("user", user),
+            ("username", username),
             ("relative_time", relative_time),
             ("cluster_name", cluster_name),
         ]:
@@ -323,7 +323,7 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
     # For endpoints requiring `params` we could use **kwargs instead,
     # but let's use explicit arguments instead.
     def jobs_list(
-        self, user=None, relative_time=None, cluster_name: str = None
+        self, username=None, relative_time=None, cluster_name: str = None
     ) -> list[dict[str, any]]:
         """REST call to api/v1/clusters/jobs/list.
 
@@ -331,7 +331,7 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
         from the specified cluster.
 
         Args:
-            user (str): Name of user. Matches any of the three possible kinds of usernames.
+            username (str): Name of user.
             relative_time (int): How many seconds to go back in time to list jobs.
             cluster_name (str): Name of cluster.
 
@@ -341,7 +341,7 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
         """
         params = self._create_params_for_request(
             target_self=False,  # `target_self` not applicable here
-            user=user,
+            username=username,
             relative_time=relative_time,
             cluster_name=cluster_name,
         )
