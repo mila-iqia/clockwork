@@ -237,7 +237,7 @@ def main_read_jobs_and_update_collection(
             )
 
         if L_user_updates:
-            print("results = users_collection.bulk_write(L_user_updates, upsert=False)")
+            print("users_collection.bulk_write(L_user_updates, upsert=False)")
             result = users_collection.bulk_write(
                 L_user_updates,
                 upsert=False,  # this should never create new users.
