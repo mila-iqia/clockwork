@@ -28,8 +28,12 @@ def route_one():
 
     .. :quickref: present a cluster as formatted HTML
     """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Retrieve the argument cluster_name
     cluster_name = request.args.get("cluster_name", None)
+    previous_request_args["cluster_name"] = cluster_name
 
     # Get the clusters and reformat them in order to keep what we want
     # We make a copy in order to avoid unwillingly modify the original dictionary
@@ -51,12 +55,15 @@ def route_one():
                 cluster_name=cluster_name,
                 cluster=D_clusters[cluster_name],
                 mila_email_username=current_user.mila_email_username,
+                previous_request_args=previous_request_args,
             )
         else:
             # Return a 404 error (Not Found) if the cluster is unknown
             return (
                 render_template_with_user_settings(
-                    "error.html", error_msg=f"This cluster is not known."
+                    "error.html",
+                    error_msg=f"This cluster is not known.",
+                    previous_request_args=previous_request_args,
                 ),
                 404,  # Not Found
             )
@@ -65,7 +72,9 @@ def route_one():
         # Return a 400 error (Bad Request) if no cluster_name has been provided
         return (
             render_template_with_user_settings(
-                "error.html", error_msg=f"The argument cluster_name is missing."
+                "error.html",
+                error_msg=f"The argument cluster_name is missing.",
+                previous_request_args=previous_request_args,
             ),
             400,  # Bad Request
         )
