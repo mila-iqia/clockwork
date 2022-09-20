@@ -80,7 +80,7 @@ def test_list_jobs_for_a_given_random_user(client, fake_data):
     # the usual validator doesn't work on the html contents
     _, username = helper_list_jobs_for_a_given_random_user(fake_data)
 
-    response = client.get(f"/jobs/list?user={username}")
+    response = client.get(f"/jobs/list?username={username}")
 
     assert "text/html" in response.content_type
     assert username.encode("utf-8") in response.data
@@ -91,7 +91,7 @@ def test_list_jobs_invalid_username(client, username):
     """
     Make a request to /jobs/list.
     """
-    response = client.get(f"/jobs/list?user={username}")
+    response = client.get(f"/jobs/list?username={username}")
     assert "text/html" in response.content_type
     assert username.encode("utf-8") not in response.data  # notice the NOT
 
@@ -300,14 +300,13 @@ def test_route_search(
     # - username
     if username is not None:
         request_line += "username={}&".format(username)
-    # - clusters_names
+
+    # - cluster_name
     if len(clusters_names) > 0:
-        for cluster_name in clusters_names:
-            request_line += "clusters_names={}&".format(cluster_name)
-    # - states
+        request_line += "cluster_name={}&".format(",".join(clusters_names))
+    # - state
     if len(states) > 0:
-        for state in states:
-            request_line += "states={}&".format(state)
+        request_line += "state={}&".format(",".join(states))
     # - page_num
     if page_num:
         request_line += "page_num={}&".format(page_num)
