@@ -233,7 +233,7 @@ def test_jobs_with_page_num_pagination_option(
 #   Tests for route_search
 ###
 @pytest.mark.parametrize(
-    "user_name,clusters_names,states,page_num,nbr_items_per_page",
+    "username,clusters_names,states,page_num,nbr_items_per_page",
     [
         ("student05@mila.quebec", ["mila", "graham"], ["RUNNING", "PENDING"], 2, 2),
         ("student10@mila.quebec", ["graham"], ["RUNNING", "PENDING"], 2, 2),
@@ -245,7 +245,7 @@ def test_jobs_with_page_num_pagination_option(
     ],
 )
 def test_route_search(
-    client, fake_data, user_name, clusters_names, states, page_num, nbr_items_per_page
+    client, fake_data, username, clusters_names, states, page_num, nbr_items_per_page
 ):
     """
     Test the function route_search with different sets of arguments.
@@ -255,7 +255,7 @@ def test_route_search(
                             depends on other fixtures that are going to put the
                             fake data in the database for us
         fake_data           The data our tests are based on
-        user_name           The user whose jobs we are looking for
+        username           The user whose jobs we are looking for
         clusters_names      An array of the clusters on which we search jobs
         states              An array of the potential states of the jobs we want
                             to retrieve
@@ -270,26 +270,26 @@ def test_route_search(
     LD_prefiltered_jobs = []
 
     # Determine which filters we have to ignored
-    ignore_user_name_filter = user_name is None
+    ignore_username_filter = username is None
     ignore_clusters_names_filter = len(clusters_names) < 1
     ignore_states_filter = len(states) < 1
 
     # For each job, determine if it could be expected (before applying the pagination)
     for D_job in fake_data["jobs"]:
         # Retrieve the values we may want to test
-        retrieved_user_name = D_job["cw"]["mila_email_username"]
+        retrieved_username = D_job["cw"]["mila_email_username"]
         retrieved_cluster_name = D_job["slurm"]["cluster_name"]
         retrieved_state = D_job["slurm"]["job_state"]
 
         # Define the tests which will determine if the job is taken into account or not
-        test_user_name = (retrieved_user_name == user_name) or ignore_user_name_filter
+        test_username = (retrieved_username == username) or ignore_username_filter
         test_clusters_names = (
             retrieved_cluster_name in clusters_names
         ) or ignore_clusters_names_filter
         test_states = (retrieved_state in states) or ignore_states_filter
 
         # Select the jobs in regard of the predefined tests
-        if test_user_name and test_clusters_names and test_states:
+        if test_username and test_clusters_names and test_states:
             LD_prefiltered_jobs.append(D_job)
 
     ###
@@ -299,17 +299,16 @@ def test_route_search(
     # Initialize the call
     request_line = "/jobs/search?"
 
-    # - user_name
-    if user_name is not None:
-        request_line += "user_name={}&".format(user_name)
-    # - clusters_names
+    # - username
+    if username is not None:
+        request_line += "username={}&".format(username)
+
+    # - cluster_name
     if len(clusters_names) > 0:
-        for cluster_name in clusters_names:
-            request_line += "clusters_names={}&".format(cluster_name)
-    # - states
+        request_line += "cluster_name={}&".format(",".join(clusters_names))
+    # - state
     if len(states) > 0:
-        for state in states:
-            request_line += "states={}&".format(state)
+        request_line += "state={}&".format(",".join(states))
     # - page_num
     if page_num:
         request_line += "page_num={}&".format(page_num)
