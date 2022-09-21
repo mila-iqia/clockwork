@@ -61,7 +61,6 @@ def route_index():
 def route_list():
     """
     Can take optional args "cluster_name", "username", "relative_time".
-
     "username" refers to the Mila email of a user.
     "relative_time" refers to how many seconds to go back in time to list jobs.
     "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
@@ -97,6 +96,7 @@ def route_list():
     # Define the filter to select the jobs
     username = request.args.get("username", None)
     previous_request_args["username"] = username
+
     if username is not None:
         f0 = {"cw.mila_email_username": username}
     else:

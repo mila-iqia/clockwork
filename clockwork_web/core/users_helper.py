@@ -240,7 +240,11 @@ def get_nbr_items_per_page(mila_email_username):
         return get_default_setting_value("nbr_items_per_page")
     else:
         # If a user has been found, return the value stored in its settings
-        return user["web_settings"]["nbr_items_per_page"]
+        v = user.get("web_settings", {}).get("nbr_items_per_page", None)
+        if v is None:
+            return get_default_setting_value("nbr_items_per_page")
+        else:
+            return v
 
 
 def get_users_one(mila_email_username):

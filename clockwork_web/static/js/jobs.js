@@ -90,7 +90,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
 
         // things that affect the data fetched
         query_filter = {
-            "user": "all", // or specific user
+            "username": "all", // or specific username
             "time": 3600, // int, for number of seconds to go backwards
         }
 
@@ -122,8 +122,8 @@ function launch_refresh_all_data(query_filter, display_filter) {
 
     let url = refresh_endpoint;
     // If a user is specified, add its username to the request
-    if (query_filter["user"].localeCompare("all") != 0) {
-      url = url + "&user=" + query_filter["user"];
+    if (query_filter["username"].localeCompare("all") != 0) {
+      url = url + "&username=" + query_filter["username"];
     };
 
     // Send the request, and retrieve the response
