@@ -278,37 +278,46 @@
 				                                <span>Filter by status</span>
 				                            </div>
 
-				                            <!-- toggle completed -->
-				                            <div class="cc_toggle_zone_row">
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="status_toggle_lever_completed" class="status_toggle_lever_completed"><span class="status completed">Completed</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_completed" value="COMPLETED" checked data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle running -->
-				                            <div class="cc_toggle_zone_row">
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="status_toggle_lever_running" class="status_toggle_lever_running"><span class="status running">Running</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_running" value="RUNNING" checked data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle pending -->
-				                            <div class="cc_toggle_zone_row">
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="status_toggle_lever_pending" class="status_toggle_lever_pending"><span class="status pending">Pending</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_pending" value="PENDING" checked data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle any errors -->
-				                             <div class="cc_toggle_zone_row">
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="status_toggle_lever_any_errors" class="status_toggle_lever_any_errors"><span class="status failed">Any errors</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_any_errors" value="FAILED" checked data-no-submit>
-				                                </div>
-				                            </div>
+											{% for state in [
+													{
+														"value": "COMPLETED",
+														"input_id": "status_toggle_lever_completed",
+														"span_class": "completed",
+														"label": "Completed"
+													},
+													{
+														"value": "RUNNING",
+														"input_id": "status_toggle_lever_running",
+														"span_class": "running",
+														"label": "Running"
+													},
+													{
+														"value": "PENDING",
+														"input_id": "status_toggle_lever_pending",
+														"span_class": "pending",
+														"label": "Pending"
+													},
+													{
+														"value": "FAILED",
+														"input_id": "status_toggle_lever_any_errors",
+														"span_class": "failed",
+														"label": "Any errors"
+													}
+												]
+											%}
+												<div class="cc_toggle_zone_row">
+													<div class="cc_cluster_toggle_subzone form-check form-switch">
+														<label class="form-check-label" for="{{state['input_id']}}" class="{{state['input_id']}}"><span class="status {{state['span_class']}}">{{state['label']}}</span></label>
+														{% if state["value"] in previous_request_args["state"] or previous_request_args["state"]|length == 0 %}
+															{# Create a checked toggle button #}
+															<input class="form-check-input float-end" type="checkbox" name="state" id="{{state['input_id']}}" value="{{state['value']}}" checked data-no-submit>
+														{% else %}
+															{# Create an unchecked toggle button #}
+															<input class="form-check-input float-end" type="checkbox" name="state" id="{{state['input_id']}}" value="{{state['value']}}" data-no-submit>
+														{% endif %}
+													</div>
+												</div>	
+											{% endfor %}
 				                        </div>
 				                    </div> 
 				                </div> <!-- end search form row-->
