@@ -24,15 +24,15 @@
 
         function read_display_filter() {
             // sets value of `display_filter`
-            display_filter["cluster_name"] = {
-                "mila": true,
-                "beluga": true,
-                "cedar": true,
-                "graham": true
-            }
 
+            // Set the clusters names
+            display_filter["cluster_name"] = {}
+
+            {% for D_cluster in clusters %}
+                display_filter["cluster_name"]["{{D_cluster}}"] = true;
+            {% endfor %}
+            
             // Grouping the states into 4 bins to simplify the interface and usability.
-
             status_running = true
             status_pending = true
             status_completed = true
@@ -85,7 +85,7 @@
                 }, 2000);
             });
             
-            // note that `launch_refresh_all_data` comes from "jobs.ps"
+            // note that `launch_refresh_all_data` comes from "jobs.js"
             launch_refresh_all_data(query_filter, display_filter);
 
             //console.log("server_refresh() called");
