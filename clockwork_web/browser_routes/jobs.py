@@ -43,6 +43,7 @@ from clockwork_web.core.jobs_helper import (
     strip_artificial_fields_from_job,
     get_jobs,
     infer_best_guess_for_username,
+    get_inferred_job_states,
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
 
@@ -173,7 +174,20 @@ def route_search():
     - "username" refers to the Mila email identifying a user,
       and it will match any of them.
     - "cluster_name" refers to the cluster(s) on which we are looking for the jobs
-    - "state" refers to the state(s) of the jobs we are looking for
+    - "state" refers to the state(s) of the jobs we are looking for. Here are concerned
+      the "global states", which are "RUNNING", "PENDING", "COMPLETED" and "ERROR", which
+      gather multiple states according to the following mapping:
+      {
+        "PENDING": "PENDING",
+        "PREEMPTED": "PENDING",
+        "RUNNING": "RUNNING",
+        "COMPLETING": "RUNNING",
+        "COMPLETED": "COMPLETED",
+        "OUT_OF_MEMORY": "FAILED",
+        "TIMEOUT": "FAILED",
+        "FAILED": "FAILED",
+        "CANCELLED": "FAILED"
+      }
     - "page_num" is optional and used for the pagination: it is a positive integer
       presenting the number of the current page
     - "nbr_items_per_page" is optional and used for the pagination: it is a
@@ -227,7 +241,8 @@ def route_search():
 
     # Define the filter related to the jobs' states
     if len(states) > 0:
-        f2 = {"slurm.job_state": {"$in": states}}
+        all_inferred_states = get_inferred_job_states(states)
+        f2 = {"slurm.job_state": {"$in": all_inferred_states}}
     else:
         f2 = {}  # Apply no filter for the states if no state has been provided
 
