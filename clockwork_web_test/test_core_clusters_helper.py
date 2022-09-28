@@ -27,6 +27,7 @@ def test_get_all_clusters():
             "nbr_gpus": 696,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/B%C3%A9luga/",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#beluga",
+            "display_priority": -1,
         },
         "cedar": {
             "organization": "Digital Research Alliance of Canada",
@@ -42,6 +43,7 @@ def test_get_all_clusters():
             "nbr_gpus": 1352,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Cedar",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#cedar",
+            "display_priority": 1,
         },
         "graham": {
             "organization": "Digital Research Alliance of Canada",
@@ -57,6 +59,7 @@ def test_get_all_clusters():
             "nbr_gpus": 536,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Graham",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#graham",
+            "display_priority": -1,
         },
         "mila": {
             "organization": "Mila",
@@ -67,6 +70,7 @@ def test_get_all_clusters():
             "nbr_gpus": 532,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.mila.quebec/Information.html",
             "mila_documentation": False,
+            "display_priority": 5,
         },
         "narval": {
             "organization": "Digital Research Alliance of Canada",
@@ -82,6 +86,7 @@ def test_get_all_clusters():
             "nbr_gpus": 636,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Narval",
             "mila_documentation": False,
+            "display_priority": 2,
         },
         "test_cluster": {
             "organization": "Mila",
@@ -92,6 +97,7 @@ def test_get_all_clusters():
             "nbr_gpus": 0,
             "official_documentation": False,
             "mila_documentation": False,
+            "display_priority": -1,
         },
     }
 
