@@ -46,6 +46,8 @@ def _load_clusters_from_config():
     # Links to the documentation
     clusters_valid.add_field("official_documentation", optional_string, default=False)
     clusters_valid.add_field("mila_documentation", optional_string, default=False)
+    # Priority indice used to know in which order we display the clusters
+    clusters_valid.add_field("display_priority", int, default=-1)
 
     # Load the clusters from the configuration file, asserting that it uses the
     # predefined format

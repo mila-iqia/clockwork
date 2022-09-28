@@ -178,11 +178,11 @@
 				                                <span>Filter by cluster</span>
 				                            </div>
 
-											{% for D_cluster in clusters %}
+											{% for cluster_name,D_cluster in clusters.items()|sort(attribute='1.display_priority', reverse=True) %}
 												<!-- toggle for a cluster-->
 												<div class="cc_toggle_zone_row">
 													<!-- official documentation-->
-													<a href="{{clusters[D_cluster]['official_documentation']}}" target="_blank">
+													<a href="{{D_cluster['official_documentation']}}" target="_blank">
 														<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
 													</a>
 													<!-- Grafana -->
@@ -191,8 +191,8 @@
 													</a>
 													<!-- cluster toggle -->
 													<div class="cc_cluster_toggle_subzone form-check form-switch">
-														<label class="form-check-label" for="cluster_toggle_lever_{{D_cluster}}" class="cc_cluster_toggle_name">{{D_cluster}}</label>
-														<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{D_cluster}}" name="cluster_name" value="{{D_cluster}}" checked data-no-submit>
+														<label class="form-check-label" for="cluster_toggle_lever_{{cluster_name}}" class="cc_cluster_toggle_name">{{cluster_name}}</label>
+														<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" checked data-no-submit>
 													</div>													
 												</div>
 											{% endfor %}
