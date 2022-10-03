@@ -226,11 +226,11 @@
 													</a>
 													<!-- cluster toggle -->
 													<div class="cc_cluster_toggle_subzone form-check form-switch">
-														<label class="form-check-label" for="cluster_toggle_lever_{{D_cluster}}" class="cc_cluster_toggle_name">{{D_cluster}}</label>
-														{% if D_cluster in previous_request_args["cluster_name"] or previous_request_args["cluster_name"]|length == 0 %}
-															<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{D_cluster}}" name="cluster_name" value="{{D_cluster}}" checked data-no-submit>
+														<label class="form-check-label" for="cluster_toggle_lever_{{cluster_name}}" class="cc_cluster_toggle_name">{{cluster_name}}</label>
+														{% if cluster_name in previous_request_args["cluster_name"] or previous_request_args["cluster_name"]|length == 0 %}
+															<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" checked data-no-submit>
 														{% else %}
-														<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{D_cluster}}" name="cluster_name" value="{{D_cluster}}" data-no-submit>
+														<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" data-no-submit>
 														{% endif %}
 													</div>													
 												</div>
