@@ -10,7 +10,7 @@ import pytest
 def test_fetch_slurm_report():
     res = list(
         fetch_slurm_report_nodes(
-            "test_cluster",
+            "beluga",
             "slurm_state_test/files/small_scontrol_node",
         )
     )
@@ -27,12 +27,12 @@ def test_fetch_slurm_report():
             "cfg_tres": "cpu=80,mem=386619M,billing=136,gres/gpu=8",
             "alloc_tres": "cpu=28,mem=192G,gres/gpu=8",
             "comment": None,
-            "cluster_name": "test_cluster",
+            "cluster_name": "beluga",
         }
     ]
     res = list(
         fetch_slurm_report_jobs(
-            "test_cluster",
+            "beluga",
             "slurm_state_test/files/small_scontrol_job",
         )
     )
@@ -42,7 +42,7 @@ def test_fetch_slurm_report():
             "name": "sh",
             "username": "nobody",
             "uid": 65535,
-            "account": "clustergroup",
+            "account": "def-cerise-rrg",
             "job_state": "PENDING",
             "exit_code": "0:0",
             "time_limit": 604800,
@@ -61,7 +61,7 @@ def test_fetch_slurm_report():
             "tres_per_node": "gpu:titanxp:1",
             "command": None,
             "work_dir": "/home/user",
-            "cluster_name": "test_cluster",
+            "cluster_name": "beluga",
         }
     ]
 
@@ -70,14 +70,14 @@ def test_slurm_job_to_clockwork_job():
     job = {
         "name": "sh",
         "username": "testuser",
-        "cluster_name": "test_cluster",
+        "cluster_name": "beluga",
     }
     cw_job = slurm_job_to_clockwork_job(job)
     assert cw_job == {
         "slurm": {
             "name": "sh",
             "username": "testuser",
-            "cluster_name": "test_cluster",
+            "cluster_name": "beluga",
         },
         "cw": {
             "mila_email_username": None,
@@ -108,7 +108,7 @@ def test_slurm_node_to_clockwork_node():
         "cfg_tres": "cpu=80,mem=386619M,billing=136,gres/gpu=8",
         "alloc_tres": "cpu=28,mem=192G,gres/gpu=8",
         "comment": None,
-        "cluster_name": "test_cluster",
+        "cluster_name": "beluga",
     }
     cw_node = slurm_node_to_clockwork_node(node)
     assert cw_node == {
@@ -123,7 +123,7 @@ def test_slurm_node_to_clockwork_node():
             "cfg_tres": "cpu=80,mem=386619M,billing=136,gres/gpu=8",
             "alloc_tres": "cpu=28,mem=192G,gres/gpu=8",
             "comment": None,
-            "cluster_name": "test_cluster",
+            "cluster_name": "beluga",
         },
         "cw": {
             "gpu": {
@@ -158,7 +158,7 @@ def test_main_read_jobs_and_update_collection():
     main_read_jobs_and_update_collection(
         db.test_jobs,
         db.test_users,
-        "test_cluster",
+        "beluga",
         "slurm_state_test/files/small_scontrol_job",
     )
 
@@ -167,7 +167,7 @@ def test_main_read_jobs_and_update_collection():
     main_read_jobs_and_update_collection(
         db.test_jobs,
         db.test_users,
-        "test_cluster",
+        "beluga",
         "slurm_state_test/files/scontrol_job_2",
     )
 
@@ -184,7 +184,7 @@ def test_main_read_nodes_and_update_collection():
 
     main_read_nodes_and_update_collection(
         db.test_nodes,
-        "test_cluster",
+        "beluga",
         "slurm_state_test/files/small_scontrol_node",
     )
 
@@ -192,7 +192,7 @@ def test_main_read_nodes_and_update_collection():
 
     main_read_nodes_and_update_collection(
         db.test_nodes,
-        "test_cluster",
+        "beluga",
         "slurm_state_test/files/scontrol_node_2",
     )
 
@@ -204,7 +204,7 @@ def test_main_read_nodes_and_update_collection():
     # 'AvailableFeatures' elements
     main_read_nodes_and_update_collection(
         db.test_nodes,
-        "test_cluster",
+        "beluga",
         "slurm_state_test/files/scontrol_node_3",
     )
 

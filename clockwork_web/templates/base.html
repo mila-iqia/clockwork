@@ -213,7 +213,7 @@
 				                                <span>Filter by cluster</span>
 				                            </div>
 
-											{% for D_cluster in clusters %}
+											{% for cluster_name,D_cluster in clusters.items()|sort(attribute='1.display_order', reverse=False) %}
 												<!-- toggle for a cluster-->
 												<div class="cc_toggle_zone_row">
 													<!-- official documentation-->
