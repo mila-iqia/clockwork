@@ -30,7 +30,7 @@ from flask_babel import gettext
 # this is what allows the factorization into many files.
 from flask import Blueprint
 
-from clockwork_web.core.utils import to_boolean
+from clockwork_web.core.utils import to_boolean, get_custom_array_from_request_args
 from clockwork_web.core.users_helper import render_template_with_user_settings
 
 flask_api = Blueprint("jobs", __name__)
@@ -61,7 +61,6 @@ def route_index():
 def route_list():
     """
     Can take optional args "cluster_name", "username", "relative_time".
-
     "username" refers to the Mila email of a user.
     "relative_time" refers to how many seconds to go back in time to list jobs.
     "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
@@ -97,6 +96,7 @@ def route_list():
     # Define the filter to select the jobs
     username = request.args.get("username", None)
     previous_request_args["username"] = username
+
     if username is not None:
         f0 = {"cw.mila_email_username": username}
     else:
@@ -163,16 +163,17 @@ def route_search():
     Display a list of jobs, which can be filtered by user, cluster and state.
 
     Can take optional arguments:
+
     - "username"
-    - "clusters_names"
-    - "states"
+    - "cluster_name"
+    - "state"
     - "page_num"
     - "nbr_items_per_page".
 
     - "username" refers to the Mila email identifying a user,
       and it will match any of them.
-    - "clusters_names" refers to the cluster(s) on which we are looking for the jobs
-    - "states" refers to the state(s) of the jobs we are looking for
+    - "cluster_name" refers to the cluster(s) on which we are looking for the jobs
+    - "state" refers to the state(s) of the jobs we are looking for
     - "page_num" is optional and used for the pagination: it is a positive integer
       presenting the number of the current page
     - "nbr_items_per_page" is optional and used for the pagination: it is a
@@ -187,11 +188,13 @@ def route_search():
     username = request.args.get("username", None)
     previous_request_args["username"] = username
 
-    clusters_names = request.args.getlist("clusters_names", None)
-    previous_request_args["clusters_names"] = clusters_names
+    clusters_names = get_custom_array_from_request_args(
+        request.args.get("cluster_name")
+    )
+    previous_request_args["cluster_name"] = clusters_names
 
-    states = request.args.getlist("states", None)
-    previous_request_args["states"] = states
+    states = get_custom_array_from_request_args(request.args.get("state"))
+    previous_request_args["state"] = states
 
     # Retrieve the pagination parameters
     pagination_page_num = request.args.get("page_num", type=int, default="1")

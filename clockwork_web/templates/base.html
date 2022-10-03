@@ -10,11 +10,10 @@
 
 			<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-			{# "web_settings" appears to be undefined outside of the settings page.
-				{% if web_settings["dark_mode"] %}
-					<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
-				{% endif %}
-			#}
+			{% if web_settings["dark_mode"] %}
+				<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+			{% endif %}
+
 			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}"> -->
 
 			<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -179,61 +178,24 @@
 				                                <span>Filter by cluster</span>
 				                            </div>
 
-				                            <!-- toggle beluga -->
-				                            <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.computecanada.ca/wiki/Beluga" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_beluga" class="cc_cluster_toggle_name">beluga</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_beluga" name="clusters_names" value="beluga" checked data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle cedar -->
-				                            <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.computecanada.ca/wiki/Cedar" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_cedar" class="cc_cluster_toggle_name">cedar</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_cedar" name="clusters_names" value="cedar" checked data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle graham -->
-				                             <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.computecanada.ca/wiki/Graham" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_graham" class="cc_cluster_toggle_name">graham</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_graham" name="clusters_names" value="graham" checked data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle mila -->
-				                            <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.mila.quebec" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_mila" class="cc_cluster_toggle_name">mila</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_mila" name="clusters_names" value="mila" checked data-no-submit>
-				                                </div>
-				                            </div>
+											{% for cluster_name,D_cluster in clusters.items()|sort(attribute='1.display_order', reverse=False) %}
+												<!-- toggle for a cluster-->
+												<div class="cc_toggle_zone_row">
+													<!-- official documentation-->
+													<a href="{{D_cluster['official_documentation']}}" target="_blank">
+														<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
+													</a>
+													<!-- Grafana -->
+													<a href="https://dashboard.server.mila.quebec/" target="_blank">
+														<i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
+													</a>
+													<!-- cluster toggle -->
+													<div class="cc_cluster_toggle_subzone form-check form-switch">
+														<label class="form-check-label" for="cluster_toggle_lever_{{cluster_name}}" class="cc_cluster_toggle_name">{{cluster_name}}</label>
+														<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" checked data-no-submit>
+													</div>													
+												</div>
+											{% endfor %}
 				                        </div>
 				                    </div>
 
@@ -248,7 +210,7 @@
 				                            <div class="cc_toggle_zone_row">
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="status_toggle_lever_completed" class="status_toggle_lever_completed"><span class="status completed">Completed</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="states" id="status_toggle_lever_completed" value="COMPLETED" checked data-no-submit>
+				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_completed" value="COMPLETED" checked data-no-submit>
 				                                </div>
 				                            </div>
 
@@ -256,7 +218,7 @@
 				                            <div class="cc_toggle_zone_row">
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="status_toggle_lever_running" class="status_toggle_lever_running"><span class="status running">Running</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="states" id="status_toggle_lever_running" value="RUNNING" checked data-no-submit>
+				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_running" value="RUNNING" checked data-no-submit>
 				                                </div>
 				                            </div>
 
@@ -264,7 +226,7 @@
 				                            <div class="cc_toggle_zone_row">
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="status_toggle_lever_pending" class="status_toggle_lever_pending"><span class="status pending">Pending</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="states" id="status_toggle_lever_pending" value="PENDING" checked data-no-submit>
+				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_pending" value="PENDING" checked data-no-submit>
 				                                </div>
 				                            </div>
 
@@ -272,7 +234,7 @@
 				                             <div class="cc_toggle_zone_row">
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="status_toggle_lever_any_errors" class="status_toggle_lever_any_errors"><span class="status failed">Any errors</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="states" id="status_toggle_lever_any_errors" value="FAILED" checked data-no-submit>
+				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_any_errors" value="FAILED" checked data-no-submit>
 				                                </div>
 				                            </div>
 				                        </div>
