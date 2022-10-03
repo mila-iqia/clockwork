@@ -1,6 +1,6 @@
 JobId=1 JobName=sh
    UserId=nobody(65535) GroupId=nobody(65535) MCS_label=N/A
-   Priority=0 Nice=0 Account=clustergroup QOS=normal
+   Priority=0 Nice=0 Account=def-cerise-rrg QOS=normal
    JobState=PENDING Reason=JobHeldAdmin Dependency=(null)
    Requeue=1 Restarts=0 BatchFlag=0 Reboot=0 ExitCode=0:0
    RunTime=00:00:00 TimeLimit=7-00:00:00 TimeMin=N/A
@@ -25,7 +25,7 @@ JobId=1 JobName=sh
 
 JobId=2 JobName=imagenet.sh
    UserId=nobody(65534) GroupId=nobody(65534) MCS_label=N/A
-   Priority=121777 Nice=0 Account=clustergroup QOS=normal
+   Priority=121777 Nice=0 Account=def-cerise-rrg QOS=normal
    JobState=PENDING Reason=ReqNodeNotAvail,_UnavailableNodes:node8,nodek4,nodep[1-2],nodex3 Dependency=(null)
    Requeue=1 Restarts=11 BatchFlag=1 Reboot=0 ExitCode=0:0
    RunTime=00:00:00 TimeLimit=7-00:00:00 TimeMin=N/A
