@@ -32,7 +32,7 @@ def route_api_v1_jobs_list():
 
     .. :quickref: list all Slurm jobs
     """
-    username = request.args.get("user", None)
+    username = request.args.get("username", None)
     if username is not None:
         f0 = {"cw.mila_email_username": username}
     else:
