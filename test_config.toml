@@ -41,7 +41,7 @@ timezone="America/Montreal"
 organization="Digital Research Alliance of Canada"
 nbr_cpus=1950
 nbr_gpus=696
-official_documentation="https://docs.alliancecan.ca/wiki/B%C3%A9luga/"
+official_documentation="https://docs.alliancecan.ca/wiki/B%C3%A9luga"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#beluga"
 
 
