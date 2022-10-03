@@ -17,12 +17,25 @@ def gen_dicts(f):
         while line:
             m = FIELD.match(line)
             if m is None:
-                # Of course slrum needs to throw in a field with a different
-                # format at the end, because why not.
+                # Slurm sometimes throws in a field with a different
+                # format at the end. Not sure why, but we need to anticipate it.
                 if line == "NtasksPerTRES:0":
                     line = ""
                     continue
-                raise ValueError("Unexpected non-matching expression: " + line)
+                
+                # We want to ignore certain lines that aren't keywords
+                # starting with uppercases and an equal. However, when we do
+                # find those lines with keywords, we'd like to report this
+                # so that we can patch this thing later.
+                if re.match(r"/s*[A-Z][a-zA-Z]*=", line):
+                    print("Unexpected non-matching expression. Probably a keyword that you are not handling: " + line)
+                    # raise ValueError("Unexpected non-matching expression: " + line)
+                else:
+                    # Drop that line. It's not a keyword. It's probably trash like we
+                    # have seen in the famous "Command=" line from Cedar.
+                    line=""
+                    continue
+
             curd[m.group(1)] = m.group(2)
             line = m.group(3)
     if curd:
@@ -243,7 +256,7 @@ def job_parser(f, ctx):
                 saved_m = m
                 continue
             if command_hack:
-                # If we are doing the command hack, but we encouter
+                # If we are doing the command hack, but we encounter
                 # a valid field, then we terminate it.
                 saved_m(v_acc, ctx, res)
                 command_hack = False
