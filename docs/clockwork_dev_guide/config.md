@@ -15,7 +15,7 @@ organization="Digital Research Alliance of Canada"
 nbr_cpus=2608
 nbr_gpus=636
 official_documentation="https://docs.alliancecan.ca/wiki/Narval"
-display_priority=2
+display_order=4
 ```
 
 The previous example depicts a test configuration of the "narval" cluster.
@@ -45,4 +45,4 @@ Here is a list of the possible parameters for a cluster:
 | nbr_gpus | Optional (default: 0) | The number of GPUs this cluster contains. |
 | official_documentation | Optional (default: False) | Link to the official documentation of the cluster. |
 | mila_documentation | Optional (default: False) | Link to the Mila documentation of the cluster. |
-| display_priority | Optional (default value: -1) | Integer used to define the order in which the clusters are displayed. The higher the display priority is, the higher in the list the cluster will be. |
+| display_order | Optional (default value: 9999) | Integer used to define the order in which the clusters are displayed. The lower the display order indice is, the higher in the list the cluster will be. |

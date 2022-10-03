@@ -25,9 +25,9 @@ def test_get_all_clusters():
             ],
             "nbr_cpus": 1950,  # Number of CPUs on this cluster
             "nbr_gpus": 696,  # Number of GPUs on this cluster
-            "official_documentation": "https://docs.alliancecan.ca/wiki/B%C3%A9luga/",
+            "official_documentation": "https://docs.alliancecan.ca/wiki/B%C3%A9luga",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#beluga",
-            "display_priority": -1,
+            "display_order": 4,
         },
         "cedar": {
             "organization": "Digital Research Alliance of Canada",
@@ -43,7 +43,7 @@ def test_get_all_clusters():
             "nbr_gpus": 1352,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Cedar",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#cedar",
-            "display_priority": 1,
+            "display_order": 3,
         },
         "graham": {
             "organization": "Digital Research Alliance of Canada",
@@ -59,7 +59,7 @@ def test_get_all_clusters():
             "nbr_gpus": 536,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Graham",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#graham",
-            "display_priority": -1,
+            "display_order": 5,
         },
         "mila": {
             "organization": "Mila",
@@ -70,7 +70,7 @@ def test_get_all_clusters():
             "nbr_gpus": 532,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.mila.quebec/Information.html",
             "mila_documentation": False,
-            "display_priority": 5,
+            "display_order": 1,
         },
         "narval": {
             "organization": "Digital Research Alliance of Canada",
@@ -86,7 +86,7 @@ def test_get_all_clusters():
             "nbr_gpus": 636,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Narval",
             "mila_documentation": False,
-            "display_priority": 2,
+            "display_order": 2,
         },
     }
 
