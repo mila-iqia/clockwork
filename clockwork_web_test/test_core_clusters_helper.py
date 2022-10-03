@@ -88,17 +88,6 @@ def test_get_all_clusters():
             "mila_documentation": False,
             "display_priority": 2,
         },
-        "test_cluster": {
-            "organization": "Mila",
-            "timezone": ZoneInfo(key="America/Montreal"),
-            "account_field": "test_cluster_username",
-            "allocations": ["valid_fake_allocation_name", "clustergroup"],
-            "nbr_cpus": 0,
-            "nbr_gpus": 0,
-            "official_documentation": False,
-            "mila_documentation": False,
-            "display_priority": -1,
-        },
     }
 
     assert D_expected_clusters == get_all_clusters()
@@ -111,7 +100,6 @@ def test_get_account_fields():
     expected_clusters_for_account_fields = {
         "cc_account_username": ["beluga", "cedar", "graham", "narval"],
         "mila_cluster_username": ["mila"],
-        "test_cluster_username": ["test_cluster"],
     }
 
     retrieved_clusters_for_accound_fields = get_account_fields()
