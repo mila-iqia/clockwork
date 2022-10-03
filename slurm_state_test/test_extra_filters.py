@@ -17,16 +17,16 @@ def test_filtering_allocations():
             "slurm": {
                 "account": "some_invalid_string1",
                 "job_id": "0000",
-                "cluster_name": "test_cluster",
+                "cluster_name": "narval",
             },
             "cw": {},
             "user": {},
         },
         {
             "slurm": {
-                "account": "valid_fake_allocation_name",
+                "account": "def-pomme-rrg",  # Valid fake allocation name
                 "job_id": "1111",
-                "cluster_name": "test_cluster",
+                "cluster_name": "graham",
             },
             "cw": {},
             "user": {},
@@ -44,7 +44,7 @@ def test_filtering_allocations():
             "slurm": {
                 "account": "some_invalid_string2",
                 "job_id": "4444",
-                "cluster_name": "test_cluster",
+                "cluster_name": "narval",
             },
             "cw": {},
             "user": {},
