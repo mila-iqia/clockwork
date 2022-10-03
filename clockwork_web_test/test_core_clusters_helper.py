@@ -25,8 +25,9 @@ def test_get_all_clusters():
             ],
             "nbr_cpus": 1950,  # Number of CPUs on this cluster
             "nbr_gpus": 696,  # Number of GPUs on this cluster
-            "official_documentation": "https://docs.alliancecan.ca/wiki/B%C3%A9luga/",
+            "official_documentation": "https://docs.alliancecan.ca/wiki/B%C3%A9luga",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#beluga",
+            "display_order": 4,
         },
         "cedar": {
             "organization": "Digital Research Alliance of Canada",
@@ -42,6 +43,7 @@ def test_get_all_clusters():
             "nbr_gpus": 1352,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Cedar",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#cedar",
+            "display_order": 3,
         },
         "graham": {
             "organization": "Digital Research Alliance of Canada",
@@ -57,6 +59,7 @@ def test_get_all_clusters():
             "nbr_gpus": 536,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Graham",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#graham",
+            "display_order": 5,
         },
         "mila": {
             "organization": "Mila",
@@ -67,6 +70,7 @@ def test_get_all_clusters():
             "nbr_gpus": 532,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.mila.quebec/Information.html",
             "mila_documentation": False,
+            "display_order": 1,
         },
         "narval": {
             "organization": "Digital Research Alliance of Canada",
@@ -82,16 +86,7 @@ def test_get_all_clusters():
             "nbr_gpus": 636,  # Number of GPUs on this cluster
             "official_documentation": "https://docs.alliancecan.ca/wiki/Narval",
             "mila_documentation": False,
-        },
-        "test_cluster": {
-            "organization": "Mila",
-            "timezone": ZoneInfo(key="America/Montreal"),
-            "account_field": "test_cluster_username",
-            "allocations": ["valid_fake_allocation_name", "clustergroup"],
-            "nbr_cpus": 0,
-            "nbr_gpus": 0,
-            "official_documentation": False,
-            "mila_documentation": False,
+            "display_order": 2,
         },
     }
 
@@ -105,7 +100,6 @@ def test_get_account_fields():
     expected_clusters_for_account_fields = {
         "cc_account_username": ["beluga", "cedar", "graham", "narval"],
         "mila_cluster_username": ["mila"],
-        "test_cluster_username": ["test_cluster"],
     }
 
     retrieved_clusters_for_accound_fields = get_account_fields()
