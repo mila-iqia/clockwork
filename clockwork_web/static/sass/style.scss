@@ -432,7 +432,7 @@ table.table-striped,
         color: $turquoise;
         content: "\f336";
     }
-    span.pending:before {
+    span.pending:before, span.preempted:before {
         color: $yellow;
         content: "\f28b";
     }
