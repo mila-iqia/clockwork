@@ -66,6 +66,8 @@ def simulate_status(data):
             data["jobs"][i]["slurm"]["job_state"] = "TIMEOUT"
         if i % 30 == 5:
             data["jobs"][i]["slurm"]["job_state"] = "CANCELLED"
+        if i % 30 == 6:
+            data["jobs"][i]["slurm"]["job_state"] = "PREEMPTED"
 
 
 def main(argv):
