@@ -155,7 +155,7 @@ function refresh_display(display_filter) {
         Clear and populate the jobs table with the latest response content,
         filtered by the "display filters" given as parameters.
     */
-    latest_filtered_response_contents = apply_filter(latest_response_contents, display_filter);
+    latest_filtered_response_contents = apply_filter(latest_response_contents["jobs"], display_filter);
     vacate_table(); // idempotent if not table is present
     populate_table(latest_filtered_response_contents);
     //kaweb - for some reason, the sortable init only works on reload/first load, not after changing filters
