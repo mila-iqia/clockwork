@@ -22,22 +22,47 @@ def gen_dicts(f):
                 if line == "NtasksPerTRES:0":
                     line = ""
                     continue
-                
+
                 # We want to ignore certain lines that aren't keywords
                 # starting with uppercases and an equal. However, when we do
                 # find those lines with keywords, we'd like to report this
                 # so that we can patch this thing later.
                 if re.match(r"/s*[A-Z][a-zA-Z]*=", line):
-                    print("Unexpected non-matching expression. Probably a keyword that you are not handling: " + line)
+                    print(
+                        "Unexpected non-matching expression. Probably a keyword that you are not handling: "
+                        + line
+                    )
                     # raise ValueError("Unexpected non-matching expression: " + line)
                 else:
                     # Drop that line. It's not a keyword. It's probably trash like we
                     # have seen in the famous "Command=" line from Cedar.
-                    line=""
+                    line = ""
                     continue
 
+            # JobName is also a bit of a garbage situation because we have seen
+            # people who will write arguments for their script in there.
+            # It's rare, but see test_scontrol_parser.py for an example.
+            # When we see JobName= we just gobble up the rest of the line with that.
+            if m.group(1) == "JobName":
+                # It's "JobName" here because that's going to get
+                # analyzed later by the function in `JOB_FIELD_MAP`
+                # and it will get renamed as "name".
+                curd["JobName"] = (
+                    m.group(2) + " " + m.group(3)
+                )  # re-glue those together
+                # That " " is important for correctness because it undoes what `FIELD` does
+                # when it matches expressions and strips a space.
+
+                # Set `line` to be empty to prevent the rest of the line
+                # from being parsed. That's the price to pay to accommodate
+                # JobName entries that can have spaces and arguments (tss).
+                line = ""
+                continue
+
+            # The common branch taken when we encounter a term we recognize.
             curd[m.group(1)] = m.group(2)
             line = m.group(3)
+
     if curd:
         yield curd
 
@@ -115,7 +140,7 @@ def timelimit(f, ctx):
 
 def timestamp(f, ctx):
     # We add the timezone information for the timestamp
-    if f == "Unknown":
+    if f == "Unknown" or f is None:
         return None
     date_naive = datetime.datetime.strptime(f, "%Y-%m-%dT%H:%M:%S")
     date_aware = date_naive.replace(tzinfo=ctx["timezone"])

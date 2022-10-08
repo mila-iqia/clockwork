@@ -163,7 +163,6 @@ def main_read_jobs_and_update_collection(
         ),
     ):
 
-
         # add this field all the time, whenever you touch an entry
         D_job["cw"]["last_slurm_update"] = now
 
@@ -179,8 +178,7 @@ def main_read_jobs_and_update_collection(
                 # the data that we write in the collection
                 {
                     "$set": {"slurm": D_job["slurm"]},
-                    "$setOnInsert": {"cw": D_job["cw"],
-                                     "user": D_job["user"]},
+                    "$setOnInsert": {"cw": D_job["cw"], "user": D_job["user"]},
                 },
                 # create if missing, update if present
                 upsert=True,
@@ -197,7 +195,6 @@ def main_read_jobs_and_update_collection(
         # going to happen at the same time, and that we won't erase
         # the "user" dictionary? I think this was tested manually
         # at some point, but I'm not so confident anymore.
-        
 
         # ERROR : We aren't updating the job_state. :)
         #         We should update everything in "slurm". Might as well.
@@ -329,7 +326,7 @@ def main_read_nodes_and_update_collection(
         # We can reactivate this later if we ever get such a field.
 
         # Here we can add set extra values to "cw".
-        #L_updates_to_do.append(
+        # L_updates_to_do.append(
         #    UpdateOne(
         #        # rule to match if already present in collection
         #        {
@@ -341,7 +338,7 @@ def main_read_nodes_and_update_collection(
         #        # don't create if missing, update if present
         #        upsert=False,
         #    )
-        #)
+        # )
 
     if want_commit_to_db:
         if L_updates_to_do:
