@@ -47,8 +47,8 @@ def gen_dicts(f):
                 # It's "JobName" here because that's going to get
                 # analyzed later by the function in `JOB_FIELD_MAP`
                 # and it will get renamed as "name".
-                curd["JobName"] = (
-                    m.group(2) + " " + m.group(3)
+                curd["JobName"] = (m.group(2) if m.group(2) is not None else "") + (
+                    " " + m.group(3) if m.group(3) is not None else ""
                 )  # re-glue those together
                 # That " " is important for correctness because it undoes what `FIELD` does
                 # when it matches expressions and strips a space.
