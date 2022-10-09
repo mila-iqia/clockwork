@@ -3,6 +3,7 @@ Insert elements extracted from the Slurm reports into the database.
 """
 
 import os, time
+import copy
 from pymongo import UpdateOne
 import json
 from slurm_state.extra_filters import (
@@ -13,12 +14,16 @@ from slurm_state.extra_filters import (
 from slurm_state.helpers.gpu_helper import get_cw_gres_description
 from slurm_state.config import get_config, timezone, string, optional_string
 
-from .scontrol_parser import job_parser, node_parser
+from slurm_state.scontrol_parser import job_parser, node_parser
+from slurm_state.sacct_access import fetch_data_with_sacct_on_remote_clusters
 
 
 clusters_valid.add_field("timezone", timezone)
 clusters_valid.add_field("account_field", string)
 clusters_valid.add_field("update_field", optional_string)
+
+# Might as well share this as a global variable if it's useful later.
+NOT_TERMINAL_JOB_STATES = ["RUNNING", "PENDING", "COMPLETING"]
 
 
 def pprint_bulk_result(result):
@@ -147,95 +152,199 @@ def main_read_jobs_and_update_collection(
     timestamp_start = time.time()
     L_updates_to_do = []
     L_user_updates = []
+
     L_data_for_dump_file = []
+    def append_data_for_dump_file(D_job):
+        # just omit the "_id" part of it
+        L_data_for_dump_file.append({k: D_job[k] for k in D_job.keys() if k != "_id"})
+
 
     clusters = get_config("clusters")
     now = time.time()
 
-    for D_job in map(
-        lookup_user_account(users_collection),
-        filter(
-            is_allocation_related_to_mila,
-            map(
-                slurm_job_to_clockwork_job,
-                fetch_slurm_report_jobs(cluster_name, scontrol_show_job_path),
+    # Contrary to the previous approach, we'll fetch everything two
+    # operations and then we'll sort out the three cases:
+    #    - update to existing job from an scontrol job
+    #    - initial insertion from an scontrol job
+    #    - update to existing job from an sacct call
+
+    # Note that since we filter for a single "cluster_name",
+    # this means that "job_id" can be taken as unique
+    # identifiers to match jobs in this context.
+
+    LD_jobs_currently_in_mongodb = list(jobs_collection.query({"slurm.cluster_name": "cluster_name"}))
+    # index by job_id for O(1) lookup in the next step where we match jobs from db and scontrol
+    DD_jobs_currently_in_mongodb = dict(
+        (D_job["slurm"]["job_id"], D_job) for D_job in LD_jobs_currently_in_mongodb
+    )
+
+    LD_jobs_scontrol = list(
+        map(
+            lookup_user_account(users_collection),
+            filter(
+                is_allocation_related_to_mila,
+                map(
+                    slurm_job_to_clockwork_job,
+                    fetch_slurm_report_jobs(cluster_name, scontrol_show_job_path),
+                ),
             ),
-        ),
-    ):
+        ))
+    DD_jobs_scontrol = dict(
+        (D_job["slurm"]["job_id"], D_job) for D_job in LD_jobs_scontrol
+    )
 
+
+    L_job_ids_to_retrieve_with_sacct = [job_id for (job_id, D_job) in DD_jobs_currently_in_mongodb.items()
+        if  (job_id not in DD_jobs_scontrol) and
+            (D_job["slurm"]["job_state"] in NOT_TERMINAL_JOB_STATES)
+    ]
+
+    L_job_ids_to_insert = set(DD_jobs_scontrol.keys()) - set(DD_jobs_currently_in_mongodb.keys())
+    L_job_ids_to_update = set(DD_jobs_scontrol.keys()) | set(DD_jobs_currently_in_mongodb.keys())
+
+    # The way we partitioned those job_id, they cannot be in two of those sets.
+    # Note that many job_id for old jobs are not going to be found in any of those sets
+    # because they simply do not require exceptional handling by sacct.
+    assert L_job_ids_to_insert.isdisjoint(L_job_ids_to_update)
+    assert L_job_ids_to_insert.isdisjoint(L_job_ids_to_retrieve_with_sacct)
+    assert L_job_ids_to_update.isdisjoint(L_job_ids_to_retrieve_with_sacct)
+
+    #########################################################
+    # TODO : Not sure yet how we'll handle the sacct cases. #
+    #########################################################
+
+    for job_id in L_job_ids_to_update:
+
+        D_job_db = DD_jobs_currently_in_mongodb[job_id]
+        D_job_sc = DD_jobs_scontrol[job_id]
+
+        assert D_job_db["slurm"]["cluster_name"] == cluster_name
+        assert D_job_sc["slurm"]["cluster_name"] == cluster_name
+
+        # Note that D_job_db has a "_id" which is useful for an update,
+        # and it also contains a "user" dict which might have values in it,
+        # which is a thing that D_job_sc wouldn't have.
+
+        D_job_new = {"_id": D_job_db["_id"]}
+        for k in ["cw", "slurm", "user"]:
+            D_job_new[k] = D_job_db.get(k, {}) | D_job_sc.get(k, {})
         # add this field all the time, whenever you touch an entry
-        D_job["cw"]["last_slurm_update"] = now
-
-        L_data_for_dump_file.append(D_job)
-
-        L_updates_to_do.append(
-            UpdateOne(
-                # rule to match if already present in collection
-                {
-                    "slurm.job_id": D_job["slurm"]["job_id"],
-                    "slurm.cluster_name": D_job["slurm"]["cluster_name"],
-                },
-                # the data that we write in the collection
-                {
-                    "$set": {"slurm": D_job["slurm"]},
-                    "$setOnInsert": {"cw": D_job["cw"], "user": D_job["user"]},
-                },
-                # create if missing, update if present
-                upsert=True,
-            )
-        )
-
-        # Here we can add set extra values to "cw".
-        # The most important thing is that we avoid overwriting
-        # the "user" component which might have been updated by
-        # the user (surprise!) through another interface.
-        # This is the whole reason why we have a second set of append
-        # operations here.
-        # TODO : Are we really so sure that those two updates aren't
-        # going to happen at the same time, and that we won't erase
-        # the "user" dictionary? I think this was tested manually
-        # at some point, but I'm not so confident anymore.
-
-        # ERROR : We aren't updating the job_state. :)
-        #         We should update everything in "slurm". Might as well.
+        D_job_new["cw"]["last_slurm_update"] = now
+        D_job_new["cw"]["last_slurm_update_by_scontrol"] = now
 
         L_updates_to_do.append(
-            UpdateOne(
-                # rule to match if already present in collection
-                {
-                    "slurm.job_id": D_job["slurm"]["job_id"],
-                    "slurm.cluster_name": D_job["slurm"]["cluster_name"],
-                },
-                # the data that we write in the collection
-                {
-                    "$set": {
-                        "slurm": D_job["slurm"],
-                        "cw.last_slurm_update": now,
-                        "cw.mila_email_username": D_job["cw"]["mila_email_username"],
-                    }
-                },
-                # don't create if missing, update if present
-                upsert=False,
-            )
-        )
+            UpdateOne({"_id": D_job_new["_id"]}, D_job_new, upsert=False))
+        append_data_for_dump_file(D_job_new)
 
-        # Register accounts from job keys
+
+    for job_id in L_job_ids_to_insert:
+        D_job_sc = DD_jobs_scontrol[job_id]
+        # Copy it because it's a bit ugly to start modifying things in place.
+        # This can lead to strange interactions with the operations that
+        # we want to do with sacct. Might as well keep it clean here.
+        D_job_new = copy.copy(D_job_sc)
+        # add this field all the time, whenever you touch an entry
+        D_job_new["cw"]["last_slurm_update"] = now
+        D_job_new["cw"]["last_slurm_update_by_scontrol"] = now
+        # No need to the empty user dict because it's done earlier
+        # by `slurm_job_to_clockwork_job`.
+
+        L_updates_to_do.append(
+            UpdateOne(D_job_new, upsert=True))
+        append_data_for_dump_file(D_job_new)
+
+
+    # Fetch the partial job updates with sacct for those jobs that slipped
+    # through the cracks.
+    LD_sacct_slurm_jobs = fetch_data_with_sacct_on_remote_clusters(
+        cluster_name=cluster_name, L_job_ids=L_job_ids_to_retrieve_with_sacct)
+
+    for D_sacct_slurm_job in LD_sacct_slurm_jobs:
+
+        D_job_db = DD_jobs_currently_in_mongodb[job_id]
+        # Note that `D_job_db` has a "_id" which is useful for an update.
+        # Moreover, `D_sacct_slurm_job` is just the "slurm" portion,
+        # and it's missing most of the fields. It contains only the
+        # values that get update when a job finishes running.
+
+        D_job_new = copy.copy(D_job_db)
+        for k in D_sacct_slurm_job:
+            D_job_new["slurm"][k] = D_sacct_slurm_job[k]
+        # Add this field all the time, whenever you touch an entry.
+        D_job_new["cw"]["last_slurm_update"] = now
+        # To keep track of statistics about the need to use sacct.
+        D_job_new["cw"]["last_slurm_update_by_sacct"] = now
+
+        L_updates_to_do.append(
+            UpdateOne({"_id": D_job_new["_id"]}, D_job_new, upsert=False))
+        append_data_for_dump_file(D_job_new)
+
+
+
+    # And now for the very rare occasion when we have a user who wants
+    # to associate their account on the external cluster (e.g. Compute Canada).
+
+    for D_job in LD_jobs_scontrol:
+
+        # In theory, someone could have copy/pasted the special sbatch command
+        # (that we gave them on the web site) on the Mila cluster instead of CC.
+        # We really want to avoid that kind of problem whereby someone's 
+        # "cc_account_username" will be set to their "mila_cluster_username"
+        # due to that.
+        # 
+        # The way that we prevent this is by setting a particular value
+        # in the cluster config. Here's a snippet from test_config.toml
+        # that clearly shows `update_field=false`.
+        #    [clusters.mila]
+        #    account_field="mila_cluster_username"
+        #    update_field=false
+
+        # Register accounts for external clusters (e.g. Compute Canada)
+        # using a special comment field in jobs.
+        # There is a convention here about the form that
+        # a "comment" field can take in order to trigger that.
         comment = D_job["slurm"].get("comment", None)
         marker = "clockwork_register_account:"
         if comment is not None and comment.startswith(marker):
-            key = comment[len(marker) :]
+            secret_key = comment[len(marker) :]
             cluster_info = clusters[D_job["slurm"]["cluster_name"]]
+            # To help follow along, here's an example of the values
+            # taken by those variables in the test_config.toml file.
+            #    [clusters.beluga]
+            #    account_field = "cc_account_username"
+            #    update_field = "cc_account_update_key"
             account_field = cluster_info["account_field"]
             update_field = cluster_info["update_field"]
 
+            # Note that we're looking at entries for "users" here,
+            # and not for jobs entries.
+            # For users, we have entries in the database that look like this:
+            # {
+            #   "mila_email_username": "student00@mila.quebec",
+            #   "status": "enabled",
+            #   "clockwork_api_key": "000aaa00",
+            #   "mila_cluster_username": "milauser00",
+            #   "cc_account_username": "ccuser00",
+            #   "cc_account_update_key": null,
+            #   "web_settings": {
+            #     "nbr_items_per_page": 40,
+            #     "dark_mode": false
+            #   },
+            #   "personal_picture": "https://mila.quebec/wp-content/uploads/2019/08/guillaume_alain_400x700-400x400.jpg"
+            # }
+
+            # The mechanics are as follows.
+            # If the `update_field` is present in a job, make note of that username
+            # from the job. Then make a query that wants to update the appropriate
+            # field for the user in the database that has exactly that secret key.
             if update_field:
-                username = D_job["slurm"][account_field]
+                external_username_to_update = D_job["slurm"][account_field]
                 L_user_updates.append(
                     UpdateOne(
-                        {update_field: key},
+                        {update_field: secret_key},
                         {
                             "$set": {
-                                account_field: username,
+                                account_field: external_username_to_update,
                                 update_field: None,
                             }
                         },
