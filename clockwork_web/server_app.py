@@ -14,6 +14,7 @@ in the right place.
 # python3 -m flask run --host=0.0.0.0
 
 import os
+import datetime
 from flask import Flask, redirect, url_for, session, request
 from flask_login import current_user, LoginManager
 from flask_babel import Babel
@@ -125,6 +126,15 @@ def create_app(extra_config: dict):
                 session["language"] = browser_language
 
             return session["language"]
+
+    # Initialize templates filters
+    @app.template_filter()
+    def format_date(float_timestamp):
+        if float_timestamp is not None:
+            datetime_timestamp = datetime.datetime.fromtimestamp(float_timestamp)
+            return datetime_timestamp.strftime("%Y-%m-%d %H:%M")
+        else:
+            return ""
 
     @app.route("/")
     def index():
