@@ -154,10 +154,10 @@ def main_read_jobs_and_update_collection(
     L_user_updates = []
 
     L_data_for_dump_file = []
+
     def append_data_for_dump_file(D_job):
         # just omit the "_id" part of it
         L_data_for_dump_file.append({k: D_job[k] for k in D_job.keys() if k != "_id"})
-
 
     clusters = get_config("clusters")
     now = time.time()
@@ -172,7 +172,9 @@ def main_read_jobs_and_update_collection(
     # this means that "job_id" can be taken as unique
     # identifiers to match jobs in this context.
 
-    LD_jobs_currently_in_mongodb = list(jobs_collection.query({"slurm.cluster_name": "cluster_name"}))
+    LD_jobs_currently_in_mongodb = list(
+        jobs_collection.query({"slurm.cluster_name": "cluster_name"})
+    )
     # index by job_id for O(1) lookup in the next step where we match jobs from db and scontrol
     DD_jobs_currently_in_mongodb = dict(
         (D_job["slurm"]["job_id"], D_job) for D_job in LD_jobs_currently_in_mongodb
@@ -188,19 +190,25 @@ def main_read_jobs_and_update_collection(
                     fetch_slurm_report_jobs(cluster_name, scontrol_show_job_path),
                 ),
             ),
-        ))
+        )
+    )
     DD_jobs_scontrol = dict(
         (D_job["slurm"]["job_id"], D_job) for D_job in LD_jobs_scontrol
     )
 
-
-    L_job_ids_to_retrieve_with_sacct = [job_id for (job_id, D_job) in DD_jobs_currently_in_mongodb.items()
-        if  (job_id not in DD_jobs_scontrol) and
-            (D_job["slurm"]["job_state"] in NOT_TERMINAL_JOB_STATES)
+    L_job_ids_to_retrieve_with_sacct = [
+        job_id
+        for (job_id, D_job) in DD_jobs_currently_in_mongodb.items()
+        if (job_id not in DD_jobs_scontrol)
+        and (D_job["slurm"]["job_state"] in NOT_TERMINAL_JOB_STATES)
     ]
 
-    L_job_ids_to_insert = set(DD_jobs_scontrol.keys()) - set(DD_jobs_currently_in_mongodb.keys())
-    L_job_ids_to_update = set(DD_jobs_scontrol.keys()) | set(DD_jobs_currently_in_mongodb.keys())
+    L_job_ids_to_insert = set(DD_jobs_scontrol.keys()) - set(
+        DD_jobs_currently_in_mongodb.keys()
+    )
+    L_job_ids_to_update = set(DD_jobs_scontrol.keys()) | set(
+        DD_jobs_currently_in_mongodb.keys()
+    )
 
     # The way we partitioned those job_id, they cannot be in two of those sets.
     # Note that many job_id for old jobs are not going to be found in any of those sets
@@ -233,9 +241,9 @@ def main_read_jobs_and_update_collection(
         D_job_new["cw"]["last_slurm_update_by_scontrol"] = now
 
         L_updates_to_do.append(
-            UpdateOne({"_id": D_job_new["_id"]}, D_job_new, upsert=False))
+            UpdateOne({"_id": D_job_new["_id"]}, D_job_new, upsert=False)
+        )
         append_data_for_dump_file(D_job_new)
-
 
     for job_id in L_job_ids_to_insert:
         D_job_sc = DD_jobs_scontrol[job_id]
@@ -249,15 +257,14 @@ def main_read_jobs_and_update_collection(
         # No need to the empty user dict because it's done earlier
         # by `slurm_job_to_clockwork_job`.
 
-        L_updates_to_do.append(
-            UpdateOne(D_job_new, upsert=True))
+        L_updates_to_do.append(UpdateOne(D_job_new, upsert=True))
         append_data_for_dump_file(D_job_new)
-
 
     # Fetch the partial job updates with sacct for those jobs that slipped
     # through the cracks.
     LD_sacct_slurm_jobs = fetch_data_with_sacct_on_remote_clusters(
-        cluster_name=cluster_name, L_job_ids=L_job_ids_to_retrieve_with_sacct)
+        cluster_name=cluster_name, L_job_ids=L_job_ids_to_retrieve_with_sacct
+    )
 
     for D_sacct_slurm_job in LD_sacct_slurm_jobs:
 
@@ -276,10 +283,9 @@ def main_read_jobs_and_update_collection(
         D_job_new["cw"]["last_slurm_update_by_sacct"] = now
 
         L_updates_to_do.append(
-            UpdateOne({"_id": D_job_new["_id"]}, D_job_new, upsert=False))
+            UpdateOne({"_id": D_job_new["_id"]}, D_job_new, upsert=False)
+        )
         append_data_for_dump_file(D_job_new)
-
-
 
     # And now for the very rare occasion when we have a user who wants
     # to associate their account on the external cluster (e.g. Compute Canada).
@@ -288,10 +294,10 @@ def main_read_jobs_and_update_collection(
 
         # In theory, someone could have copy/pasted the special sbatch command
         # (that we gave them on the web site) on the Mila cluster instead of CC.
-        # We really want to avoid that kind of problem whereby someone's 
+        # We really want to avoid that kind of problem whereby someone's
         # "cc_account_username" will be set to their "mila_cluster_username"
         # due to that.
-        # 
+        #
         # The way that we prevent this is by setting a particular value
         # in the cluster config. Here's a snippet from test_config.toml
         # that clearly shows `update_field=false`.
