@@ -2,6 +2,7 @@
 
 @import "_variables";
 @import "_sortable";
+@import "_input_group";
 
 /*
  ██████  ██████  ███    ███ ███    ███  ██████  ███    ██ 
@@ -294,7 +295,7 @@ i.fa-arrows-rotate {
         margin: 30px 0;
     }
 }
-.btn-red {
+.btn-red, .btn-red:visited {
     border: 0;
     background-color: $red;
     border-radius: 1.5em;
@@ -494,6 +495,10 @@ nav.table_nav {
                 font-size: 0.96em;
                 padding: 0.6em 1.1em;
 
+                &.disable {
+                    cursor: default;
+                    background: lighten($text, 60%);
+                }
                 &:focus {
                     box-shadow: none;
                     background: $purple;
@@ -635,8 +640,53 @@ nav.table_nav {
     }
 }
 
+/*
+██    ██ ███████ ███████ ██████  
+██    ██ ██      ██      ██   ██ 
+██    ██ ███████ █████   ██████  
+██    ██      ██ ██      ██   ██ 
+ ██████  ███████ ███████ ██   ██ 
+*/
 
 
+.user_jobs {
+
+    .col-sm-12 {
+        margin-top: 40px;
+    }
+}
+
+
+/*
+███████ ███████ ████████ ████████ ██ ███    ██  ██████  ███████ 
+██      ██         ██       ██    ██ ████   ██ ██       ██      
+███████ █████      ██       ██    ██ ██ ██  ██ ██   ███ ███████ 
+     ██ ██         ██       ██    ██ ██  ██ ██ ██    ██      ██ 
+███████ ███████    ██       ██    ██ ██   ████  ██████  ███████ 
+*/
+
+.settings_list {
+    dl dd {
+        padding: 20px 0;
+        border-bottom: 1px solid $cream-dark;
+        margin: 0;
+    }
+    dl dt {
+        padding: 20px 40px 20px 0;
+        border-bottom: 1px solid $cream-dark;
+    }
+
+    pre {
+        padding: 20px;
+        background: $cream;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    select {
+        width: auto;
+    }
+}
 
 /*
 ███████  ██████   ██████  ████████ ███████ ██████  

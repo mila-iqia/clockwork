@@ -81,7 +81,59 @@ const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html al
 var latest_response_contents; // Stores the content of the latest response received
 var latest_filtered_response_contents; // Results in applying filters on the latest response contents
 
+// unfinished, need more info
+function make_pagination(page_num, nbr_items_per_page, total_items, active_class, inactive_class) {
+    var pagination = "";
 
+    var total_pages = Math.ceil(total_items / nbr_items_per_page);
+
+    if (+page_num > 1) {
+        if (+page_num == 2) {
+            pagination = pagination + "html output";
+        } else {
+            pagination = pagination + "html output";
+        }
+    } else {
+        
+    }
+    return (pagination);
+}
+
+function count_jobs(response_contents) {
+
+    let running = document.getElementById("dashboard_running");
+    let completed = document.getElementById("dashboard_completed");
+    let pending = document.getElementById("dashboard_pending");
+    let stalled = document.getElementById("dashboard_stalled");
+
+    let counter_running = 0;
+    let counter_completed = 0;
+    let counter_pending = 0;
+    let counter_stalled = 0;
+
+    /* then add the information for all the jobs */
+    [].forEach.call(response_contents, function(D_job) {
+        D_job_slurm = D_job["slurm"];
+        job_state = D_job_slurm["job_state"].toLowerCase();
+
+        if (job_state == "running" || job_state == "completing") {
+            counter_running++;
+        } 
+        if (job_state == "completed") {
+            counter_completed++;
+        } 
+        if (job_state == "pending") {
+            counter_pending++;
+        } 
+        if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled") {
+            counter_stalled++;
+        } 
+    });
+    running.textContent = counter_running;
+    completed.textContent = counter_completed;
+    pending.textContent = counter_pending;
+    stalled.textContent = counter_stalled;
+}
 
 function launch_refresh_all_data(query_filter, display_filter) {
     /*
@@ -123,8 +175,9 @@ function launch_refresh_all_data(query_filter, display_filter) {
     let url = refresh_endpoint;
     // If a user is specified, add its username to the request
     if (query_filter["username"].localeCompare("all") != 0) {
-      url = url + "&username=" + query_filter["username"];
+        url = url + "&username=" + query_filter["username"];
     };
+
 
     // Send the request, and retrieve the response
     const request = new Request(url,
@@ -165,6 +218,7 @@ function refresh_display(display_filter) {
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)
     });
+
     //kaweb - attempt to count results
     count_jobs(latest_filtered_response_contents);
 }
@@ -349,42 +403,6 @@ function populate_table(response_contents) {
             td0.innerHTML = "<a href=\"" + url + "\">" + note_info["title"] + "</a>";
             */
 
-}
-
-function count_jobs(response_contents) {
-
-    let running = document.getElementById("dashboard_running");
-    let completed = document.getElementById("dashboard_completed");
-    let pending = document.getElementById("dashboard_pending");
-    let stalled = document.getElementById("dashboard_stalled");
-
-    let counter_running = 0;
-    let counter_completed = 0;
-    let counter_pending = 0;
-    let counter_stalled = 0;
-
-    /* then add the information for all the jobs */
-    [].forEach.call(response_contents, function(D_job) {
-        D_job_slurm = D_job["slurm"];
-        job_state = D_job_slurm["job_state"].toLowerCase();
-
-        if (job_state == "running" || job_state == "completing") {
-            counter_running++;
-        } 
-        if (job_state == "completed") {
-            counter_completed++;
-        } 
-        if (job_state == "pending") {
-            counter_pending++;
-        } 
-        if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled") {
-            counter_stalled++;
-        } 
-    });
-    running.textContent = counter_running;
-    completed.textContent = counter_completed;
-    pending.textContent = counter_pending;
-    stalled.textContent = counter_stalled;
 }
 
 function retrieve_username_from_email(email) {

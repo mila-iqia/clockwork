@@ -45,31 +45,51 @@
 				  </div>
 			  </div>
 		</div>
-		<div class="row">
+		<div class="row settings_list">
 			<div class="col-12">
 				
 				<dl class="row">
-					<dt class="col-4">CLOCKWORK_API_KEY : {{clockwork_api_key}} <a href="new_key">change key</a></dt>
-					<dd class="col-8">
+					<dt class="col-6"> 
+
+						<form>
+							<div class="form-group">
+						    	<label>CLOCKWORK_API_KEY:</label>
+						    	<div class="input-group" id="show_hide_password">
+						      		<input class="form-control" id="clockwork_api_key" type="password" value="{{clockwork_api_key}}">
+						      		<div class="input-group-addon">
+						      			<a class="copy_clipboard" href=""><i class="fa fa-copy" aria-hidden="true"></i></a>
+						      		</div>
+						      		<div class="input-group-addon">
+						        		<a class="reveal" href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+						      		</div>
+						    	</div>
+						  	</div>
+						</form>
+
+ 						<a href="new_key">change key</a>
+
+ 					</dt>
+					<dd class="col-6">
 						
 						<!--{% if cc_account_update_key is not none %} -->
-							Run this command to register your account: sbatch --time=1 --wrap=true --comment=clockwork_register_accout:{{ cc_account_update_key }}
+							<p><strong>Run this command to register your account:</strong></p>
+							<pre>sbatch --time=1 --wrap=true --comment=clockwork_register_accout:{{ cc_account_update_key }}</pre>
 						<!--{% else %} -->
 							<a href="new_update_key">Get update account key</a>
 						<!--{% endif %} -->
 					</dd>
 
 					<!-- Items per page -->
-					<dt class="col-4">{{ gettext("Number of items displayed per page") }}</dt>
-		  			<dd class="col-8">
+					<dt class="col-6">{{ gettext("Number of items displayed per page") }}</dt>
+		  			<dd class="col-6">
 						<select class="form-select" name="nbr_items_per_page_selection" id="nbr_items_per_page_selection" onchange="select_nbr_items_per_page(this)">
 							<!-- This is filled through the javascript -->
 						</select>
 					</dd>
 		 
 					<!-- Dark mode -->
-			  		<dt class="col-4"><label for="dark_mode_toggle">{{ gettext("Dark mode") }}</label></dt>
-		 			<dd class="col-8">
+			  		<dt class="col-6"><label for="dark_mode_toggle">{{ gettext("Dark mode") }}</label></dt>
+		 			<dd class="col-6">
 						<div class="form-check form-switch">
 							{% if web_settings["dark_mode"] %}
 								<input name="dark_mode_toggle" id="dark_mode_toggle" type="checkbox" class="form-check-input" onclick="switch_dark_mode()" checked />

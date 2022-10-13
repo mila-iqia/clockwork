@@ -29,12 +29,17 @@
                     </div>
                     <div class="col-4">
                         <form id="nbr_per_page" method="get">
-                            {% set nbr_items_per_page = request.args.get('nbr_items_per_page') %}
+                            {% if request.args.get('nbr_items_per_page') is not none %} 
+                                {% set nbr_items_per_page = request.args.get('nbr_items_per_page') | int %}
+                            {% else %}
+                                {% set nbr_items_per_page = web_settings["nbr_items_per_page"] | int %}
+                            {% endif %}
                             <label for="nbr_items_per_page">Items per page</label>
                             <select class="form-select" aria-label="Items per page" id="nbr_items_per_page" name="nbr_items_per_page">
-                                <option value="25" {{ "selected" if nbr_items_per_page == '25' }}>25</option>
-                                <option value="50" {{ "selected" if nbr_items_per_page == '50' }}>50</option>
-                                <option value="100" {{ "selected" if nbr_items_per_page == '100' }}>100</option>
+                                <option value="25" {{ "selected" if nbr_items_per_page == 25 }}>25</option>
+                                <option value="40" {{ "selected" if nbr_items_per_page == 40 }}>40</option>
+                                <option value="50" {{ "selected" if nbr_items_per_page == 50 }}>50</option>
+                                <option value="100" {{ "selected" if nbr_items_per_page == 100 }}>100</option>
                             </select>
                         </form>
                     </div>
@@ -73,12 +78,62 @@
                                 <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
                             </td>
                             <td class="actions">
-                                <a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-ban'></i></a>
+                                {% if mila_email_username == D_job['cw']['best_guess_for_username'] %}
+                                    <a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+
+                <!-- temporarily use a set integer until the variable can be passed through GET -->
+                Jobs: {{ nbr_total_jobs }}
+                {% set total_items = 120 | int %}
+                
+
+                <!-- get query params -->
+                
+
+                {% if request.args.get('page_num') is not none %} 
+                    {% set page_num = request.args.get('page_num') | int %}
+                {% else %}
+                    {% set page_num = 1 | int %}
+                {% endif %}
+
+                {% set total_pages = total_items // nbr_items_per_page | int %}
+
+                {% set total_pages = total_items // nbr_items_per_page | int %}
+
+                {% if total_pages > 1 %}   
+                    <nav class="table_nav" aria-label="table_nav">
+                        <ul class="pagination">
+                            {% if page_num == 1 %}
+                                <li class="page-item first"><a class="page-link disable"><i class="fa-solid fa-caret-left"></i></a></li>
+                            {% else %}
+                                <li class="page-item first"><a class="page-link" href="{{ modify_query(page_num=page_num - 1) }}"><i class="fa-solid fa-caret-left"></i></a></li>
+                            {% endif %}
+
+                            {% for page in range(total_pages) %}
+                                {% set page = page + 1 %}
+                                {% if (page ) == page_num %}   
+                                    <li class="page-item current"><a class="page-link disable">{{ page }}</a></li>
+                                {% else %}
+                                    {% set x=previous_request_args.__setitem__("page_num", page) %}
+                                    <!-- magically update query params using new function -->
+                                    <li class="page-item"><a class="page-link" href="{{ modify_query(page_num=page) }}">{{ page }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_num == total_pages %}
+                                <li class="page-item last"><a class="page-link disable"><i class="fa-solid fa-caret-right"></i></a></li>
+                            {% else %}
+                                <li class="page-item last"><a class="page-link" href="{{ modify_query(page_num=page_num + 1) }}"><i class="fa-solid fa-caret-right"></i></a></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+
             </div>
         </div>
     </div>
