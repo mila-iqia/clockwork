@@ -10,12 +10,6 @@
 
 			<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-			{% if web_settings["dark_mode"] %}
-				<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
-			{% endif %}
-
-			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}"> -->
-
 			<link rel="preconnect" href="https://fonts.googleapis.com">
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 			<link href="https://fonts.googleapis.com/css2?family=Asap+Condensed:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -46,6 +40,9 @@
 				var web_settings = {% autoescape false %} JSON.parse('{{web_settings_json_str}}') {% endautoescape %}
             </script>
 
+            {% if web_settings["dark_mode"] %}
+				<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+			{% endif %}
 
 			<script type="text/javascript" src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
 
@@ -62,15 +59,11 @@
 				<div class="col-xxl-1 d-none d-xxl-block"></div>
 				<div class="col">
 					<a href="{{url_for('index')}}">
-						
-						{# "web_settings" appears to be undefined outside of the settings page.
-							{% if web_settings["dark_mode"] %}
-								<img class="logo" src="{{ url_for('static', filename='images/dark-logo_cw.png')}}" />
-							{% else %}
-								<img class="logo" src="{{ url_for('static', filename='images/logo_cw.png')}}" />
-							{% endif %}
-						#}
-						<img class="logo" src="{{ url_for('static', filename='images/logo_cw.png')}}" />
+						{% if web_settings["dark_mode"] %}
+							<img class="logo" src="{{ url_for('static', filename='images/dark-logo_cw.png')}}" />
+						{% else %}
+							<img class="logo" src="{{ url_for('static', filename='images/logo_cw.png')}}" />
+						{% endif %}
 					</a>
 				</div>
 				
@@ -126,8 +119,10 @@
 
 		{% block form %}
 		{% if request.path != '/jobs/interactive' and current_user.is_authenticated %}
+
 			<div id="formBlock">
-				<div class="search_button formCollapse collapse" id="mainCollapse">
+
+				<div class="search_button formCollapse {{ 'collapse' if request.path != '/jobs/search' }}" id="mainCollapse">
 					<div class="container">
 						<div class="row">
 			                <div class="col-12">
@@ -140,7 +135,7 @@
 			            </div> <!-- end header row -->
 			        </div>
 
-					<div class="searchform formCollapse collapse" id="collapseForm">
+					<div class="searchform formCollapse {{ 'collapse' if request.path != '/jobs/search' }}" id="collapseForm">
 				        <div class="container">
 				            <form class="searchform" method="get">
 				                <div class="row">
@@ -151,19 +146,19 @@
 				                                <span>Filter by user</span>
 				                            </div>
 				                            <div class="cc_toggle_zone_row form-radio">
-				                                <input class="form-check-input" id="user_option_all" name="username" type="radio" checked data-no-submit />
+				                                <input class="form-check-input" id="user_option_all" name="username" type="radio" {{ 'checked' if (previous_request_args.username == None) }} data-no-submit />
 				                                <label for="user_option_all" class="form-label">
 				                                    <span>All users</span>
 				                                </label>
 				                            </div>
 				                            <div class="cc_toggle_zone_row form-radio">
-				                                <input class="form-check-input" id="user_option_only_me" name="username" value="{{mila_email_username}}" type="radio" data-no-submit />
+				                                <input class="form-check-input" id="user_option_only_me" name="username" value="{{mila_email_username}}" type="radio" {{ 'checked' if (previous_request_args.username == mila_email_username) }} data-no-submit />
 				                                <label for="user_option_only_me" class="form-label">
 				                                    <span>Only me</span>
 				                                </label>
 				                            </div>
 				                            <div class="cc_toggle_zone_row form-radio form-check-group">
-				                                <input class="form-check-input" id="user_option_other" name="username" type="radio" />
+				                                <input class="form-check-input" id="user_option_other" name="username" type="radio" {{ 'checked' if (previous_request_args.username != None and previous_request_args.username != mila_email_username) }} />
 				                                <label for="user_option_other" class="form-label">
 				                                    <input type="text" class="form-control" id="user_option_other_textarea" name="username" placeholder="Other user..." disabled="disabled" data-no-submit>
 				                                </label>
@@ -188,7 +183,7 @@
 				                                </a>
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="cluster_toggle_lever_beluga" class="cc_cluster_toggle_name">beluga</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_beluga" name="cluster_name" value="beluga" checked data-no-submit>
+				                                    <input class="form-check-input form-check-clusters float-end" type="checkbox" id="cluster_toggle_lever_beluga" name="cluster_name" value="beluga" {{ 'checked' if ('beluga' in previous_request_args.cluster_name) }} data-no-submit>
 				                                </div>
 				                            </div>
 
@@ -202,7 +197,7 @@
 				                                </a>
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="cluster_toggle_lever_cedar" class="cc_cluster_toggle_name">cedar</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_cedar" name="cluster_name" value="cedar" checked data-no-submit>
+				                                    <input class="form-check-input form-check-clusters float-end" type="checkbox" id="cluster_toggle_lever_cedar" name="cluster_name" value="cedar" {{ 'checked' if ('cedar' in previous_request_args.cluster_name) }} data-no-submit>
 				                                </div>
 				                            </div>
 
@@ -216,7 +211,7 @@
 				                                </a>
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="cluster_toggle_lever_graham" class="cc_cluster_toggle_name">graham</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_graham" name="cluster_name" value="graham" checked data-no-submit>
+				                                    <input class="form-check-input form-check-clusters float-end" type="checkbox" id="cluster_toggle_lever_graham" name="cluster_name" value="graham" {{ 'checked' if ('graham' in previous_request_args.cluster_name) }} data-no-submit>
 				                                </div>
 				                            </div>
 
@@ -230,9 +225,25 @@
 				                                </a>
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="cluster_toggle_lever_mila" class="cc_cluster_toggle_name">mila</label>
-				                                    <input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_mila" name="cluster_name" value="mila" checked data-no-submit>
+				                                    <input class="form-check-input form-check-clusters float-end" type="checkbox" id="cluster_toggle_lever_mila" name="cluster_name" value="mila" {{ 'checked' if ('mila' in previous_request_args.cluster_name) }} data-no-submit>
 				                                </div>
 				                            </div>
+
+				                            <!-- toggle mila -->
+				                            <div class="cc_toggle_zone_row">
+				                                <a href="https://docs.mila.quebec" target="_blank">
+				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
+				                                </a>
+				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
+				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
+				                                </a>
+				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
+				                                    <label class="form-check-label" for="cluster_toggle_lever_mila" class="cc_cluster_toggle_name">mila</label>
+				                                    <input class="form-check-input form-check-clusters float-end" type="checkbox" id="cluster_toggle_lever_mila" name="cluster_name" value="mila" {{ 'checked' if ('mila' in previous_request_args.cluster_name) }} data-no-submit>
+				                                </div>
+				                            </div>
+
+				                            
 				                        </div>
 				                    </div>
 
@@ -247,7 +258,7 @@
 				                            <div class="cc_toggle_zone_row">
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="status_toggle_lever_completed" class="status_toggle_lever_completed"><span class="status completed">Completed</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_completed" value="COMPLETED" checked data-no-submit>
+				                                    <input class="form-check-input form-check-state float-end" type="checkbox" name="state" id="status_toggle_lever_completed" value="COMPLETED" {{ 'checked' if ('COMPLETED' in previous_request_args.state) }} data-no-submit>
 				                                </div>
 				                            </div>
 
@@ -255,7 +266,7 @@
 				                            <div class="cc_toggle_zone_row">
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="status_toggle_lever_running" class="status_toggle_lever_running"><span class="status running">Running</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_running" value="RUNNING" checked data-no-submit>
+				                                    <input class="form-check-input form-check-state float-end" type="checkbox" name="state" id="status_toggle_lever_running" value="RUNNING" {{ 'checked' if ('RUNNING' in previous_request_args.state) }} data-no-submit>
 				                                </div>
 				                            </div>
 
@@ -263,7 +274,7 @@
 				                            <div class="cc_toggle_zone_row">
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="status_toggle_lever_pending" class="status_toggle_lever_pending"><span class="status pending">Pending</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_pending" value="PENDING" checked data-no-submit>
+				                                    <input class="form-check-input form-check-state float-end" type="checkbox" name="state" id="status_toggle_lever_pending" value="PENDING" {{ 'checked' if ('PENDING' in previous_request_args.state) }} data-no-submit>
 				                                </div>
 				                            </div>
 
@@ -271,7 +282,7 @@
 				                             <div class="cc_toggle_zone_row">
 				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
 				                                    <label class="form-check-label" for="status_toggle_lever_any_errors" class="status_toggle_lever_any_errors"><span class="status failed">Any errors</span></label>
-				                                    <input class="form-check-input float-end" type="checkbox" name="state" id="status_toggle_lever_any_errors" value="FAILED" checked data-no-submit>
+				                                    <input class="form-check-input form-check-state float-end" type="checkbox" name="state" id="status_toggle_lever_any_errors" value="FAILED" {{ 'checked' if ('FAILED' in previous_request_args.state) }} data-no-submit>
 				                                </div>
 				                            </div>
 				                        </div>

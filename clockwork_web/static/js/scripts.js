@@ -76,8 +76,65 @@ jQuery(document).ready(function($){
         $(this).formSubmit();
     });
 
-    $('#nbr_items_per_page').on('change', function() {
-        $("form.searchform").formSubmit();
+    $('.form-check-clusters').on('change', function(e) {
+        if ($('.form-check-clusters:checked').length == 0 && !this.checked)
+            this.checked = true;
     });
+    
+    $('.form-check-state').on('change', function(e) {
+        if ($('.form-check-state:checked').length == 0 && !this.checked)
+            this.checked = true;
+    });
+
+    $("#show_hide_password a.reveal").on('click', function(event) {
+        event.preventDefault();
+        if($('#show_hide_password input').attr("type") == "text"){
+            $('#show_hide_password input').attr('type', 'password');
+            $('#show_hide_password a.reveal i').addClass( "fa-eye-slash" );
+            $('#show_hide_password a.reveal i').removeClass( "fa-eye" );
+        }else if($('#show_hide_password input').attr("type") == "password"){
+            $('#show_hide_password input').attr('type', 'text');
+            $('#show_hide_password a.reveal i').removeClass( "fa-eye-slash" );
+            $('#show_hide_password a.reveal i').addClass( "fa-eye" );
+        }
+    });
+
+     $('.copy-btn').on("click", function(){
+        value = $(this).data('clipboard-text'); //Upto this I am getting value
+ 
+        var $temp = $("<input>");
+          $("body").append($temp);
+          $temp.val(value).select();
+          document.execCommand("copy");
+          $temp.remove();
+    })
+
+    $("#show_hide_password a.copy_clipboard").on('click', function(event) {
+        event.preventDefault();
+        
+        value = $('input#clockwork_api_key').val(); //Upto this I am getting value
+
+        var $temp = $("<input>");
+            $("body").append($temp);
+             $temp.val(value).select();
+            document.execCommand("copy");
+            $temp.remove();
+
+        $('#show_hide_password a.copy_clipboard i').addClass( "fa-thumbs-up" );
+        $('#show_hide_password a.copy_clipboard i').removeClass( "fa-copy" );
+
+        setTimeout(function(){
+            $('#show_hide_password a.copy_clipboard i').removeClass( "fa-thumbs-up" );
+            $('#show_hide_password a.copy_clipboard i').addClass( "fa-copy" );
+        },5000); 
+
+        
+    });
+
+    
+
+    //$('#nbr_items_per_page').on('change', function() {
+        //$("form.searchform").formSubmit();
+    //});
 
 });

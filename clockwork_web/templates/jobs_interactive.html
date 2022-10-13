@@ -20,6 +20,7 @@
 
         function read_query_filter() {
             query_filter["username"] = "{{ mila_email_username }}";
+            //query_filter["nbr_items_per_page"] = 5;
         }
 
         function read_display_filter() {
@@ -170,6 +171,8 @@
                 <table class="table table-striped table-hover table-responsive" data-sortable id="dashboard_table">
                     <!-- This table starts empty and is populated automatically when the DOM is ready. -->
                 </table>
+
+                <div id=”pagingDiv”></div>
 
                 <nav class="table_nav" aria-label="table_nav">
                     <ul class="pagination">
