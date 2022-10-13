@@ -20,6 +20,8 @@ mila|2054761827|ximeng.mao|2331586|submit_job_multi_kfold_cpu.sh|COMPLETED|2022-
 
 """
 
+import csv  # sacct output reads like a csv
+# from io import StringIO
 
 # https://docs.paramiko.org/en/stable/api/client.html
 from paramiko import SSHClient, AutoAddPolicy, ssh_exception
@@ -79,21 +81,32 @@ def bleh(cluster_name, L_job_ids):
     #remote_cmd = "sacct -X -j " + ",".join(L_job_ids)
 
     remote_cmd = "sacct -X --format 'Account,UID,User,JobID,JobName,State,Start,End' --delimiter '|' --parsable -j " + ",".join(L_job_ids)
-    # TODO : list the keys yourself so that they match with that you have in D_job entries
-    value_keys = ["account,uid,username,job_id,name,job_state,start_time,end_time"]
 
+    # Write what keys you want to map to what, because we use a different representation for ourselves.
+    key_mappings = {"Account": "account", "UID": "uid", "User": "username",
+                    "JobID": "job_id", "JobName": "name","State": "job_state",
+                    "Start":"start_time","End":"end_time"}
 
+    LD_partial_jobs = []
     with open_connection(hostname, username, port) as ssh_client:
 
         if ssh_client:
 
+            # those three variables are file-like, not strings
             ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(remote_cmd)
 
-            response_str = " ".join(ssh_stdout.readlines())
-            if len(response_str) == 0:
-                print(f"Error. Got an empty response when trying to call sacct through SSH on {hostname}. Skipping.")
-                return
+            reader = csv.DictReader(ssh_stdout)
+            for row in reader:
+                # this is just a dict with the proper keys that we specified
+                D_partial_job = dict((k2, row[k1]) for (k1, k2) in key_mappings.items())
+                LD_partial_jobs.append(D_partial_job)
 
+            #response_str = "\n".join(ssh_stdout.readlines())
+            #if len(ssh_stdout) == 0:
+            #    print(f"Error. Got an empty response when trying to call sacct through SSH on {hostname}. Skipping.")
+            #    return
+
+        return LD_partial_jobs
 
         # we get the ssh_client.close() for free
 
