@@ -130,10 +130,14 @@ def create_app(extra_config: dict):
     # Initialize templates filters
     @app.template_filter()
     def format_date(float_timestamp):
-        montreal_timezone = "America/Montreal" # For now, we display the hour in the Montreal timezone
+        montreal_timezone = (
+            "America/Montreal"  # For now, we display the hour in the Montreal timezone
+        )
         if float_timestamp is not None:
             datetime_timestamp = datetime.datetime.fromtimestamp(float_timestamp)
-            return datetime_timestamp.astimezone(timezone(montreal_timezone)).strftime("%Y-%m-%d %H:%M")
+            return datetime_timestamp.astimezone(timezone(montreal_timezone)).strftime(
+                "%Y-%m-%d %H:%M"
+            )
         else:
             return ""
 
