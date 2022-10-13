@@ -32,7 +32,7 @@ from .rest_routes.jobs import flask_api as rest_jobs_flask_api
 from .rest_routes.nodes import flask_api as rest_nodes_flask_api
 from .rest_routes.gpu import flask_api as rest_gpu_flask_api
 
-from .config import register_config, get_config, string, string_list
+from .config import register_config, get_config, string, string_list, timezone
 
 from .core.users_helper import render_template_with_user_settings
 
@@ -130,9 +130,10 @@ def create_app(extra_config: dict):
     # Initialize templates filters
     @app.template_filter()
     def format_date(float_timestamp):
+        montreal_timezone = "America/Montreal" # For now, we display the hour in the Montreal timezone
         if float_timestamp is not None:
             datetime_timestamp = datetime.datetime.fromtimestamp(float_timestamp)
-            return datetime_timestamp.strftime("%Y-%m-%d %H:%M")
+            return datetime_timestamp.astimezone(timezone(montreal_timezone)).strftime("%Y-%m-%d %H:%M")
         else:
             return ""
 

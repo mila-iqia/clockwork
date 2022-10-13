@@ -76,7 +76,7 @@
                             <!-- Start time -->
                             {% if D_job["slurm"]["start_time"] %}
                                 {% set start_time = D_job["slurm"]["start_time"] %}
-                                <td data-order='{{start_time}}'><span data-livestamp='{{start_time|int}}'></span> {{ start_time|format_date }}</td>
+                                <td data-order='{{start_time}}'><span class="visually-hidden">{{start_time}}</span><!--<span data-livestamp='{{start_time|int}}'>--></span> {{ start_time|format_date }}</td>
                             {% else %}
                                 <td data-order='0'></td>
                             {% endif %}
@@ -84,7 +84,7 @@
                             <!-- End time -->
                             {% if D_job["slurm"]["start_time"] %}
                                 {% set end_time = D_job["slurm"]["end_time"] %}
-                                <td data-order="{{end_time}}"><span data-livestamp='{{end_time|int}}'></span> {{ end_time|format_date }}</td>
+                                <td data-order="{{end_time}}"><span class="visually-hidden">{{end_time}}</span><!--<span data-livestamp='{{end_time|int}}'>--></span> {{ end_time|format_date }}</td>
                             {% else %}
                                 <td data-order='0'></td>
                             {% endif %}
