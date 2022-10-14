@@ -32,8 +32,8 @@ nbr_cpus=4860
 nbr_gpus=532
 official_documentation="https://docs.mila.quebec/Information.html"
 display_order=1
-sacct_username="mila-automation"
-sacct_remote_hostname="clockwork-stats"
+remote_user="mila-automation"
+remote_hostname="clockwork-stats"
 sacct_enabled=true
 
 [clusters.beluga]
@@ -47,8 +47,8 @@ nbr_gpus=696
 official_documentation="https://docs.alliancecan.ca/wiki/B%C3%A9luga"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#beluga"
 display_order=4
-sacct_username="mila-automation"
-sacct_remote_hostname="beluga.computecanada.ca"
+remote_user="mila-automation"
+remote_hostname="beluga.computecanada.ca"
 sacct_enabled=false
 
 [clusters.graham]
@@ -62,8 +62,8 @@ nbr_gpus=536
 official_documentation="https://docs.alliancecan.ca/wiki/Graham"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#graham"
 display_order=5
-sacct_username="mila-automation"
-sacct_remote_hostname="graham.computecanada.ca"
+remote_user="mila-automation"
+remote_hostname="graham.computecanada.ca"
 sacct_enabled=false
 
 [clusters.cedar]
@@ -77,8 +77,8 @@ nbr_gpus=1352
 official_documentation="https://docs.alliancecan.ca/wiki/Cedar"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#cedar"
 display_order=3
-sacct_username="mila-automation"
-sacct_remote_hostname="cedar.computecanada.ca"
+remote_user="mila-automation"
+remote_hostname="cedar.computecanada.ca"
 sacct_enabled=false
 
 [clusters.narval]
@@ -91,8 +91,8 @@ nbr_cpus=2608
 nbr_gpus=636
 official_documentation="https://docs.alliancecan.ca/wiki/Narval"
 display_order=2
-sacct_username="mila-automation"
-sacct_remote_hostname="narval.computecanada.ca"
+remote_user="mila-automation"
+remote_hostname="narval.computecanada.ca"
 sacct_enabled=false
 
 [clockwork.test]
