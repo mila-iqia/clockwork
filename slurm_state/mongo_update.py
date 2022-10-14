@@ -4,7 +4,7 @@ Insert elements extracted from the Slurm reports into the database.
 
 import os, time
 import copy
-from pymongo import UpdateOne
+from pymongo import UpdateOne, InsertOne, ReplaceOne
 import json
 from slurm_state.extra_filters import (
     is_allocation_related_to_mila,
@@ -12,7 +12,7 @@ from slurm_state.extra_filters import (
 )
 
 from slurm_state.helpers.gpu_helper import get_cw_gres_description
-from slurm_state.config import get_config, timezone, string, optional_string
+from slurm_state.config import get_config, timezone, string, optional_string, boolean
 
 from slurm_state.scontrol_parser import job_parser, node_parser
 from slurm_state.sacct_access import fetch_data_with_sacct_on_remote_clusters
@@ -21,7 +21,7 @@ from slurm_state.sacct_access import fetch_data_with_sacct_on_remote_clusters
 clusters_valid.add_field("timezone", timezone)
 clusters_valid.add_field("account_field", string)
 clusters_valid.add_field("update_field", optional_string)
-clusters_valid.add_field("sacct_enabled", string)
+clusters_valid.add_field("sacct_enabled", boolean)
 
 # Might as well share this as a global variable if it's useful later.
 NOT_TERMINAL_JOB_STATES = ["RUNNING", "PENDING", "COMPLETING"]
@@ -138,6 +138,7 @@ def main_read_jobs_and_update_collection(
     cluster_name,
     scontrol_show_job_path,
     want_commit_to_db=True,
+    want_sacct=False,
     dump_file="",
 ):
 
@@ -161,6 +162,7 @@ def main_read_jobs_and_update_collection(
         L_data_for_dump_file.append({k: D_job[k] for k in D_job.keys() if k != "_id"})
 
     clusters = get_config("clusters")
+    assert cluster_name in clusters
     now = time.time()
 
     # Contrary to the previous approach, we'll fetch everything two
@@ -174,7 +176,7 @@ def main_read_jobs_and_update_collection(
     # identifiers to match jobs in this context.
 
     LD_jobs_currently_in_mongodb = list(
-        jobs_collection.query({"slurm.cluster_name": "cluster_name"})
+        jobs_collection.find({"slurm.cluster_name": cluster_name})
     )
     # index by job_id for O(1) lookup in the next step where we match jobs from db and scontrol
     DD_jobs_currently_in_mongodb = dict(
@@ -197,26 +199,34 @@ def main_read_jobs_and_update_collection(
         (D_job["slurm"]["job_id"], D_job) for D_job in LD_jobs_scontrol
     )
 
-    L_job_ids_to_retrieve_with_sacct = [
+    L_job_ids_to_retrieve_with_sacct = set([
         job_id
         for (job_id, D_job) in DD_jobs_currently_in_mongodb.items()
         if (job_id not in DD_jobs_scontrol)
         and (D_job["slurm"]["job_state"] in NOT_TERMINAL_JOB_STATES)
-    ]
+    ])
 
     L_job_ids_to_insert = set(DD_jobs_scontrol.keys()) - set(
         DD_jobs_currently_in_mongodb.keys()
     )
-    L_job_ids_to_update = set(DD_jobs_scontrol.keys()) | set(
+    L_job_ids_to_update = set(DD_jobs_scontrol.keys()).intersection(set(
         DD_jobs_currently_in_mongodb.keys()
-    )
+    ))
 
     # The way we partitioned those job_id, they cannot be in two of those sets.
     # Note that many job_id for old jobs are not going to be found in any of those sets
     # because they simply do not require exceptional handling by sacct.
     assert L_job_ids_to_insert.isdisjoint(L_job_ids_to_update)
-    assert L_job_ids_to_insert.isdisjoint(L_job_ids_to_retrieve_with_sacct)
     assert L_job_ids_to_update.isdisjoint(L_job_ids_to_retrieve_with_sacct)
+    assert L_job_ids_to_retrieve_with_sacct.isdisjoint(L_job_ids_to_insert)
+
+    # print(f"L_job_ids_to_insert: {L_job_ids_to_insert}")
+    # print(f"L_job_ids_to_update: {L_job_ids_to_update}")
+    # print(f"L_job_ids_to_retrieve_with_sacct: {L_job_ids_to_retrieve_with_sacct}")
+    # print(f"DD_jobs_currently_in_mongodb.keys(): {list(DD_jobs_currently_in_mongodb.keys())}")
+    # print(f"In main_read_jobs_and_update_collection, there are {len(L_job_ids_to_insert)} jobs to insert for the first time, "
+    #     f"{len(L_job_ids_to_update)} to update based on scontrol and {len(L_job_ids_to_retrieve_with_sacct)} to update through sacct."
+    # ) 
 
     for job_id in L_job_ids_to_update:
 
@@ -230,7 +240,7 @@ def main_read_jobs_and_update_collection(
         # and it also contains a "user" dict which might have values in it,
         # which is a thing that D_job_sc wouldn't have.
 
-        D_job_new = {"_id": D_job_db["_id"]}
+        D_job_new = {}
         for k in ["cw", "slurm", "user"]:
             D_job_new[k] = D_job_db.get(k, {}) | D_job_sc.get(k, {})
         # add this field all the time, whenever you touch an entry
@@ -238,7 +248,10 @@ def main_read_jobs_and_update_collection(
         D_job_new["cw"]["last_slurm_update_by_scontrol"] = now
 
         L_updates_to_do.append(
-            UpdateOne({"_id": D_job_new["_id"]}, D_job_new, upsert=False)
+            ReplaceOne({"_id": D_job_db["_id"]}, D_job_new, upsert=False)
+            #ReplaceOne({"slurm.job_id": D_job_new["slurm"]["job_id"],
+            #            "slurm.cluster_name": D_job_new["slurm"]["cluster_name"]},
+            #D_job_new, upsert=False)
         )
         append_data_for_dump_file(D_job_new)
 
@@ -254,10 +267,13 @@ def main_read_jobs_and_update_collection(
         # No need to the empty user dict because it's done earlier
         # by `slurm_job_to_clockwork_job`.
 
-        L_updates_to_do.append(UpdateOne(D_job_new, upsert=True))
+        L_updates_to_do.append(InsertOne(D_job_new))
         append_data_for_dump_file(D_job_new)
 
-    if clusters[D_job["slurm"]["cluster_name"]].get("sacct_enabled", False):
+    # Note that we don't want to be running ssh commands with sacct
+    # during testing with pytest. This will be possible to manage
+    # by specifying `want_sacct=False`.
+    if want_sacct and clusters[cluster_name].get("sacct_enabled", True):
 
         print(
             f"Going to use sacct remotely to {cluster_name} get information about jobs {L_job_ids_to_retrieve_with_sacct}."
@@ -278,6 +294,8 @@ def main_read_jobs_and_update_collection(
             # values that get update when a job finishes running.
 
             D_job_new = copy.copy(D_job_db)
+            del D_job_new["_id"]
+
             for k in D_sacct_slurm_job:
                 D_job_new["slurm"][k] = D_sacct_slurm_job[k]
             # Add this field all the time, whenever you touch an entry.
@@ -286,7 +304,10 @@ def main_read_jobs_and_update_collection(
             D_job_new["cw"]["last_slurm_update_by_sacct"] = now
 
             L_updates_to_do.append(
-                UpdateOne({"_id": D_job_new["_id"]}, D_job_new, upsert=False)
+                UpdateOne({"_id": D_job_db["_id"]}, D_job_new, upsert=False)
+                #ReplaceOne({"slurm.job_id": D_job_new["slurm"]["job_id"],
+                #            "slurm.cluster_name": D_job_new["slurm"]["cluster_name"]},
+                #            D_job_new, upsert=False)
             )
             append_data_for_dump_file(D_job_new)
     else:
