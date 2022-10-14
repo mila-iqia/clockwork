@@ -29,9 +29,6 @@ from paramiko import SSHClient, AutoAddPolicy, ssh_exception
 from slurm_state.extra_filters import clusters_valid
 from slurm_state.config import get_config, string
 
-clusters_valid.add_field("sacct_username", string)
-clusters_valid.add_field("sacct_remote_hostname", string)
-
 
 def open_connection(hostname, username, port=22):
     """
@@ -100,9 +97,13 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
         )
         return
 
-    username = get_config("clusters")[cluster_name]["sacct_username"]
-    hostname = get_config("clusters")[cluster_name]["sacct_remote_hostname"]
-    port = get_config("clusters")[cluster_name].get("port", 22)
+    # these fields are already present in the config because
+    # they are required in order to rsync the scontrol reports
+    username = get_config("clusters")[cluster_name]["remote_user"]
+    hostname = get_config("clusters")[cluster_name]["remote_hostname"]
+    # If you need to change this value in any way, then you should
+    # make it a config value for real. In the meantime, let's hardcode it.
+    port = 22
 
     # remote_cmd = "sacct -X -j " + ",".join(L_job_ids)
     # Retrieve only certain fields.
