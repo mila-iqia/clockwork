@@ -199,19 +199,21 @@ def main_read_jobs_and_update_collection(
         (D_job["slurm"]["job_id"], D_job) for D_job in LD_jobs_scontrol
     )
 
-    L_job_ids_to_retrieve_with_sacct = set([
-        job_id
-        for (job_id, D_job) in DD_jobs_currently_in_mongodb.items()
-        if (job_id not in DD_jobs_scontrol)
-        and (D_job["slurm"]["job_state"] in NOT_TERMINAL_JOB_STATES)
-    ])
+    L_job_ids_to_retrieve_with_sacct = set(
+        [
+            job_id
+            for (job_id, D_job) in DD_jobs_currently_in_mongodb.items()
+            if (job_id not in DD_jobs_scontrol)
+            and (D_job["slurm"]["job_state"] in NOT_TERMINAL_JOB_STATES)
+        ]
+    )
 
     L_job_ids_to_insert = set(DD_jobs_scontrol.keys()) - set(
         DD_jobs_currently_in_mongodb.keys()
     )
-    L_job_ids_to_update = set(DD_jobs_scontrol.keys()).intersection(set(
-        DD_jobs_currently_in_mongodb.keys()
-    ))
+    L_job_ids_to_update = set(DD_jobs_scontrol.keys()).intersection(
+        set(DD_jobs_currently_in_mongodb.keys())
+    )
 
     # The way we partitioned those job_id, they cannot be in two of those sets.
     # Note that many job_id for old jobs are not going to be found in any of those sets
@@ -226,7 +228,7 @@ def main_read_jobs_and_update_collection(
     # print(f"DD_jobs_currently_in_mongodb.keys(): {list(DD_jobs_currently_in_mongodb.keys())}")
     # print(f"In main_read_jobs_and_update_collection, there are {len(L_job_ids_to_insert)} jobs to insert for the first time, "
     #     f"{len(L_job_ids_to_update)} to update based on scontrol and {len(L_job_ids_to_retrieve_with_sacct)} to update through sacct."
-    # ) 
+    # )
 
     for job_id in L_job_ids_to_update:
 
@@ -249,9 +251,9 @@ def main_read_jobs_and_update_collection(
 
         L_updates_to_do.append(
             ReplaceOne({"_id": D_job_db["_id"]}, D_job_new, upsert=False)
-            #ReplaceOne({"slurm.job_id": D_job_new["slurm"]["job_id"],
+            # ReplaceOne({"slurm.job_id": D_job_new["slurm"]["job_id"],
             #            "slurm.cluster_name": D_job_new["slurm"]["cluster_name"]},
-            #D_job_new, upsert=False)
+            # D_job_new, upsert=False)
         )
         append_data_for_dump_file(D_job_new)
 
@@ -305,7 +307,7 @@ def main_read_jobs_and_update_collection(
 
             L_updates_to_do.append(
                 UpdateOne({"_id": D_job_db["_id"]}, D_job_new, upsert=False)
-                #ReplaceOne({"slurm.job_id": D_job_new["slurm"]["job_id"],
+                # ReplaceOne({"slurm.job_id": D_job_new["slurm"]["job_id"],
                 #            "slurm.cluster_name": D_job_new["slurm"]["cluster_name"]},
                 #            D_job_new, upsert=False)
             )
