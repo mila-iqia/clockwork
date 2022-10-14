@@ -21,6 +21,7 @@ from slurm_state.sacct_access import fetch_data_with_sacct_on_remote_clusters
 clusters_valid.add_field("timezone", timezone)
 clusters_valid.add_field("account_field", string)
 clusters_valid.add_field("update_field", optional_string)
+clusters_valid.add_field("sacct_enabled", string)
 
 # Might as well share this as a global variable if it's useful later.
 NOT_TERMINAL_JOB_STATES = ["RUNNING", "PENDING", "COMPLETING"]
@@ -217,10 +218,6 @@ def main_read_jobs_and_update_collection(
     assert L_job_ids_to_insert.isdisjoint(L_job_ids_to_retrieve_with_sacct)
     assert L_job_ids_to_update.isdisjoint(L_job_ids_to_retrieve_with_sacct)
 
-    #########################################################
-    # TODO : Not sure yet how we'll handle the sacct cases. #
-    #########################################################
-
     for job_id in L_job_ids_to_update:
 
         D_job_db = DD_jobs_currently_in_mongodb[job_id]
@@ -260,32 +257,43 @@ def main_read_jobs_and_update_collection(
         L_updates_to_do.append(UpdateOne(D_job_new, upsert=True))
         append_data_for_dump_file(D_job_new)
 
-    # Fetch the partial job updates with sacct for those jobs that slipped
-    # through the cracks.
-    LD_sacct_slurm_jobs = fetch_data_with_sacct_on_remote_clusters(
-        cluster_name=cluster_name, L_job_ids=L_job_ids_to_retrieve_with_sacct
-    )
+    if clusters[D_job["slurm"]["cluster_name"]].get("sacct_enabled", False):
 
-    for D_sacct_slurm_job in LD_sacct_slurm_jobs:
-
-        D_job_db = DD_jobs_currently_in_mongodb[job_id]
-        # Note that `D_job_db` has a "_id" which is useful for an update.
-        # Moreover, `D_sacct_slurm_job` is just the "slurm" portion,
-        # and it's missing most of the fields. It contains only the
-        # values that get update when a job finishes running.
-
-        D_job_new = copy.copy(D_job_db)
-        for k in D_sacct_slurm_job:
-            D_job_new["slurm"][k] = D_sacct_slurm_job[k]
-        # Add this field all the time, whenever you touch an entry.
-        D_job_new["cw"]["last_slurm_update"] = now
-        # To keep track of statistics about the need to use sacct.
-        D_job_new["cw"]["last_slurm_update_by_sacct"] = now
-
-        L_updates_to_do.append(
-            UpdateOne({"_id": D_job_new["_id"]}, D_job_new, upsert=False)
+        print(
+            f"Going to use sacct remotely to {cluster_name} get information about jobs {L_job_ids_to_retrieve_with_sacct}."
         )
-        append_data_for_dump_file(D_job_new)
+
+        # Fetch the partial job updates with sacct for those jobs that slipped
+        # through the cracks.
+        LD_sacct_slurm_jobs = fetch_data_with_sacct_on_remote_clusters(
+            cluster_name=cluster_name, L_job_ids=L_job_ids_to_retrieve_with_sacct
+        )
+
+        for D_sacct_slurm_job in LD_sacct_slurm_jobs:
+
+            D_job_db = DD_jobs_currently_in_mongodb[job_id]
+            # Note that `D_job_db` has a "_id" which is useful for an update.
+            # Moreover, `D_sacct_slurm_job` is just the "slurm" portion,
+            # and it's missing most of the fields. It contains only the
+            # values that get update when a job finishes running.
+
+            D_job_new = copy.copy(D_job_db)
+            for k in D_sacct_slurm_job:
+                D_job_new["slurm"][k] = D_sacct_slurm_job[k]
+            # Add this field all the time, whenever you touch an entry.
+            D_job_new["cw"]["last_slurm_update"] = now
+            # To keep track of statistics about the need to use sacct.
+            D_job_new["cw"]["last_slurm_update_by_sacct"] = now
+
+            L_updates_to_do.append(
+                UpdateOne({"_id": D_job_new["_id"]}, D_job_new, upsert=False)
+            )
+            append_data_for_dump_file(D_job_new)
+    else:
+        print(
+            f"Because of the configuration with sacct_enabled false or missing for {cluster_name}, "
+            "we are NOT going to use sacct get information about jobs {L_job_ids_to_retrieve_with_sacct}."
+        )
 
     # And now for the very rare occasion when we have a user who wants
     # to associate their account on the external cluster (e.g. Compute Canada).
