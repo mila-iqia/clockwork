@@ -21,6 +21,8 @@ from slurm_state.sacct_access import fetch_data_with_sacct_on_remote_clusters
 clusters_valid.add_field("timezone", timezone)
 clusters_valid.add_field("account_field", string)
 clusters_valid.add_field("update_field", optional_string)
+clusters_valid.add_field("remote_user", optional_string)
+clusters_valid.add_field("remote_hostname", optional_string)
 clusters_valid.add_field("sacct_enabled", boolean)
 
 # Might as well share this as a global variable if it's useful later.
@@ -138,7 +140,7 @@ def main_read_jobs_and_update_collection(
     cluster_name,
     scontrol_show_job_path,
     want_commit_to_db=True,
-    want_sacct=False,
+    want_sacct=True,
     dump_file="",
 ):
 
@@ -275,7 +277,7 @@ def main_read_jobs_and_update_collection(
     # Note that we don't want to be running ssh commands with sacct
     # during testing with pytest. This will be possible to manage
     # by specifying `want_sacct=False`.
-    if want_sacct and clusters[cluster_name].get("sacct_enabled", True):
+    if want_sacct and clusters[cluster_name].get("sacct_enabled", False):
 
         print(
             f"Going to use sacct remotely to {cluster_name} get information about jobs {L_job_ids_to_retrieve_with_sacct}."
@@ -315,7 +317,7 @@ def main_read_jobs_and_update_collection(
     else:
         print(
             f"Because of the configuration with sacct_enabled false or missing for {cluster_name}, "
-            "we are NOT going to use sacct get information about jobs {L_job_ids_to_retrieve_with_sacct}."
+            f"we are NOT going to use sacct get information about jobs {L_job_ids_to_retrieve_with_sacct}."
         )
 
     # And now for the very rare occasion when we have a user who wants

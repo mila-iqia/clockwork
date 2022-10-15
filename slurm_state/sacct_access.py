@@ -125,27 +125,25 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
     }
 
     LD_partial_slurm_jobs = []
-    with open_connection(hostname, username, port) as ssh_client:
+    ssh_client = open_connection(hostname, username, port)
+    if ssh_client:
 
-        if ssh_client:
+        # those three variables are file-like, not strings
+        ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(remote_cmd)
 
-            # those three variables are file-like, not strings
-            ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(remote_cmd)
+        reader = csv.DictReader(ssh_stdout)
+        for row in reader:
+            # this is just a dict with the proper keys that we specified,
+            # e.g. to have "job_state" instead of "JobState"
+            D_partial_slurm_job = dict(
+                (k2, row[k1]) for (k1, k2) in key_mappings.items()
+            )
+            LD_partial_slurm_jobs.append(D_partial_slurm_job)
 
-            reader = csv.DictReader(ssh_stdout)
-            for row in reader:
-                # this is just a dict with the proper keys that we specified,
-                # e.g. to have "job_state" instead of "JobState"
-                D_partial_slurm_job = dict(
-                    (k2, row[k1]) for (k1, k2) in key_mappings.items()
-                )
-                LD_partial_slurm_jobs.append(D_partial_slurm_job)
+        # response_str = "\n".join(ssh_stdout.readlines())
+        # if len(ssh_stdout) == 0:
+        #    print(f"Error. Got an empty response when trying to call sacct through SSH on {hostname}. Skipping.")
+        #    return
+        ssh_client.close()
 
-            # response_str = "\n".join(ssh_stdout.readlines())
-            # if len(ssh_stdout) == 0:
-            #    print(f"Error. Got an empty response when trying to call sacct through SSH on {hostname}. Skipping.")
-            #    return
-
-        return LD_partial_slurm_jobs
-
-        # we get the ssh_client.close() for free
+    return LD_partial_slurm_jobs
