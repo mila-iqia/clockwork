@@ -47,7 +47,10 @@ def open_connection(hostname, username, port=22):
     # When it happens, we should simply give up on the attempt
     # and log the error to stdout.
     try:
-        ssh_client.connect(hostname, username=username, port=port)
+        # TODO : Use some kind of config instead of writing that path there.
+        #        Strangely, this doesn't work unless we specify that path.
+        #        Maybe it's the unconventional naming scheme.
+        ssh_client.connect(hostname, username=username, port=port, key_filename="/home/clockwork/.ssh/id_clockwork")
         print(f"Successful SSH connection to {username}@{hostname} port {port}.")
     except ssh_exception.AuthenticationException as inst:
         print(f"Error in SSH connection to {username}@{hostname} port {port}.")
