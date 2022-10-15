@@ -288,6 +288,8 @@ def main_read_jobs_and_update_collection(
         LD_sacct_slurm_jobs = fetch_data_with_sacct_on_remote_clusters(
             cluster_name=cluster_name, L_job_ids=L_job_ids_to_retrieve_with_sacct
         )
+        print(f"Retrieved information with sacct for {len(LD_sacct_slurm_jobs)} jobs.\n"
+            f"len(L_updates_to_do) is {len(L_updates_to_do)} before we process those")
 
         for D_sacct_slurm_job in LD_sacct_slurm_jobs:
 
@@ -314,6 +316,7 @@ def main_read_jobs_and_update_collection(
                 #            D_job_new, upsert=False)
             )
             append_data_for_dump_file(D_job_new)
+        print(f"len(L_updates_to_do) is {len(L_updates_to_do)} after we process those sacct updates")
     else:
         print(
             f"Because of the configuration with sacct_enabled false or missing for {cluster_name}, "
