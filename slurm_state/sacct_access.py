@@ -20,6 +20,7 @@ mila|2054761827|ximeng.mao|2331586|submit_job_multi_kfold_cpu.sh|COMPLETED|2022-
 """
 
 import csv  # sacct output reads like a csv
+import re
 
 # from io import StringIO
 
@@ -27,8 +28,8 @@ import csv  # sacct output reads like a csv
 from paramiko import SSHClient, AutoAddPolicy, ssh_exception
 
 from slurm_state.extra_filters import clusters_valid
-from slurm_state.config import get_config, string
-
+from slurm_state.config import get_config, string, optional_string
+clusters_valid.add_field("sacct_path", optional_string)
 
 def open_connection(hostname, username, port=22):
     """
@@ -104,28 +105,45 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
     # they are required in order to rsync the scontrol reports
     username = get_config("clusters")[cluster_name]["remote_user"]
     hostname = get_config("clusters")[cluster_name]["remote_hostname"]
+    sacct_path = get_config("clusters")[cluster_name]["sacct_path"]
+    assert sacct_path, "Error. We have called the function to make updates with sacct but the sacct_path config is empty."
+    assert sacct_path.endswith("sacct"), f"Error. The sacct_path configuration needs to end with 'sacct'. It's currently {sacct_path} ."
     # If you need to change this value in any way, then you should
     # make it a config value for real. In the meantime, let's hardcode it.
     port = 22
 
-    # remote_cmd = "sacct -X -j " + ",".join(L_job_ids)
+    # Note : It doesn't work to simply start the command with "sacct".
+    #        For some reason due to paramiko not loading the environment variables,
+    #        sacct is not found in the PATH.
+    #        This does not work
+    #            remote_cmd = "sacct -X -j " + ",".join(L_job_ids)
+    #        but if we use 
+    #            remote_cmd = "/opt/slurm/bin/sacct ..."
+    #        then it works. We have to hardcode the path in each cluster, it seems.
+
     # Retrieve only certain fields.
     remote_cmd = (
-        "sacct -X --format 'Account,UID,User,JobID,JobName,State,Start,End' --delimiter '|' --parsable -j "
+        f"{sacct_path} -X --format Account,UID,User,JobIDRaw,JobID,JobName,State,Start,End --delimiter '|' --parsable -j "
         + ",".join(L_job_ids)
     )
+
+    print(f"remote_cmd is\n{remote_cmd}")
 
     # Write what keys you want to map to what, because we use a different representation for ourselves.
     key_mappings = {
         "Account": "account",
         "UID": "uid",
         "User": "username",
-        "JobID": "job_id",
+        "JobIDRaw": "job_id",
+        # no "JobID" here because it can be of the form : array_job_id + underscore + array_task_id
         "JobName": "name",
         "State": "job_state",
         "Start": "start_time",
         "End": "end_time",
     }
+
+    # for faster lookups
+    S_job_ids = set(L_job_ids)
 
     LD_partial_slurm_jobs = []
     ssh_client = open_connection(hostname, username, port)
@@ -134,19 +152,45 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
         # those three variables are file-like, not strings
         ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(remote_cmd)
 
-        reader = csv.DictReader(ssh_stdout)
+        reader = csv.DictReader(ssh_stdout, delimiter='|')
         for row in reader:
             # this is just a dict with the proper keys that we specified,
             # e.g. to have "job_state" instead of "JobState"
             D_partial_slurm_job = dict(
                 (k2, row[k1]) for (k1, k2) in key_mappings.items()
             )
+
+            if row["JobID"] == row["JobIDRaw"]:
+                # not part of an array
+                continue
+            else:
+                # According to the Slurm documentation (https://slurm.schedmd.com/job_array.html),
+                # this should be of the form SLURM_ARRAY_JOB_ID plus SLURM_ARRAY_TASK_ID.
+                m = re.match(r"^(\d+)_(\d+)$", row["JobID"])
+                if m:
+                    D_partial_slurm_job["array_job_id"] = m.group(1)
+                    D_partial_slurm_job["array_task_id"] = m.group(2)
+                else:
+                    print("Error. We've indentified a situation where all our expectations are broken.\n"
+                          "We have a situation where we suspected that we had an array job id plus array task id situation but we cannot parse it properly."
+                          f'(row["JobID"], row["JobIDRaw"]) is ({row["JobID"]}, {row["JobIDRaw"]})')
+
+            # Cancelled jobs can have a JobState in the form "CANCELLED by 963245100".
+            # We don't want to have that. It would be possible to argue
+            # that we're throwing away good information by doing this,
+            # but this wouldn't be the first place where we make an informed decision
+            # about what to keep and what to remove.
+            if D_partial_slurm_job["job_state"].startswith("CANCELLED"):
+                D_partial_slurm_job["job_state"] = "CANCELLED"
+
+            assert D_partial_slurm_job["job_id"] in S_job_ids, f'Error. We have retrieve a job_id {D_partial_slurm_job["job_id"]} from sacct, but that job_id is not found in the original query for {L_job_ids}.'
+
             LD_partial_slurm_jobs.append(D_partial_slurm_job)
 
-        # response_str = "\n".join(ssh_stdout.readlines())
-        # if len(ssh_stdout) == 0:
-        #    print(f"Error. Got an empty response when trying to call sacct through SSH on {hostname}. Skipping.")
-        #    return
+        response_stderr = "\n".join(ssh_stderr.readlines())
+        if len(response_stderr):
+            print(f"Error when trying to remotely call sacct on {hostname}.\n{response_stderr}")
+            return
         ssh_client.close()
 
     return LD_partial_slurm_jobs

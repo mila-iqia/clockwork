@@ -25,6 +25,7 @@ clusters_valid.add_field("remote_user", optional_string)
 clusters_valid.add_field("remote_hostname", optional_string)
 clusters_valid.add_field("sacct_enabled", boolean)
 
+
 # Might as well share this as a global variable if it's useful later.
 NOT_TERMINAL_JOB_STATES = ["RUNNING", "PENDING", "COMPLETING"]
 
