@@ -81,7 +81,23 @@ const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html al
 var latest_response_contents; // Stores the content of the latest response received
 var latest_filtered_response_contents; // Results in applying filters on the latest response contents
 
+function format_date(timestamp) {
+    /*
+        Format a timestamp in order to display it in the following format:
+        yyyy-mm-dd HH:MM
+    */
+    let date_to_format = new Date(timestamp*1000); // The timestamp should be in milliseconds, not in seconds
 
+    // Format each element
+    year = date_to_format.getFullYear();
+    month = (date_to_format.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // Months are represented by indices from 0 to 11. Thus, 1 is added to the month. Moreover, this use of 'toLocaleString' is used to display each month with two digits (even the months from 1 to 9)
+    day = date_to_format.getDate().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display each day with two digits (even the days from 1 to 9)
+
+    hours = date_to_format.getHours().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display each hour with two digits (even the hours from 0 to 9)
+    minutes = date_to_format.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display the minutes with two digits (even when there is less than 10 minutes in the current hour)
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
 
 function launch_refresh_all_data(query_filter, display_filter) {
     /*
@@ -298,9 +314,10 @@ function populate_table(response_contents) {
             // you need to set it up because this is going to be written as a unix timestamp.
             // This might include injecting another field with a name
             // such as "start_time_human_readable" or something like that, and using it here.
-            //td.innerHTML = D_job_slurm["start_time"].toString();
 
-            td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]);
+            //td.innerHTML = D_job_slurm["start_time"].toString(); // For a timestamp
+            //td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]); // For a relative time
+            td.innerHTML = format_date(D_job_slurm["start_time"]); // For a human readable time
         }
         tr.appendChild(td);
 
@@ -313,9 +330,10 @@ function populate_table(response_contents) {
             // you need to set it up because this is going to be written as a unix timestamp.
             // This might include injecting another field with a name
             // such as "start_time_human_readable" or something like that, and using it here.
-            // td.innerHTML = D_job_slurm["end_time"].toString();
 
-            td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]);
+            //td.innerHTML = D_job_slurm["end_time"].toString(); // For a timestamp
+            //td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]); // For a relative time
+            td.innerHTML = format_date(D_job_slurm["end_time"]);
         }
         tr.appendChild(td);
 
