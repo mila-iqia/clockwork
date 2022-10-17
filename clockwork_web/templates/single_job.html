@@ -53,6 +53,17 @@
                                     {{v}}
                                   </a>
                                 </td>
+                            {% elif (k == "submit_time" or k == "start_time" or k == "end_time") and v is not none %}
+                                <td>
+                                    <ul>
+                                        <!-- Timestamp format -->
+                                        <li>{{v}}</li>
+                                        <!-- Relative time format -->
+                                        <li><span data-livestamp='{{v|int}}'></span></li>
+                                        <!-- Human readable date format -->
+                                        <li>{{ v|format_date }}</li>
+                                    </ul>
+                                </td>
                             {% else %}
                                 <td>{{v}}</td>
                             {% endif %}
