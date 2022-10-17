@@ -272,6 +272,13 @@ def test_job_parser_job_array_ids():
 
 
 def test_job_parser_problematic_command_on_cedar():
+    """
+    Make sure that we can properly parse a job entry
+    that has a Command that spans across many lines.
+    We will end up ignoring the next lines after Command,
+    but the important thing is that we won't crash
+    the parsing procedure because of those lines.
+    """
     f = StringIO(
         """
    JobId=45338972 JobName=40-1e-3
@@ -331,6 +338,12 @@ def test_job_parser_problematic_command_on_cedar():
 
 
 def test_job_parse_with_awful_job_name():
+    """
+    Make sure that we handle properly JobName entries containing
+    lots of parameters that could be confused for Slurm parameters.
+    This involves the assumption that no other Slurm parameter
+    will be contained on that line.
+    """
     f = StringIO(
         """
 JobId=44727557 JobName=python -O main.py seed=123456  Arch.num_classes=4 Dataset=abcd Foreground=all Trainer.name=consVat VATsettings.pertur_eps=1 Constraints.Constraint=connectivity Constraints.reward_type=soft Constraints.examples=original_unlab ConstraintWeightScheduler.max_value=0.00001  RegScheduler.max_value=0.005 Trainer.save_dir=kjhfsdkjhfsd/540938kjhfsdf Data.unlabeled_data_ratio=0.97 Data.labeled_data_ratio=0.03
