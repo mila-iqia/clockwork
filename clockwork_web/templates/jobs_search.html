@@ -82,7 +82,7 @@
                             {% endif %}
 
                             <!-- End time -->
-                            {% if D_job["slurm"]["start_time"] %}
+                            {% if D_job["slurm"]["end_time"] %}
                                 {% set end_time = D_job["slurm"]["end_time"] %}
                                 <td data-order="{{end_time}}"><span class="visually-hidden">{{end_time}}</span><!--<span data-livestamp='{{end_time|int}}'></span>--> {{ end_time|format_date }}</td>
                             {% else %}
