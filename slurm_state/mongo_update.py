@@ -150,6 +150,7 @@ def main_read_jobs_and_update_collection(
     L_data_for_dump_file = []
 
     clusters = get_config("clusters")
+    now = time.time()
 
     for D_job in map(
         lookup_user_account(users_collection),
@@ -161,6 +162,9 @@ def main_read_jobs_and_update_collection(
             ),
         ),
     ):
+
+        # add this field all the time, whenever you touch an entry
+        D_job["cw"]["last_slurm_update"] = now
 
         L_data_for_dump_file.append(D_job)
 
@@ -182,6 +186,19 @@ def main_read_jobs_and_update_collection(
         )
 
         # Here we can add set extra values to "cw".
+        # The most important thing is that we avoid overwriting
+        # the "user" component which might have been updated by
+        # the user (surprise!) through another interface.
+        # This is the whole reason why we have a second set of append
+        # operations here.
+        # TODO : Are we really so sure that those two updates aren't
+        # going to happen at the same time, and that we won't erase
+        # the "user" dictionary? I think this was tested manually
+        # at some point, but I'm not so confident anymore.
+
+        # ERROR : We aren't updating the job_state. :)
+        #         We should update everything in "slurm". Might as well.
+
         L_updates_to_do.append(
             UpdateOne(
                 # rule to match if already present in collection
@@ -192,11 +209,12 @@ def main_read_jobs_and_update_collection(
                 # the data that we write in the collection
                 {
                     "$set": {
-                        "cw.last_slurm_update": time.time(),
+                        "slurm": D_job["slurm"],
+                        "cw.last_slurm_update": now,
                         "cw.mila_email_username": D_job["cw"]["mila_email_username"],
                     }
                 },
-                # create if missing, update if present
+                # don't create if missing, update if present
                 upsert=False,
             )
         )
@@ -273,10 +291,15 @@ def main_read_nodes_and_update_collection(
     L_updates_to_do = []
     L_data_for_dump_file = []
 
+    now = time.time()
+
     for D_node in map(
         slurm_node_to_clockwork_node,
         fetch_slurm_report_nodes(cluster_desc_path, scontrol_show_node_path),
     ):
+
+        # add this field all the time, whenever you touch an entry
+        D_node["cw"]["last_slurm_update"] = now
 
         L_data_for_dump_file.append(D_node)
 
@@ -297,20 +320,25 @@ def main_read_nodes_and_update_collection(
             )
         )
 
+        # This is all useless. It's a copy/paste of the things we do
+        # for jobs, and it's not necessary for nodes because we don't
+        # have the "user" field that we want to avoid overwriting.
+        # We can reactivate this later if we ever get such a field.
+
         # Here we can add set extra values to "cw".
-        L_updates_to_do.append(
-            UpdateOne(
-                # rule to match if already present in collection
-                {
-                    "slurm.name": D_node["slurm"]["name"],
-                    "slurm.cluster_name": D_node["slurm"]["cluster_name"],
-                },
-                # the data that we write in the collection
-                {"$set": {"cw.last_slurm_update": time.time()}},
-                # create if missing, update if present
-                upsert=False,
-            )
-        )
+        # L_updates_to_do.append(
+        #    UpdateOne(
+        #        # rule to match if already present in collection
+        #        {
+        #            "slurm.name": D_node["slurm"]["name"],
+        #            "slurm.cluster_name": D_node["slurm"]["cluster_name"],
+        #        },
+        #        # the data that we write in the collection
+        #        {"$set": {"cw.last_slurm_update": now}},
+        #        # don't create if missing, update if present
+        #        upsert=False,
+        #    )
+        # )
 
     if want_commit_to_db:
         if L_updates_to_do:
