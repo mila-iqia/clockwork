@@ -294,29 +294,48 @@ def main_read_jobs_and_update_collection(
 
         for D_sacct_slurm_job in LD_sacct_slurm_jobs:
 
-            D_job_db = DD_jobs_currently_in_mongodb[job_id]
-            # Note that `D_job_db` has a "_id" which is useful for an update.
-            # Moreover, `D_sacct_slurm_job` is just the "slurm" portion,
-            # and it's missing most of the fields. It contains only the
-            # values that get update when a job finishes running.
+            # There is something very special happening here.
+            # It's quite possible that we are dealing with job/task arrays
+            # where some of the jobs/tasks are NOT in the original
+            # `DD_jobs_currently_in_mongodb`, yet they are present
+            # when we call `sacct`. This means that we have to decide
+            # whether we'd like to update only the job entries present
+            # in `DD_jobs_currently_in_mongodb` (the current choice)
+            # or whether we'd like to create minimalist job entries
+            # based on the information retrieved by `sacct` (not the current choice).
+            
+            job_id = D_sacct_slurm_job["jod_id"]
+            if job_id in DD_jobs_currently_in_mongodb:
+                D_job_db = DD_jobs_currently_in_mongodb[job_id]
+                # Note that `D_job_db` has a "_id" which is useful for an update.
+                # Moreover, `D_sacct_slurm_job` is just the "slurm" portion,
+                # and it's missing most of the fields. It contains only the
+                # values that get update when a job finishes running.
 
-            D_job_new = copy.copy(D_job_db)
-            del D_job_new["_id"]
+                D_job_new = copy.copy(D_job_db)
+                del D_job_new["_id"]
 
-            for k in D_sacct_slurm_job:
-                D_job_new["slurm"][k] = D_sacct_slurm_job[k]
-            # Add this field all the time, whenever you touch an entry.
-            D_job_new["cw"]["last_slurm_update"] = now
-            # To keep track of statistics about the need to use sacct.
-            D_job_new["cw"]["last_slurm_update_by_sacct"] = now
+                for k in D_sacct_slurm_job:
+                    D_job_new["slurm"][k] = D_sacct_slurm_job[k]
+                # Add this field all the time, whenever you touch an entry.
+                D_job_new["cw"]["last_slurm_update"] = now
+                # To keep track of statistics about the need to use sacct.
+                D_job_new["cw"]["last_slurm_update_by_sacct"] = now
 
-            L_updates_to_do.append(
-                UpdateOne({"_id": D_job_db["_id"]}, D_job_new, upsert=False)
-                # ReplaceOne({"slurm.job_id": D_job_new["slurm"]["job_id"],
-                #            "slurm.cluster_name": D_job_new["slurm"]["cluster_name"]},
-                #            D_job_new, upsert=False)
-            )
-            append_data_for_dump_file(D_job_new)
+                L_updates_to_do.append(
+                    UpdateOne({"_id": D_job_db["_id"]}, D_job_new, upsert=False)
+                    # ReplaceOne({"slurm.job_id": D_job_new["slurm"]["job_id"],
+                    #            "slurm.cluster_name": D_job_new["slurm"]["cluster_name"]},
+                    #            D_job_new, upsert=False)
+                )
+                append_data_for_dump_file(D_job_new)
+            else:
+                # TODO : Print something about the fact that you ignored that job_id.
+
+                # TODO : Decide what to do about updating only jobs present in MongoDB,
+                #        even though you know full well that you have let certain jobs slip by.
+
+                pass
         print(f"len(L_updates_to_do) is {len(L_updates_to_do)} after we process those sacct updates")
     else:
         print(

@@ -21,6 +21,7 @@ mila|2054761827|ximeng.mao|2331586|submit_job_multi_kfold_cpu.sh|COMPLETED|2022-
 
 import csv  # sacct output reads like a csv
 import re
+import os
 
 # from io import StringIO
 
@@ -30,8 +31,9 @@ from paramiko import SSHClient, AutoAddPolicy, ssh_exception
 from slurm_state.extra_filters import clusters_valid
 from slurm_state.config import get_config, string, optional_string
 clusters_valid.add_field("sacct_path", optional_string)
+clusters_valid.add_field("sacct_ssh_key_filename", string)
 
-def open_connection(hostname, username, port=22):
+def open_connection(hostname, username, ssh_key_path, port=22):
     """
     If successful, this will connect to the remote server and
     the value of self.ssh_client will be usable.
@@ -41,6 +43,7 @@ def open_connection(hostname, username, port=22):
     ssh_client = SSHClient()
     ssh_client.set_missing_host_key_policy(AutoAddPolicy())
     ssh_client.load_system_host_keys()
+    assert os.path.exists(ssh_key_path), f"Error. The absolute path given for ssh_key_path does not exist: {ssh_key_path} ."
 
     # The call to .connect was seen to raise an exception now and then.
     #     raise AuthenticationException("Authentication timeout.")
@@ -51,7 +54,7 @@ def open_connection(hostname, username, port=22):
         # TODO : Use some kind of config instead of writing that path there.
         #        Strangely, this doesn't work unless we specify that path.
         #        Maybe it's the unconventional naming scheme.
-        ssh_client.connect(hostname, username=username, port=port, key_filename="/home/clockwork/.ssh/id_clockwork")
+        ssh_client.connect(hostname, username=username, port=port, key_filename=ssh_key_path)
         print(f"Successful SSH connection to {username}@{hostname} port {port}.")
     except ssh_exception.AuthenticationException as inst:
         print(f"Error in SSH connection to {username}@{hostname} port {port}.")
@@ -106,8 +109,13 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
     username = get_config("clusters")[cluster_name]["remote_user"]
     hostname = get_config("clusters")[cluster_name]["remote_hostname"]
     sacct_path = get_config("clusters")[cluster_name]["sacct_path"]
+    sacct_ssh_key_filename = get_config("clusters")[cluster_name]["sacct_ssh_key_filename"]
     assert sacct_path, "Error. We have called the function to make updates with sacct but the sacct_path config is empty."
     assert sacct_path.endswith("sacct"), f"Error. The sacct_path configuration needs to end with 'sacct'. It's currently {sacct_path} ."
+    assert sacct_ssh_key_filename, "Missing sacct_ssh_key_filename from config."
+    # Now this is the private ssh key that we'll be using with Paramiko.
+    sacct_ssh_key_path = os.path.join(os.path.expanduser('~'), ".ssh", sacct_ssh_key_filename)
+
     # If you need to change this value in any way, then you should
     # make it a config value for real. In the meantime, let's hardcode it.
     port = 22
@@ -135,7 +143,9 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
         "UID": "uid",
         "User": "username",
         "JobIDRaw": "job_id",
-        # no "JobID" here because it can be of the form : array_job_id + underscore + array_task_id
+        # We have "JobID" in the query, but we don't map it automatically to something
+        # because it can be of the form : array_job_id + underscore + array_task_id.
+        # We handle this manually down below.
         "JobName": "name",
         "State": "job_state",
         "Start": "start_time",
@@ -146,7 +156,8 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
     S_job_ids = set(L_job_ids)
 
     LD_partial_slurm_jobs = []
-    ssh_client = open_connection(hostname, username, port)
+
+    ssh_client = open_connection(hostname, username, ssh_key_path=sacct_ssh_key_path, port=port)
     if ssh_client:
 
         # those three variables are file-like, not strings
@@ -160,9 +171,13 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
                 (k2, row[k1]) for (k1, k2) in key_mappings.items()
             )
 
+            # TODO : We need to properly handle times to translate them to unix format
+            #        like we do in scontrol_parser. Get inspiration from there.
+
+
             if row["JobID"] == row["JobIDRaw"]:
                 # not part of an array
-                continue
+                pass
             else:
                 # According to the Slurm documentation (https://slurm.schedmd.com/job_array.html),
                 # this should be of the form SLURM_ARRAY_JOB_ID plus SLURM_ARRAY_TASK_ID.
