@@ -30,8 +30,10 @@ from paramiko import SSHClient, AutoAddPolicy, ssh_exception
 
 from slurm_state.extra_filters import clusters_valid
 from slurm_state.config import get_config, string, optional_string
+
 clusters_valid.add_field("sacct_path", optional_string)
 clusters_valid.add_field("sacct_ssh_key_filename", string)
+
 
 def open_connection(hostname, username, ssh_key_path, port=22):
     """
@@ -43,7 +45,9 @@ def open_connection(hostname, username, ssh_key_path, port=22):
     ssh_client = SSHClient()
     ssh_client.set_missing_host_key_policy(AutoAddPolicy())
     ssh_client.load_system_host_keys()
-    assert os.path.exists(ssh_key_path), f"Error. The absolute path given for ssh_key_path does not exist: {ssh_key_path} ."
+    assert os.path.exists(
+        ssh_key_path
+    ), f"Error. The absolute path given for ssh_key_path does not exist: {ssh_key_path} ."
 
     # The call to .connect was seen to raise an exception now and then.
     #     raise AuthenticationException("Authentication timeout.")
@@ -54,7 +58,9 @@ def open_connection(hostname, username, ssh_key_path, port=22):
         # TODO : Use some kind of config instead of writing that path there.
         #        Strangely, this doesn't work unless we specify that path.
         #        Maybe it's the unconventional naming scheme.
-        ssh_client.connect(hostname, username=username, port=port, key_filename=ssh_key_path)
+        ssh_client.connect(
+            hostname, username=username, port=port, key_filename=ssh_key_path
+        )
         print(f"Successful SSH connection to {username}@{hostname} port {port}.")
     except ssh_exception.AuthenticationException as inst:
         print(f"Error in SSH connection to {username}@{hostname} port {port}.")
@@ -109,12 +115,20 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
     username = get_config("clusters")[cluster_name]["remote_user"]
     hostname = get_config("clusters")[cluster_name]["remote_hostname"]
     sacct_path = get_config("clusters")[cluster_name]["sacct_path"]
-    sacct_ssh_key_filename = get_config("clusters")[cluster_name]["sacct_ssh_key_filename"]
-    assert sacct_path, "Error. We have called the function to make updates with sacct but the sacct_path config is empty."
-    assert sacct_path.endswith("sacct"), f"Error. The sacct_path configuration needs to end with 'sacct'. It's currently {sacct_path} ."
+    sacct_ssh_key_filename = get_config("clusters")[cluster_name][
+        "sacct_ssh_key_filename"
+    ]
+    assert (
+        sacct_path
+    ), "Error. We have called the function to make updates with sacct but the sacct_path config is empty."
+    assert sacct_path.endswith(
+        "sacct"
+    ), f"Error. The sacct_path configuration needs to end with 'sacct'. It's currently {sacct_path} ."
     assert sacct_ssh_key_filename, "Missing sacct_ssh_key_filename from config."
     # Now this is the private ssh key that we'll be using with Paramiko.
-    sacct_ssh_key_path = os.path.join(os.path.expanduser('~'), ".ssh", sacct_ssh_key_filename)
+    sacct_ssh_key_path = os.path.join(
+        os.path.expanduser("~"), ".ssh", sacct_ssh_key_filename
+    )
 
     # If you need to change this value in any way, then you should
     # make it a config value for real. In the meantime, let's hardcode it.
@@ -125,7 +139,7 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
     #        sacct is not found in the PATH.
     #        This does not work
     #            remote_cmd = "sacct -X -j " + ",".join(L_job_ids)
-    #        but if we use 
+    #        but if we use
     #            remote_cmd = "/opt/slurm/bin/sacct ..."
     #        then it works. We have to hardcode the path in each cluster, it seems.
 
@@ -157,13 +171,15 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
 
     LD_partial_slurm_jobs = []
 
-    ssh_client = open_connection(hostname, username, ssh_key_path=sacct_ssh_key_path, port=port)
+    ssh_client = open_connection(
+        hostname, username, ssh_key_path=sacct_ssh_key_path, port=port
+    )
     if ssh_client:
 
         # those three variables are file-like, not strings
         ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(remote_cmd)
 
-        reader = csv.DictReader(ssh_stdout, delimiter='|')
+        reader = csv.DictReader(ssh_stdout, delimiter="|")
         for row in reader:
             # this is just a dict with the proper keys that we specified,
             # e.g. to have "job_state" instead of "JobState"
@@ -173,7 +189,6 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
 
             # TODO : We need to properly handle times to translate them to unix format
             #        like we do in scontrol_parser. Get inspiration from there.
-
 
             if row["JobID"] == row["JobIDRaw"]:
                 # not part of an array
@@ -186,9 +201,11 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
                     D_partial_slurm_job["array_job_id"] = m.group(1)
                     D_partial_slurm_job["array_task_id"] = m.group(2)
                 else:
-                    print("Error. We've indentified a situation where all our expectations are broken.\n"
-                          "We have a situation where we suspected that we had an array job id plus array task id situation but we cannot parse it properly."
-                          f'(row["JobID"], row["JobIDRaw"]) is ({row["JobID"]}, {row["JobIDRaw"]})')
+                    print(
+                        "Error. We've indentified a situation where all our expectations are broken.\n"
+                        "We have a situation where we suspected that we had an array job id plus array task id situation but we cannot parse it properly."
+                        f'(row["JobID"], row["JobIDRaw"]) is ({row["JobID"]}, {row["JobIDRaw"]})'
+                    )
 
             # Cancelled jobs can have a JobState in the form "CANCELLED by 963245100".
             # We don't want to have that. It would be possible to argue
@@ -198,13 +215,17 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
             if D_partial_slurm_job["job_state"].startswith("CANCELLED"):
                 D_partial_slurm_job["job_state"] = "CANCELLED"
 
-            assert D_partial_slurm_job["job_id"] in S_job_ids, f'Error. We have retrieve a job_id {D_partial_slurm_job["job_id"]} from sacct, but that job_id is not found in the original query for {L_job_ids}.'
+            assert (
+                D_partial_slurm_job["job_id"] in S_job_ids
+            ), f'Error. We have retrieve a job_id {D_partial_slurm_job["job_id"]} from sacct, but that job_id is not found in the original query for {L_job_ids}.'
 
             LD_partial_slurm_jobs.append(D_partial_slurm_job)
 
         response_stderr = "\n".join(ssh_stderr.readlines())
         if len(response_stderr):
-            print(f"Error when trying to remotely call sacct on {hostname}.\n{response_stderr}")
+            print(
+                f"Error when trying to remotely call sacct on {hostname}.\n{response_stderr}"
+            )
             return
         ssh_client.close()
 

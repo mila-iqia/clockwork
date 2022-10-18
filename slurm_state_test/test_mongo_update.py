@@ -160,7 +160,7 @@ def test_main_read_jobs_and_update_collection():
         db.test_users,
         "beluga",
         "slurm_state_test/files/small_scontrol_job",
-        want_sacct=False
+        want_sacct=False,
     )
 
     assert db.test_jobs.count_documents({}) == 1
@@ -170,7 +170,7 @@ def test_main_read_jobs_and_update_collection():
         db.test_users,
         "beluga",
         "slurm_state_test/files/scontrol_job_2",
-        want_sacct=False
+        want_sacct=False,
     )
 
     assert db.test_jobs.count_documents({}) == 2

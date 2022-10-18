@@ -289,8 +289,10 @@ def main_read_jobs_and_update_collection(
         LD_sacct_slurm_jobs = fetch_data_with_sacct_on_remote_clusters(
             cluster_name=cluster_name, L_job_ids=L_job_ids_to_retrieve_with_sacct
         )
-        print(f"Retrieved information with sacct for {len(LD_sacct_slurm_jobs)} jobs.\n"
-            f"len(L_updates_to_do) is {len(L_updates_to_do)} before we process those")
+        print(
+            f"Retrieved information with sacct for {len(LD_sacct_slurm_jobs)} jobs.\n"
+            f"len(L_updates_to_do) is {len(L_updates_to_do)} before we process those"
+        )
 
         for D_sacct_slurm_job in LD_sacct_slurm_jobs:
 
@@ -303,7 +305,7 @@ def main_read_jobs_and_update_collection(
             # in `DD_jobs_currently_in_mongodb` (the current choice)
             # or whether we'd like to create minimalist job entries
             # based on the information retrieved by `sacct` (not the current choice).
-            
+
             job_id = D_sacct_slurm_job["jod_id"]
             if job_id in DD_jobs_currently_in_mongodb:
                 D_job_db = DD_jobs_currently_in_mongodb[job_id]
@@ -336,7 +338,9 @@ def main_read_jobs_and_update_collection(
                 #        even though you know full well that you have let certain jobs slip by.
 
                 pass
-        print(f"len(L_updates_to_do) is {len(L_updates_to_do)} after we process those sacct updates")
+        print(
+            f"len(L_updates_to_do) is {len(L_updates_to_do)} after we process those sacct updates"
+        )
     else:
         print(
             f"Because of the configuration with sacct_enabled false or missing for {cluster_name}, "
