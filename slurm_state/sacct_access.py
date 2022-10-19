@@ -118,7 +118,7 @@ def fetch_data_with_sacct_on_remote_clusters(
         print(
             f"Error. You called for an update with remote sacct on {cluster_name}, but the supplied argument L_job_ids is empty."
         )
-        return
+        return []
 
     # these fields are already present in the config because
     # they are required in order to rsync the scontrol reports
@@ -247,7 +247,7 @@ def fetch_data_with_sacct_on_remote_clusters(
             print(
                 f"Error when trying to remotely call sacct on {hostname}.\n{response_stderr}"
             )
-            return
+            return []
         ssh_client.close()
 
     return LD_partial_slurm_jobs

@@ -278,7 +278,7 @@ def main_read_jobs_and_update_collection(
     # Note that we don't want to be running ssh commands with sacct
     # during testing with pytest. This will be possible to manage
     # by specifying `want_sacct=False`.
-    if want_sacct and clusters[cluster_name].get("sacct_enabled", False):
+    if want_sacct and clusters[cluster_name].get("sacct_enabled", False) and L_job_ids_to_retrieve_with_sacct:
 
         print(
             f"Going to use sacct remotely to {cluster_name} get information about jobs {L_job_ids_to_retrieve_with_sacct}."
