@@ -328,7 +328,7 @@ def main_read_jobs_and_update_collection(
                 D_job_new["cw"]["last_slurm_update_by_sacct"] = now
 
                 L_updates_to_do.append(
-                    UpdateOne({"_id": D_job_db["_id"]}, D_job_new, upsert=False)
+                    ReplaceOne({"_id": D_job_db["_id"]}, D_job_new, upsert=False)
                     # ReplaceOne({"slurm.job_id": D_job_new["slurm"]["job_id"],
                     #            "slurm.cluster_name": D_job_new["slurm"]["cluster_name"]},
                     #            D_job_new, upsert=False)

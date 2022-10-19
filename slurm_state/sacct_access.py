@@ -213,6 +213,9 @@ def fetch_data_with_sacct_on_remote_clusters(
             else:
                 # According to the Slurm documentation (https://slurm.schedmd.com/job_array.html),
                 # this should be of the form SLURM_ARRAY_JOB_ID plus SLURM_ARRAY_TASK_ID.
+                # It would be nice if it was two integers separated by an underscore,
+                # but after the underscore we can have more things like
+                #     2340122_[6-10%20], 2366813_[13-125], 2377198_[1-2%3]
                 m = re.match(r"^(\d+)_(.*)$", row["JobID"])
                 if m:
                     D_partial_slurm_job["array_job_id"] = m.group(1)
