@@ -86,7 +86,9 @@ def open_connection(hostname, username, ssh_key_path, port=22):
     return ssh_client
 
 
-def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[str], timezone:str):
+def fetch_data_with_sacct_on_remote_clusters(
+    cluster_name: str, L_job_ids: list[str], timezone: str
+):
     """
     Fetches through SSH certain fields for jobs that have
     been dropped from scontrol_show_job prematurely before
@@ -200,7 +202,9 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
             # like we do in scontrol_parser. Reuse that code. The `timezone` is
             # because certain clusters are not in the same time zone as us.
             for k in ["submit_time", "start_time", "end_time"]:
-                D_partial_slurm_job[k] = parse_timestamp(D_partial_slurm_job[k], {"timezone": timezone})
+                D_partial_slurm_job[k] = parse_timestamp(
+                    D_partial_slurm_job[k], {"timezone": timezone}
+                )
 
             if row["JobID"] == row["JobIDRaw"]:
                 # not part of an array, so we don't return values for
