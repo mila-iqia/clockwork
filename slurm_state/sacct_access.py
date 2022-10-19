@@ -17,6 +17,13 @@ Account|UID|User|JobID|JobName|State|Start|End|ReqTRES|
 mila|720391130|goncalo-filipe.torcato-mordido|2330417|train_cifar.sh|COMPLETED|2022-10-06T08:36:14|2022-10-06T12:14:16|cpu=1,gres/gpu=1,mem=32G,node=1|
 mila|2054761827|ximeng.mao|2331586|submit_job_multi_kfold_cpu.sh|COMPLETED|2022-10-03T10:05:39|2022-10-05T20:06:13|billing=3,cpu=1,mem=16G,node=1|
 
+Note that we'll never account for jobs that ended up in the database in a weird non-terminal state
+and are not currently visible with sacct.
+
+We also have some intricate manipulations that we can do in order to process the jobs that
+we know for a fact would be relevant, but for some reason have been missed completely by scontrol_show_job.
+See https://mila-iqia.atlassian.net/browse/CW-213 for more discussion.
+
 """
 
 import csv  # sacct output reads like a csv
@@ -30,6 +37,7 @@ from paramiko import SSHClient, AutoAddPolicy, ssh_exception
 
 from slurm_state.extra_filters import clusters_valid
 from slurm_state.config import get_config, string, optional_string
+from slurm_state.scontrol_parser import timestamp as parse_timestamp
 
 clusters_valid.add_field("sacct_path", optional_string)
 clusters_valid.add_field("sacct_ssh_key_filename", string)
@@ -78,7 +86,7 @@ def open_connection(hostname, username, ssh_key_path, port=22):
     return ssh_client
 
 
-def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[str]):
+def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[str], timezone:str):
     """
     Fetches through SSH certain fields for jobs that have
     been dropped from scontrol_show_job prematurely before
@@ -145,7 +153,7 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
 
     # Retrieve only certain fields.
     remote_cmd = (
-        f"{sacct_path} -X --format Account,UID,User,JobIDRaw,JobID,JobName,State,Start,End --delimiter '|' --parsable -j "
+        f"{sacct_path} -X --format Account,UID,User,JobIDRaw,JobID,JobName,State,Submit,Start,End --delimiter '|' --parsable -j "
         + ",".join(L_job_ids)
     )
 
@@ -162,6 +170,7 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
         # We handle this manually down below.
         "JobName": "name",
         "State": "job_state",
+        "Submit": "submit_time",
         "Start": "start_time",
         "End": "end_time",
     }
@@ -187,11 +196,15 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
                 (k2, row[k1]) for (k1, k2) in key_mappings.items()
             )
 
-            # TODO : We need to properly handle times to translate them to unix format
-            #        like we do in scontrol_parser. Get inspiration from there.
+            # We need to properly handle times to translate them to unix format
+            # like we do in scontrol_parser. Reuse that code. The `timezone` is
+            # because certain clusters are not in the same time zone as us.
+            for k in ["submit_time", "start_time", "end_time"]:
+                D_partial_slurm_job[k] = parse_timestamp(D_partial_slurm_job[k], {"timezone": timezone})
 
             if row["JobID"] == row["JobIDRaw"]:
-                # not part of an array
+                # not part of an array, so we don't return values for
+                # "array_job_id" or "array_task_id"
                 pass
             else:
                 # According to the Slurm documentation (https://slurm.schedmd.com/job_array.html),
