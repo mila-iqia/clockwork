@@ -289,7 +289,7 @@ def main_read_jobs_and_update_collection(
         LD_sacct_slurm_jobs = fetch_data_with_sacct_on_remote_clusters(
             cluster_name=cluster_name,
             L_job_ids=L_job_ids_to_retrieve_with_sacct,
-            timezone=clusters[cluster_name]["timezone"]
+            timezone=clusters[cluster_name]["timezone"],
         )
         print(
             f"Retrieved information with sacct for {len(LD_sacct_slurm_jobs)} jobs.\n"
@@ -335,7 +335,9 @@ def main_read_jobs_and_update_collection(
                 )
                 append_data_for_dump_file(D_job_new)
             else:
-                print(f"We got information from sacct about ({cluster_name}, {job_id}), which was never in our database to begin with. We will chose to ignore that job for the moment. Refer to CW-213 for more discussion about these jobs.")
+                print(
+                    f"We got information from sacct about ({cluster_name}, {job_id}), which was never in our database to begin with. We will chose to ignore that job for the moment. Refer to CW-213 for more discussion about these jobs."
+                )
                 pass
         print(
             f"len(L_updates_to_do) is {len(L_updates_to_do)} after we process those sacct updates"
