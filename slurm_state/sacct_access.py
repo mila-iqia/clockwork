@@ -209,7 +209,7 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
             else:
                 # According to the Slurm documentation (https://slurm.schedmd.com/job_array.html),
                 # this should be of the form SLURM_ARRAY_JOB_ID plus SLURM_ARRAY_TASK_ID.
-                m = re.match(r"^(\d+)_(\d+)$", row["JobID"])
+                m = re.match(r"^(\d+)_(.*)$", row["JobID"])
                 if m:
                     D_partial_slurm_job["array_job_id"] = m.group(1)
                     D_partial_slurm_job["array_task_id"] = m.group(2)
