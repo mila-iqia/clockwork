@@ -228,9 +228,10 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
             if D_partial_slurm_job["job_state"].startswith("CANCELLED"):
                 D_partial_slurm_job["job_state"] = "CANCELLED"
 
-            assert (
-                D_partial_slurm_job["job_id"] in S_job_ids
-            ), f'Error. We have retrieve a job_id {D_partial_slurm_job["job_id"]} from sacct, but that job_id is not found in the original query for {L_job_ids}.'
+            # Note while we expect generally that
+            #     D_partial_slurm_job["job_id"] in S_job_ids
+            # it's very possible that such won't be the case
+            # when dealing with job arrays.
 
             LD_partial_slurm_jobs.append(D_partial_slurm_job)
 
