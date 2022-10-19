@@ -309,7 +309,7 @@ def main_read_jobs_and_update_collection(
             # based on the information retrieved by `sacct` (not the current choice).
             # See https://mila-iqia.atlassian.net/browse/CW-213 for more discussion.
 
-            job_id = D_sacct_slurm_job["jod_id"]
+            job_id = D_sacct_slurm_job["job_id"]
             if job_id in DD_jobs_currently_in_mongodb:
                 D_job_db = DD_jobs_currently_in_mongodb[job_id]
                 # Note that `D_job_db` has a "_id" which is useful for an update.
