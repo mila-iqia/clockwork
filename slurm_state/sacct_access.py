@@ -182,9 +182,15 @@ def fetch_data_with_sacct_on_remote_clusters(
 
     LD_partial_slurm_jobs = []
 
-    ssh_client = open_connection(
-        hostname, username, ssh_key_path=sacct_ssh_key_path, port=port
-    )
+    try:
+        ssh_client = open_connection(
+            hostname, username, ssh_key_path=sacct_ssh_key_path, port=port
+        )
+    except Exception as inst:
+        print(f"Error. Failed to connect to {hostname} to make a call to sacct.")
+        print(inst)
+        return []
+
     if ssh_client:
 
         # those three variables are file-like, not strings
@@ -245,9 +251,13 @@ def fetch_data_with_sacct_on_remote_clusters(
         response_stderr = "\n".join(ssh_stderr.readlines())
         if len(response_stderr):
             print(
-                f"Error when trying to remotely call sacct on {hostname}.\n{response_stderr}"
+                f"Stderr in sacct call on {hostname}. This doesn't mean that the call failed entirely, though.\n{response_stderr}"
             )
-            return []
+
         ssh_client.close()
+    else:
+        print(
+            f"Error. Failed to connect to {hostname} to make call to sacct. Returned `None` but no exception was thrown."
+        )
 
     return LD_partial_slurm_jobs
