@@ -12256,8 +12256,9 @@ table.table-striped span.completed:before,
   color: #54abb4;
   content: "\f336";
 }
-table.table-striped span.pending:before,
-.cc_cluster_toggle_subzone .form-check-label span.pending:before {
+table.table-striped span.pending:before, table.table-striped span.preempted:before,
+.cc_cluster_toggle_subzone .form-check-label span.pending:before,
+.cc_cluster_toggle_subzone .form-check-label span.preempted:before {
   color: #dba46a;
   content: "\f28b";
 }
