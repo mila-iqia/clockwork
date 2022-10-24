@@ -187,7 +187,7 @@ def get_inferred_job_states(global_job_states):
                         following mapping:
                         {
                             "PENDING": "PENDING",
-                            "PREEMPTED": "PENDING",
+                            "PREEMPTED": "FAILED",
                             "RUNNING": "RUNNING",
                             "COMPLETING": "RUNNING",
                             "COMPLETED": "COMPLETED",
@@ -206,10 +206,10 @@ def get_inferred_job_states(global_job_states):
 
     # Define the mapping between the job states and the gathered job states
     states_mapping = {
-        "PENDING": ["PENDING", "PREEMPTED"],
+        "PENDING": ["PENDING"],
         "RUNNING": ["RUNNING", "COMPLETING"],
         "COMPLETED": ["COMPLETED"],
-        "FAILED": ["CANCELLED", "FAILED", "OUT_OF_MEMORY", "TIMEOUT"],
+        "FAILED": ["CANCELLED", "FAILED", "OUT_OF_MEMORY", "TIMEOUT", "PREEMPTED"],
     }
 
     # For each requested "global job state", provide the associated "Slurm job states"
