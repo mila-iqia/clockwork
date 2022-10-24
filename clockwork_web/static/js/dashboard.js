@@ -375,10 +375,10 @@ function count_jobs(response_contents) {
         if (job_state == "completed") {
             counter_completed++;
         } 
-        if (job_state == "pending" || job_state == "preempted") {
+        if (job_state == "pending") {
             counter_pending++;
         } 
-        if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled") {
+        if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled" || job_state == "preempted") {
             counter_stalled++;
         } 
     });
