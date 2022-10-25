@@ -73,9 +73,7 @@ def open_connection(hostname, username, ssh_key_path, port=22):
     # When it happens, we should simply give up on the attempt
     # and log the error to stdout.
     try:
-        # TODO : Use some kind of config instead of writing that path there.
-        #        Strangely, this doesn't work unless we specify that path.
-        #        Maybe it's the unconventional naming scheme.
+        # For some reason, we really need to specify which key_filename to use.
         ssh_client.connect(
             hostname, username=username, port=port, key_filename=ssh_key_path
         )
