@@ -36,11 +36,21 @@ import os
 from paramiko import SSHClient, AutoAddPolicy, ssh_exception
 
 from slurm_state.extra_filters import clusters_valid
-from slurm_state.config import get_config, string, optional_string
+from slurm_state.config import get_config, string, optional_string, timezone
 from slurm_state.scontrol_parser import timestamp as parse_timestamp
 
 clusters_valid.add_field("sacct_path", optional_string)
 clusters_valid.add_field("sacct_ssh_key_filename", string)
+
+# When running the tests, those fields don't show up in the config
+# because they are defined in `slurm_state.mongo_update`, which we
+# cannot import here or it would produce a circular import.
+# It appears that we need to duplicate them here just so they
+# are present by the time we want to use them without importing
+# `slurm_state.mongo_update`.
+clusters_valid.add_field("timezone", timezone)
+clusters_valid.add_field("remote_user", optional_string)
+clusters_valid.add_field("remote_hostname", optional_string)
 
 
 def open_connection(hostname, username, ssh_key_path, port=22):
@@ -86,9 +96,7 @@ def open_connection(hostname, username, ssh_key_path, port=22):
     return ssh_client
 
 
-def fetch_data_with_sacct_on_remote_clusters(
-    cluster_name: str, L_job_ids: list[str], timezone: str
-):
+def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[str]):
     """
     Fetches through SSH certain fields for jobs that have
     been dropped from scontrol_show_job prematurely before
@@ -122,6 +130,7 @@ def fetch_data_with_sacct_on_remote_clusters(
 
     # these fields are already present in the config because
     # they are required in order to rsync the scontrol reports
+    timezone = get_config("clusters")[cluster_name]["timezone"]
     username = get_config("clusters")[cluster_name]["remote_user"]
     hostname = get_config("clusters")[cluster_name]["remote_hostname"]
     sacct_path = get_config("clusters")[cluster_name]["sacct_path"]

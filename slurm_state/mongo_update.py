@@ -18,7 +18,6 @@ from slurm_state.scontrol_parser import job_parser, node_parser
 from slurm_state.sacct_access import fetch_data_with_sacct_on_remote_clusters
 
 
-clusters_valid.add_field("timezone", timezone)
 clusters_valid.add_field("account_field", string)
 clusters_valid.add_field("update_field", optional_string)
 clusters_valid.add_field("remote_user", optional_string)
@@ -280,9 +279,7 @@ def main_read_jobs_and_update_collection(
         # Fetch the partial job updates with sacct for those jobs that slipped
         # through the cracks.
         LD_sacct_slurm_jobs = fetch_data_with_sacct_on_remote_clusters(
-            cluster_name=cluster_name,
-            L_job_ids=S_job_ids_to_retrieve_with_sacct,
-            timezone=clusters[cluster_name]["timezone"],
+            cluster_name=cluster_name, L_job_ids=S_job_ids_to_retrieve_with_sacct
         )
         print(
             f"Retrieved information with sacct for {len(LD_sacct_slurm_jobs)} jobs.\n"
@@ -333,11 +330,18 @@ def main_read_jobs_and_update_collection(
             f"len(L_updates_to_do) is {len(L_updates_to_do)} after we process those sacct updates"
         )
     else:
-        print(
-            f"Because of the configuration with sacct_enabled false or missing for {cluster_name}, "
-            "or the fact that the list of jobs to process is empty, "
-            f"we are NOT going to use sacct get information about jobs {S_job_ids_to_retrieve_with_sacct}."
-        )
+        # Let's give a good reason in the message. Basically, do a switch statement
+        # with the negated version of every condition for the above branch.
+        if not want_sacct:
+            print(f"Not going to call sacct because want_sacct is {want_sacct}.")
+        elif not clusters[cluster_name].get("sacct_enabled", False):
+            print(
+                f'Not going to call sacct because config for sacct_enabled is absent or {clusters[cluster_name].get("sacct_enabled", False)}.'
+            )
+        elif not S_job_ids_to_retrieve_with_sacct:
+            print(
+                f"Not going to call sacct because we don't any jobs to query in that way."
+            )
 
     # And now for the very rare occasion when we have a user who wants
     # to associate their account on the external cluster (e.g. Compute Canada).
