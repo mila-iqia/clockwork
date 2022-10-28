@@ -55,6 +55,14 @@ def modify_timestamps(data):
 def mutate_some_job_status(data):
     """
     Modifies in place about 1/5 of the job status to get more variations.
+
+    Note that this produces values of "job_state" that are not necessarily
+    coherent with other fields such as "start_time" and "end_time" because
+    we can end up with jobs that are COMPLETED but don't have proper
+    "start_time" and "end_time", or jobs that are CANCELLED but have an
+    "end_time" anyways.
+    Fixing this is not a priority, though, because right now it's used only
+    for running some tests and trying out the visual front-end.
     """
     L_status = [
         "COMPLETED",
