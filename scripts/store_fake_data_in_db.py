@@ -52,20 +52,31 @@ def modify_timestamps(data):
             job["slurm"]["end_time"] += time_delta
 
 
-def simulate_status(data):
-    for i in range(len(data["jobs"])):
-        if i % 30 == 0:
-            data["jobs"][i]["slurm"]["job_state"] = "COMPLETED"
-        if i % 30 == 1:
-            data["jobs"][i]["slurm"]["job_state"] = "COMPLETING"
-        if i % 30 == 2:
-            data["jobs"][i]["slurm"]["job_state"] = "FAILED"
-        if i % 30 == 3:
-            data["jobs"][i]["slurm"]["job_state"] = "OUT_OF_MEMORY"
-        if i % 30 == 4:
-            data["jobs"][i]["slurm"]["job_state"] = "TIMEOUT"
-        if i % 30 == 5:
-            data["jobs"][i]["slurm"]["job_state"] = "CANCELLED"
+def mutate_some_job_status(data):
+    """
+    Modifies in place about 1/5 of the job status to get more variations.
+
+    Note that this produces values of "job_state" that are not necessarily
+    coherent with other fields such as "start_time" and "end_time" because
+    we can end up with jobs that are COMPLETED but don't have proper
+    "start_time" and "end_time", or jobs that are CANCELLED but have an
+    "end_time" anyways.
+    Fixing this is not a priority, though, because right now it's used only
+    for running some tests and trying out the visual front-end.
+    """
+    L_status = [
+        "COMPLETED",
+        "COMPLETING",
+        "FAILED",
+        "OUT_OF_MEMORY",
+        "TIMEOUT",
+        "CANCELLED",
+        "PREEMPTED",
+    ]
+
+    for (i, job) in enumerate(data["jobs"]):
+        if i % 30 < len(L_status):
+            job["slurm"]["job_state"] = L_status[i % 30]
 
 
 def main(argv):
@@ -94,7 +105,7 @@ def main(argv):
         modify_timestamps(fake_data)
 
         # Simulate status for the jobs
-        simulate_status(fake_data)
+        mutate_some_job_status(fake_data)
 
         # Write the data in a JSON file
         with open("/clockwork/test_common/tmp.json", "w+") as outfile:
