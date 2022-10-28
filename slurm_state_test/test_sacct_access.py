@@ -74,7 +74,6 @@ def test_mocked_sacct(monkeypatch, cluster_name):
     # Some manual offset for cedar being in British Columbia.
     time_offset = 3 * 60 * 60 if cluster_name == "cedar" else 0.0
 
-
     # print('get_config("clusters")[cluster_name]')
     # print(get_config("clusters")[cluster_name])
 

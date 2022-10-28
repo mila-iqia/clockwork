@@ -207,7 +207,7 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
         for row in reader:
 
             # print(f"row: {row}")
-            
+
             # this is just a dict with the proper keys that we specified,
             # e.g. to have "job_state" instead of "JobState"
             D_partial_slurm_job = dict(
