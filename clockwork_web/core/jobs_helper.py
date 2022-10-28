@@ -176,6 +176,50 @@ def strip_artificial_fields_from_job(D_job):
     return dict((k, v) for (k, v) in D_job.items() if k not in fields_to_remove)
 
 
+def get_inferred_job_states(global_job_states):
+    """
+    Get all the job states infered by the "global job states" provided as input.
+
+    Parameter:
+    - global_job_state  A list of strings referring to the "global state(s)" a job
+                        could have, which are "RUNNING", "PENDING", "COMPLETED" and
+                        "ERROR", which gather multiple states according to the
+                        following mapping:
+                        {
+                            "PENDING": "PENDING",
+                            "PREEMPTED": "FAILED",
+                            "RUNNING": "RUNNING",
+                            "COMPLETING": "RUNNING",
+                            "COMPLETED": "COMPLETED",
+                            "OUT_OF_MEMORY": "FAILED",
+                            "TIMEOUT": "FAILED",
+                            "FAILED": "FAILED",
+                            "CANCELLED": "FAILED"
+                        }
+
+    Return
+        The list of Slurm job states associated to the global job states provided as
+        input
+    """
+    # Initialize the "Slurm job states" associated to the "global job states" provided as input
+    requested_slurm_job_states = []
+
+    # Define the mapping between the job states and the gathered job states
+    states_mapping = {
+        "PENDING": ["PENDING"],
+        "RUNNING": ["RUNNING", "COMPLETING"],
+        "COMPLETED": ["COMPLETED"],
+        "FAILED": ["CANCELLED", "FAILED", "OUT_OF_MEMORY", "TIMEOUT", "PREEMPTED"],
+    }
+
+    # For each requested "global job state", provide the associated "Slurm job states"
+    for global_job_state in global_job_states:
+        requested_slurm_job_states.extend(states_mapping[global_job_state])
+
+    # Return the requested Slurm states
+    return requested_slurm_job_states
+
+
 # def get_job_state_totals(
 #     L_entries,
 #     mapping={
