@@ -179,7 +179,7 @@ def route_search():
       gather multiple states according to the following mapping:
       {
         "PENDING": "PENDING",
-        "PREEMPTED": "PENDING",
+        "PREEMPTED": "FAILED",
         "RUNNING": "RUNNING",
         "COMPLETING": "RUNNING",
         "COMPLETED": "COMPLETED",
