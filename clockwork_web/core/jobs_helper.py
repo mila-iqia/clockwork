@@ -214,8 +214,7 @@ def get_inferred_job_states(global_job_states):
 
     # For each requested "global job state", provide the associated "Slurm job states"
     for global_job_state in global_job_states:
-        for slurm_job_state in states_mapping[global_job_state]:
-            requested_slurm_job_states.append(slurm_job_state)
+        requested_slurm_job_states.extend(states_mapping[global_job_state])
 
     # Return the requested Slurm states
     return requested_slurm_job_states
