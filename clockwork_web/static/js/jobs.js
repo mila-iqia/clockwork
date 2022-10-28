@@ -110,7 +110,8 @@ function launch_refresh_all_data(query_filter, display_filter) {
                 "OUT_OF_MEMORY": true,
                 "TIMEOUT": true,
                 "FAILED": true,
-                "CANCELLED": true
+                "CANCELLED": true,
+                "PREEMPTED": true,
             }
         }
 

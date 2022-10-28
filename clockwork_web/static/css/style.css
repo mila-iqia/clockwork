@@ -12242,11 +12242,12 @@ table.table-striped span.status:before,
   display: inline-block;
   padding: 0 6px 0 0;
 }
-table.table-striped span.failed:before, table.table-striped span.out_of_memory:before, table.table-striped span.cancelled:before, table.table-striped span.timeout:before, table.table-striped span.failed:before,
+table.table-striped span.failed:before, table.table-striped span.out_of_memory:before, table.table-striped span.cancelled:before, table.table-striped span.timeout:before, table.table-striped span.preempted:before, table.table-striped span.failed:before,
 .cc_cluster_toggle_subzone .form-check-label span.failed:before,
 .cc_cluster_toggle_subzone .form-check-label span.out_of_memory:before,
 .cc_cluster_toggle_subzone .form-check-label span.cancelled:before,
 .cc_cluster_toggle_subzone .form-check-label span.timeout:before,
+.cc_cluster_toggle_subzone .form-check-label span.preempted:before,
 .cc_cluster_toggle_subzone .form-check-label span.failed:before {
   color: #8a5e8a;
   content: "\f071";
