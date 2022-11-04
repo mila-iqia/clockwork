@@ -90,7 +90,8 @@ def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_he
     validator, username = helper_list_jobs_for_a_given_random_user(fake_data)
 
     response = client.get(
-        f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers
+        f"/api/v1/clusters/jobs/list?username={username}",
+        headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
     LD_jobs = response.get_json()
@@ -103,7 +104,8 @@ def test_api_list_invalid_username(client, valid_rest_auth_headers, username):
     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
     """
     response = client.get(
-        f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers
+        f"/api/v1/clusters/jobs/list?username={username}",
+        headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
     LD_jobs = response.get_json()
@@ -216,7 +218,7 @@ def test_jobs_user_dict_update_successful_update(
                 "to_be_left_untouched": "can't touch this",
             },
         }
-        if cluster_name in ["cedar", "graham", "beluga"]:
+        if cluster_name in ["cedar", "graham", "beluga", "narval"]:
             if update_allowed:
                 D_job["cw"]["cc_account_username"] = D_user["cc_account_username"]
             else:

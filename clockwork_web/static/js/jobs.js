@@ -90,7 +90,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
 
         // things that affect the data fetched
         query_filter = {
-            "user": "all", // or specific user
+            "username": "all", // or specific username
             "time": 3600, // int, for number of seconds to go backwards
         }
 
@@ -110,7 +110,8 @@ function launch_refresh_all_data(query_filter, display_filter) {
                 "OUT_OF_MEMORY": true,
                 "TIMEOUT": true,
                 "FAILED": true,
-                "CANCELLED": true
+                "CANCELLED": true,
+                "PREEMPTED": true,
             }
         }
 
@@ -122,8 +123,8 @@ function launch_refresh_all_data(query_filter, display_filter) {
 
     let url = refresh_endpoint;
     // If a user is specified, add its username to the request
-    if (query_filter["user"].localeCompare("all") != 0) {
-      url = url + "&user=" + query_filter["user"];
+    if (query_filter["username"].localeCompare("all") != 0) {
+      url = url + "&username=" + query_filter["username"];
     };
 
     // Send the request, and retrieve the response
@@ -155,7 +156,7 @@ function refresh_display(display_filter) {
         Clear and populate the jobs table with the latest response content,
         filtered by the "display filters" given as parameters.
     */
-    latest_filtered_response_contents = apply_filter(latest_response_contents, display_filter);
+    latest_filtered_response_contents = apply_filter(latest_response_contents["jobs"], display_filter);
     vacate_table(); // idempotent if not table is present
     populate_table(latest_filtered_response_contents);
     //kaweb - for some reason, the sortable init only works on reload/first load, not after changing filters

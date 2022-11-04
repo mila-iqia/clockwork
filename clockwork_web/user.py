@@ -96,7 +96,10 @@ class User(UserMixin):
         # to just return the first instance of that user (ignoring the rest),
         # because that might hide more problems downstream.
         if len(L) not in [0, 1]:
-            print("Found %d users with email %s. This can't happen." % (len(L), email))
+            print(
+                "Found %d users with email %s. This can't happen."
+                % (len(L), mila_email_username)
+            )
             return None
         elif len(L) == 0:
             return None
@@ -108,8 +111,8 @@ class User(UserMixin):
                 clockwork_api_key=e["clockwork_api_key"],
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
-                cc_account_update_key=e["cc_account_update_key"],
-                web_settings=e["web_settings"],
+                cc_account_update_key=e.get("cc_account_update_key", ""),
+                web_settings=e.get("web_settings", {}),
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
@@ -247,3 +250,13 @@ class AnonUser(AnonymousUserMixin):
             A dictionary presenting the default web settings.
         """
         return self.web_settings
+
+    # Not implemented dark_mode for AnonUser.
+    # Exists only to avoid problems with javascript calls.
+    def settings_dark_mode_enable(self):
+        # Returns (status_code, status_message).
+        return (200, "")
+
+    def settings_dark_mode_disable(self):
+        # Returns (status_code, status_message).
+        return (200, "")

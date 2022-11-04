@@ -101,7 +101,7 @@ def main(argv):
                 name="name_and_cluster_name",
             )
         main_read_nodes_and_update_collection(
-            collection_name,
+            nodes_collection,
             args.cluster_name,
             args.nodes_file,
             want_commit_to_db=want_commit_to_db,

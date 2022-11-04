@@ -37,12 +37,16 @@ def route_index():
 
     .. :quickref: access the settings page as html
     """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Display the user's settings as HTML
     return render_template_with_user_settings(
         "settings.html",
         mila_email_username=current_user.mila_email_username,
         clockwork_api_key=current_user.clockwork_api_key,
         cc_account_update_key=current_user.cc_account_update_key,
+        previous_request_args=previous_request_args,
     )
 
 
@@ -79,9 +83,13 @@ def route_set_nbr_items_per_page():
     .. :quickref: set the number of items to display per page in the current
                   user's settings
     """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Retrieve the preferred number of items to display per page (ie the number
     # to store in the settings), called nbr_items_per_page
     nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
+    previous_request_args["nbr_items_per_page"] = nbr_items_per_page
 
     # Check if nbr_items_per_page exists
     if nbr_items_per_page:
@@ -102,7 +110,9 @@ def route_set_nbr_items_per_page():
                 # Otherwise, return an error
                 return (
                     render_template_with_user_settings(
-                        "error.html", error_msg=status_message
+                        "error.html",
+                        error_msg=status_message,
+                        previous_request_args=previous_request_args,
                     ),
                     status_code,
                 )
@@ -114,6 +124,7 @@ def route_set_nbr_items_per_page():
                     error_msg=gettext(
                         "Invalid choice for number of items to display per page."
                     ),
+                    previous_request_args=previous_request_args,
                 ),
                 400,  # Bad Request
             )
@@ -125,6 +136,7 @@ def route_set_nbr_items_per_page():
                 error_msg=gettext(
                     "Missing argument, or wrong format: nbr_items_per_page."
                 ),
+                previous_request_args=previous_request_args,
             ),
             400,  # Bad Request
         )
@@ -138,6 +150,9 @@ def route_set_dark_mode():
 
     .. :quickref: enable the dark mode for the current user
     """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Set the dark mode value to True in the current user's web settings and
     # retrieve the status code and status message associated to the operation
     (status_code, status_message) = current_user.settings_dark_mode_enable()
@@ -148,7 +163,11 @@ def route_set_dark_mode():
     else:
         # Otherwise, return an error
         return (
-            render_template_with_user_settings("error.html", error_msg=status_message),
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=status_message,
+                previous_request_args=previous_request_args,
+            ),
             status_code,
         )
 
@@ -161,6 +180,9 @@ def route_unset_dark_mode():
 
     .. :quickref: disable the dark mode for the current user
     """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Set the dark mode value to False in the current user's web settings and
     # retrieve the status code and status message associated to the operation
     (status_code, status_message) = current_user.settings_dark_mode_disable()
@@ -171,7 +193,11 @@ def route_unset_dark_mode():
     else:
         # Otherwise, return an error
         return (
-            render_template_with_user_settings("error.html", error_msg=status_message),
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=status_message,
+                previous_request_args=previous_request_args,
+            ),
             status_code,
         )
 
@@ -184,8 +210,12 @@ def route_set_language():
 
     .. :quickref: update the preferred language in the current user's settings
     """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Retrieve the preferred language to store in the settings
     language = request.args.get("language", type=str)
+    previous_request_args["language"] = language
 
     # Check if language exists
     if language:
@@ -205,16 +235,21 @@ def route_set_language():
             else:
                 # Otherwise, return an error
                 return (
-                    render_template("error.html", error_msg=status_message),
+                    render_template_with_user_settings(
+                        "error.html",
+                        error_msg=status_message,
+                        previous_request_args=previous_request_args,
+                    ),
                     status_code,
                 )
 
         else:
             # Otherwise, return a Bad Request error and redirect to the error page
             return (
-                render_template(
+                render_template_with_user_settings(
                     "error.html",
                     error_msg=gettext("The requested language is unknown."),
+                    previous_request_args=previous_request_args,
                 ),
                 400,  # Bad Request
             )
@@ -222,9 +257,10 @@ def route_set_language():
         # If the language argument is not provided or presents a unexpected type,
         # return Bad Request
         return (
-            render_template(
+            render_template_with_user_settings(
                 "error.html",
                 error_msg=gettext("Missing argument, or wrong format: language."),
+                previous_request_args=previous_request_args,
             ),
             400,  # Bad Request
         )

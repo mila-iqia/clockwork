@@ -7,7 +7,7 @@ jQuery(document).ready(function($){
     search_table = document.querySelector('#search_table');
     if (search_table) Sortable.initTable(search_table);
 
-    $("input[name='user_name']").click(function () {
+    $("input[name='username']").click(function () {
         if ($("#user_option_other").is(":checked")) {
             $("#user_option_other_textarea").removeAttr("disabled");
             $("#user_option_other_textarea").focus();
@@ -24,7 +24,7 @@ jQuery(document).ready(function($){
             clusters = [];
             states = [];
 
-            $(this).find("input[name='user_name']").each(function(){
+            $(this).find("input[name='username']").each(function(){
                 if ($("#user_option_other").is(":checked")) {
                     user = $("#user_option_other_textarea").val();
                 } else if ($("#user_option_only_me").is(":checked")) {
@@ -34,28 +34,29 @@ jQuery(document).ready(function($){
                 }
             });
 
-            $(this).find("input[name='clusters_names']").each(function(){
+            $(this).find("input[name='cluster_name']").each(function(){
                 if ($(this).is(":checked")) clusters.push( $(this).val() );
             });
             
-            $(this).find("input[name='states']").each(function(){
+            $(this).find("input[name='state']").each(function(){
                 if ($(this).is(":checked")) states.push( $(this).val() );
             });
 
-            $('form#nbr_per_page').find("select[name='nbr_items_per_page']").each(function(){
-                nbr = $(this).val();
-            });
+            // not a real solution to GEN-160
+            //$('form#nbr_per_page').find("select[name='nbr_items_per_page']").each(function(){
+            //    nbr = $(this).val();
+            //});
 
             clusters = clusters.toString();
             states = states.toString();
 
             if (user) {
-                params['user_name'] = user;
+                params['username'] = user;
             }
-            params['clusters_names'] = clusters;
-            params['states'] = states;
-            if (nbr) {
-                params['nbr_items_per_page'] = nbr;
+            params['cluster_name'] = clusters;
+            params['state'] = states;
+            if (web_settings['nbr_items_per_page']) {
+                params['nbr_items_per_page'] = web_settings['nbr_items_per_page'];
             }
 
             var formData = $.param( params );
