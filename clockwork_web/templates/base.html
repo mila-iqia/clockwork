@@ -130,7 +130,7 @@
 		{% if request.path != '/jobs/interactive' and current_user.is_authenticated %}
 			<!-- Search jobs form -->
 			<div id="formBlock">
-				<div class="search_button formCollapse {{ 'collapse' if request.path != '/jobs/search' }}" id="mainCollapse">
+				<div class="search_button formCollapse {{ 'collapse' if request.path != '/jobs/search' }} {{ 'show' if request.path == '/jobs/search' }}" id="mainCollapse">
 					<div class="container">
 						<div class="row">
 			                <div class="col-12">
@@ -143,7 +143,7 @@
 			            </div> <!-- end header row -->
 			        </div>
 
-					<div class="searchform formCollapse {{ 'collapse' if request.path != '/jobs/search' }}" id="collapseForm">
+					<div class="searchform formCollapse {{ 'collapse' if request.path != '/jobs/search' }} {{ 'show' if request.path == '/jobs/search' }}" id="collapseForm">
 				        <div class="container">
 				            <form class="searchform" method="get">
 				                <div class="row">
