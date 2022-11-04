@@ -4,6 +4,8 @@ jQuery(document).ready(function($){
     //    time: 1000
     //});
 
+    $('[data-bs-toggle="tooltip"]').tooltip();
+
     search_table = document.querySelector('#search_table');
     if (search_table) Sortable.initTable(search_table);
 
@@ -130,6 +132,11 @@ jQuery(document).ready(function($){
 
         
     });
+
+    function show_popup(){
+       $("div.ribbon").animate({top: '0'});
+    };
+    window.setTimeout( show_popup, 2000 ); // 5 seconds
 
     
 
