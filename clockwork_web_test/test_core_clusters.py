@@ -15,7 +15,6 @@ def test_get_account_fields():
     D_expected_account_fields = {
         "cc_account_username": ["beluga", "cedar", "graham", "narval"],
         "mila_cluster_username": ["mila"],
-        "test_cluster_username": ["test_cluster"],
     }
 
     D_retrieved_account_fields = get_account_fields()

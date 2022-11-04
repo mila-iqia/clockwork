@@ -17,14 +17,52 @@ def gen_dicts(f):
         while line:
             m = FIELD.match(line)
             if m is None:
-                # Of course slrum needs to throw in a field with a different
-                # format at the end, because why not.
+                # Slurm sometimes throws in a field with a different
+                # format at the end. Not sure why, but we need to anticipate it.
                 if line == "NtasksPerTRES:0":
                     line = ""
                     continue
-                raise ValueError("Unexpected non-matching expression: " + line)
+
+                # We want to ignore certain lines that aren't keywords
+                # starting with uppercases and an equal. However, when we do
+                # find those lines with keywords, we'd like to report this
+                # so that we can patch this thing later.
+                if re.match(r"/s*[A-Z][a-zA-Z]*=", line):
+                    print(
+                        "Unexpected non-matching expression. Probably a keyword that you are not handling: "
+                        + line
+                    )
+                    # raise ValueError("Unexpected non-matching expression: " + line)
+                else:
+                    # Drop that line. It's not a keyword. It's probably trash like we
+                    # have seen in the famous "Command=" line from Cedar.
+                    line = ""
+                    continue
+
+            # JobName is also a bit of a garbage situation because we have seen
+            # people who will write arguments for their script in there.
+            # It's rare, but see test_scontrol_parser.py for an example.
+            # When we see JobName= we just gobble up the rest of the line with that.
+            if m.group(1) == "JobName":
+                # It's "JobName" here because that's going to get
+                # analyzed later by the function in `JOB_FIELD_MAP`
+                # and it will get renamed as "name".
+                curd["JobName"] = (m.group(2) if m.group(2) is not None else "") + (
+                    " " + m.group(3) if m.group(3) is not None else ""
+                )  # re-glue those together
+                # That " " is important for correctness because it undoes what `FIELD` does
+                # when it matches expressions and strips a space.
+
+                # Set `line` to be empty to prevent the rest of the line
+                # from being parsed. That's the price to pay to accommodate
+                # JobName entries that can have spaces and arguments (tss).
+                line = ""
+                continue
+
+            # The common branch taken when we encounter a term we recognize.
             curd[m.group(1)] = m.group(2)
             line = m.group(3)
+
     if curd:
         yield curd
 
@@ -53,9 +91,17 @@ def dynrename(fn, ctx_key):
 # Instead of having something too convoluted,
 # we'll just write this specific example.
 def user_id_splitting(f, ctx, res):
-    m = re.match(r"^(\w+)\((\d+)\)$", f)
-    res["username"] = m.group(1)
-    res["uid"] = int(m.group(2))
+    # needs to match things like
+    #    aaaa(123871)
+    #    aaaa.bbbbbb(123871)
+    #    aaaa-ccc.bbbbbb(123871)
+
+    m = re.match(r"^([\w\.\-]+)\((\d+)\)$", f)
+    if m:
+        res["username"] = m.group(1)
+        res["uid"] = int(m.group(2))
+    else:
+        print(f"Failed to split user_id : {f}")
 
 
 def id(f, ctx):
@@ -94,7 +140,7 @@ def timelimit(f, ctx):
 
 def timestamp(f, ctx):
     # We add the timezone information for the timestamp
-    if f == "Unknown":
+    if f == "Unknown" or f is None:
         return None
     date_naive = datetime.datetime.strptime(f, "%Y-%m-%dT%H:%M:%S")
     date_aware = date_naive.replace(tzinfo=ctx["timezone"])
@@ -142,6 +188,7 @@ JOB_FIELD_MAP = {
     "SuspendTime": ignore,
     "SecsPreSuspend": ignore,
     "LastSchedEval": ignore,
+    "Scheduler": ignore,
     "Partition": rename(id, "partition"),
     "AllocNode:Sid": ignore,
     # All the fields pertaining to hardware allocated,
@@ -193,6 +240,12 @@ JOB_FIELD_MAP = {
     "Comment": rename(maybe_null_string_to_none_object, "comment"),
     "CPU_max_freq": ignore,
     "Switches": ignore,
+    "NtaskPerTRES": ignore,
+    # this one was handled in a special way,
+    # but on 2022-09-14 it crept up on Cedar
+    "NtasksPerTRES": ignore,
+    # seen on 2022-09-14
+    "KillOInInvalidDependent": ignore,
 }
 
 
@@ -228,7 +281,7 @@ def job_parser(f, ctx):
                 saved_m = m
                 continue
             if command_hack:
-                # If we are doing the command hack, but we encouter
+                # If we are doing the command hack, but we encounter
                 # a valid field, then we terminate it.
                 saved_m(v_acc, ctx, res)
                 command_hack = False
@@ -288,6 +341,8 @@ NODE_FIELD_MAP = {
     # added by gyom (to be discussed),
     "NextState": ignore,
     "Port": ignore,
+    # found on Narval on 2022-09-14
+    "LastBusyTime": ignore,
 }
 
 

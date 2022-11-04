@@ -30,7 +30,7 @@ from flask_babel import gettext
 # this is what allows the factorization into many files.
 from flask import Blueprint
 
-from clockwork_web.core.utils import to_boolean
+from clockwork_web.core.utils import to_boolean, get_custom_array_from_request_args
 from clockwork_web.core.users_helper import render_template_with_user_settings
 
 flask_api = Blueprint("jobs", __name__)
@@ -43,6 +43,7 @@ from clockwork_web.core.jobs_helper import (
     strip_artificial_fields_from_job,
     get_jobs,
     infer_best_guess_for_username,
+    get_inferred_job_states,
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
 
@@ -60,10 +61,8 @@ def route_index():
 @login_required
 def route_list():
     """
-    Can take optional args "cluster_name", "user", "relative_time".
-
-    "user" refers to any of the three alternatives to identify a user,
-    and it will match any of them.
+    Can take optional args "cluster_name", "username", "relative_time".
+    "username" refers to the Mila email of a user.
     "relative_time" refers to how many seconds to go back in time to list jobs.
     "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
     "page_num" is optional and used for the pagination: it is a positive integer
@@ -73,13 +72,21 @@ def route_list():
 
     .. :quickref: list all Slurm job as formatted html
     """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Define the type of the return
     want_json = request.args.get("want_json", type=str, default="False")
     want_json = to_boolean(want_json)
+    previous_request_args["want_json"] = want_json
 
     # Retrieve the pagination parameters
     pagination_page_num = request.args.get("page_num", type=int, default="1")
+    previous_request_args["page_num"] = pagination_page_num
+
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
+    previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
+
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
     (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
         current_user.mila_email_username,
@@ -88,13 +95,16 @@ def route_list():
     )
 
     # Define the filter to select the jobs
-    user_name = request.args.get("user", None)
-    if user_name is not None:
-        f0 = {"cw.mila_email_username": user_name}
+    username = request.args.get("username", None)
+    previous_request_args["username"] = username
+
+    if username is not None:
+        f0 = {"cw.mila_email_username": username}
     else:
         f0 = {}
 
     time1 = request.args.get("relative_time", None)
+    previous_request_args["relative_time"] = time1
     if time1 is None:
         f1 = {}
     else:
@@ -109,6 +119,7 @@ def route_list():
                     error_msg=gettext(
                         "Field 'relative_time' cannot be cast as a valid integer: %(time1)."
                     ).format(time1=time1),
+                    previous_request_args=previous_request_args,
                 ),
                 400,
             )  # bad request
@@ -117,10 +128,11 @@ def route_list():
     filter = combine_all_mongodb_filters(f0, f1)
 
     # Retrieve the jobs, by applying the filters and the pagination
-    LD_jobs = get_jobs(
+    (LD_jobs, nbr_total_jobs) = get_jobs(
         filter,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
+        want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
     )
 
     # TODO : You might want to stop doing the `infer_best_guess_for_username`
@@ -132,7 +144,7 @@ def route_list():
 
     if want_json:
         # If requested, return the list as JSON
-        return jsonify(LD_jobs)
+        return jsonify({"nbr_total_jobs": nbr_total_jobs, "jobs": LD_jobs})
     else:
         # Otherwise, display the HTML page
         return render_template_with_user_settings(
@@ -140,6 +152,8 @@ def route_list():
             LD_jobs=LD_jobs,
             mila_email_username=current_user.mila_email_username,
             page_num=pagination_page_num,
+            nbr_total_jobs=nbr_total_jobs,
+            previous_request_args=previous_request_args,
         )
 
 
@@ -150,16 +164,30 @@ def route_search():
     Display a list of jobs, which can be filtered by user, cluster and state.
 
     Can take optional arguments:
-    - "user_name"
-    - "clusters_names"
-    - "states"
+
+    - "username"
+    - "cluster_name"
+    - "state"
     - "page_num"
     - "nbr_items_per_page".
 
-    - "user_name" refers to any of the three alternatives to identify a user,
+    - "username" refers to the Mila email identifying a user,
       and it will match any of them.
-    - "clusters_names" refers to the cluster(s) on which we are looking for the jobs
-    - "states" refers to the state(s) of the jobs we are looking for
+    - "cluster_name" refers to the cluster(s) on which we are looking for the jobs
+    - "state" refers to the state(s) of the jobs we are looking for. Here are concerned
+      the "global states", which are "RUNNING", "PENDING", "COMPLETED" and "ERROR", which
+      gather multiple states according to the following mapping:
+      {
+        "PENDING": "PENDING",
+        "PREEMPTED": "FAILED",
+        "RUNNING": "RUNNING",
+        "COMPLETING": "RUNNING",
+        "COMPLETED": "COMPLETED",
+        "OUT_OF_MEMORY": "FAILED",
+        "TIMEOUT": "FAILED",
+        "FAILED": "FAILED",
+        "CANCELLED": "FAILED"
+      }
     - "page_num" is optional and used for the pagination: it is a positive integer
       presenting the number of the current page
     - "nbr_items_per_page" is optional and used for the pagination: it is a
@@ -167,14 +195,28 @@ def route_search():
 
     .. :quickref: list all Slurm job as formatted html
     """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Retrieve the parameters used to filter the jobs
-    user_name = request.args.get("user_name", None)
-    clusters_names = request.args.getlist("clusters_names", None)
-    states = request.args.getlist("states", None)
+    username = request.args.get("username", None)
+    previous_request_args["username"] = username
+
+    clusters_names = get_custom_array_from_request_args(
+        request.args.get("cluster_name")
+    )
+    previous_request_args["cluster_name"] = clusters_names
+
+    states = get_custom_array_from_request_args(request.args.get("state"))
+    previous_request_args["state"] = states
 
     # Retrieve the pagination parameters
     pagination_page_num = request.args.get("page_num", type=int, default="1")
+    previous_request_args["page_num"] = pagination_page_num
+
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
+    previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
+
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
     (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
         current_user.mila_email_username,
@@ -186,9 +228,8 @@ def route_search():
     # Define the filters to select the jobs
     ###
     # Define the user filter
-    user_name = request.args.get("user_name", None)
-    if user_name is not None:
-        f0 = {"cw.mila_email_username": user_name}
+    if username is not None:
+        f0 = {"cw.mila_email_username": username}
     else:
         f0 = {}
 
@@ -200,7 +241,8 @@ def route_search():
 
     # Define the filter related to the jobs' states
     if len(states) > 0:
-        f2 = {"slurm.job_state": {"$in": states}}
+        all_inferred_states = get_inferred_job_states(states)
+        f2 = {"slurm.job_state": {"$in": all_inferred_states}}
     else:
         f2 = {}  # Apply no filter for the states if no state has been provided
 
@@ -211,10 +253,11 @@ def route_search():
     # Retrieve the jobs and display them
     ###
     # Retrieve the jobs, by applying the filters and the pagination
-    LD_jobs = get_jobs(
+    (LD_jobs, nbr_total_jobs) = get_jobs(
         filter,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
+        want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
     )
 
     # TODO : You might want to stop doing the `infer_best_guess_for_username`
@@ -230,6 +273,8 @@ def route_search():
         LD_jobs=LD_jobs,
         mila_email_username=current_user.mila_email_username,
         page_num=pagination_page_num,
+        nbr_total_jobs=nbr_total_jobs,
+        previous_request_args=previous_request_args,
     )
 
 
@@ -249,30 +294,50 @@ def route_one():
 
     .. :quickref: list one Slurm job as formatted html
     """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the given job ID
     job_id = request.args.get("job_id", None)
+    previous_request_args["job_id"] = job_id
+
+    # Retrieve the given cluster name
+    cluster_name = request.args.get("cluster_name", None)
+    previous_request_args["cluster_name"] = cluster_name
+
+    # Return an error if no job ID has been given
     if job_id is None:
         return (
             render_template_with_user_settings(
-                "error.html", error_msg=f"Missing argument job_id."
+                "error.html",
+                error_msg=f"Missing argument job_id.",
+                previous_request_args=previous_request_args,
             ),
             400,
         )  # bad request
+
+    # Set up the filters to retrieve the expected job
     f0 = get_filter_job_id(job_id)
-    f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
+    f1 = get_filter_cluster_name(cluster_name)
     filter = combine_all_mongodb_filters(f0, f1)
 
-    LD_jobs = get_jobs(filter)
+    (LD_jobs, _) = get_jobs(filter)
 
+    # Return error messages if the number of retrieved jobs is 0 or more than 1
     if len(LD_jobs) == 0:
         return render_template_with_user_settings(
-            "error.html", error_msg=f"Found no job with job_id {job_id}."
+            "error.html",
+            error_msg=f"Found no job with job_id {job_id}.",
+            previous_request_args=previous_request_args,
         )
+
     if len(LD_jobs) > 1:
         return render_template_with_user_settings(
             "error.html",
             error_msg=gettext(
                 "Found %(len_LD_jobs) jobs with job_id %(job_id)."
             ).format(len_LD_jobs=len(LD_jobs), job_id=job_id),
+            previous_request_args=previous_request_args,
         )  # Not sure what to do about these cases.
 
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
@@ -297,6 +362,7 @@ def route_one():
         D_single_job_cw=D_single_job_cw,
         job_id=job_id,
         mila_email_username=current_user.mila_email_username,
+        previous_request_args=previous_request_args,
     )
 
 
@@ -307,7 +373,7 @@ def route_one():
 @login_required
 def route_interactive():
     """
-    Not implemented.
+    Displays the list of the current user's jobs.
     """
     return render_template_with_user_settings(
         "jobs_interactive.html",

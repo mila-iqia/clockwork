@@ -41,6 +41,7 @@ def get_filter_after_end_time(end_time):
     if end_time is None:
         return {}
     else:
+
         # This can throw exceptions when "end_time" is invalid.
         return {
             "$or": [
@@ -54,6 +55,12 @@ def combine_all_mongodb_filters(*mongodb_filters):
     """
     Creates a big AND clause if more than one argument is given.
     Drops out all the filters that are empty dict.
+
+    Parameters:
+        mongodb_filters     One or more filter(s) we want to combine
+
+    Return:
+        A concatenation of the filters given as input
     """
     non_empty_mongodb_filters = [mf for mf in mongodb_filters if mf]
     if len(non_empty_mongodb_filters) == 0:
@@ -65,7 +72,10 @@ def combine_all_mongodb_filters(*mongodb_filters):
 
 
 def get_jobs(
-    mongodb_filter: dict = {}, nbr_skipped_items=None, nbr_items_to_display=None
+    mongodb_filter: dict = {},
+    nbr_skipped_items=None,
+    nbr_items_to_display=None,
+    want_count=False,
 ):
     """
     Talk to the database and get the information.
@@ -76,9 +86,18 @@ def get_jobs(
                                 MongoDB database
         nbr_skipped_items       Number of elements to skip while listing the jobs
         nbr_items_to_display    Number of jobs to display
+        want_count              Whether or not we are interested by the number of
+                                unpaginated jobs.
 
     Returns:
-        Returns a list of dict with the properties of jobs.
+        Returns a tuple (jobs_list, jobs_count or None).
+        The first element is a list of dictionaries with the properties of jobs.
+        In general we expect len(jobs_list) to be nbr_items_to_display if
+        we found sufficiently many matches.
+
+        The second element contains the total number of jobs found with the mongodb_filter,
+        counting the whole database and not just one page. It is None if want_count is False.
+
     """
     # Assert that the two pagination elements (nbr_skipped_items and
     # nbr_items_to_display) are respectively positive and strictly positive
@@ -96,13 +115,28 @@ def get_jobs(
         LD_jobs = list(
             mc["jobs"]
             .find(mongodb_filter)
+            .sort([["slurm.submit_time", 1], ["slurm.job_id", 1]])
             .skip(nbr_skipped_items)
             .limit(nbr_items_to_display)
         )
+
     else:
-        LD_jobs = list(mc["jobs"].find(mongodb_filter))
-    # Return the retrieved jobs
-    return LD_jobs
+        LD_jobs = list(
+            mc["jobs"]
+            .find(mongodb_filter)
+            .sort([["slurm.submit_time", 1], ["slurm.job_id", 1]])
+        )
+
+    # Set nbr_total_jobs
+    if want_count:
+        # Get the number of filtered jobs (not paginated)
+        nbr_total_jobs = mc["jobs"].count_documents(mongodb_filter)
+    else:
+        # If want_count is False, nbr_total_jobs is None
+        nbr_total_jobs = None
+
+    # Return the retrieved jobs and the number of unpagined jobs (if requested)
+    return (LD_jobs, nbr_total_jobs)
 
 
 def update_job_user_dict(mongodb_filter: dict, new_user_dict: dict):
@@ -140,6 +174,50 @@ def strip_artificial_fields_from_job(D_job):
     # Returns a copy. Does not mutate the original.
     fields_to_remove = ["_id"]
     return dict((k, v) for (k, v) in D_job.items() if k not in fields_to_remove)
+
+
+def get_inferred_job_states(global_job_states):
+    """
+    Get all the job states infered by the "global job states" provided as input.
+
+    Parameter:
+    - global_job_state  A list of strings referring to the "global state(s)" a job
+                        could have, which are "RUNNING", "PENDING", "COMPLETED" and
+                        "ERROR", which gather multiple states according to the
+                        following mapping:
+                        {
+                            "PENDING": "PENDING",
+                            "PREEMPTED": "FAILED",
+                            "RUNNING": "RUNNING",
+                            "COMPLETING": "RUNNING",
+                            "COMPLETED": "COMPLETED",
+                            "OUT_OF_MEMORY": "FAILED",
+                            "TIMEOUT": "FAILED",
+                            "FAILED": "FAILED",
+                            "CANCELLED": "FAILED"
+                        }
+
+    Return
+        The list of Slurm job states associated to the global job states provided as
+        input
+    """
+    # Initialize the "Slurm job states" associated to the "global job states" provided as input
+    requested_slurm_job_states = []
+
+    # Define the mapping between the job states and the gathered job states
+    states_mapping = {
+        "PENDING": ["PENDING"],
+        "RUNNING": ["RUNNING", "COMPLETING"],
+        "COMPLETED": ["COMPLETED"],
+        "FAILED": ["CANCELLED", "FAILED", "OUT_OF_MEMORY", "TIMEOUT", "PREEMPTED"],
+    }
+
+    # For each requested "global job state", provide the associated "Slurm job states"
+    for global_job_state in global_job_states:
+        requested_slurm_job_states.extend(states_mapping[global_job_state])
+
+    # Return the requested Slurm states
+    return requested_slurm_job_states
 
 
 # def get_job_state_totals(

@@ -81,7 +81,23 @@ const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html al
 var latest_response_contents; // Stores the content of the latest response received
 var latest_filtered_response_contents; // Results in applying filters on the latest response contents
 
+function format_date(timestamp) {
+    /*
+        Format a timestamp in order to display it in the following format:
+        yyyy-mm-dd HH:MM
+    */
+    let date_to_format = new Date(timestamp*1000); // The timestamp should be in milliseconds, not in seconds
 
+    // Format each element
+    year = date_to_format.getFullYear();
+    month = (date_to_format.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // Months are represented by indices from 0 to 11. Thus, 1 is added to the month. Moreover, this use of 'toLocaleString' is used to display each month with two digits (even the months from 1 to 9)
+    day = date_to_format.getDate().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display each day with two digits (even the days from 1 to 9)
+
+    hours = date_to_format.getHours().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display each hour with two digits (even the hours from 0 to 9)
+    minutes = date_to_format.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display the minutes with two digits (even when there is less than 10 minutes in the current hour)
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
 
 function launch_refresh_all_data(query_filter, display_filter) {
     /*
@@ -90,7 +106,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
 
         // things that affect the data fetched
         query_filter = {
-            "user": "all", // or specific user
+            "username": "all", // or specific username
             "time": 3600, // int, for number of seconds to go backwards
         }
 
@@ -110,7 +126,8 @@ function launch_refresh_all_data(query_filter, display_filter) {
                 "OUT_OF_MEMORY": true,
                 "TIMEOUT": true,
                 "FAILED": true,
-                "CANCELLED": true
+                "CANCELLED": true,
+                "PREEMPTED": true,
             }
         }
 
@@ -122,8 +139,8 @@ function launch_refresh_all_data(query_filter, display_filter) {
 
     let url = refresh_endpoint;
     // If a user is specified, add its username to the request
-    if (query_filter["user"].localeCompare("all") != 0) {
-      url = url + "&user=" + query_filter["user"];
+    if (query_filter["username"].localeCompare("all") != 0) {
+      url = url + "&username=" + query_filter["username"];
     };
 
     // Send the request, and retrieve the response
@@ -155,7 +172,7 @@ function refresh_display(display_filter) {
         Clear and populate the jobs table with the latest response content,
         filtered by the "display filters" given as parameters.
     */
-    latest_filtered_response_contents = apply_filter(latest_response_contents, display_filter);
+    latest_filtered_response_contents = apply_filter(latest_response_contents["jobs"], display_filter);
     vacate_table(); // idempotent if not table is present
     populate_table(latest_filtered_response_contents);
     //kaweb - for some reason, the sortable init only works on reload/first load, not after changing filters
@@ -298,9 +315,10 @@ function populate_table(response_contents) {
             // you need to set it up because this is going to be written as a unix timestamp.
             // This might include injecting another field with a name
             // such as "start_time_human_readable" or something like that, and using it here.
-            //td.innerHTML = D_job_slurm["start_time"].toString();
 
-            td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]);
+            //td.innerHTML = D_job_slurm["start_time"].toString(); // For a timestamp
+            //td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]); // For a relative time
+            td.innerHTML = format_date(D_job_slurm["start_time"]); // For a human readable time
         }
         tr.appendChild(td);
 
@@ -313,9 +331,10 @@ function populate_table(response_contents) {
             // you need to set it up because this is going to be written as a unix timestamp.
             // This might include injecting another field with a name
             // such as "start_time_human_readable" or something like that, and using it here.
-            // td.innerHTML = D_job_slurm["end_time"].toString();
 
-            td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]);
+            //td.innerHTML = D_job_slurm["end_time"].toString(); // For a timestamp
+            //td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]); // For a relative time
+            td.innerHTML = format_date(D_job_slurm["end_time"]);
         }
         tr.appendChild(td);
 
@@ -377,7 +396,7 @@ function count_jobs(response_contents) {
         if (job_state == "pending") {
             counter_pending++;
         } 
-        if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled") {
+        if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled" || job_state == "preempted") {
             counter_stalled++;
         } 
     });

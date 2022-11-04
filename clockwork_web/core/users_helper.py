@@ -4,6 +4,7 @@ Helper functions related to the User entity and the users entries from the datab
 
 from flask_login import current_user
 from flask import render_template
+import json
 
 from clockwork_web.db import get_db
 
@@ -14,6 +15,7 @@ from clockwork_web.config import (
     boolean as valid_boolean,
     string as valid_string,
 )
+from clockwork_web.core.clusters_helper import get_all_clusters
 
 # Load the web settings from the configuration file
 register_config("settings.default_values.nbr_items_per_page", validator=int)
@@ -238,7 +240,11 @@ def get_nbr_items_per_page(mila_email_username):
         return get_default_setting_value("nbr_items_per_page")
     else:
         # If a user has been found, return the value stored in its settings
-        return user["web_settings"]["nbr_items_per_page"]
+        v = user.get("web_settings", {}).get("nbr_items_per_page", None)
+        if v is None:
+            return get_default_setting_value("nbr_items_per_page")
+        else:
+            return v
 
 
 def get_users_one(mila_email_username):
@@ -334,5 +340,13 @@ def render_template_with_user_settings(template_name_or_list, **context):
         The template rendered by Flask, and containing the web_settings of the
         current user
     """
-    context["web_settings"] = current_user.get_web_settings()
+    context[
+        "web_settings"
+    ] = current_user.get_web_settings()  # used for templates (old way)
+    # used for the actual `web_settings` variable from "base.html" (prompted by GEN-160)
+    context["web_settings_json_str"] = json.dumps(context["web_settings"])
+
+    # Send the clusters infos to the template
+    context["clusters"] = get_all_clusters()
+
     return render_template(template_name_or_list, **context)

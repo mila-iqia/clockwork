@@ -36,3 +36,4 @@ More details can be found in the following sections:
 * [Obtaining the state of the Slurm clusters](slurm_state.md)
 * [Retrieving GPU data](gpu.md)
 * [Internationalization](internationalization.md)
+* [Configuration](configuration.md)
