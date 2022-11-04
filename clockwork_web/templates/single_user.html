@@ -69,64 +69,10 @@
                           {% endif %}
                         {% endfor %}
                     </dl>
+
+                    <a class="btn btn-turquoise" href="/jobs/search?username={{user['mila_email_username']}}">See this user's jobs</a>
                 </div>
             </div>
-
-            <div class="row single_user user_jobs">
-                <div class="col-sm-12">
-                    <div class="row justify-content-between">
-                        <div class="col-8">
-                            <div class="title float-start">
-                                <i class="fa-solid fa-list"></i>
-                                <h1>{{username}}'s jobs</h1>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <table class="table table-striped table-hover table-responsive" data-sortable id="search_table">
-                    <thead>
-                        <tr>
-                            <th>Cluster</th>
-                            <th>User</th>
-                            <th>Job ID</th>
-                            <th>Job name [:20]</th>
-                            <th>Job state</th>
-                            <th>Start time</th>
-                            <th>End time</th>
-                            <th data-sortable="false">Links</th>
-                            <th data-sortable="false">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for D_job in LD_jobs %}
-                        <tr>
-                            <td>{{D_job['slurm']['cluster_name']}}</td>
-                            <td>{{D_job['cw']['best_guess_for_username']}}</td>
-                            <td>
-                                <a href="/jobs/one?cluster_name={{D_job['slurm']['cluster_name']}}&job_id={{D_job['slurm']['job_id']}}">{{D_job['slurm']['job_id']}}</a>
-                            </td>
-                            <td>{{D_job['slurm'].get("name", "")[0:20]}}</td>
-
-
-                            <td><span class="status {{D_job['slurm']['job_state']|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
-
-                            <td><span class="visually-hidden">{{D_job["slurm"]["start_time"]}}</span><span data-livestamp='{{D_job["slurm"]["start_time"]}}'></span></td>
-                            <td><span class="visually-hidden">{{D_job["slurm"]["end_time"]}}</span><span data-livestamp='{{D_job["slurm"]["end_time"]}}'></span></td>
-                            <td class="links">
-                               <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to somewhere'><i class='fa-solid fa-file'></i></a>
-                                <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
-                            </td>
-                            <td class="actions">
-                                {% if mila_email_username == D_job['cw']['best_guess_for_username'] %}
-                                    <a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
         </div>
     </div>
 </div>

@@ -1,5 +1,50 @@
-<html>
-    <body>
-        {{error_msg}}
-    </body>
-</html>
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+    </script>
+
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row justify-content-between">
+                <div class="col-8">
+                    <div class="title float-start">
+                        <i class="fa-solid fa-warning"></i>
+                        <h1>Oh no! Something’s gone terribly wrong.</h1>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row error">
+                <div class="col-5">
+                    <!-- image -->
+                    <img src="{{url_for('static', filename='images/error_image.png')}}" />
+                </div>
+                <div class="col-7">
+                    <!-- Account(s) -->
+                    <h2><em>It looks like you’ve stumbled on a bug!</em></h2>
+                    <p>If you have time, please fill out the form in the <a href="#">feedback page</a> to help us make the service better.</p>
+
+                    <p>Full error message:</p>
+
+                    <pre>{{error_msg}}</pre>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+{% endblock %}
+       

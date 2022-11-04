@@ -40,9 +40,12 @@
 				var web_settings = {% autoescape false %} JSON.parse('{{web_settings_json_str}}') {% endautoescape %}
             </script>
 
-            {% if web_settings["dark_mode"] %}
+            {% if web_settings["dark_mode"] ==  true %}
 				<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
 			{% endif %}
+
+			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}"> -->
+
 
 			<script type="text/javascript" src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
 
@@ -54,12 +57,18 @@
 			{% endblock %}
 	</head>
 	<body>
-		<div class="container-fluid px-0">
-			<div class="top align-items-center row g-0">
-				<div class="col-xxl-1 d-none d-xxl-block"></div>
+		<!-- delete or change this as needed -->
+		<div class="ribbon alpha">
+			<h4><span></span></h4>
+			<p>Clockwork is currently in active development. Feel free to report bugs using the <a href="#">feedback form</a>.</p>
+		</div>
+
+		<div class="container-fluid">
+			<div class="top align-items-center row">
+				<div class="col-xl-1 d-none d-xl-block"></div>
 				<div class="col">
 					<a href="{{url_for('index')}}">
-						{% if web_settings["dark_mode"] %}
+						{% if web_settings["dark_mode"] ==  true %}
 							<img class="logo" src="{{ url_for('static', filename='images/dark-logo_cw.png')}}" />
 						{% else %}
 							<img class="logo" src="{{ url_for('static', filename='images/logo_cw.png')}}" />
@@ -113,15 +122,14 @@
 						<!-- not logged in -->
 					{% endif %}
 				</div>
-				<div class="col-xxl-1 d-none d-xxl-block"></div>
+				<div class="col-xl-1 d-none d-xl-block"></div>
 			</div>
 		</div>
 
 		{% block form %}
 		{% if request.path != '/jobs/interactive' and current_user.is_authenticated %}
-
+			<!-- Search jobs form -->
 			<div id="formBlock">
-
 				<div class="search_button formCollapse {{ 'collapse' if request.path != '/jobs/search' }}" id="mainCollapse">
 					<div class="container">
 						<div class="row">
@@ -145,24 +153,58 @@
 				                            <div class="cc_toggle_zone_row row_title">
 				                                <span>Filter by user</span>
 				                            </div>
+
+											{# Define which radio button check for the username #}
+											{% set username_checked = false %}
+											
+											<!-- All users option -->
 				                            <div class="cc_toggle_zone_row form-radio">
-				                                <input class="form-check-input" id="user_option_all" name="username" type="radio" {{ 'checked' if (previous_request_args.username == None) }} data-no-submit />
+												{% if "username" not in previous_request_args or previous_request_args["username"] is none %}
+													{# Create the radio box as checked #}
+				                                	<input class="form-check-input" id="user_option_all" name="username" type="radio" checked data-no-submit />
+													{# Indicate that a radio box has been checked #}
+													{% set username_checked = true %}
+												{% else %}
+													{# Create the radio box as unchecked #}
+													<input class="form-check-input" id="user_option_all" name="username" type="radio" data-no-submit />
+												{% endif %}
 				                                <label for="user_option_all" class="form-label">
 				                                    <span>All users</span>
 				                                </label>
 				                            </div>
+
+											<!-- Current user option -->
 				                            <div class="cc_toggle_zone_row form-radio">
-				                                <input class="form-check-input" id="user_option_only_me" name="username" value="{{mila_email_username}}" type="radio" {{ 'checked' if (previous_request_args.username == mila_email_username) }} data-no-submit />
+												{% if previous_request_args["username"] == mila_email_username %}
+													{# Create the radio box as checked #}
+				                                	<input class="form-check-input" id="user_option_only_me" name="username" value="{{mila_email_username}}" type="radio" checked data-no-submit />
+													{# Indicate that a radio box has been checked #}
+													{% set username_checked = true %}
+												{% else %}
+													{# Create the radio box as unchecked #}
+													<input class="form-check-input" id="user_option_only_me" name="username" value="{{mila_email_username}}" type="radio" data-no-submit />
+												{% endif %}
 				                                <label for="user_option_only_me" class="form-label">
 				                                    <span>Only me</span>
 				                                </label>
 				                            </div>
+
+											<!-- Other user option -->
 				                            <div class="cc_toggle_zone_row form-radio form-check-group">
-				                                <input class="form-check-input" id="user_option_other" name="username" type="radio" {{ 'checked' if (previous_request_args.username != None and previous_request_args.username != mila_email_username) }} />
-				                                <label for="user_option_other" class="form-label">
-				                                    <input type="text" class="form-control" id="user_option_other_textarea" name="username" placeholder="Other user..." disabled="disabled" data-no-submit>
-				                                </label>
-				                            </div>
+												{% if username_checked == false %}
+													{# Create the radio box as checked #}
+													<input class="form-check-input" id="user_option_other" name="username" type="radio" checked />
+													<label for="user_option_other" class="form-label">
+				                                    	<input type="text" class="form-control" id="user_option_other_textarea" name="username" placeholder="Other user..." value="{{previous_request_args['username']}}" data-no-submit>
+													</label>
+												{% else %}
+													{# Create the radio box as unchecked #}
+													<input class="form-check-input" id="user_option_other" name="username" type="radio" />
+													<label for="user_option_other" class="form-label">
+														<input type="text" class="form-control" id="user_option_other_textarea" name="username" placeholder="Other user..." disabled="disabled" data-no-submit>
+													</label>
+												{% endif %}
+											</div>
 				                        </div>
 				                    </div>
 
@@ -173,77 +215,34 @@
 				                                <span>Filter by cluster</span>
 				                            </div>
 
-				                            <!-- toggle beluga -->
-				                            <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.computecanada.ca/wiki/Beluga" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_beluga" class="cc_cluster_toggle_name">beluga</label>
-				                                    <input class="form-check-input form-check-clusters float-end" type="checkbox" id="cluster_toggle_lever_beluga" name="cluster_name" value="beluga" {{ 'checked' if ('beluga' in previous_request_args.cluster_name) }} data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle cedar -->
-				                            <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.computecanada.ca/wiki/Cedar" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_cedar" class="cc_cluster_toggle_name">cedar</label>
-				                                    <input class="form-check-input form-check-clusters float-end" type="checkbox" id="cluster_toggle_lever_cedar" name="cluster_name" value="cedar" {{ 'checked' if ('cedar' in previous_request_args.cluster_name) }} data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle graham -->
-				                             <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.computecanada.ca/wiki/Graham" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_graham" class="cc_cluster_toggle_name">graham</label>
-				                                    <input class="form-check-input form-check-clusters float-end" type="checkbox" id="cluster_toggle_lever_graham" name="cluster_name" value="graham" {{ 'checked' if ('graham' in previous_request_args.cluster_name) }} data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle mila -->
-				                            <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.mila.quebec" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_mila" class="cc_cluster_toggle_name">mila</label>
-				                                    <input class="form-check-input form-check-clusters float-end" type="checkbox" id="cluster_toggle_lever_mila" name="cluster_name" value="mila" {{ 'checked' if ('mila' in previous_request_args.cluster_name) }} data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle mila -->
-				                            <div class="cc_toggle_zone_row">
-				                                <a href="https://docs.mila.quebec" target="_blank">
-				                                    <i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-				                                </a>
-				                                <a href="https://dashboard.server.mila.quebec/" target="_blank">
-				                                    <i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
-				                                </a>
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="cluster_toggle_lever_mila" class="cc_cluster_toggle_name">mila</label>
-				                                    <input class="form-check-input form-check-clusters float-end" type="checkbox" id="cluster_toggle_lever_mila" name="cluster_name" value="mila" {{ 'checked' if ('mila' in previous_request_args.cluster_name) }} data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            
+											{% for cluster_name,D_cluster in clusters.items()|sort(attribute='1.display_order', reverse=False) %}
+												<!-- toggle for a cluster-->
+												<div class="cc_toggle_zone_row">
+													<!-- official documentation-->
+													{% if D_cluster['official_documentation'] %}
+														<a href="{{D_cluster['official_documentation']}}" target="_blank">
+															<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
+														</a>
+													{% else %}
+														<a class="disabled">
+															<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="No documentation available"></i>
+														</a>
+													{% endif %}
+													<!-- Grafana -->
+													<a href="https://dashboard.server.mila.quebec/" target="_blank">
+														<i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
+													</a>
+													<!-- cluster toggle -->
+													<div class="cc_cluster_toggle_subzone form-check form-switch">
+														<label class="form-check-label" for="cluster_toggle_lever_{{cluster_name}}" class="cc_cluster_toggle_name">{{cluster_name}}</label>
+														{% if cluster_name in previous_request_args["cluster_name"] or previous_request_args["cluster_name"]|length == 0 %}
+															<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" checked data-no-submit>
+														{% else %}
+														<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" data-no-submit>
+														{% endif %}
+													</div>													
+												</div>
+											{% endfor %}
 				                        </div>
 				                    </div>
 
@@ -254,37 +253,46 @@
 				                                <span>Filter by status</span>
 				                            </div>
 
-				                            <!-- toggle completed -->
-				                            <div class="cc_toggle_zone_row">
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="status_toggle_lever_completed" class="status_toggle_lever_completed"><span class="status completed">Completed</span></label>
-				                                    <input class="form-check-input form-check-state float-end" type="checkbox" name="state" id="status_toggle_lever_completed" value="COMPLETED" {{ 'checked' if ('COMPLETED' in previous_request_args.state) }} data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle running -->
-				                            <div class="cc_toggle_zone_row">
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="status_toggle_lever_running" class="status_toggle_lever_running"><span class="status running">Running</span></label>
-				                                    <input class="form-check-input form-check-state float-end" type="checkbox" name="state" id="status_toggle_lever_running" value="RUNNING" {{ 'checked' if ('RUNNING' in previous_request_args.state) }} data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle pending -->
-				                            <div class="cc_toggle_zone_row">
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="status_toggle_lever_pending" class="status_toggle_lever_pending"><span class="status pending">Pending</span></label>
-				                                    <input class="form-check-input form-check-state float-end" type="checkbox" name="state" id="status_toggle_lever_pending" value="PENDING" {{ 'checked' if ('PENDING' in previous_request_args.state) }} data-no-submit>
-				                                </div>
-				                            </div>
-
-				                            <!-- toggle any errors -->
-				                             <div class="cc_toggle_zone_row">
-				                                <div class="cc_cluster_toggle_subzone form-check form-switch">
-				                                    <label class="form-check-label" for="status_toggle_lever_any_errors" class="status_toggle_lever_any_errors"><span class="status failed">Any errors</span></label>
-				                                    <input class="form-check-input form-check-state float-end" type="checkbox" name="state" id="status_toggle_lever_any_errors" value="FAILED" {{ 'checked' if ('FAILED' in previous_request_args.state) }} data-no-submit>
-				                                </div>
-				                            </div>
+											{% for state in [
+													{
+														"value": "COMPLETED",
+														"input_id": "status_toggle_lever_completed",
+														"span_class": "completed",
+														"label": "Completed"
+													},
+													{
+														"value": "RUNNING",
+														"input_id": "status_toggle_lever_running",
+														"span_class": "running",
+														"label": "Running"
+													},
+													{
+														"value": "PENDING",
+														"input_id": "status_toggle_lever_pending",
+														"span_class": "pending",
+														"label": "Pending"
+													},
+													{
+														"value": "FAILED",
+														"input_id": "status_toggle_lever_any_errors",
+														"span_class": "failed",
+														"label": "Any errors"
+													}
+												]
+											%}
+												<div class="cc_toggle_zone_row">
+													<div class="cc_cluster_toggle_subzone form-check form-switch">
+														<label class="form-check-label" for="{{state['input_id']}}" class="{{state['input_id']}}"><span class="status {{state['span_class']}}">{{state['label']}}</span></label>
+														{% if state["value"] in previous_request_args["state"] or previous_request_args["state"]|length == 0 %}
+															{# Create a checked toggle button #}
+															<input class="form-check-input float-end" type="checkbox" name="state" id="{{state['input_id']}}" value="{{state['value']}}" checked data-no-submit>
+														{% else %}
+															{# Create an unchecked toggle button #}
+															<input class="form-check-input float-end" type="checkbox" name="state" id="{{state['input_id']}}" value="{{state['value']}}" data-no-submit>
+														{% endif %}
+													</div>
+												</div>	
+											{% endfor %}
 				                        </div>
 				                    </div> 
 				                </div> <!-- end search form row-->

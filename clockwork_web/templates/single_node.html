@@ -15,40 +15,38 @@
 
 {% endblock %}
 {% block content %}
-    <div class="cc_subheader_banner">
-        <div class="row">
-            <div class="col s2">
-                <!-- spacing on the left -->
-            </div>
-            <div class="col s4">
-                <h4>{{ gettext("single node %(node_name)s", node_name=node_name) }}</h4>                
-            </div>
-        </div>
-    </div>
+<div class="container">
     <div class="row">
-        <div class="col s1">
-            <!-- spacing on the left -->
-        </div>
-        <div class="col s9" id="changeme">
+        <div class="col-sm-12">
+            <div class="row justify-content-between">
+                <div class="col-8">
+                    <div class="title float-start">
+                        <i class="fa-solid fa-list"></i>
+                        <h1>{{ gettext("single node %(node_name)s", node_name=node_name) }}</h1>                
+                    </div>
+                </div>
+            </div>
 
-            <!-- <h1>{{channel_title}}</h1> -->
-
-            <table class="striped">
-                <thead>
-                    <tr>
-                        <th>{{ gettext("key") }}</th>
-                        <th>{{ gettext("value") }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for (k, v) in LP_single_node_slurm %}
-                    <tr>
-                        <td>{{k}}</td>
-                        <td>{{v}}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="row single_node">
+               <table class="table table-striped table-hover table-responsive" data-sortable id="search_table">
+                    <thead>
+                        <tr>
+                            <th>{{ gettext("key") }}</th>
+                            <th>{{ gettext("value") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for (k, v) in LP_single_node_slurm %}
+                        <tr>
+                            <td>{{k}}</td>
+                            <td>{{v}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+</div>
+       
 {% endblock %}
