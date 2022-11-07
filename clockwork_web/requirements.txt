@@ -6,3 +6,4 @@ Flask-Babel==2.0.0
 pymongo==4.0
 toml==0.10.2
 sentry-sdk[flask]
+

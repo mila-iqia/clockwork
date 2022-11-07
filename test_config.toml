@@ -3,6 +3,10 @@ testing=true
 login_disabled=true
 secret_key="testing_secret_key"
 
+[sentry]
+dns="https://3147d934b4d64892a9ee8eaa66453024@o4504055550443520.ingest.sentry.io/4504101279367168"
+traces_sample_rate=1.0
+
 [google]
 client_id=""
 client_secret=""

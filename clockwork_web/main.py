@@ -9,24 +9,7 @@ so that gcloud can run it with the equivalent of
 That leads here, to this file, which is just a barebone launcher.
 """
 
-
-import sentry_sdk
-from sentry_sdk.integrations.flask import FlaskIntegration
-
-sentry_sdk.init(
-    dsn="https://b6e60faf045544efb6755842d3b18fbb@o1375930.ingest.sentry.io/6685284",
-    integrations=[
-        FlaskIntegration(),
-    ],
-
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
-    traces_sample_rate=1.0
-)
-
-from .config import get_config, register_config, boolean
-from .server_app import create_app
+from .config import get_config, register_config, boolean, string, anything
 
 """
 By default, we require only environment variable "MONGODB_CONNECTION_STRING"
@@ -42,6 +25,39 @@ the login, we set the user to be "mario" or something like that.
 
 register_config("flask.testing", False, validator=boolean)
 register_config("flask.login_disabled", False, validator=boolean)
+#register_config("flask.secret_key", validator=string)
+
+#register_config("sentry.dns", "", validator=string)
+#register_config("sentry.traces_sample_rate", 1.0, validator=anything)
+
+sentry_dns = get_config("sentry.dns")
+# sentry_dns = "https://3147d934b4d64892a9ee8eaa66453024@o4504055550443520.ingest.sentry.io/4504101279367168"
+if sentry_dns:
+    # Not sure about how sentry works, but it probably does
+    # some behind-the-scenes things before the flask components
+    # are loaded. It's not clear to me if we really need to ensure
+    # that it gets loaded before we import the `create_app` method
+    # (i.e. before anything pertaining to Flask gets imported).
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
+
+    sentry_sdk.init(
+        dsn=sentry_dns,
+        integrations=[
+            FlaskIntegration(),
+        ],
+
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend having a lower value in production.
+        traces_sample_rate=get_config("sentry.traces_sample_rate")
+    )
+    print(f"Loaded sentry logging at {sentry_dns}.")
+else:
+    print("Not loading sentry because the sentry.dns config is empty or is missing.")
+
+
+from .server_app import create_app
 
 app = create_app(
     extra_config={
