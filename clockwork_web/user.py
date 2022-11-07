@@ -15,7 +15,9 @@ about these things.
 """
 
 from flask.globals import current_app
+from flask import session
 from flask_login import UserMixin, AnonymousUserMixin
+from flask_babel import gettext
 
 import secrets
 
@@ -23,8 +25,12 @@ from .db import get_db
 from clockwork_web.core.users_helper import (
     enable_dark_mode,
     disable_dark_mode,
+    get_default_web_settings_values,
     set_items_per_page,
     get_default_setting_value,
+    set_language,
+    is_correct_type_for_web_setting,
+    get_default_web_settings_values,
 )
 
 
@@ -43,10 +49,7 @@ class User(UserMixin):
         mila_cluster_username=None,
         cc_account_username=None,
         cc_account_update_key=None,
-        web_settings={
-            "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
-            "dark_mode": get_default_setting_value("dark_mode"),
-        },
+        web_settings={},
     ):
         """
         This constructor is called only by the `get` method.
@@ -58,7 +61,12 @@ class User(UserMixin):
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
         self.cc_account_update_key = cc_account_update_key
-        self.web_settings = web_settings
+        for k in ["nbr_items_per_page", "dark_mode", "language"]:
+            if k in web_settings and not is_correct_type_for_web_setting(
+                k, web_settings[k]
+            ):
+                del web_settings[k]
+        self.web_settings = get_default_web_settings_values() | web_settings
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
@@ -88,7 +96,10 @@ class User(UserMixin):
         # to just return the first instance of that user (ignoring the rest),
         # because that might hide more problems downstream.
         if len(L) not in [0, 1]:
-            print("Found %d users with email %s. This can't happen." % (len(L), email))
+            print(
+                "Found %d users with email %s. This can't happen."
+                % (len(L), mila_email_username)
+            )
             return None
         elif len(L) == 0:
             return None
@@ -100,8 +111,8 @@ class User(UserMixin):
                 clockwork_api_key=e["clockwork_api_key"],
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
-                cc_account_update_key=e["cc_account_update_key"],
-                web_settings=e["web_settings"],
+                cc_account_update_key=e.get("cc_account_update_key", ""),
+                web_settings=e.get("web_settings", {}),
             )
             print("Retrieved entry for user with email %s." % user.mila_email_username)
 
@@ -123,7 +134,7 @@ class User(UserMixin):
         )
         if res.modified_count != 1:
             self.clockwork_api_key = old_key
-            raise ValueError("could not modify api key")
+            raise ValueError(gettext("could not modify api key"))
 
     def new_update_key(self):
         """
@@ -136,7 +147,7 @@ class User(UserMixin):
             {"$set": {"cc_account_update_key": self.cc_account_update_key}},
         )
         if res.modified_count != 1:
-            raise ValueError("could not modify update key")
+            raise ValueError(gettext("could not modify update key"))
 
     ###
     #   Web settings
@@ -169,9 +180,7 @@ class User(UserMixin):
         the current user.
 
         Parameters:
-        - nbr_items_per_page    The preferred number of items to display per
-                                page for the User, ie the value to save in
-                                its settings
+        - nbr_items_per_page    The preferred number of items to display per page for the User, ie the value to save in its settings
 
         Returns:
             A tuple containing
@@ -179,6 +188,40 @@ class User(UserMixin):
             - a message describing the state of the operation
         """
         return set_items_per_page(self.mila_email_username, nbr_items_per_page)
+
+    def settings_language_set(self, language):
+        """
+        Set a preferred language for the current user.
+
+        Parameters:
+        - language      The language chosen by the user to interact with. The available languages are listed in the configuration file.
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return set_language(self.mila_email_username, language)
+
+    def get_language(self):
+        return self.web_settings["language"]
+
+    def get_web_settings(self):
+        """
+        Retrieve the web settings of the user, ie:
+        - whether or not the dark mode is activated (dark_mode)
+        - the language to use with this user (language)
+        - the number of elements to display in a page presenting a list (nbr_items_per_page)
+
+        Returns:
+            A dictionary presenting the following format:
+            {
+                "dark_mode": <boolean>,
+                "language": <string>,
+                "nbr_items_per_page": <integer>
+            }
+        """
+        return get_default_web_settings_values() | self.web_settings
 
 
 class AnonUser(AnonymousUserMixin):
@@ -189,11 +232,31 @@ class AnonUser(AnonymousUserMixin):
         self.cc_account_username = None
         self.mila_cluster_username = None
         self.cc_account_update_key = None
-        self.web_settings = {
-            "nbr_items_per_page": get_default_setting_value("nbr_items_per_page"),
-            "dark_mode": get_default_setting_value("dark_mode"),
-        }
+        self.web_settings = get_default_web_settings_values()
+        self.web_settings["language"] = None
 
     def new_api_key(self):
         # We don't want to touch the database for this.
         self.clockwork_api_key = secrets.token_hex(32)
+
+    def get_language(self):
+        return self.web_settings["language"]
+
+    def get_web_settings(self):
+        """
+        Gets default web settings, as the AnonUser is not authenticated.
+
+        Returns:
+            A dictionary presenting the default web settings.
+        """
+        return self.web_settings
+
+    # Not implemented dark_mode for AnonUser.
+    # Exists only to avoid problems with javascript calls.
+    def settings_dark_mode_enable(self):
+        # Returns (status_code, status_message).
+        return (200, "")
+
+    def settings_dark_mode_disable(self):
+        # Returns (status_code, status_message).
+        return (200, "")

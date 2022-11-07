@@ -2,10 +2,12 @@
 Browser routes dealing with the "cluster" entity
 """
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, request
 from flask_login import current_user, login_required
+from flask_babel import gettext
 
 from clockwork_web.core.clusters_helper import get_all_clusters
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 flask_api = Blueprint("clusters", __name__)
 
@@ -26,8 +28,12 @@ def route_one():
 
     .. :quickref: present a cluster as formatted HTML
     """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Retrieve the argument cluster_name
     cluster_name = request.args.get("cluster_name", None)
+    previous_request_args["cluster_name"] = cluster_name
 
     # Get the clusters and reformat them in order to keep what we want
     # We make a copy in order to avoid unwillingly modify the original dictionary
@@ -44,24 +50,31 @@ def route_one():
     if cluster_name:
         if cluster_name in D_clusters:
             # Return a HTML page presenting the requested cluster's information
-            return render_template(
+            return render_template_with_user_settings(
                 "cluster.html",
                 cluster_name=cluster_name,
                 cluster=D_clusters[cluster_name],
                 mila_email_username=current_user.mila_email_username,
+                previous_request_args=previous_request_args,
             )
         else:
             # Return a 404 error (Not Found) if the cluster is unknown
             return (
-                render_template("error.html", error_msg=f"This cluster is not known."),
+                render_template_with_user_settings(
+                    "error.html",
+                    error_msg=f"This cluster is not known.",
+                    previous_request_args=previous_request_args,
+                ),
                 404,  # Not Found
             )
 
     else:
         # Return a 400 error (Bad Request) if no cluster_name has been provided
         return (
-            render_template(
-                "error.html", error_msg=f"The argument cluster_name is missing."
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=f"The argument cluster_name is missing.",
+                previous_request_args=previous_request_args,
             ),
             400,  # Bad Request
         )

@@ -63,8 +63,8 @@ coverage.xml
 .pytest_cache/
 
 # Translations
-*.mo
 *.pot
+*.mo
 
 # Django stuff:
 *.log

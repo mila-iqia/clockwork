@@ -15,44 +15,42 @@
 
 {% endblock %}
 {% block content %}
-    <div class="cc_subheader_banner">
-        <div class="row">
-            <div class="col s2">
-                <!-- spacing on the left -->
-            </div>
-            <div class="col s4">
-                <h4>nodes</h4>
-            </div>
-        </div>
-    </div>
+<div class="container">
     <div class="row">
-        <div class="col s1">
-            <!-- spacing on the left -->
-        </div>
-        <div class="col s9" id="changeme">
-
+        <div class="col-sm-12">
+            <div class="row justify-content-between">
+                <div class="col-8">
+                    <div class="title float-start">
+                        <i class="fa-solid fa-list"></i>
+                        <h1>{{ gettext("nodes") }}</h1>
+                    </div>
+                </div>
+            </div>
+    
             <!-- We clearly don't have half as much information as we might want to list here. -->
-
-            <table class="striped">
-                <thead>
-                    <tr>
-                        <th>cluster_name</th>
-                        <th>name</th>
-                        <th>alloc_tres</th>
-                        <th>cfg_tres</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for D_node in LD_nodes %}
-                    <tr>
-                        <td>{{D_node['slurm']['cluster_name']}}</td>
-                        <td>{{D_node['slurm']['name']}}</td>
-                        <td>{{D_node['slurm']['alloc_tres']}}</td>
-                        <td>{{D_node['slurm']['cfg_tres']}}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+           <div class="row single_node">
+               <table class="table table-striped table-hover table-responsive" data-sortable id="search_table">
+                    <thead>                
+                        <tr>
+                            <th>{{ gettext("cluster_name") }}</th>
+                            <th>{{ gettext("name") }}</th>
+                            <th>{{ gettext("alloc_tres") }}</th>
+                            <th>{{ gettext("cfg_tres") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for D_node in LD_nodes %}
+                        <tr>
+                            <td>{{D_node['slurm']['cluster_name']}}</td>
+                            <td>{{D_node['slurm']['name']}}</td>
+                            <td>{{D_node['slurm']['alloc_tres']}}</td>
+                            <td>{{D_node['slurm']['cfg_tres']}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+</div>
 {% endblock %}

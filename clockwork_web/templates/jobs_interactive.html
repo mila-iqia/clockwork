@@ -19,20 +19,20 @@
         var display_filter = {};
 
         function read_query_filter() {
-            query_filter["user"] = "{{ mila_email_username }}";
+            query_filter["username"] = "{{ mila_email_username }}";
         }
 
         function read_display_filter() {
             // sets value of `display_filter`
-            display_filter["cluster_name"] = {
-                "mila": true,
-                "beluga": true,
-                "cedar": true,
-                "graham": true
-            }
 
+            // Set the clusters names
+            display_filter["cluster_name"] = {}
+
+            {% for D_cluster in clusters %}
+                display_filter["cluster_name"]["{{D_cluster}}"] = true;
+            {% endfor %}
+            
             // Grouping the states into 4 bins to simplify the interface and usability.
-
             status_running = true
             status_pending = true
             status_completed = true
@@ -52,6 +52,8 @@
                 "FAILED": status_any_errors,
                 "CANCELLED": status_any_errors
             }
+
+            display_filter["num_per_page"] = web_settings["nbr_items_per_page"];
 
         }
 
@@ -85,7 +87,7 @@
                 }, 2000);
             });
             
-            // note that `launch_refresh_all_data` comes from "jobs.ps"
+            // note that `launch_refresh_all_data` comes from "jobs.js"
             launch_refresh_all_data(query_filter, display_filter);
 
             //console.log("server_refresh() called");
@@ -95,13 +97,13 @@
     </script>
 {% endblock %}
 {% block content %}
-    <div class="dashboard_bg searchform">
+    <div id="formBlock" class="dashboard_bg searchform">
         <div class="container">
             <div class="row">
                 <div class="col-12">
                     <div class="title float-start">
                         <i class="fa-solid fa-user"></i>
-                        <h1>Welcome back <script>document.writeln(readableusername);</script>!<span class="message"><i class="fa-solid fa-list-check"></i>You currently have: </span></h1>
+                        <h1>{{ gettext("Welcome back") }} <script>document.writeln(readableusername);</script>!<span class="message"><i class="fa-solid fa-list-check"></i>You currently have: </span></h1>
                     </div>
                     <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
                 </div>
@@ -109,20 +111,20 @@
 
             <div class="row dashboard_job">
                 <div class="col-md-3 col-xs-12">
-                    <div class="wrapper running">
-                        <i class="fa-solid fa-timer"></i>
-                        <span id="dashboard_running" class="num"></span>
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                        <p>Running jobs</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-xs-12">
                     <div class="wrapper completed">
                         <i class="fa-solid fa-badge-check"></i>
                         <span id="dashboard_completed" class="num"></span>
                         <i class="fa-solid fa-arrows-rotate"></i>
-                        <p>Completed jobs</p>
+                        <p>{{ gettext("Completed jobs") }}</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-xs-12">
+                    <div class="wrapper running">
+                        <i class="fa-solid fa-timer"></i>
+                        <span id="dashboard_running" class="num"></span>
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <p>{{ gettext("Running jobs") }}</p>
                     </div>
                 </div>
 
@@ -131,7 +133,7 @@
                         <i class="fa-solid fa-circle-pause"></i>
                         <span id="dashboard_pending" class="num"></span>
                         <i class="fa-solid fa-arrows-rotate"></i>
-                        <p>Pending jobs</p>
+                        <p>{{ gettext("Pending jobs") }}</p>
                     </div>
                 </div>
 
@@ -140,12 +142,12 @@
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         <span id="dashboard_stalled" class="num"></span>
                         <i class="fa-solid fa-arrows-rotate"></i>
-                        <p>Stalled jobs</p>
+                        <p>{{ gettext("Stalled jobs") }}</p>
                     </div>
                 </div>
 
                 <div class="col-md-3 offset-md-9 col-xs-12">
-                    <a class="btn btn-red mb-3">See all jobs</a>
+                    <a class="btn btn-red mb-3" href="/jobs/search">{{ gettext("See all jobs") }}</a>
                 </div>
             </div>
 
@@ -157,7 +159,7 @@
             <div class="col-12">
                 <div class="title float-start">
                     <i class="fa-solid fa-list-check"></i>
-                    <h1>YOUR JOBS<span class="message"><i id="spinner" class="fa-solid fa-arrows-rotate"></i>This list will auto-refresh! </span></h1>
+                    <h1>{{ gettext("YOUR JOBS") }}<span class="message"><i id="spinner" class="fa-solid fa-arrows-rotate"></i>{{ gettext("This list will auto-refresh!") }}</span></h1>
                 </div>
                 <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
             </div>
@@ -167,19 +169,16 @@
 
                 <!-- <h1>{{channel_title}}</h1> -->
 
-                <table class="table table-striped table-hover table-responsive" data-sortable id="dashboard_table">
+                <table class="table table-striped table-hover table-responsive" id="dashboard_table">
                     <!-- This table starts empty and is populated automatically when the DOM is ready. -->
                 </table>
 
-                <nav class="table_nav" aria-label="table_nav">
-                    <ul class="pagination">
-                        <li class="page-item"><a class="page-link" href="#"><i class="fa-solid fa-caret-left"></i></a></li>
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#"><i class="fa-solid fa-caret-right"></i></a></li>
+               <nav class="table_nav" aria-label="table_nav">
+                    <ul id="pagingDiv" class="pagination">
                     </ul>
                 </nav>
+
+                <input type='hidden' name='page_num' value='1' maxlength='1' max='10' size='1' id='page_num' />
 
             </div>
         </div>

@@ -14,11 +14,13 @@ in the right place.
 # python3 -m flask run --host=0.0.0.0
 
 import os
-from flask import Flask, redirect, render_template, url_for
+from flask import Flask, redirect, url_for, session, request
 from flask_login import current_user, LoginManager
+from flask_babel import Babel
 from .browser_routes.nodes import flask_api as nodes_routes_flask_api
 from .browser_routes.jobs import flask_api as jobs_routes_flask_api
 from .browser_routes.gpu import flask_api as gpu_routes_flask_api
+from .browser_routes.users import flask_api as users_routes_flask_api
 from .browser_routes.clusters import flask_api as clusters_routes_flask_api
 from .browser_routes.settings import flask_api as settings_routes_flask_api
 
@@ -29,9 +31,16 @@ from .rest_routes.jobs import flask_api as rest_jobs_flask_api
 from .rest_routes.nodes import flask_api as rest_nodes_flask_api
 from .rest_routes.gpu import flask_api as rest_gpu_flask_api
 
-from .config import register_config, get_config, string
+from .config import register_config, get_config, string, string_list
+
+from .core.users_helper import render_template_with_user_settings
+
+
+from werkzeug.urls import url_encode
 
 register_config("flask.secret_key", validator=string)
+register_config("translation.translations_folder", default="", validator=string)
+register_config("translation.available_languages", default=[], validator=string_list)
 
 
 def create_app(extra_config: dict):
@@ -53,6 +62,7 @@ def create_app(extra_config: dict):
 
     app.register_blueprint(nodes_routes_flask_api, url_prefix="/nodes")
     app.register_blueprint(jobs_routes_flask_api, url_prefix="/jobs")
+    app.register_blueprint(users_routes_flask_api, url_prefix="/users")
     app.register_blueprint(gpu_routes_flask_api, url_prefix="/gpu")
     app.register_blueprint(clusters_routes_flask_api, url_prefix="/clusters")
     app.register_blueprint(settings_routes_flask_api, url_prefix="/settings")
@@ -90,6 +100,46 @@ def create_app(extra_config: dict):
 
     login_manager.anonymous_user = AnonUser
 
+    # Internationalization
+    # https://python-babel.github.io/flask-babel/
+
+    # Set the translations directory path
+    app.config["BABEL_TRANSLATION_DIRECTORIES"] = get_config(
+        "translation.translations_folder"
+    )
+
+    # Adding a function to help with updating url params from the template
+    @app.template_global()
+    def modify_query(**new_values):
+        args = request.args.copy()
+
+        for key, value in new_values.items():
+            args[key] = value
+
+        return '{}?{}'.format(request.path, url_encode(args))
+
+
+    # Initialize Babel
+    babel = Babel(app)
+
+    @babel.localeselector
+    def get_locale():
+        # If the user is authenticated
+        if current_user.is_authenticated:
+            return current_user.get_language()
+
+        # If the user is not authenticated
+        else:
+            # If no language has been previously determined, use the browser's
+            # preferred language and store it to the session
+            if "language" not in session:
+                browser_language = request.accept_languages.best_match(
+                    get_config("translation.available_languages")
+                )
+                session["language"] = browser_language
+
+            return session["language"]
+
     @app.route("/")
     def index():
         """
@@ -101,7 +151,9 @@ def create_app(extra_config: dict):
             print("in route for '/'; redirecting to jobs/")
             return redirect("jobs/")
         else:
-            print("in route for '/'; render_template('index_outside.html')")
-            return render_template("index_outside.html")
+            print(
+                "in route for '/'; render_template_with_user_settings('index_outside.html')"
+            )
+            return render_template_with_user_settings("index_outside.html")
 
     return app

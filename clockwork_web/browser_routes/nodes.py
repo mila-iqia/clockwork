@@ -11,7 +11,7 @@ from collections import defaultdict
 # https://stackoverflow.com/questions/3206344/passing-html-to-template-using-flask-jinja2
 
 from flask import Flask, Response, url_for, request, redirect, make_response, Markup
-from flask import render_template, request, send_file
+from flask import request, send_file
 from flask import jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.wsgi import FileWrapper
@@ -23,6 +23,7 @@ from flask_login import (
     current_user,
     login_required,
 )
+from flask_babel import gettext
 
 # As described on
 #   https://stackoverflow.com/questions/15231359/split-python-flask-app-into-multiple-files
@@ -41,6 +42,7 @@ from clockwork_web.core.nodes_helper import (
     strip_artificial_fields_from_node,
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
+from clockwork_web.core.users_helper import render_template_with_user_settings
 
 # Note that flask_api.route('/') will lead to a redirection with "/nodes", and pytest might not like that.
 
@@ -58,9 +60,16 @@ def route_list():
 
     .. :quickref: list all Slurm nodes as formatted html
     """
+
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     # Retrieve the pagination parameters
     pagination_page_num = request.args.get("page_num", type=int, default="1")
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
+    previous_request_args["page_num"] = pagination_page_num
+    previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
+
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
     (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
         current_user.mila_email_username,
@@ -68,27 +77,38 @@ def route_list():
         pagination_nbr_items_per_page,
     )
 
+    # Retrieve the arguments given in order to search the expected nodes
+    node_name = request.args.get("node_name", None)
+    previous_request_args["node_name"] = node_name
+
+    cluster_name = request.args.get("cluster_name", None)
+    previous_request_args["cluster_name"] = cluster_name
+
     # Define the filters to select the nodes
-    f0 = get_filter_node_name(request.args.get("node_name", None))
-    f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
+    f0 = get_filter_node_name(node_name)
+    f1 = get_filter_cluster_name(cluster_name)
     filter = combine_all_mongodb_filters(f0, f1)
 
-    # Retrieve the nodes, by applying the filters and the pagination
-    LD_nodes = get_nodes(
+    # Retrieve the nodes, by applying the filters and the pagination,
+    # and the number of nodes corresponding to the filter without the pagination
+    (LD_nodes, nbr_total_nodes) = get_nodes(
         filter,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
+        want_count=True,  # We want the result as a tuple (nodes_list, nodes_count)
     )
 
     # Format the nodes (by withdrawing the "_id" element of each node)
     LD_nodes = [strip_artificial_fields_from_node(D_node) for D_node in LD_nodes]
 
     # Display the HTML page
-    return render_template(
+    return render_template_with_user_settings(
         "nodes.html",
         LD_nodes=LD_nodes,
         mila_email_username=current_user.mila_email_username,
         page_num=pagination_page_num,
+        nbr_total_nodes=nbr_total_nodes,
+        previous_request_args=previous_request_args,
     )
 
 
@@ -101,32 +121,57 @@ def route_one():
 
     .. :quickref: list one Slurm node as formatted html
     """
+    # Initialize the request arguments (it is further transferred to the expected HTML)
+    previous_request_args = {}
 
-    f0 = get_filter_node_name(request.args.get("node_name", None))
-    f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
+    # Retrieve the arguments given in order to search the node
+    node_name = request.args.get("node_name", None)
+    previous_request_args["node_name"] = node_name
+
+    cluster_name = request.args.get("cluster_name", None)
+    previous_request_args["cluster_name"] = cluster_name
+
+    # Set up the filters
+    f0 = get_filter_node_name(node_name)
+    f1 = get_filter_cluster_name(cluster_name)
     filter = combine_all_mongodb_filters(f0, f1)
-    LD_nodes = get_nodes(filter)
+    (LD_nodes, _) = get_nodes(filter)
 
+    # Return an error if 0 or more than 1 node(s) are retrieved
     if len(LD_nodes) == 0:
         return (
-            render_template("error.html", error_msg=f"Node not found"),
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=f"Node not found",
+                previous_request_args=previous_request_args,
+            ),
             400,
         )  # bad request
     elif len(LD_nodes) > 1:
         return (
-            render_template(
-                "error.html", error_msg=f"Found more than one matching node"
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=f"Found more than one matching node",
+                previous_request_args=previous_request_args,
             ),
             400,
         )  # bad request
 
     # Strip the _id element from the node
     D_node = strip_artificial_fields_from_node(LD_nodes[0])  # the one and only
-    # need to format it as list of tuples for the template (unless I'm mistaken)
-    LP_single_node = list(sorted(D_node.items(), key=lambda e: e[0]))
 
-    return render_template(
+    # Note that D_node contains the "slurm" field (which we want to list)
+    # and the "cw" field (which we will omit in the front-end for now).
+
+    D_node_slurm = D_node.get("slurm", {})
+    # need to format it as list of tuples for the template (unless I'm mistaken)
+    LP_single_node_slurm = list(sorted(D_node_slurm.items(), key=lambda e: e[0]))
+
+    node_name = D_node_slurm.get("name", gettext("(missing node name)"))
+    return render_template_with_user_settings(
         "single_node.html",
-        LP_single_node=LP_single_node,
+        LP_single_node_slurm=LP_single_node_slurm,
+        node_name=node_name,
         mila_email_username=current_user.mila_email_username,
+        previous_request_args=previous_request_args,
     )
