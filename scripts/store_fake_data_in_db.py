@@ -11,6 +11,7 @@ from clockwork_web.db import init_db, get_db
 from clockwork_web.server_app import create_app
 from test_common.fake_data import populate_fake_data
 
+
 def store_data_in_db(data_json_file=None):
     # Create a test context
     app = create_app(extra_config={"TESTING": True, "LOGIN_DISABLED": True})
@@ -22,6 +23,7 @@ def store_data_in_db(data_json_file=None):
         db = get_db()
         # Insert fake data in it
         cf = populate_fake_data(db, json_file=data_json_file)
+
 
 def modify_timestamps(data):
     """
@@ -38,7 +40,7 @@ def modify_timestamps(data):
                 most_recent_timestamp = new_end_time
 
     # Retrieve the time interval between this timestamp and now
-    time_delta = datetime.now().timestamp()-most_recent_timestamp
+    time_delta = datetime.now().timestamp() - most_recent_timestamp
 
     # Substract it to the timestamps of the jobs
     for job in data["jobs"]:
@@ -49,25 +51,33 @@ def modify_timestamps(data):
         if job["slurm"]["end_time"]:
             job["slurm"]["end_time"] += time_delta
 
+
 def simulate_status(data):
     for i in range(len(data["jobs"])):
-        if i%30 == 0:
+        if i % 30 == 0:
             data["jobs"][i]["slurm"]["job_state"] = "COMPLETED"
-        if i%30 == 1:
+        if i % 30 == 1:
             data["jobs"][i]["slurm"]["job_state"] = "COMPLETING"
-        if i%30 == 2:
+        if i % 30 == 2:
             data["jobs"][i]["slurm"]["job_state"] = "FAILED"
-        if i%30 == 3:
+        if i % 30 == 3:
             data["jobs"][i]["slurm"]["job_state"] = "OUT_OF_MEMORY"
-        if i%30 == 4:
+        if i % 30 == 4:
             data["jobs"][i]["slurm"]["job_state"] = "TIMEOUT"
-        if i%30 == 5:
+        if i % 30 == 5:
             data["jobs"][i]["slurm"]["job_state"] = "CANCELLED"
+
 
 def main(argv):
     # Retrieve the arguments passed to the script
     parser = argparse.ArgumentParser()
-    parser.add_argument("--recent", type=bool, action=argparse.BooleanOptionalAction, default=False, help="Modify the timestamps of the jobs in order to simulate more recent jobs if this argument is provided.")
+    parser.add_argument(
+        "--recent",
+        type=bool,
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Modify the timestamps of the jobs in order to simulate more recent jobs if this argument is provided.",
+    )
     args = parser.parse_args(argv[1:])
 
     # Register the elements to access the database
@@ -96,6 +106,7 @@ def main(argv):
     else:
         # Store the generated fake data in the database
         store_data_in_db()
+
 
 if __name__ == "__main__":
     main(sys.argv)

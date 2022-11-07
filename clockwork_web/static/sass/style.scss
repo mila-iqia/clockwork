@@ -2,6 +2,9 @@
 
 @import "_variables";
 @import "_sortable";
+@import "_input_group";
+@import "_ribbon";
+@import "_mobile";
 
 /*
  ██████  ██████  ███    ███ ███    ███  ██████  ███    ██ 
@@ -112,6 +115,10 @@ i.fa-arrows-rotate {
         border-color: $grey;
         text-align: center;
 
+        &.show {
+            z-index: 99999;
+        }
+
         .triangle-right {
             width: 0;
             height: 0;
@@ -168,7 +175,6 @@ i.fa-arrows-rotate {
     background-repeat: no-repeat;
     background-position: top center;
     background-size: 100% 100%;
-    margin-bottom: 40px;
 }
 #mainCollapse {
     border-top: 1px solid lighten($charcoal-pale, 20%);
@@ -176,6 +182,7 @@ i.fa-arrows-rotate {
     height: auto !important;
     padding-top: 40px;
     position: relative;
+    overflow: hidden;
 
     h1 {
         a {
@@ -213,9 +220,8 @@ i.fa-arrows-rotate {
         bottom: 0;
         transition: all 0.3s;
         opacity: 1;
-        background-image: url(../images/bg_search_top.png);
-        background-repeat: repeat-x;
-        background-position: top center;
+        background: rgb(255,255,255);
+        background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
         z-index: 1;
     }
 
@@ -261,6 +267,10 @@ i.fa-arrows-rotate {
         }
     }
 
+    .form-label {
+        width: 90%;
+    }
+
     .cc_toggle_zone_row {
         padding: 4px 18px;
 
@@ -282,6 +292,13 @@ i.fa-arrows-rotate {
             &:hover i {
                 color: $purple_pale;
             }
+
+            &.disabled {
+                cursor: default;
+                i {
+                    color: gray;
+                }
+            }
         }
 
         .form-switch {
@@ -294,7 +311,7 @@ i.fa-arrows-rotate {
         margin: 30px 0;
     }
 }
-.btn-red {
+.btn-red, .btn-red:visited {
     border: 0;
     background-color: $red;
     border-radius: 1.5em;
@@ -311,6 +328,30 @@ i.fa-arrows-rotate {
         box-shadow: 0 0 0 0.25rem #9bced3;
         color: white;
         @include gradient-x($red-red, $red, 0%, 100%);
+    }
+    &:focus {
+        border: 0;
+        color: white;
+    }
+}
+
+.btn-turquoise, .btn-turquoise:visited {
+    border: 0;
+    background-color: $turquoise;
+    border-radius: 1.5em;
+    line-height: 1.5em;
+    font-size: 1em;
+    color: white;
+    text-transform: uppercase;
+    @include bold();
+    @include gradient-x($turquoise, $turquoise-blue, 0%, 100%);
+    @include transition(0.3s all);
+
+    &:hover, &:active {
+        border: 0;
+        box-shadow: 0 0 0 0.25rem #9bced3;
+        color: white;
+        @include gradient-x($turquoise-blue, $turquoise, 0%, 100%);
     }
     &:focus {
         border: 0;
@@ -410,33 +451,42 @@ table.table-striped {
     td:last-of-type {
         border-right: 1px solid $grey;
     }
+
+    span.email {
+        display: none;
+    }
 }
 
 table.table-striped,
 .cc_cluster_toggle_subzone .form-check-label {
     span.status {
-        text-transform: capitalize;
+        text-transform: lowercase;
+        display: block;
+        &::first-letter {
+            text-transform: uppercase;
+        }
     }
-    span.status:before {
+    span.status:after {
         font-family: "Font Awesome 6 Pro";
         font-weight: 900;
-        display: inline-block;
+        display: block;
+        float: left;
         padding: 0 6px 0 0;
     }
 
-    span.failed:before, span.out_of_memory:before, span.cancelled:before, span.timeout:before, span.failed:before {
+    span.failed:after, span.out_of_memory:after, span.cancelled:after, span.timeout:after, span.failed:after {
         color: $purple_pale;
         content: "\f071";
     }
-    span.completed:before {
+    span.completed:after {
         color: $turquoise;
         content: "\f336";
     }
-    span.pending:before {
+    span.pending:after {
         color: $yellow;
         content: "\f28b";
     }
-    span.running:before, span.completing:before {
+    span.running:after, span.completing:after {
         color: $green;
         content: "\e29e";
     }
@@ -482,27 +532,55 @@ table.table-striped,
     th[data-sortable="false"] {
         text-align: center;
     }
+
+    td.links, td.state, td.actions {
+        white-space: nowrap;
+    }
 }
 
-nav.table_nav {
-    margin-top: 50px;
+
     ul.pagination {
+        margin-top: 50px;
         justify-content: center;
         li {
-            a.page-link {
+            a {
+                cursor: pointer;
+                &:focus, &:hover {
+                    box-shadow: none;
+                    color: $purple;
+                    background: lighten($text, 60%);
+                }
+            }
+            a, span {
                 color: $charcoal-pale;
                 font-size: 0.96em;
                 padding: 0.6em 1.1em;
+            }
 
-                &:focus {
-                    box-shadow: none;
-                    background: $purple;
-                    color: white;
-                }
+           span {
+                cursor: default;
+                color: white;
+                background: $purple;
+            }
+
+            span.ellipses {
+                cursor: default;
+                color: $text;
+                background: lighten($text, 60%);
+            }
+
+            &.current span, &.current a {
+                cursor: default;
+                color: white;
+                background: $purple;
+            }
+
+            &:first-child span, &:last-child span {
+                background: lighten($text, 60%);
+                color: white;
             }
         }
     }
-}
 
 /*
 ██████   █████  ███████ ██   ██ ██████   ██████   █████  ██████  ██████  
@@ -590,17 +668,6 @@ nav.table_nav {
         }
 
         &.running {
-            background: #508faa;
-            background: -webkit-radial-gradient(top right, #508faa, #55abb4);
-            background: -moz-radial-gradient(top right, #508faa, #55abb4);
-            background: radial-gradient(to bottom left, #508faa, #55abb4);
-
-            &:after {
-                border-right: 400px solid #55abb4;
-            }
-        }
-
-        &.completed {
             background: #50968e;
             background: -webkit-radial-gradient(top right, #50968e, #55b496);
             background: -moz-radial-gradient(top right, #50968e, #55b496);
@@ -608,6 +675,18 @@ nav.table_nav {
 
             &:after {
                 border-right: 400px solid #55b496;
+            }
+        }
+
+        &.completed {
+            background: #508faa;
+            background: -webkit-radial-gradient(top right, #508faa, #55abb4);
+            background: -moz-radial-gradient(top right, #508faa, #55abb4);
+            background: radial-gradient(to bottom left, #508faa, #55abb4);
+            
+
+            &:after {
+                border-right: 400px solid #55abb4;
             }
         }
 
@@ -635,8 +714,76 @@ nav.table_nav {
     }
 }
 
+/*
+██    ██ ███████ ███████ ██████  
+██    ██ ██      ██      ██   ██ 
+██    ██ ███████ █████   ██████  
+██    ██      ██ ██      ██   ██ 
+ ██████  ███████ ███████ ██   ██ 
+*/
 
 
+.user_jobs {
+    .col-sm-12 {
+        margin-top: 40px;
+    }
+}
+
+.single_user img {
+    max-width: 100%;
+}
+
+
+/*
+███████ ███████ ████████ ████████ ██ ███    ██  ██████  ███████ 
+██      ██         ██       ██    ██ ████   ██ ██       ██      
+███████ █████      ██       ██    ██ ██ ██  ██ ██   ███ ███████ 
+     ██ ██         ██       ██    ██ ██  ██ ██ ██    ██      ██ 
+███████ ███████    ██       ██    ██ ██   ████  ██████  ███████ 
+*/
+
+.settings_list {
+    dl dd {
+        padding: 20px 0;
+        border-bottom: 1px solid $cream-dark;
+        margin: 0;
+    }
+    dl dt {
+        padding: 20px 40px 20px 0;
+        border-bottom: 1px solid $cream-dark;
+
+        &.col-12 {
+            padding: 20px 40px 0px 0;
+            border-bottom: 0;
+        }
+    }
+
+    pre {
+        padding: 20px;
+        background: $cream;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    select {
+        width: auto;
+    }
+
+    table th, table td {
+        text-align: center;
+
+        div.form-switch {
+            text-align: center;
+            padding-left: 0;
+
+            input {
+                float: none;
+                display: inline-block;
+                margin: 3px auto 0;
+            }
+        }
+    }
+}
 
 /*
 ███████  ██████   ██████  ████████ ███████ ██████  

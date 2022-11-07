@@ -1,0 +1,85 @@
+div.ribbon {
+	position: fixed; /* Safari */
+	top: -40px;
+	right: 0;
+	margin-right: 120px; 
+	z-index: 9999;
+	background: #ce8964;
+	overflow: hidden;
+	height: 30px;
+	width: 116px;
+	color: white;
+	padding: 6px 10px;
+    transition: all 0.3s;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+    	width: 180px;
+    	height: 130px;
+    }
+
+    h4, p {
+    	position: relative;
+    	z-index: 2;
+    }
+    h4 {
+    	font-size: 1.1em;
+    	padding-top: 0; 
+    	margin-top: 0;
+    	line-height: 1em;
+    	text-align: center;
+    }
+
+    p {
+    	text-align: center;
+    	font-weight: 100;
+    	font-size: 0.9em;
+    	margin: 0; 
+    	padding: 0;
+    	width: 160px;
+
+    	a {
+    		color: black;
+    	}
+    }
+    &:after {
+    	z-index: 1;
+        content: "";
+        display: block;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 0;
+        height: 0;
+        border-top: 400px solid transparent;
+        border-bottom: 400px solid transparent;
+    }
+
+    &.alpha {
+    	background: -webkit-radial-gradient(top right, #ce8964, #dba46a);
+	    background: -moz-radial-gradient(top right, #ce8964, #dba46a);
+	    background: radial-gradient(to bottom left, #ce8964, #dba46a);
+
+	    &:after {
+	    	border-right: 400px solid #dba46a;
+	    }
+    	h4 span:after {
+    		content: "alpha version!"
+    	}
+    }
+    &.beta {
+    	background: #50968e;
+        background: -webkit-radial-gradient(top right, #50968e, #55b496);
+        background: -moz-radial-gradient(top right, #50968e, #55b496);
+        background: radial-gradient(to bottom left, #50968e, #55b496);
+
+        &:after {
+        	border-right: 400px solid #55b496;
+        }
+    	h4 span:after {
+    		content: "beta version!"
+    	}
+    }
+}

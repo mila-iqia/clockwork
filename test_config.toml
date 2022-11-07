@@ -12,29 +12,24 @@ initdb_root_username="mongoadmin"
 initdb_root_password="secret_passowrd_okay"
 connection_string="mongodb://mongoadmin:secret_passowrd_okay@mongodb:27017/?authSource=admin&readPreference=primary&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true&ssl=false"
 
+[translation]
+translations_folder="static/locales"
+available_languages=["en", "fr"]
 
-[clusters.test_cluster]
-account_field="test_cluster_username"
-update_field=false
-allocations=["valid_fake_allocation_name", "clustergroup"]
-timezone="America/Montreal"
-organism="Mila"
-nbr_cpus=1
-nbr_gpus=-1
-official_documentation=""
-mila_documentation=false
-
+[settings.default_values]
+nbr_items_per_page=25
+dark_mode=false
+language="en"
 
 [clusters.mila]
 account_field="mila_cluster_username"
 update_field=false
 allocations="*"
 timezone="America/Montreal"
-organism="Mila"
+organization="Mila"
 nbr_cpus=4860
 nbr_gpus=532
-official_documentation="https://docs.mila.quebec/Information.html"
-mila_documentation=false
+display_order=1
 
 
 [clusters.beluga]
@@ -42,11 +37,12 @@ account_field="cc_account_username"
 update_field="cc_account_update_key"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
 timezone="America/Montreal"
-organism="Digital Research Alliance of Canada"
+organization="Digital Research Alliance of Canada"
 nbr_cpus=1950
 nbr_gpus=696
-official_documentation="https://docs.alliancecan.ca/wiki/B%C3%A9luga/"
+official_documentation="https://docs.alliancecan.ca/wiki/B%C3%A9luga"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#beluga"
+display_order=4
 
 
 [clusters.graham]
@@ -54,11 +50,12 @@ account_field="cc_account_username"
 update_field="cc_account_update_key"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
 timezone="America/Toronto"
-organism="Digital Research Alliance of Canada"
+organization="Digital Research Alliance of Canada"
 nbr_cpus=2660
 nbr_gpus=536
 official_documentation="https://docs.alliancecan.ca/wiki/Graham"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#graham"
+display_order=5
 
 
 [clusters.cedar]
@@ -66,11 +63,12 @@ account_field="cc_account_username"
 update_field="cc_account_update_key"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
 timezone="America/Vancouver"
-organism="Digital Research Alliance of Canada"
+organization="Digital Research Alliance of Canada"
 nbr_cpus=4948
 nbr_gpus=1352
 official_documentation="https://docs.alliancecan.ca/wiki/Cedar"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#cedar"
+display_order=3
 
 
 [clusters.narval]
@@ -78,11 +76,11 @@ account_field="cc_account_username"
 update_field="cc_account_update_key"
 allocations=["def-patate-rrg", "def-pomme-rrg", "def-cerise-rrg", "def-citron-rrg"]
 timezone="America/Montreal"
-organism="Digital Research Alliance of Canada"
+organization="Digital Research Alliance of Canada"
 nbr_cpus=2608
 nbr_gpus=636
 official_documentation="https://docs.alliancecan.ca/wiki/Narval"
-mila_documentation=false
+display_order=2
 
 
 [clockwork.test]

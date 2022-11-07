@@ -53,9 +53,17 @@ def dynrename(fn, ctx_key):
 # Instead of having something too convoluted,
 # we'll just write this specific example.
 def user_id_splitting(f, ctx, res):
-    m = re.match(r"^(\w+)\((\d+)\)$", f)
-    res["username"] = m.group(1)
-    res["uid"] = int(m.group(2))
+    # needs to match things like
+    #    aaaa(123871)
+    #    aaaa.bbbbbb(123871)
+    #    aaaa-ccc.bbbbbb(123871)
+
+    m = re.match(r"^([\w\.\-]+)\((\d+)\)$", f)
+    if m:
+        res["username"] = m.group(1)
+        res["uid"] = int(m.group(2))
+    else:
+        print(f"Failed to split user_id : {f}")
 
 
 def id(f, ctx):
@@ -142,6 +150,7 @@ JOB_FIELD_MAP = {
     "SuspendTime": ignore,
     "SecsPreSuspend": ignore,
     "LastSchedEval": ignore,
+    "Scheduler": ignore,
     "Partition": rename(id, "partition"),
     "AllocNode:Sid": ignore,
     # All the fields pertaining to hardware allocated,
@@ -193,6 +202,12 @@ JOB_FIELD_MAP = {
     "Comment": rename(maybe_null_string_to_none_object, "comment"),
     "CPU_max_freq": ignore,
     "Switches": ignore,
+    "NtaskPerTRES": ignore,
+    # this one was handled in a special way,
+    # but on 2022-09-14 it crept up on Cedar
+    "NtasksPerTRES": ignore,
+    # seen on 2022-09-14
+    "KillOInInvalidDependent": ignore,
 }
 
 
@@ -288,6 +303,8 @@ NODE_FIELD_MAP = {
     # added by gyom (to be discussed),
     "NextState": ignore,
     "Port": ignore,
+    # found on Narval on 2022-09-14
+    "LastBusyTime": ignore,
 }
 
 

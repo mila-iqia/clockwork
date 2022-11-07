@@ -58,9 +58,9 @@ def test_single_job_missing_423908482367(client):
 
     job_id = "423908482367"
 
-    response = client.get("/jobs/one?job_id=423908482367")
+    response = client.get("/jobs/one?job_id={}".format(job_id))
     assert "text/html" in response.content_type
-    assert b"Found no job with job_id 423908482367" in response.data
+    assert b"Found no job with job_id" in response.data
 
 
 def test_single_job_no_id(client):
@@ -80,10 +80,12 @@ def test_list_jobs_for_a_given_random_user(client, fake_data):
     # the usual validator doesn't work on the html contents
     _, username = helper_list_jobs_for_a_given_random_user(fake_data)
 
-    response = client.get(f"/jobs/list?user={username}")
+    response = client.get(f"/jobs/list?username={username}")
 
     assert "text/html" in response.content_type
-    assert username.encode("utf-8") in response.data
+
+    assert username in response.get_data(as_text=True)
+    # assert username.encode("utf-8") in response.data
 
 
 @pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
@@ -91,7 +93,7 @@ def test_list_jobs_invalid_username(client, username):
     """
     Make a request to /jobs/list.
     """
-    response = client.get(f"/jobs/list?user={username}")
+    response = client.get(f"/jobs/list?username={username}")
     assert "text/html" in response.content_type
     assert username.encode("utf-8") not in response.data  # notice the NOT
 
@@ -101,8 +103,10 @@ def test_list_time(client, fake_data):
     response = client.get(f"/jobs/list?relative_time={relative_mid_end_time}")
     assert response.status_code == 200
     assert "text/html" in response.content_type
-    assert b"RUNNING" in response.data
-    assert b"PENDING" in response.data
+
+    body_text = response.get_data(as_text=True)
+    # assert "RUNNING" in body_text # Now that the jobs are sorted, and as we are expecting 25 jobs to be displayed by default, there is no more RUNNING jobs on this list for the current fake data
+    assert "PENDING" in body_text
 
 
 def test_list_invalid_time(client):
@@ -112,10 +116,7 @@ def test_list_invalid_time(client):
     response = client.get(f"/jobs/list?relative_time=this_is_not_a_valid_relative_time")
     assert response.status_code == 400
 
-    assert (
-        b"cannot be cast as a valid integer: this_is_not_a_valid_relative_time"
-        in response.data
-    )
+    assert b"cannot be cast as a valid integer:" in response.data
 
 
 def test_jobs(client, fake_data: dict[list[dict]]):
@@ -124,9 +125,15 @@ def test_jobs(client, fake_data: dict[list[dict]]):
     Note that the `client` fixture depends on other fixtures that
     are going to put the fake data in the database for us.
     """
+    # Sort the jobs contained in the fake data by submit time, then by job id
+    sorted_all_jobs = sorted(
+        fake_data["jobs"],
+        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+    )
+
     response = client.get("/jobs/list")
     for i in range(0, get_default_setting_value("nbr_items_per_page")):
-        D_job = fake_data["jobs"][i]
+        D_job = sorted_all_jobs[i]
         assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
 
 
@@ -148,8 +155,16 @@ def test_jobs_with_both_pagination_options(
         page_num            The number of the page displaying the jobs
         nbr_items_per_page  The number of jobs we want to display per page
     """
+    # Sort the jobs contained in the fake data by submit time, then by job id
+    sorted_all_jobs = sorted(
+        fake_data["jobs"],
+        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+    )
+
     # Get the response
-    response = client.get("/jobs/list?page_num={}&nbr_items_per_page={}")
+    response = client.get(
+        f"/jobs/list?page_num={page_num}&nbr_items_per_page={nbr_items_per_page}"
+    )
 
     # Retrieve the bounds of the interval of index in which the expected jobs
     # are contained
@@ -159,8 +174,8 @@ def test_jobs_with_both_pagination_options(
 
     # Assert that the retrieved jobs correspond to the expected jobs
     for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(fake_data):
-            D_job = fake_data["jobs"][i]
+        if i < len(sorted_all_jobs):
+            D_job = sorted_all_jobs[i]
             assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
 
 
@@ -178,10 +193,15 @@ def test_jobs_with_page_num_pagination_option(
                             fake data in the database for us
         fake_data           The data our tests are based on
         page_num            The number of the page displaying the jobs
-        nbr_items_per_page  The number of jobs we want to display per page
     """
+    # Sort the jobs contained in the fake data by submit time, then by job id
+    sorted_all_jobs = sorted(
+        fake_data["jobs"],
+        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+    )
+
     # Get the response
-    response = client.get("/jobs/list?page_num={}&nbr_items_per_page={}")
+    response = client.get(f"/jobs/list?page_num={page_num}")
 
     # Retrieve the bounds of the interval of index in which the expected jobs
     # are contained
@@ -191,8 +211,8 @@ def test_jobs_with_page_num_pagination_option(
     # Assert that the retrieved jobs correspond to the expected jobs
 
     for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(fake_data):
-            D_job = fake_data["jobs"][i]
+        if i < len(sorted_all_jobs):
+            D_job = sorted_all_jobs[i]
             assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
 
 
@@ -211,19 +231,25 @@ def test_jobs_with_page_num_pagination_option(
         fake_data           The data our tests are based on
         nbr_items_per_page  The number of jobs we want to display per page
     """
+    # Sort the jobs contained in the fake data by submit time, then by job id
+    sorted_all_jobs = sorted(
+        fake_data["jobs"],
+        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+    )
+
     # Get the response
-    response = client.get("/jobs/list?page_num={}&nbr_items_per_page={}")
+    response = client.get(f"/jobs/list?nbr_items_per_page={nbr_items_per_page}")
 
     # Retrieve the bounds of the interval of index in which the expected jobs
     # are contained
     (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
         None, None, nbr_items_per_page
     )
-    # Assert that the retrieved jobs correspond to the expected jobs
 
+    # Assert that the retrieved jobs correspond to the expected jobs
     for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(fake_data):
-            D_job = fake_data["jobs"][i]
+        if i < len(sorted_all_jobs):
+            D_job = sorted_all_jobs[i]
             assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
 
 
@@ -234,7 +260,7 @@ def test_jobs_with_page_num_pagination_option(
 #   Tests for route_search
 ###
 @pytest.mark.parametrize(
-    "user_name,clusters_names,states,page_num,nbr_items_per_page",
+    "username,clusters_names,states,page_num,nbr_items_per_page",
     [
         ("student05@mila.quebec", ["mila", "graham"], ["RUNNING", "PENDING"], 2, 2),
         ("student10@mila.quebec", ["graham"], ["RUNNING", "PENDING"], 2, 2),
@@ -246,7 +272,7 @@ def test_jobs_with_page_num_pagination_option(
     ],
 )
 def test_route_search(
-    client, fake_data, user_name, clusters_names, states, page_num, nbr_items_per_page
+    client, fake_data, username, clusters_names, states, page_num, nbr_items_per_page
 ):
     """
     Test the function route_search with different sets of arguments.
@@ -256,7 +282,7 @@ def test_route_search(
                             depends on other fixtures that are going to put the
                             fake data in the database for us
         fake_data           The data our tests are based on
-        user_name           The user whose jobs we are looking for
+        username           The user whose jobs we are looking for
         clusters_names      An array of the clusters on which we search jobs
         states              An array of the potential states of the jobs we want
                             to retrieve
@@ -271,26 +297,32 @@ def test_route_search(
     LD_prefiltered_jobs = []
 
     # Determine which filters we have to ignored
-    ignore_user_name_filter = user_name is None
+    ignore_username_filter = username is None
     ignore_clusters_names_filter = len(clusters_names) < 1
     ignore_states_filter = len(states) < 1
 
+    # Sort the jobs contained in the fake data by submit time, then by job id
+    sorted_all_jobs = sorted(
+        fake_data["jobs"],
+        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+    )
+
     # For each job, determine if it could be expected (before applying the pagination)
-    for D_job in fake_data["jobs"]:
+    for D_job in sorted_all_jobs:
         # Retrieve the values we may want to test
-        retrieved_user_name = D_job["cw"]["mila_email_username"]
+        retrieved_username = D_job["cw"]["mila_email_username"]
         retrieved_cluster_name = D_job["slurm"]["cluster_name"]
         retrieved_state = D_job["slurm"]["job_state"]
 
         # Define the tests which will determine if the job is taken into account or not
-        test_user_name = (retrieved_user_name == user_name) or ignore_user_name_filter
+        test_username = (retrieved_username == username) or ignore_username_filter
         test_clusters_names = (
             retrieved_cluster_name in clusters_names
         ) or ignore_clusters_names_filter
         test_states = (retrieved_state in states) or ignore_states_filter
 
         # Select the jobs in regard of the predefined tests
-        if test_user_name and test_clusters_names and test_states:
+        if test_username and test_clusters_names and test_states:
             LD_prefiltered_jobs.append(D_job)
 
     ###
@@ -300,17 +332,16 @@ def test_route_search(
     # Initialize the call
     request_line = "/jobs/search?"
 
-    # - user_name
-    if user_name is not None:
-        request_line += "user_name={}&".format(user_name)
-    # - clusters_names
+    # - username
+    if username is not None:
+        request_line += "username={}&".format(username)
+
+    # - cluster_name
     if len(clusters_names) > 0:
-        for cluster_name in clusters_names:
-            request_line += "clusters_names={}&".format(cluster_name)
-    # - states
+        request_line += "cluster_name={}&".format(",".join(clusters_names))
+    # - state
     if len(states) > 0:
-        for state in states:
-            request_line += "states={}&".format(state)
+        request_line += "state={}&".format(",".join(states))
     # - page_num
     if page_num:
         request_line += "page_num={}&".format(page_num)

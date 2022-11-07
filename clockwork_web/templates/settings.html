@@ -7,6 +7,7 @@
 	</style>
 	<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
 	<script type="text/javascript" src="{{ url_for('static', filename='js/user.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/settings.js') }}"></script>
 	<script>
 		{% autoescape false %}
 		{{extra_js}}
@@ -40,40 +41,54 @@
 			<div class="col-12">
 				  <div class="title float-start">
 					  <i class="fa-solid fa-user"></i>
-					  <h1>User settings<span class="message"></h1>
+					  <h1>{{ gettext("User settings %(mila_email_username)s", mila_email_username=mila_email_username) }}<span class="message"></h1>
 				  </div>
 			  </div>
 		</div>
-	
-
-		<div class="row">
+		<div class="row settings_list">
 			<div class="col-12">
 				
 				<dl class="row">
-					<dt class="col-4">CLOCKWORK_WEB_API : {{clockwork_api_key}} <a href="new_key">change key</a></dt>
-					<dd class="col-8">
-						
+					<dt class="col-6"> 
+
+						<form>
+							<div class="form-group">
+						    	<label>CLOCKWORK_API_KEY:</label>
+						    	<div class="input-group" id="show_hide_password">
+						      		<input class="form-control" id="clockwork_api_key" type="password" value="{{clockwork_api_key}}">
+						      		<div class="input-group-addon">
+						      			<a class="copy_clipboard"  data-bs-toggle='tooltip' data-bs-placement='top' title='Copy to clipboard' href=""><i class="fa fa-copy" aria-hidden="true"></i></a>
+						      		</div>
+						      		<div class="input-group-addon">
+						        		<a class="reveal" data-bs-toggle='tooltip' data-bs-placement='top' title='Reveal password' href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+						      		</div>
+						    	</div>
+						  	</div>
+						</form>
+
+ 						<a href="new_key">change key</a>
+
+ 					</dt>
+					<dd class="col-6">
 						<!--{% if cc_account_update_key is not none %} -->
-							Run this command to register your account: sbatch --time=1 --wrap=true --comment=clockwork_register_accout:{{ cc_account_update_key }}
+							<p><strong>Run this command to register your account:</strong></p>
+							<pre>sbatch --time=1 --wrap=true --comment=clockwork_register_accout:{{ cc_account_update_key }}</pre>
 						<!--{% else %} -->
 							<a href="new_update_key">Get update account key</a>
 						<!--{% endif %} -->
 					</dd>
 
 					<!-- Items per page -->
-					<dt class="col-4">Number of items displayed per page</dt>
-		  			<dd class="col-8">
+					<dt class="col-6">{{ gettext("Number of items displayed per page") }}</dt>
+		  			<dd class="col-6">
 						<select class="form-select" name="nbr_items_per_page_selection" id="nbr_items_per_page_selection" onchange="select_nbr_items_per_page(this)">
-							<option value='{{web_settings["nbr_items_per_page"]}}'>{{web_settings["nbr_items_per_page"]}}</option>
-							<option value="1">1</option>
-							<option value="50">50</option>
-							<option value="100">100</option>
+							<!-- This is filled through the javascript -->
 						</select>
 					</dd>
 		 
 					<!-- Dark mode -->
-			  		<dt class="col-4"><label for="dark_mode_toggle">Dark mode</label></dt>
-		 			<dd class="col-8">
+			  		<dt class="col-6"><label for="dark_mode_toggle">{{ gettext("Dark mode") }}</label></dt>
+		 			<dd class="col-6">
 						<div class="form-check form-switch">
 							{% if web_settings["dark_mode"] %}
 								<input name="dark_mode_toggle" id="dark_mode_toggle" type="checkbox" class="form-check-input" onclick="switch_dark_mode()" checked />
@@ -81,13 +96,147 @@
 								<input name="dark_mode_toggle" id="dark_mode_toggle" type="checkbox" class="form-check-input" onclick="switch_dark_mode()" />
 							{% endif %}
 						</div>	
-						<small>Setting will apply on page reload.</small>
+					</dd>
+
+					<!-- Timestamps -->
+			  		<dt class="col-6"><label for="dark_mode_toggle">{{ gettext("Time formatting") }}</label></dt>
+		 			<dd class="col-6">
+						<div>
+							<select class="form-select" aria-label="Time formatting">
+								<option value="time_words" selected>In words (2 months ago)</option>
+								<option value="time_unix">Unix timestamp (1667503950)</option>
+								<option value="time_1">YYYY/MM/DD</option>
+								<option value="time_2">DD/MM/YYYY</option>
+								<option value="time_3">MM/DD/YYYY</option>
+							</select>
+						</div>	
+					</dd>
+
+					<!-- Tables -->
+			  		<dt class="col-12"><label for="dark_mode_toggle">{{ gettext("Visible columns in dashboard table") }}</label></dt>
+		 			<dd class="col-12">
+						<table class="table table-striped table-hover table-responsive">
+		                    <thead>
+		                        <tr>
+		                            <th>Cluster</th>
+		                            <th>Job ID</th>
+		                            <th>Job name [:20]</th>
+		                            <th>Job state</th>
+		                            <th>Start time</th>
+		                            <th>End time</th>
+		                            <th>Links</th>
+		                            <th>Actions</th>
+		                        </tr>
+		                    </thead>
+		                    <tbody>
+		                    	<tr>
+		                    		<td><div class="form-check form-switch">
+										{# if web_settings["dynamic_clusters"] #}
+											<input name="dynamic_clusters_toggle" id="dynamic_clusters_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["dynamic_jobid"] #}
+											<input name="dynamic_jobid_toggle" id="dynamic_jobid_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["dynamic_jobname"] #}
+											<input name="dynamic_jobname_toggle" id="dynamic_jobname_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["dynamic_jobstate"] #}
+											<input name="dynamic_jobstate_toggle" id="dynamic_jobstate_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["dynamic_starttime"] #}
+											<input name="dynamic_starttime_toggle" id="dynamic_starttime_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["dynamic_endtime"] #}
+											<input name="dynamic_endtime_toggle" id="dynamic_endtime_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["show_links"] #}
+											<input name="dynamic_links_toggle" id="dynamic_links_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["dynamic_actions"] #}
+											<input name="dynamic_actions_toggle" id="dynamic_actions_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                    	</tr>
+		                    </tbody>
+		                </table>
+					</dd>
+
+					<!-- Tables -->
+			  		<dt class="col-12"><label for="dark_mode_toggle">{{ gettext("Visible columns in search table") }}</label></dt>
+		 			<dd class="col-12">
+						<table class="table table-striped table-hover table-responsive">
+		                    <thead>
+		                        <tr>
+		                            <th>Cluster</th>
+		                            <th>User (@mila.quebec)</th>
+		                            <th>Job ID</th>
+		                            <th>Job name [:20]</th>
+		                            <th>Job state</th>
+		                            <th>Start time</th>
+		                            <th>End time</th>
+		                            <th>Links</th>
+		                            <th>Actions</th>
+		                        </tr>
+		                    </thead>
+		                    <tbody>
+		                    	<tr>
+		                    		<td><div class="form-check form-switch">
+										{# if web_settings["search_clusters"] #}
+											<input name="search_clusters_toggle" id="search_clusters_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["search_users"] #}
+											<input name="search_users_toggle" id="search_users_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["search_jobid"] #}
+											<input name="search_jobid_toggle" id="search_jobid_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["search_jobname"] #}
+											<input name="search_jobname_toggle" id="search_jobname_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["search_jobstate"] #}
+											<input name="search_jobstate_toggle" id="search_jobstate_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["search_starttime"] #}
+											<input name="search_starttime_toggle" id="search_starttime_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["search_endtime"] #}
+											<input name="search_endtime_toggle" id="search_endtime_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["search_links"] #}
+											<input name="search_links_toggle" id="search_links_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                            <td><div class="form-check form-switch">
+										{# if web_settings["search_actions"] #}
+											<input name="search_actions_toggle" id="search_actions_toggle" type="checkbox" class="form-check-input" checked />
+									</div></td>
+		                    	</tr>
+		                    </tbody>
+		                </table>
 					</dd>
 
 				</dl>
 
+				<small>{{ gettext("Settings will apply on page reload.") }}</small>
 		  </div>
 		</div>
 	</div>
+	<script>
+		// Fill the dropdown menu allowing to chose the preferred number of elements to
+		// display in a listing page
+		fill_nbr_items_per_page_dropdown_menu({{web_settings["nbr_items_per_page"]}});
+	</script>
 
 {% endblock %}

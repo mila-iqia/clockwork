@@ -21,7 +21,7 @@
                 <!-- spacing on the left -->
             </div>
             <div class="col s4">
-                <h4>jobs</h4>
+                <h4>{{ gettext("jobs") }}</h4>
             </div>
         </div>
     </div>
@@ -33,20 +33,24 @@
             <table class="striped">
                 <thead>
                     <tr>
-                        <th>cluster</th>
-                        <th>user</th>
-                        <th>job_id</th>
-                        <th>job name [:20]</th>
-                        <th>job_state</th>
-                        <th>start time</th>
-                        <th>end time</th>
+                        <th>{{ gettext("cluster") }}</th>
+                        <th>{{ gettext("user") }}</th>
+                        <th>{{ gettext("job_id") }}</th>
+                        <th>{{ gettext("job name [:20]") }}</th>
+                        <th>{{ gettext("job_state") }}</th>
+                        <th>{{ gettext("start time") }}</th>
+                        <th>{{ gettext("end time") }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for D_job in LD_jobs %}
                     <tr>
                         <td>{{D_job['slurm']['cluster_name']}}</td>
-                        <td>{{D_job['cw']['best_guess_for_username']}}</td>
+                          <td>
+                            <a href="/users/one?username={{D_job['cw']['mila_email_username']}}">
+                              {{D_job['cw']['best_guess_for_username']}}
+                            </a>
+                          </td>
                         <td>
                             <a href="/jobs/one?cluster_name={{D_job['slurm']['cluster_name']}}&job_id={{D_job['slurm']['job_id']}}">{{D_job['slurm']['job_id']}}</a>
                         </td>

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+    </script>
+
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row justify-content-between">
+                <div class="col-8">
+                    <div class="title float-start">
+                        <i class="fa-solid fa-list"></i>
+                        <h1>{{username}}</h1>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row single_user">
+                <div class="col-5">
+                    <!-- Picture -->
+                    {% if "personal_picture" in user %}
+                      <img src="{{user['personal_picture']}}" />
+                    {% else %}
+                      <img src="{{url_for('static', filename='images/users/no_picture.jpg')}}" />
+                    {% endif %}
+                </div>
+                <div class="col-7">
+                    <!-- Account(s) -->
+                    <h2>Accounts</h2>
+                    <dl>
+                        {% for account_field in account_fields %}
+                            {% if account_field in user and user[account_field] is not none %}
+                            
+                            <dt><b>{{user[account_field]}}</b></dt>
+                            
+                            <dd>Used on clusters: 
+                                {% for cluster_name in account_fields[account_field] %}
+                                  <a href="/clusters/one?cluster_name={{cluster_name}}">{{cluster_name}} </a>
+                                {% endfor %}
+                            </dd>
+                          {% endif %}
+                        {% endfor %}
+                    </dl>
+
+                    <!-- Account(s) -->
+                    <h2>Director</h2>
+                    <dl>
+                        {% for account_field in account_fields %}
+                            {% if account_field in user and user[account_field] is not none %}
+                            
+                            <dt><b>{{user[account_field]}}</b></dt>
+                            
+                            <dd>Used on clusters: 
+                                {% for cluster_name in account_fields[account_field] %}
+                                  <a href="/clusters/one?cluster_name={{cluster_name}}">{{cluster_name}} </a>
+                                {% endfor %}
+                            </dd>
+                          {% endif %}
+                        {% endfor %}
+                    </dl>
+
+                    <a class="btn btn-turquoise" href="/jobs/search?username={{user['mila_email_username']}}">See this user's jobs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+{% endblock %}

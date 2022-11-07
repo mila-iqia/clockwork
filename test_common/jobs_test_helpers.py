@@ -168,7 +168,7 @@ def helper_list_jobs_for_a_given_random_user(fake_data):
     ), f"Failed to get an interesting test candidate for helper_list_jobs_for_a_given_random_user. We hit the safety valve."
 
     # response = client.get(
-    #    f"/api/v1/clusters/jobs/list?user={username}", headers=valid_rest_auth_headers
+    #    f"/api/v1/clusters/jobs/list?username={username}", headers=valid_rest_auth_headers
     # )
     # assert response.content_type == "application/json"
     # LD_jobs = response.get_json()

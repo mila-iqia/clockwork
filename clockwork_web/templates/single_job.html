@@ -23,10 +23,11 @@
                     <div class="col-8">
                         <div class="title float-start">
                             <i class="fa-solid fa-list"></i>
-                            <h1>Single Job: {{job_id}}</h1>
+                            <h1>{{ gettext("Single job %(job_id)s", job_id=job_id) }}</h1>
                         </div>
                     </div>
                 </div>
+
                 <table class="table table-striped table-hover table-responsive" data-sortable id="search_table">
                     <thead>
                         <tr>
@@ -35,12 +36,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for (k, v) in LP_single_job %}
+                        {% for (k, v) in LP_single_job_slurm %}
                         <tr>
                             <td>{{k}}</td>
                             {% if k in ['batch_host'] and v != None %}
                                 <!-- TODO : Implement this link because it doesn't work now. -->
                                 <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
+                            {% elif k == "username" %}
+                                <td>
+                                  <a href="/users/one?username={{D_single_job_cw['mila_email_username']}}">
+                                    {{v}}
+                                  </a>
+                                </td>
                             {% else %}
                                 <td>{{v}}</td>
                             {% endif %}
