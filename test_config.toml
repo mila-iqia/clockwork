@@ -3,6 +3,10 @@ testing=true
 login_disabled=true
 secret_key="testing_secret_key"
 
+[sentry]
+dns=""
+traces_sample_rate=1.0
+
 [google]
 client_id=""
 client_secret=""
