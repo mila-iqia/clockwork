@@ -117,8 +117,7 @@ def create_app(extra_config: dict):
         for key, value in new_values.items():
             args[key] = value
 
-        return '{}?{}'.format(request.path, url_encode(args))
-
+        return "{}?{}".format(request.path, url_encode(args))
 
     # Initialize Babel
     babel = Babel(app)
