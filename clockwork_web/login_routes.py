@@ -14,7 +14,6 @@ For the developers, this is a useful resource:
     Custom Login using Request Loader
 """
 
-from logging import error
 import os
 import json
 import random
@@ -189,8 +188,8 @@ def route_callback():
         )
 
     login_user(user)
-    print(
-        f"called login_user(user) for user with email {user.mila_email_username}, user.is_authenticated is {user.is_authenticated()}"
+    app.logger.debug(
+        "called login_user(user) for user with email %s, user.is_authenticated is %s", user.mila_email_username, user.is_authenticated()
     )
     # Send user back to homepage
     return redirect(url_for("index"))

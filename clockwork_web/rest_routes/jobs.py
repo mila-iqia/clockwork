@@ -45,8 +45,8 @@ def route_api_v1_jobs_list():
         try:
             time1 = float(time1)
             f1 = get_filter_after_end_time(end_time=time.time() - time1)
-        except Exception as inst:
-            print(inst)
+        except Exception:
+            app.logger.debug("for time %s", time1, exc_info=True)
             return (
                 jsonify(
                     f"Field 'relative_time' cannot be cast as a valid float: {time1}."

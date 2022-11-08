@@ -96,10 +96,9 @@ class User(UserMixin):
         # to just return the first instance of that user (ignoring the rest),
         # because that might hide more problems downstream.
         if len(L) not in [0, 1]:
-            print(
-                "Found %d users with email %s. This can't happen."
-                % (len(L), mila_email_username)
-            )
+            app.logger.error(
+                "Found %d users with email %s. This can't happen.",
+                len(L), mila_email_username)
             return None
         elif len(L) == 0:
             return None
@@ -114,7 +113,7 @@ class User(UserMixin):
                 cc_account_update_key=e.get("cc_account_update_key", ""),
                 web_settings=e.get("web_settings", {}),
             )
-            print("Retrieved entry for user with email %s." % user.mila_email_username)
+            app.logger.debug("Retrieved entry for user with email %s.", user.mila_email_username)
 
             # Note that, at this point, it might be the case that the returned
             # user has status "disabled". The parent code will have to refrain
