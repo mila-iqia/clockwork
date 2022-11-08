@@ -12,10 +12,6 @@ That leads here, to this file, which is just a barebone launcher.
 from .config import get_config, register_config, boolean, string, anything
 from .server_app import create_app
 
-# We can avoid using those libraries if we don't want to use Sentry.io.
-import sentry_sdk
-from sentry_sdk.integrations.flask import FlaskIntegration
-
 
 """
 By default, we require only environment variable "MONGODB_CONNECTION_STRING"
@@ -42,6 +38,10 @@ if sentry_dns:
     # are loaded. It's not clear to me if we really need to ensure
     # that it gets loaded before we import the `create_app` method
     # (i.e. before anything pertaining to Flask gets imported).
+
+    # We can avoid using those libraries if we don't want to use Sentry.io.
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
 
     sentry_sdk.init(
         dsn=sentry_dns,
