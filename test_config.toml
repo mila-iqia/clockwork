@@ -29,6 +29,7 @@ timezone="America/Montreal"
 organization="Mila"
 nbr_cpus=4860
 nbr_gpus=532
+official_documentation="https://docs.mila.quebec/Information.html"
 display_order=1
 
 

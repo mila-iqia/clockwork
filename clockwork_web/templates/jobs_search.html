@@ -59,27 +59,52 @@
                     <tbody>
                         {% for D_job in LD_jobs %}
                         <tr>
+                            <!-- Cluster -->
                             <td>{{D_job['slurm']['cluster_name']}}</td>
+
+                            
+                            <!-- User -->
                             <td>
                                 {% if D_job['cw']['mila_email_username'] is not none %}
                                     {% set name, domain = D_job['cw']['mila_email_username'].split('@') %}
                                     {{ name }} <span class="email">@{{ domain }}</span>
                                 {% endif %}
                             </td>
+
+                            <!-- Job ID -->
                             <td>
                                 <a href="/jobs/one?cluster_name={{D_job['slurm']['cluster_name']}}&job_id={{D_job['slurm']['job_id']}}">{{D_job['slurm']['job_id']}}</a>
                             </td>
+
+                            <!-- Job name -->
                             <td>{{D_job['slurm'].get("name", "")[0:20]}}</td>
-
-
+                            
+                            <!-- Job state -->
                             <td class="state"><span class="status {{D_job['slurm']['job_state']|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
+                            
+                            <!-- Start time -->
+                            {% if D_job["slurm"]["start_time"] %}
+                                {% set start_time = D_job["slurm"]["start_time"] %}
+                                <td data-order='{{start_time}}'><span class="visually-hidden">{{start_time}}</span><!--<span data-livestamp='{{start_time|int}}'></span>--> {{ start_time|format_date }}</td>
+                            {% else %}
+                                <td data-order='0'></td>
+                            {% endif %}
 
-                            <td><span class="visually-hidden">{{D_job["slurm"]["start_time"]}}</span><span data-livestamp='{{D_job["slurm"]["start_time"]}}'></span></td>
-                            <td><span class="visually-hidden">{{D_job["slurm"]["end_time"]}}</span><span data-livestamp='{{D_job["slurm"]["end_time"]}}'></span></td>
+                            <!-- End time -->
+                            {% if D_job["slurm"]["end_time"] %}
+                                {% set end_time = D_job["slurm"]["end_time"] %}
+                                <td data-order="{{end_time}}"><span class="visually-hidden">{{end_time}}</span><!--<span data-livestamp='{{end_time|int}}'></span>--> {{ end_time|format_date }}</td>
+                            {% else %}
+                                <td data-order='0'></td>
+                            {% endif %}
+
+                            <!-- Links -->
                             <td class="links">
                                <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to somewhere'><i class='fa-solid fa-file'></i></a>
                                 <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
                             </td>
+
+                            <!-- Actions -->
                             <td class="actions">
                                 {% if mila_email_username == D_job['cw']['best_guess_for_username'] %}
                                     <a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>
