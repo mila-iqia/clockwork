@@ -1,6 +1,11 @@
 # Don't forget to sync changes with
+#  - clockwork_web/config.py
 #  - slurm_state/config.py
 #  - scripts_test/config.py
+
+###
+# Don't use logging in this file
+###
 
 import os
 import copy
@@ -60,6 +65,12 @@ def boolean(value):
         elif value == 0:
             return False
     raise ConfigError("expected boolean")
+
+
+def integer(value):
+    if isintance(value, int):
+        return value
+    raise ConfigError("expected integer")
 
 
 def string_list(value):
