@@ -474,7 +474,7 @@ table.table-striped,
         padding: 0 6px 0 0;
     }
 
-    span.failed:after, span.out_of_memory:after, span.cancelled:after, span.timeout:after, span.failed:after {
+    span.failed:after, span.out_of_memory:after, span.cancelled:after, span.timeout:after, span.preempted:after, span.failed:after {
         color: $purple_pale;
         content: "\f071";
     }
