@@ -149,10 +149,10 @@ def create_app(extra_config: dict):
         """
 
         if current_user.is_authenticated:
-            print("in route for '/'; redirecting to jobs/")
+            app.logger.debug("in route for '/'; redirecting to jobs/")
             return redirect("jobs/")
         else:
-            print(
+            app.logger.debug(
                 "in route for '/'; render_template_with_user_settings('index_outside.html')"
             )
             return render_template_with_user_settings("index_outside.html")

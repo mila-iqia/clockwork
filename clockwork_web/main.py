@@ -68,9 +68,9 @@ if sentry_dns:
         # We recommend having a lower value in production.
         traces_sample_rate=get_config("sentry.traces_sample_rate"),
     )
-    print(f"Loaded sentry logging at {sentry_dns}.")
+    logging.info("Loaded sentry logging at %s.", sentry_dns)
 else:
-    print("Not loading sentry because the sentry.dns config is empty or is missing.")
+    logging.info("Not loading sentry because the sentry.dns config is empty or is missing.")
 
 
 app = create_app(
