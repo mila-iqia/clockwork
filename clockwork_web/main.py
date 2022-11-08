@@ -48,11 +48,10 @@ if sentry_dns:
         integrations=[
             FlaskIntegration(),
         ],
-
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend having a lower value in production.
-        traces_sample_rate=get_config("sentry.traces_sample_rate")
+        traces_sample_rate=get_config("sentry.traces_sample_rate"),
     )
     print(f"Loaded sentry logging at {sentry_dns}.")
 else:
