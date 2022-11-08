@@ -36,7 +36,6 @@ register_config("sentry.dns", "", validator=string)
 register_config("sentry.traces_sample_rate", 1.0, validator=anything)
 
 sentry_dns = get_config("sentry.dns")
-# sentry_dns = "https://3147d934b4d64892a9ee8eaa66453024@o4504055550443520.ingest.sentry.io/4504101279367168"
 if sentry_dns:
     # Not sure about how sentry works, but it probably does
     # some behind-the-scenes things before the flask components
