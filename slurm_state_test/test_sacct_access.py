@@ -83,11 +83,11 @@ def test_mocked_sacct(monkeypatch, cluster_name):
     #  'sacct_path': '/opt/software/slurm/bin/sacct',
     #  'sacct_ssh_key_filename': 'id_clockwork'}
 
-    L_job_ids = ["2127660188", "43284723"]
+    L_job_ids = ["2281126", "2281130"]
     account = "mila" if cluster_name == "mila" else "rrg-bengioy-ad_gpu"
 
     # Yes, we have obtained those timestamps manually with a web site that does
-    # the conversion. The alternative is to just to reuse/duplicate the very function from
+    # the conversion. The alternative is to just reuse/duplicate the very function from
     # scontrol_parser.py that converts time, and that wouldn't be much of a unit test
     # if it's too circular.
     expected_LD_partial_slurm_jobs = [
@@ -130,7 +130,7 @@ def test_mocked_sacct(monkeypatch, cluster_name):
     # {account}|2127660188|aaa.bbb|2281130|2280887_4|train|COMPLETED|2022-09-18T16:42:14|2022-09-19T00:26:22|
     # """
 
-    # make it more realistic by having this message show up on CC clusters
+    # make it more realistic by having this message shown up on CC clusters
     expected_sacct_stderr = (
         ""
         if cluster_name == "mila"
