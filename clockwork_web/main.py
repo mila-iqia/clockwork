@@ -36,13 +36,14 @@ register_config("logging.journald", False, validator=boolean)
 
 
 logger = logging.getLogger()
-logger.setLevel(get_config('logging.level'))
+logger.setLevel(get_config("logging.level"))
 
 if get_config("logging.stderr"):
     logger.addHandler(logging.StreamHandler())
 
 if get_config("logging.journald"):
     from systemd.journal import JournalHandler
+
     logger.addHandler(JournalHandler())
 
 
@@ -70,7 +71,9 @@ if sentry_dns:
     )
     logging.info("Loaded sentry logging at %s.", sentry_dns)
 else:
-    logging.info("Not loading sentry because the sentry.dns config is empty or is missing.")
+    logging.info(
+        "Not loading sentry because the sentry.dns config is empty or is missing."
+    )
 
 
 app = create_app(
