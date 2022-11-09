@@ -68,7 +68,7 @@ def boolean(value):
 
 
 def integer(value):
-    if isintance(value, int):
+    if isinstance(value, int):
         return value
     raise ConfigError("expected integer")
 
