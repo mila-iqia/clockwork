@@ -10,9 +10,9 @@ traces_sample_rate=1.0
 [logging]
 # See https://docs.python.org/3/library/logging.html#levels for the levels
 level=40
-stderr=True
+stderr=true
 # journald requires systemd-python to enable
-journald=False
+journald=false
 
 [google]
 client_id=""
