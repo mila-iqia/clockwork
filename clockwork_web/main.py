@@ -11,6 +11,7 @@ That leads here, to this file, which is just a barebone launcher.
 
 from .config import get_config, register_config, boolean, string, integer, anything
 from .server_app import create_app
+import logging
 
 """
 By default, we require only environment variable "MONGODB_CONNECTION_STRING"
@@ -33,7 +34,6 @@ register_config("sentry.traces_sample_rate", 1.0, validator=anything)
 register_config("logging.level", 40, validator=integer)
 register_config("logging.stderr", True, validator=boolean)
 register_config("logging.journald", False, validator=boolean)
-
 
 logger = logging.getLogger()
 logger.setLevel(get_config("logging.level"))
