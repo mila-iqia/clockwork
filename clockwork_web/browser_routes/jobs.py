@@ -111,7 +111,9 @@ def route_list():
             time1 = float(time1)
             f1 = get_filter_after_end_time(end_time=time.time() - time1)
         except Exception:
-            app.logger.debug("for time %s", time1, exc_info=True)
+            from flask import current_app
+
+            current_app.logger.debug("for time %s", time1, exc_info=True)
             return (
                 render_template_with_user_settings(
                     "error.html",

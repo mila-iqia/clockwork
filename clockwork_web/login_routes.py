@@ -188,7 +188,9 @@ def route_callback():
         )
 
     login_user(user)
-    app.logger.debug(
+    from flask import current_app
+
+    current_app.logger.debug(
         "called login_user(user) for user with email %s, user.is_authenticated is %s",
         user.mila_email_username,
         user.is_authenticated(),
