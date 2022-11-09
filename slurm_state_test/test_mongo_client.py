@@ -1,7 +1,7 @@
 import pytest
 import os
 
-from slurm_state.mongo_client import *
+from slurm_state.mongo_client import get_mongo_client
 
 
 def test_get_mongo_client():
