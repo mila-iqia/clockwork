@@ -273,7 +273,7 @@ def main_read_jobs_and_update_collection(
     ):
 
         print(
-            f"Going to use sacct remotely to {cluster_name} get information about jobs {S_job_ids_to_retrieve_with_sacct}."
+            f"Going to use sacct remotely to {cluster_name} to get information about jobs {S_job_ids_to_retrieve_with_sacct}."
         )
 
         # Fetch the partial job updates with sacct for those jobs that slipped
@@ -340,10 +340,10 @@ def main_read_jobs_and_update_collection(
             )
         elif not S_job_ids_to_retrieve_with_sacct:
             print(
-                f"Not going to call sacct because we don't any jobs to query in that way."
+                f"Not going to call sacct because we don't have any jobs to query in that way."
             )
 
-    # And now for the very rare occasion when we have a user who wants
+    # And now for the very rare occasions when we have a user who wants
     # to associate their account on the external cluster (e.g. Compute Canada).
 
     for D_job in LD_jobs_scontrol:

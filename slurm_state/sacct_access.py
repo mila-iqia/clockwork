@@ -238,7 +238,7 @@ def fetch_data_with_sacct_on_remote_clusters(cluster_name: str, L_job_ids: list[
                     D_partial_slurm_job["array_task_id"] = m.group(2)
                 else:
                     print(
-                        "Error. We've indentified a situation where all our expectations are broken.\n"
+                        "Error. We've identified a situation where all our expectations are broken.\n"
                         "We have a situation where we suspected that we had an array job id plus array task id situation but we cannot parse it properly."
                         f'(row["JobID"], row["JobIDRaw"]) is ({row["JobID"]}, {row["JobIDRaw"]})'
                     )
