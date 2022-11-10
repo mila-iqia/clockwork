@@ -128,10 +128,7 @@ def get_jobs(
         # Moreover, in situations where a lot of data was present,
         # e.g. 1-2 months of historical data, this has caused errors
         # on the server because not enough memory was allocated to perform the sorting.
-        LD_jobs = list(
-            mc["jobs"]
-            .find(mongodb_filter)
-        )
+        LD_jobs = list(mc["jobs"].find(mongodb_filter))
 
     # Set nbr_total_jobs
     if want_count:
