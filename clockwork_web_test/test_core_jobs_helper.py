@@ -103,6 +103,14 @@ def test_get_and_count_jobs_without_filters_or_pagination(app, fake_data):
             strip_artificial_fields_from_job(D_job) for D_job in LD_retrieved_jobs
         ]
 
+
+        # Now that we've removed the automatic sorting for REST,
+        # we need to sort them ourselves if we want them sorted.
+        LD_retrieved_jobs = list(sorted(
+            LD_retrieved_jobs,
+            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+        ))
+
         # Sort the jobs contained in the fake data by submit time, then by job id
         sorted_all_jobs = sorted(
             fake_data["jobs"],
