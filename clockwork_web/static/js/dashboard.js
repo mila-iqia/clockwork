@@ -302,6 +302,11 @@ function launch_refresh_all_data(query_filter, display_filter) {
       url = url + "&username=" + query_filter["username"];
     };
 
+    // The following lines are commented alongside the call to make_pagination
+    // below because we do not want to add pagination on the dashboard for now.
+    //page_num = document.getElementById('page_num').value;
+    //url = url + "&page_num=" + page_num;
+    
     // Send the request, and retrieve the response
     const request = new Request(url,
         {   method: 'GET',
@@ -331,9 +336,6 @@ function refresh_display(display_filter) {
         Clear and populate the jobs table with the latest response content,
         filtered by the "display filters" given as parameters.
     */
-
-    page_num = document.getElementById('page_num').value;
-
     latest_filtered_response_contents = apply_filter(latest_response_contents["jobs"], display_filter);
     alljobs_filtered = apply_filter(latest_response_contents["jobs"], display_filter);
     
@@ -341,17 +343,12 @@ function refresh_display(display_filter) {
         
     //for testing only - use a smaller number
     //nbr_items_per_page = 3;
-    nbr_items_per_page = display_filter['num_per_page'];
-    
-    nbr_pages = Math.ceil(total_jobs / nbr_items_per_page);
 
-    //latest_filtered_response_contents = latest_filtered_response_contents.slice(latest_response_contents["jobs"], nbr_items_per_page);
-
-    const paginate = (array, pageSize, pageNumber) => {
-        return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
-    }
-
-    latest_filtered_response_contents = paginate(latest_filtered_response_contents, nbr_items_per_page, page_num);
+    // The following lines are commented because we do not want to add pagination
+    // on the dashboard for now.
+    //page_num = document.getElementById('page_num').value;
+    //nbr_items_per_page = display_filter['num_per_page'];
+    //nbr_pages = Math.ceil(total_jobs / nbr_items_per_page);
 
     vacate_table(); // idempotent if not table is present
     populate_table(latest_filtered_response_contents);
@@ -367,7 +364,9 @@ function refresh_display(display_filter) {
     count_jobs(alljobs_filtered);
 
     //kaweb - build pagination here
-    make_pagination(page_num, nbr_items_per_page, total_jobs)
+    // The following line is commented because we do not want to add pagination
+    // on the dashboard for now.
+    //make_pagination(page_num, nbr_items_per_page, total_jobs)
 }
 
 /*
