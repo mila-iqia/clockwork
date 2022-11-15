@@ -92,23 +92,20 @@ def route_list():
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
     previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
 
-    # The default pagination parameters are different whether or not a JSON response is requested
-    if want_json:
-        if not pagination_page_num and not pagination_nbr_items_per_page:
-            # - If neither the number of the page (page_num) nor the number of items to display per page (nbr_items_per_page)
-            #   are provided, we assume there is no pagination
+    # The default pagination parameters are different whether or not a JSON response is requested.
+    # This is because we are using `want_json=True` along with no pagination arguments for a special
+    # case when we want to retrieve all the jobs in the dashboard for a given user.
+    # There is a certain notion with `want_json` that we are retrieving the data for the purposes
+    # of listing them exhaustively, and not just for displaying them with scroll bars in some HTML page.
+    if (want_json
+        and not pagination_page_num and not pagination_nbr_items_per_page):
+            # In this particular case, we set the default pagination arguments to be `None`,
+            # which will effectively disable pagination.
             nbr_skipped_items = None
             nbr_items_to_display = None
-        else:
-            # - Otherwise (ie if at least one of the pagination parameters is provided), we assume that a pagination
-            #   is expected from the user
-            (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
-                current_user.mila_email_username,
-                pagination_page_num,
-                pagination_nbr_items_per_page,
-            )
     else:
-        # Use the pagination helper to define the number of elements to skip, and the number of elements to display
+        # Otherwise (ie if at least one of the pagination parameters is provided),
+        # we assume that a pagination is expected from the user.
         (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
             current_user.mila_email_username,
             pagination_page_num,
