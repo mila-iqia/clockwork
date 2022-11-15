@@ -81,6 +81,15 @@ def string_list(value):
     return value
 
 
+def string_choices(*choices):
+    def _valid(value):
+        if value not in choices:
+            raise ConfigError("expected one of these options: {choices}")
+        return value
+
+    return _valid
+
+
 def timezone(value):
     try:
         return zoneinfo.ZoneInfo(value)

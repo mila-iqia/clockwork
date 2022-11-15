@@ -31,12 +31,24 @@ register_config("flask.login_disabled", False, validator=boolean)
 register_config("sentry.dns", "", validator=string)
 register_config("sentry.traces_sample_rate", 1.0, validator=anything)
 
-register_config("logging.level", 40, validator=integer)
+LOGGING_LEVEL_MAPPING = dict(
+    everything=logging.NOTSET,
+    debug=logging.DEBUG,
+    info=logging.INFO,
+    warning=logging.WARNING,
+    error=logging.ERROR,
+    critical=logging.CRITICAL,
+)
+register_config(
+    "logging.level", "error", validator=string_choices(*LOGGING_LEVEL_MAPPING.keys())
+)
+
 register_config("logging.stderr", True, validator=boolean)
 register_config("logging.journald", False, validator=boolean)
 
 logger = logging.getLogger()
-logger.setLevel(get_config("logging.level"))
+
+logger.setLevel(LOGGING_LEVEL_MAPPING[get_config("logging.level")])
 
 if get_config("logging.stderr"):
     logger.addHandler(logging.StreamHandler())
