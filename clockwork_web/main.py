@@ -9,7 +9,15 @@ so that gcloud can run it with the equivalent of
 That leads here, to this file, which is just a barebone launcher.
 """
 
-from .config import get_config, register_config, boolean, string, integer, anything, string_choices
+from .config import (
+    get_config,
+    register_config,
+    boolean,
+    string,
+    integer,
+    anything,
+    string_choices,
+)
 from .server_app import create_app
 import logging
 
