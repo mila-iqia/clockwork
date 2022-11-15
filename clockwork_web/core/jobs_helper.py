@@ -121,11 +121,14 @@ def get_jobs(
         )
 
     else:
-        LD_jobs = list(
-            mc["jobs"]
-            .find(mongodb_filter)
-            .sort([["slurm.submit_time", 1], ["slurm.job_id", 1]])
-        )
+        # Here we don't want to sort the results because we are returning
+        # all of them to the user. Sorting would impose a cost to the MongoDB server
+        # and since we are returning all the matches, the client can sort
+        # the results locally if they wish.
+        # Moreover, in situations where a lot of data was present,
+        # e.g. 1-2 months of historical data, this has caused errors
+        # on the server because not enough memory was allocated to perform the sorting.
+        LD_jobs = list(mc["jobs"].find(mongodb_filter))
 
     # Set nbr_total_jobs
     if want_count:

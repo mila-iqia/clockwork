@@ -9,35 +9,6 @@ from clockwork_web.db import get_db
 from clockwork_web.core.pagination_helper import get_pagination_values
 
 
-def test_get_jobs_without_filters_or_pagination(app, fake_data):
-    """
-    Test the function get_jobs when it lists all the jobs.
-
-    Parameters:
-        app         The scope of our tests, used to set the context (to access MongoDB)
-        fake_data   The data on which our tests are based
-    """
-    # Use the app context
-    with app.app_context():
-        # Retrieve the jobs we want to list
-        (LD_retrieved_jobs, jobs_count) = get_jobs()
-
-        # Withdraw the "_id" element of the retrieved jobs
-        LD_retrieved_jobs = [
-            strip_artificial_fields_from_job(D_job) for D_job in LD_retrieved_jobs
-        ]
-
-        # Sort the jobs contained in the fake data by submit time, then by job id
-        sorted_all_jobs = sorted(
-            fake_data["jobs"],
-            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
-        )
-
-        # Assert that they correspond to the jobs we expect
-        assert LD_retrieved_jobs == sorted_all_jobs
-        assert jobs_count == None
-
-
 @pytest.mark.parametrize(
     "page_num,nbr_items_per_page", [(1, 10), (0, 22), ("blbl", 30), (True, 5), (3, 14)]
 )
@@ -85,9 +56,10 @@ def test_get_jobs_with_pagination(app, fake_data, page_num, nbr_items_per_page):
         assert jobs_count == None
 
 
-def test_get_and_count_jobs_without_filters_or_pagination(app, fake_data):
+@pytest.mark.parametrize("want_count", [(True, False)])
+def test_get_and_count_jobs_without_filters_or_pagination(app, fake_data, want_count):
     """
-    Test the function get_jobs when want_count is True and all the jobs are requested.
+    Test the function get_jobs when want_count is True/False and all the jobs are requested.
 
     Parameters:
         app         The scope of our tests, used to set the context (to access MongoDB)
@@ -96,25 +68,39 @@ def test_get_and_count_jobs_without_filters_or_pagination(app, fake_data):
     # Use the app context
     with app.app_context():
         # Retrieve the jobs we want to list
-        (LD_retrieved_jobs, nbr_total_jobs) = get_jobs(want_count=True)
+        (LD_retrieved_jobs, nbr_total_jobs) = get_jobs(want_count=want_count)
 
         # Withdraw the "_id" element of the retrieved jobs
         LD_retrieved_jobs = [
             strip_artificial_fields_from_job(D_job) for D_job in LD_retrieved_jobs
         ]
 
-        # Sort the jobs contained in the fake data by submit time, then by job id
-        sorted_all_jobs = sorted(
-            fake_data["jobs"],
-            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+        # Now that we've removed the automatic sorting for REST,
+        # we need to sort them ourselves if we want them sorted.
+        LD_retrieved_jobs = list(
+            sorted(
+                LD_retrieved_jobs,
+                key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+            )
         )
 
-        # Assert that they correspond to the jobs we expect
-        assert LD_retrieved_jobs == sorted_all_jobs
+        # Sort the jobs contained in the fake data by submit time, then by job id
+        LD_truth_jobs = list(
+            sorted(
+                fake_data["jobs"],
+                key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+            )
+        )
 
-        # Assert that the number nbr_total_jobs correspond to the filters without pagination
-        # Here, we do not use filter nor pagination. Thus, this number should be the number of jobs
-        assert nbr_total_jobs == len(sorted_all_jobs)
+        if want_count:
+            # Assert that the number nbr_total_jobs correspond to the filters without pagination
+            # Here, we do not use filter nor pagination. Thus, this number should be the number of jobs.
+            assert nbr_total_jobs == len(LD_truth_jobs)
+        else:
+            assert nbr_total_jobs == None
+
+        # Assert that they correspond to the jobs we expect
+        assert LD_retrieved_jobs == LD_truth_jobs
 
 
 @pytest.mark.parametrize(

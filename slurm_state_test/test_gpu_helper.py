@@ -4,7 +4,11 @@ Tests for slurm_state.helpers.gpu_helper
 
 import pytest
 
-from slurm_state.helpers.gpu_helper import *
+from slurm_state.helpers.gpu_helper import (
+    get_gres_dict,
+    get_cw_gpu_name,
+    get_cw_gres_description,
+)
 
 
 def test_get_gres_dict():

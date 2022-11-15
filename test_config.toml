@@ -3,6 +3,10 @@ testing=true
 login_disabled=true
 secret_key="testing_secret_key"
 
+[sentry]
+dns=""
+traces_sample_rate=1.0
+
 [google]
 client_id=""
 client_secret=""
@@ -21,6 +25,7 @@ nbr_items_per_page=25
 dark_mode=false
 language="en"
 
+
 [clusters.mila]
 account_field="mila_cluster_username"
 update_field=false
@@ -31,7 +36,11 @@ nbr_cpus=4860
 nbr_gpus=532
 official_documentation="https://docs.mila.quebec/Information.html"
 display_order=1
-
+remote_user="mila-automation"
+remote_hostname="clockwork-stats"
+sacct_enabled=true
+sacct_path="/opt/slurm/bin/sacct"
+sacct_ssh_key_filename="id_clockwork"
 
 [clusters.beluga]
 account_field="cc_account_username"
@@ -44,7 +53,11 @@ nbr_gpus=696
 official_documentation="https://docs.alliancecan.ca/wiki/B%C3%A9luga"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#beluga"
 display_order=4
-
+remote_user="mila-automation"
+remote_hostname="beluga.computecanada.ca"
+sacct_enabled=false
+sacct_path="/opt/software/slurm/bin/sacct"
+sacct_ssh_key_filename="id_clockwork"
 
 [clusters.graham]
 account_field="cc_account_username"
@@ -57,7 +70,11 @@ nbr_gpus=536
 official_documentation="https://docs.alliancecan.ca/wiki/Graham"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#graham"
 display_order=5
-
+remote_user="mila-automation"
+remote_hostname="graham.computecanada.ca"
+sacct_enabled=false
+sacct_path="/opt/software/slurm/bin/sacct"
+sacct_ssh_key_filename="id_clockwork"
 
 [clusters.cedar]
 account_field="cc_account_username"
@@ -70,7 +87,11 @@ nbr_gpus=1352
 official_documentation="https://docs.alliancecan.ca/wiki/Cedar"
 mila_documentation="https://docs.mila.quebec/Extra_compute.html#cedar"
 display_order=3
-
+remote_user="mila-automation"
+remote_hostname="cedar.computecanada.ca"
+sacct_enabled=false
+sacct_path="/opt/software/slurm/bin/sacct"
+sacct_ssh_key_filename="id_clockwork"
 
 [clusters.narval]
 account_field="cc_account_username"
@@ -82,7 +103,11 @@ nbr_cpus=2608
 nbr_gpus=636
 official_documentation="https://docs.alliancecan.ca/wiki/Narval"
 display_order=2
-
+remote_user="mila-automation"
+remote_hostname="narval.computecanada.ca"
+sacct_enabled=false
+sacct_path="/opt/software/slurm/bin/sacct"
+sacct_ssh_key_filename="id_clockwork"
 
 [clockwork.test]
 email="student01@mila.quebec"
