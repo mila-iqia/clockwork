@@ -97,12 +97,11 @@ def route_list():
     # case when we want to retrieve all the jobs in the dashboard for a given user.
     # There is a certain notion with `want_json` that we are retrieving the data for the purposes
     # of listing them exhaustively, and not just for displaying them with scroll bars in some HTML page.
-    if (want_json
-        and not pagination_page_num and not pagination_nbr_items_per_page):
-            # In this particular case, we set the default pagination arguments to be `None`,
-            # which will effectively disable pagination.
-            nbr_skipped_items = None
-            nbr_items_to_display = None
+    if want_json and not pagination_page_num and not pagination_nbr_items_per_page:
+        # In this particular case, we set the default pagination arguments to be `None`,
+        # which will effectively disable pagination.
+        nbr_skipped_items = None
+        nbr_items_to_display = None
     else:
         # Otherwise (ie if at least one of the pagination parameters is provided),
         # we assume that a pagination is expected from the user.
