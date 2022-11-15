@@ -7,6 +7,12 @@ secret_key="testing_secret_key"
 dns=""
 traces_sample_rate=1.0
 
+[logging]
+level="error"
+stderr=true
+# journald requires systemd-python to enable
+journald=false
+
 [google]
 client_id=""
 client_secret=""

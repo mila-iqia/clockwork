@@ -1,6 +1,11 @@
 # Don't forget to sync changes with
+#  - clockwork_web/config.py
 #  - slurm_state/config.py
 #  - scripts_test/config.py
+
+###
+# Don't use logging in this file
+###
 
 import os
 import copy
@@ -62,12 +67,27 @@ def boolean(value):
     raise ConfigError("expected boolean")
 
 
+def integer(value):
+    if isinstance(value, int):
+        return value
+    raise ConfigError("expected integer")
+
+
 def string_list(value):
     if not isinstance(value, list):
         raise ConfigError("expected list")
     if any(not isinstance(v, str) for v in value):
         raise ConfigError("non-strings in list")
     return value
+
+
+def string_choices(*choices):
+    def _valid(value):
+        if value not in choices:
+            raise ConfigError("expected one of these options: {choices}")
+        return value
+
+    return _valid
 
 
 def timezone(value):

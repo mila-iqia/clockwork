@@ -9,9 +9,17 @@ so that gcloud can run it with the equivalent of
 That leads here, to this file, which is just a barebone launcher.
 """
 
-from .config import get_config, register_config, boolean, string, anything
+from .config import (
+    get_config,
+    register_config,
+    boolean,
+    string,
+    integer,
+    anything,
+    string_choices,
+)
 from .server_app import create_app
-
+import logging
 
 """
 By default, we require only environment variable "MONGODB_CONNECTION_STRING"
@@ -30,6 +38,34 @@ register_config("flask.login_disabled", False, validator=boolean)
 
 register_config("sentry.dns", "", validator=string)
 register_config("sentry.traces_sample_rate", 1.0, validator=anything)
+
+LOGGING_LEVEL_MAPPING = dict(
+    everything=logging.NOTSET,
+    debug=logging.DEBUG,
+    info=logging.INFO,
+    warning=logging.WARNING,
+    error=logging.ERROR,
+    critical=logging.CRITICAL,
+)
+register_config(
+    "logging.level", "error", validator=string_choices(*LOGGING_LEVEL_MAPPING.keys())
+)
+
+register_config("logging.stderr", True, validator=boolean)
+register_config("logging.journald", False, validator=boolean)
+
+logger = logging.getLogger()
+
+logger.setLevel(LOGGING_LEVEL_MAPPING[get_config("logging.level")])
+
+if get_config("logging.stderr"):
+    logger.addHandler(logging.StreamHandler())
+
+if get_config("logging.journald"):
+    from systemd.journal import JournalHandler
+
+    logger.addHandler(JournalHandler())
+
 
 sentry_dns = get_config("sentry.dns")
 if sentry_dns:
@@ -53,9 +89,12 @@ if sentry_dns:
         # We recommend having a lower value in production.
         traces_sample_rate=get_config("sentry.traces_sample_rate"),
     )
-    print(f"Loaded sentry logging at {sentry_dns}.")
+    logging.info("Loaded sentry logging at %s.", sentry_dns)
 else:
-    print("Not loading sentry because the sentry.dns config is empty or is missing.")
+    logging.info(
+        "Not loading sentry because the sentry.dns config is empty or is missing."
+    )
+
 
 app = create_app(
     extra_config={
