@@ -6,7 +6,6 @@ import requests
 import time
 from collections import defaultdict
 
-
 # Use of "Markup" described there to avoid Flask escaping it when passing to a template.
 # https://stackoverflow.com/questions/3206344/passing-html-to-template-using-flask-jinja2
 
@@ -111,8 +110,10 @@ def route_list():
         try:
             time1 = float(time1)
             f1 = get_filter_after_end_time(end_time=time.time() - time1)
-        except Exception as inst:
-            print(inst)
+        except Exception:
+            from flask import current_app
+
+            current_app.logger.debug("for time %s", time1, exc_info=True)
             return (
                 render_template_with_user_settings(
                     "error.html",
