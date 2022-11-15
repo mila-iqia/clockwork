@@ -10,12 +10,6 @@
 
 			<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-			{% if web_settings["dark_mode"] %}
-				<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
-			{% endif %}
-
-			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}"> -->
-
 			<link rel="preconnect" href="https://fonts.googleapis.com">
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 			<link href="https://fonts.googleapis.com/css2?family=Asap+Condensed:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -46,6 +40,12 @@
 				var web_settings = {% autoescape false %} JSON.parse('{{web_settings_json_str}}') {% endautoescape %}
             </script>
 
+            {% if web_settings["dark_mode"] ==  true %}
+				<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+			{% endif %}
+
+			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}"> -->
+
 
 			<script type="text/javascript" src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
 
@@ -57,20 +57,22 @@
 			{% endblock %}
 	</head>
 	<body>
-		<div class="container-fluid px-0">
-			<div class="top align-items-center row g-0">
-				<div class="col-xxl-1 d-none d-xxl-block"></div>
+		<!-- delete or change this as needed -->
+		<div class="ribbon alpha">
+			<h4><span></span></h4>
+			<p>Clockwork is currently in active development. Feel free to report bugs using the <a href="#">feedback form</a>.</p>
+		</div>
+
+		<div class="container-fluid">
+			<div class="top align-items-center row">
+				<div class="col-xl-1 d-none d-xl-block"></div>
 				<div class="col">
 					<a href="{{url_for('index')}}">
-						
-						{# "web_settings" appears to be undefined outside of the settings page.
-							{% if web_settings["dark_mode"] %}
-								<img class="logo" src="{{ url_for('static', filename='images/dark-logo_cw.png')}}" />
-							{% else %}
-								<img class="logo" src="{{ url_for('static', filename='images/logo_cw.png')}}" />
-							{% endif %}
-						#}
-						<img class="logo" src="{{ url_for('static', filename='images/logo_cw.png')}}" />
+						{% if web_settings["dark_mode"] ==  true %}
+							<img class="logo" src="{{ url_for('static', filename='images/dark-logo_cw.png')}}" />
+						{% else %}
+							<img class="logo" src="{{ url_for('static', filename='images/logo_cw.png')}}" />
+						{% endif %}
 					</a>
 				</div>
 				
@@ -120,7 +122,7 @@
 						<!-- not logged in -->
 					{% endif %}
 				</div>
-				<div class="col-xxl-1 d-none d-xxl-block"></div>
+				<div class="col-xl-1 d-none d-xl-block"></div>
 			</div>
 		</div>
 
@@ -128,7 +130,7 @@
 		{% if request.path != '/jobs/interactive' and current_user.is_authenticated %}
 			<!-- Search jobs form -->
 			<div id="formBlock">
-				<div class="search_button formCollapse collapse" id="mainCollapse">
+				<div class="search_button formCollapse {{ 'collapse' if request.path != '/jobs/search' }} {{ 'show' if request.path == '/jobs/search' }}" id="mainCollapse">
 					<div class="container">
 						<div class="row">
 			                <div class="col-12">
@@ -141,7 +143,7 @@
 			            </div> <!-- end header row -->
 			        </div>
 
-					<div class="searchform formCollapse collapse" id="collapseForm">
+					<div class="searchform formCollapse {{ 'collapse' if request.path != '/jobs/search' }} {{ 'show' if request.path == '/jobs/search' }}" id="collapseForm">
 				        <div class="container">
 				            <form class="searchform" method="get">
 				                <div class="row">
@@ -217,9 +219,15 @@
 												<!-- toggle for a cluster-->
 												<div class="cc_toggle_zone_row">
 													<!-- official documentation-->
-													<a href="{{D_cluster['official_documentation']}}" target="_blank">
-														<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
-													</a>
+													{% if D_cluster['official_documentation'] %}
+														<a href="{{D_cluster['official_documentation']}}" target="_blank">
+															<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
+														</a>
+													{% else %}
+														<a class="disabled">
+															<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="No documentation available"></i>
+														</a>
+													{% endif %}
 													<!-- Grafana -->
 													<a href="https://dashboard.server.mila.quebec/" target="_blank">
 														<i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
