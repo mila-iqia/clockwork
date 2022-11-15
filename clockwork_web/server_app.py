@@ -36,6 +36,9 @@ from .config import register_config, get_config, string, string_list, timezone
 
 from .core.users_helper import render_template_with_user_settings
 
+
+from werkzeug.urls import url_encode
+
 register_config("flask.secret_key", validator=string)
 register_config("translation.translations_folder", default="", validator=string)
 register_config("translation.available_languages", default=[], validator=string_list)
@@ -105,6 +108,16 @@ def create_app(extra_config: dict):
     app.config["BABEL_TRANSLATION_DIRECTORIES"] = get_config(
         "translation.translations_folder"
     )
+
+    # Adding a function to help with updating url params from the template
+    @app.template_global()
+    def modify_query(**new_values):
+        args = request.args.copy()
+
+        for key, value in new_values.items():
+            args[key] = value
+
+        return "{}?{}".format(request.path, url_encode(args))
 
     # Initialize Babel
     babel = Babel(app)

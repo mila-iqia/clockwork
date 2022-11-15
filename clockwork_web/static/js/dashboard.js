@@ -8,6 +8,7 @@
         refresh_display(display_filter)
 */
 
+
 //date stuff
 var TimeAgo = (function() {
 var self = {};
@@ -81,6 +82,164 @@ const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html al
 var latest_response_contents; // Stores the content of the latest response received
 var latest_filtered_response_contents; // Results in applying filters on the latest response contents
 
+var page_num;
+
+function incrementValue()
+{
+    var value = parseInt(document.getElementById('page_num').value, 10);
+    value = isNaN(value) ? 0 : value;
+    if(value<10){
+        value++;
+            document.getElementById('page_num').value = value;
+    }
+    //console.log(value);
+    launch_refresh_all_data(query_filter, display_filter);
+}
+function decrementValue()
+{
+    var value = parseInt(document.getElementById('page_num').value, 10);
+    value = isNaN(value) ? 0 : value;
+    if(value>1){
+        value--;
+            document.getElementById('page_num').value = value;
+    }
+    //console.log(value);
+    launch_refresh_all_data(query_filter, display_filter);
+}
+
+function changeValue(newval) {
+    var value = parseInt(document.getElementById('page_num').value, 10);
+    value = newval;
+    document.getElementById('page_num').value = value;
+    launch_refresh_all_data(query_filter, display_filter);
+}
+
+// unfinished, need more info
+function removeAllChildNodes(parent) {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+}
+function make_pagination(page_num, nbr_items_per_page, total_items) {
+    var TotalPages = Math.ceil(total_items / nbr_items_per_page);
+ 
+    let pagingDiv = document.getElementById("pagingDiv");
+    removeAllChildNodes(pagingDiv);
+    if (TotalPages > 1) { 
+        if (+page_num > 1) {
+            // if has more than one page, add a PREVIOUS link
+            const prevLI = document.createElement('li')
+            const prevLink = document.createElement('a')
+            const prevI = document.createElement('i');
+            prevI.className = "fa-solid fa-caret-left";
+
+            pagingDiv.appendChild(prevLI);
+            prevLI.appendChild(prevLink);
+            prevLink.appendChild(prevI);
+
+            prevLink.addEventListener('click', decrementValue)
+
+        } else {
+            // otherwise, add a PREVIOUS span
+            const prevLI = document.createElement('li');
+            const prevSpan = document.createElement('span');
+            const prevI = document.createElement('i');
+            prevI.className = "fa-solid fa-caret-left";
+
+            pagingDiv.appendChild(prevLI);
+            prevLI.appendChild(prevSpan);
+            prevSpan.appendChild(prevI);
+        }
+        
+        for (var i = 1; i <= TotalPages; i++) {
+            if (i >= 1) {
+                if (+page_num != i) {
+                    const prevLI = document.createElement('li')
+                    const pageLink = document.createElement('a')
+                    pageLink.textContent=i;
+
+                    pagingDiv.appendChild(prevLI);
+                    prevLI.appendChild(pageLink);
+                    
+                    pageLink.addEventListener('click', changeValue.bind(null, i))
+
+                } else {
+                    const prevLI = document.createElement('li')
+                    const pageSpan = document.createElement('span')
+                    pageSpan.textContent=i;
+                    prevLI.className = "current";
+
+                    pagingDiv.appendChild(prevLI);
+                    prevLI.appendChild(pageSpan);
+                }
+            }
+        }
+
+        if (+page_num < TotalPages) {
+            // if not on the last page, add a NEXT link
+            const nextLI = document.createElement('li')
+            const nextLink = document.createElement('a')
+            const nextI = document.createElement('i');
+            nextI.className = "fa-solid fa-caret-right";
+
+            pagingDiv.appendChild(nextLI);
+            nextLI.appendChild(nextLink);
+            nextLink.appendChild(nextI);
+
+            nextLink.addEventListener('click', incrementValue)
+
+        } else {
+            // if on the last page, add a NEXT span
+            const prevLI = document.createElement('li')
+            const nextSpan = document.createElement('span')
+            const nextI = document.createElement('i');
+            nextI.className = "fa-solid fa-caret-right";
+
+            pagingDiv.appendChild(prevLI);
+            prevLI.appendChild(nextSpan);
+            nextSpan.appendChild(nextI);
+
+        }
+    }
+}
+
+function count_jobs(response_contents) {
+
+    let completed = document.getElementById("dashboard_completed");
+    let running = document.getElementById("dashboard_running");
+    let pending = document.getElementById("dashboard_pending");
+    let stalled = document.getElementById("dashboard_stalled");
+
+    let counter_completed = 0;
+    let counter_running = 0;
+    let counter_pending = 0;
+    let counter_stalled = 0;
+
+    /* then add the information for all the jobs */
+    [].forEach.call(response_contents, function(D_job) {
+        D_job_slurm = D_job["slurm"];
+        job_state = D_job_slurm["job_state"].toLowerCase();
+
+        if (job_state == "completed") {
+            counter_completed++;
+        } 
+        if (job_state == "running" || job_state == "completing") {
+            counter_running++;
+        } 
+        if (job_state == "pending") {
+            counter_pending++;
+        } 
+        if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled") {
+            counter_stalled++;
+        } 
+    });
+    completed.textContent = counter_completed;
+    running.textContent = counter_running;
+    pending.textContent = counter_pending;
+    stalled.textContent = counter_stalled;
+
+}
+
 function format_date(timestamp) {
     /*
         Format a timestamp in order to display it in the following format:
@@ -143,6 +302,11 @@ function launch_refresh_all_data(query_filter, display_filter) {
       url = url + "&username=" + query_filter["username"];
     };
 
+    // The following lines are commented alongside the call to make_pagination
+    // below because we do not want to add pagination on the dashboard for now.
+    //page_num = document.getElementById('page_num').value;
+    //url = url + "&page_num=" + page_num;
+    
     // Send the request, and retrieve the response
     const request = new Request(url,
         {   method: 'GET',
@@ -173,20 +337,37 @@ function refresh_display(display_filter) {
         filtered by the "display filters" given as parameters.
     */
     latest_filtered_response_contents = apply_filter(latest_response_contents["jobs"], display_filter);
+    alljobs_filtered = apply_filter(latest_response_contents["jobs"], display_filter);
+    
+    total_jobs = latest_response_contents["nbr_total_jobs"];
+        
+    //for testing only - use a smaller number
+    //nbr_items_per_page = 3;
+
+    // The following lines are commented because we do not want to add pagination
+    // on the dashboard for now.
+    //page_num = document.getElementById('page_num').value;
+    //nbr_items_per_page = display_filter['num_per_page'];
+    //nbr_pages = Math.ceil(total_jobs / nbr_items_per_page);
+
     vacate_table(); // idempotent if not table is present
     populate_table(latest_filtered_response_contents);
     //kaweb - for some reason, the sortable init only works on reload/first load, not after changing filters
-    Sortable.init();
+    //Sortable.init();
     //kaweb - tooltips work though
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)
     });
+
     //kaweb - attempt to count results
-    count_jobs(latest_filtered_response_contents);
+    count_jobs(alljobs_filtered);
+
+    //kaweb - build pagination here
+    // The following line is commented because we do not want to add pagination
+    // on the dashboard for now.
+    //make_pagination(page_num, nbr_items_per_page, total_jobs)
 }
-
-
 
 /*
     Helpers:
@@ -196,7 +377,6 @@ function refresh_display(display_filter) {
         populate_table(response_contents)
         apply_filter(response_contents, display_filter)
 */
-
 
 // https://www.javascripttutorial.net/dom/manipulating/remove-all-child-nodes/
 function removeAllChildNodes(parent) {
@@ -303,8 +483,13 @@ function populate_table(response_contents) {
         td = document.createElement('td'); td.innerHTML = (D_job_slurm["name"] ? D_job_slurm["name"] : "").substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
         //td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
         //kaweb - using the job state as a shorthand to insert icons through CSS
-        td = document.createElement('td'); td.innerHTML = (
-            "<span class=\"status " + job_state + "\">" + job_state + "</span>"); tr.appendChild(td);
+        td = document.createElement('td'); 
+        td.className = "state";
+        
+        var formatted_job_state = job_state.replace(/_/g, " ");
+        
+        td.innerHTML = (
+            "<span class=\"status " + job_state + "\">" + formatted_job_state + "</span>"); tr.appendChild(td);
 
         // start time
         td = document.createElement('td');
@@ -352,7 +537,7 @@ function populate_table(response_contents) {
         td = document.createElement('td'); 
         td.className = "actions";
         td.innerHTML = (
-            "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-ban'></i></a>"
+            "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>"
         ); 
         tr.appendChild(td);
 
@@ -369,6 +554,7 @@ function populate_table(response_contents) {
             */
 
 }
+
 
 function count_jobs(response_contents) {
 

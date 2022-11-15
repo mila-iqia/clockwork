@@ -54,6 +54,8 @@
                 "PREEMPTED": status_any_errors
             }
 
+            display_filter["num_per_page"] = web_settings["nbr_items_per_page"];
+
         }
 
         var readableusername = retrieve_username_from_email("{{ mila_email_username }}");
@@ -96,7 +98,7 @@
     </script>
 {% endblock %}
 {% block content %}
-    <div class="dashboard_bg searchform">
+    <div id="formBlock" class="dashboard_bg searchform">
         <div class="container">
             <div class="row">
                 <div class="col-12">
@@ -110,20 +112,20 @@
 
             <div class="row dashboard_job">
                 <div class="col-md-3 col-xs-12">
-                    <div class="wrapper running">
-                        <i class="fa-solid fa-timer"></i>
-                        <span id="dashboard_running" class="num"></span>
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                        <p>{{ gettext("Running jobs") }}</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-xs-12">
                     <div class="wrapper completed">
                         <i class="fa-solid fa-badge-check"></i>
                         <span id="dashboard_completed" class="num"></span>
                         <i class="fa-solid fa-arrows-rotate"></i>
                         <p>{{ gettext("Completed jobs") }}</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-xs-12">
+                    <div class="wrapper running">
+                        <i class="fa-solid fa-timer"></i>
+                        <span id="dashboard_running" class="num"></span>
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <p>{{ gettext("Running jobs") }}</p>
                     </div>
                 </div>
 
@@ -168,19 +170,16 @@
 
                 <!-- <h1>{{channel_title}}</h1> -->
 
-                <table class="table table-striped table-hover table-responsive" data-sortable id="dashboard_table">
+                <table class="table table-striped table-hover table-responsive" id="dashboard_table">
                     <!-- This table starts empty and is populated automatically when the DOM is ready. -->
                 </table>
 
-                <nav class="table_nav" aria-label="table_nav">
-                    <ul class="pagination">
-                        <li class="page-item"><a class="page-link" href="#"><i class="fa-solid fa-caret-left"></i></a></li>
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#"><i class="fa-solid fa-caret-right"></i></a></li>
+               <nav class="table_nav" aria-label="table_nav">
+                    <ul id="pagingDiv" class="pagination">
                     </ul>
                 </nav>
+
+                <input type='hidden' name='page_num' value='1' maxlength='1' max='10' size='1' id='page_num' />
 
             </div>
         </div>

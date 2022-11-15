@@ -5,7 +5,6 @@
     <style type="text/css">
         {{extra_css}}
     </style>
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwise.css') }}"> -->
     <script>
         {% autoescape false %}
         {{extra_js}}
@@ -20,30 +19,34 @@
         <div class="row">
             <div class="col-sm-12" id="changeme">
                 <div class="row justify-content-between">
-                    <div class="col-8">
+                    <div class="col-12">
                         <div class="title float-start">
                             <i class="fa-solid fa-list"></i>
                             <h1>JOBS</h1>
                         </div>
-                        <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
                     </div>
-                    <div class="col-4">
+                    <!-- <div class="col-4">
                         <form id="nbr_per_page" method="get">
-                            {% set nbr_items_per_page = request.args.get('nbr_items_per_page') %}
+                            {% if request.args.get('nbr_items_per_page') is not none %} 
+                                {% set nbr_items_per_page = request.args.get('nbr_items_per_page') | int %}
+                            {% else %}
+                                {% set nbr_items_per_page = web_settings["nbr_items_per_page"] | int %}
+                            {% endif %}
                             <label for="nbr_items_per_page">Items per page</label>
                             <select class="form-select" aria-label="Items per page" id="nbr_items_per_page" name="nbr_items_per_page">
-                                <option value="25" {{ "selected" if nbr_items_per_page == '25' }}>25</option>
-                                <option value="50" {{ "selected" if nbr_items_per_page == '50' }}>50</option>
-                                <option value="100" {{ "selected" if nbr_items_per_page == '100' }}>100</option>
+                                <option value="25" {{ "selected" if nbr_items_per_page == 25 }}>25</option>
+                                <option value="40" {{ "selected" if nbr_items_per_page == 40 }}>40</option>
+                                <option value="50" {{ "selected" if nbr_items_per_page == 50 }}>50</option>
+                                <option value="100" {{ "selected" if nbr_items_per_page == 100 }}>100</option>
                             </select>
                         </form>
-                    </div>
+                    </div> -->
                 </div>
                 <table class="table table-striped table-hover table-responsive" data-sortable id="search_table">
                     <thead>
                         <tr>
                             <th>Cluster</th>
-                            <th>User</th>
+                            <th>User (@mila.quebec)</th>
                             <th>Job ID</th>
                             <th>Job name [:20]</th>
                             <th>Job state</th>
@@ -58,9 +61,15 @@
                         <tr>
                             <!-- Cluster -->
                             <td>{{D_job['slurm']['cluster_name']}}</td>
+
                             
                             <!-- User -->
-                            <td>{{D_job['cw']['best_guess_for_username']}}</td>
+                            <td>
+                                {% if D_job['cw']['mila_email_username'] is not none %}
+                                    {% set name, domain = D_job['cw']['mila_email_username'].split('@') %}
+                                    {{ name }} <span class="email">@{{ domain }}</span>
+                                {% endif %}
+                            </td>
 
                             <!-- Job ID -->
                             <td>
@@ -69,10 +78,10 @@
 
                             <!-- Job name -->
                             <td>{{D_job['slurm'].get("name", "")[0:20]}}</td>
-
+                            
                             <!-- Job state -->
-                            <td><span class="status {{D_job['slurm']['job_state']|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
-
+                            <td class="state"><span class="status {{D_job['slurm']['job_state']|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
+                            
                             <!-- Start time -->
                             {% if D_job["slurm"]["start_time"] %}
                                 {% set start_time = D_job["slurm"]["start_time"] %}
@@ -97,12 +106,69 @@
 
                             <!-- Actions -->
                             <td class="actions">
-                                <a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-ban'></i></a>
+                                {% if mila_email_username == D_job['cw']['best_guess_for_username'] %}
+                                    <a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+
+                {% set total_items = nbr_total_jobs | int %}
+
+                <!-- get query params -->
+                {% if request.args.get('page_num') is not none %} 
+                    {% set page_num = request.args.get('page_num') | int %}
+                {% else %}
+                    {% set page_num = 1 | int %}
+                {% endif %}
+
+                {% set total_pages = total_items // nbr_items_per_page | int %}
+
+                {% if total_pages > 1 %}   
+                    <nav class="table_nav" aria-label="table_nav">
+                        <ul class="pagination">
+                            {% if page_num == 1 %}
+                                <li class="page-item first"><span><i class="fa-solid fa-caret-left"></i></span></li>
+                            {% else %}
+                                <li class="page-item first"><a class="page-link" href="{{ modify_query(page_num=page_num - 1) }}"><i class="fa-solid fa-caret-left"></i></a></li>
+                            {% endif %}
+
+                            {% if (page_num > 4): %}
+                                <li><span class="ellipses">...</span></li>
+                            {% endif %}
+
+                            {% for page in range(total_pages) %}
+                                {% set page = page + 1 %}
+
+                                    {% if (page) == page_num %}   
+                                        <li class="page-item current"><a class="page-link disable">{{ page }}</a></li>
+                                    {% elif (page < page_num - 3) %}
+                                        
+                                    {% elif (page > page_num + 3) %}   
+                                        
+                                    {% else %}
+                                        {% set x=previous_request_args.__setitem__("page_num", page) %}
+                                        <!-- magically update query params using new function -->
+                                        <li class="page-item"><a class="page-link" href="{{ modify_query(page_num=page) }}">{{ page }}</a></li>
+                                    {% endif %}
+
+                            {% endfor %}
+
+                            {% if (page_num < total_pages - 3): %}
+                                <li><span class="ellipses">...</span></li>
+                            {% endif %}
+
+                            {% if page_num == total_pages %}
+                                <li class="page-item last"><span><i class="fa-solid fa-caret-right"></i></span></li>
+                            {% else %}
+                                <li class="page-item last"><a class="page-link" href="{{ modify_query(page_num=page_num + 1) }}"><i class="fa-solid fa-caret-right"></i></a></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+
             </div>
         </div>
     </div>

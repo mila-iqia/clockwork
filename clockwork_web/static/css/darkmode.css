@@ -14,8 +14,21 @@
  ██████  ██████  ██      ██ ██      ██  ██████  ██   ████ 
 */
 body {
-  background: black;
-  color: #f3f3f3;
+  background: #19191b;
+  color: #e8e8e8;
+}
+
+body, p, tr, td, label, input, a {
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+input[type=text], input[type=password], input[type=email], textarea, pre, select, .input-group-addon {
+  background: black !important;
+  color: #e8e8e8 !important;
+}
+
+input[type=text], input[type=password], input[type=email], select, .input-group-addon {
+  border-color: #424249 !important;
 }
 
 a, a:visited {
@@ -28,7 +41,7 @@ a:hover, a:visited:hover {
 }
 
 div.title {
-  color: white;
+  color: #e8e8e8;
 }
 
 .navbar-collapse .navbar-nav a.nav-link {
@@ -44,6 +57,7 @@ div.title {
 
 .top {
   background: #2a2a2e;
+  border-bottom: 1px solid #444;
 }
 
 #formBlock {
@@ -51,31 +65,32 @@ div.title {
 }
 
 #mainCollapse {
-  border-top: 1px solid #aaaaaa;
+  border-top: 0;
 }
 #mainCollapse h1 a {
-  color: white;
+  color: #e8e8e8;
 }
 #mainCollapse:after {
-  background-image: url(../images/dark-bg_search_top.png);
+  background: rgb(25, 25, 27);
+  background: linear-gradient(0deg, rgb(25, 25, 27) 0%, rgba(25, 25, 27, 0) 100%);
 }
 
 .searchform .cc_toggle_zone_column {
-  border: 1px solid #c6c6c6;
+  border: 1px solid #444;
 }
 .searchform .row .col-md-4:nth-child(2) .cc_toggle_zone_row:nth-child(even),
 .searchform .row .col-md-4:nth-child(3) .cc_toggle_zone_row:nth-child(even) {
   background: #2a2a2e;
 }
 .searchform .cc_toggle_zone_row a i[title="Cluster documentation"] {
-  color: #f3f3f3;
+  color: #e8e8e8;
 }
 .searchform .cc_toggle_zone_row a:hover i {
   color: #8a5e8a;
 }
 
 .form-switch .form-check-input {
-  background-color: #c6c6c6;
+  background-color: #5b5b63;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
 }
 
@@ -119,12 +134,12 @@ table.table-striped td:last-of-type {
 }
 table.table-striped.table-hover > tbody > tr:hover > * {
   background: #202023;
-  color: white;
+  color: #e8e8e8;
 }
 
 table.table-striped td.links a,
 .cc_cluster_toggle_subzone .form-check-label td.links a {
-  color: #f3f3f3;
+  color: #e8e8e8;
 }
 table.table-striped thead,
 .cc_cluster_toggle_subzone .form-check-label thead {
@@ -135,13 +150,32 @@ table.table-striped thead,
   color: white;
 }
 
-nav.table_nav ul.pagination li a.page-link {
-  color: #777777;
+ul.pagination li a, ul.pagination li span {
+  color: #e8e8e8;
+  background: #2a2a2e;
+  border-color: #444;
 }
-nav.table_nav ul.pagination li a.page-link:focus {
+ul.pagination li a:focus, ul.pagination li a:hover, ul.pagination li span:focus, ul.pagination li span:hover {
   box-shadow: none;
+  color: #6f0070;
+  background: #444;
+  border-color: #444;
+}
+ul.pagination li span.ellipses {
+  color: black;
+  background: #424249;
+}
+ul.pagination li.current span, ul.pagination li.current a {
+  color: #e8e8e8;
   background: #6f0070;
-  color: white;
+}
+ul.pagination li:first-child span, ul.pagination li:last-child span {
+  background: #424249;
+  color: black;
+}
+
+dt, dd {
+  border-color: #424249 !important;
 }
 
 /*
@@ -157,7 +191,7 @@ nav.table_nav ul.pagination li a.page-link:focus {
   color: #f3f3f3;
 }
 #footer .col-6:last-of-type a {
-  color: #f3f3f3;
+  color: #e8e8e8;
 }
 
 /*# sourceMappingURL=darkmode.css.map */
