@@ -152,6 +152,7 @@
 		                            <th>Job name [:20]</th>
 		                            <th>Job state</th>
 		                            <th>Start time</th>
+		                            <th>Submit time</th>
 		                            <th>End time</th>
 		                            <th>Links</th>
 		                            <th>Actions</th>
@@ -160,7 +161,7 @@
 		                    <tbody>
 		                    	<tr>
 									{% set page_name = "dashboard" %}
-									{% for column_name in ["clusters", "job_id", "job_name", "job_state", "start_time", "end_time", "links", "actions"] %}
+									{% for column_name in ["clusters", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"] %}
 		                    		<td><div class="form-check form-switch">
 										{% if (web_settings | check_web_settings_column_display(page_name, column_name)) %}
 											<input name="{{page_name}}_{{column_name}}_toggle" id="{{page_name}}_{{column_name}}_toggle" type="checkbox" class="form-check-input" onclick="switch_column_setting('{{page_name}}', '{{column_name}}')" checked />
@@ -186,6 +187,7 @@
 		                            <th>Job name [:20]</th>
 		                            <th>Job state</th>
 		                            <th>Start time</th>
+		                            <th>Submit time</th>
 		                            <th>End time</th>
 		                            <th>Links</th>
 		                            <th>Actions</th>
@@ -194,7 +196,7 @@
 		                    <tbody>
 		                    	<tr>
 		                    		{% set page_name = "jobs_list" %}
-									{% for column_name in ["clusters", "users","job_id", "job_name", "job_state", "start_time", "end_time", "links", "actions"] %}
+									{% for column_name in ["clusters", "users","job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"] %}
 		                    		<td><div class="form-check form-switch">
 										{% if (web_settings | check_web_settings_column_display(page_name, column_name)) %}
 											<input name="{{page_name}}_{{column_name}}_toggle" id="{{page_name}}_{{column_name}}_toggle" type="checkbox" class="form-check-input" onclick="switch_column_setting('{{page_name}}', '{{column_name}}')" checked />

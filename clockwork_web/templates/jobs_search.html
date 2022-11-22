@@ -51,6 +51,7 @@
                             <th>Job name [:20]</th>
                             <th>Job state</th>
                             <th>Start time</th>
+                            <th>Submit time</th>
                             <th>End time</th>
                             <th data-sortable="false">Links</th>
                             <th data-sortable="false">Actions</th>
@@ -82,21 +83,15 @@
                             <!-- Job state -->
                             <td class="state"><span class="status {{D_job['slurm']['job_state']|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
                             
-                            <!-- Start time -->
-                            {% if D_job["slurm"]["start_time"] %}
-                                {% set start_time = D_job["slurm"]["start_time"] %}
-                                <td data-order='{{start_time}}'><span class="visually-hidden">{{start_time}}</span><!--<span data-livestamp='{{start_time|int}}'></span>--> {{ start_time|format_date }}</td>
-                            {% else %}
-                                <td data-order='0'></td>
-                            {% endif %}
-
-                            <!-- End time -->
-                            {% if D_job["slurm"]["end_time"] %}
-                                {% set end_time = D_job["slurm"]["end_time"] %}
-                                <td data-order="{{end_time}}"><span class="visually-hidden">{{end_time}}</span><!--<span data-livestamp='{{end_time|int}}'></span>--> {{ end_time|format_date }}</td>
-                            {% else %}
-                                <td data-order='0'></td>
-                            {% endif %}
+                            <!-- Start, submit and end times -->
+                            {% for job_time in ["start_time", "submit_time", "end_time"] %}
+                                {% if D_job["slurm"][job_time] %}
+                                    {% set involved_time = D_job["slurm"][job_time] %}
+                                    <td data-order='{{involved_time}}'><span class="visually-hidden">{{involved_time}}</span><!--<span data-livestamp='{{involved_time|int}}'></span>--> {{ involved_time|format_date }}</td>
+                                {% else %}
+                                    <td data-order='0'></td>
+                                {% endif %}
+                            {% endfor %}
 
                             <!-- Links -->
                             <td class="links">
