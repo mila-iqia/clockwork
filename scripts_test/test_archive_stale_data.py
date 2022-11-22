@@ -41,6 +41,7 @@ def test_archive_stale_data():
     # Jobs #
     ########
 
+    nbr_jobs = 100
     # We will insert those in the database to prepare our query.
     LD_jobs = [{"cw":
                     {"last_slurm_update": get_random_timestamp()},
@@ -49,9 +50,13 @@ def test_archive_stale_data():
                         "cluster_name": "mila",
                         "job_id": f"{np.random.randint(low=0, high=1e6)}"
                     }
-                }]
+                } for _ in range(nbr_jobs)]
     mc["jobs"].delete_many({})
     mc["jobs"].insert_many(LD_jobs, ordered=False)
+    # because pymongo mutates `LD_jobs`` to add that "_id"
+    for D_job in LD_jobs:
+        del D_job["_id"]
+
     # These are the ground truth against which we will test the returned values.
     LD_stale_jobs = [D_job for D_job in LD_jobs if (D_job["cw"]["last_slurm_update"] < now - seconds_since_last_update)]
     LD_fresh_jobs = [D_job for D_job in LD_jobs if (D_job["cw"]["last_slurm_update"] >= now - seconds_since_last_update)]
@@ -61,6 +66,7 @@ def test_archive_stale_data():
     # Nodes #
     #########
 
+    nbr_nodes = 100
     # We will insert those in the database to prepare our query.
     LD_nodes = [{"cw":
                     {"last_slurm_update": get_random_timestamp()},
@@ -69,9 +75,13 @@ def test_archive_stale_data():
                         "cluster_name": "mila",
                         "name": f"some_node_name_{np.random.randint(low=0, high=1e3)}"
                     }
-                }]
+                } for _ in range(nbr_nodes)]
     mc["nodes"].delete_many({})
     mc["nodes"].insert_many(LD_nodes, ordered=False)
+    # because pymongo mutates `LD_nodes`` to add that "_id"
+    for D_node in LD_nodes:
+        del D_node["_id"]
+
     # These are the ground truth against which we will test the returned values.
     LD_stale_nodes = [D_node for D_node in LD_nodes if (D_node["cw"]["last_slurm_update"] < now - seconds_since_last_update)]
     LD_fresh_nodes = [D_node for D_node in LD_nodes if (D_node["cw"]["last_slurm_update"] >= now - seconds_since_last_update)]
@@ -98,7 +108,7 @@ def test_archive_stale_data():
         since those are unique.
         """
         if isinstance(E, list):
-            return list(sorted(E, lambda D: D["cw"]["last_slurm_update"]))
+            return list(sorted(E, key=lambda D: D["cw"]["last_slurm_update"]))
         elif isinstance(E, dict):
             # we expect "jobs" and "nodes" in there only
             return dict((k, sorted_by_last_update(v)) for (k, v) in E.items())
