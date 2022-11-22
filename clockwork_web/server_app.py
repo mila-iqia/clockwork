@@ -154,6 +154,32 @@ def create_app(extra_config: dict):
         else:
             return ""
 
+    @app.template_filter()
+    def check_web_settings_column_display(web_settings, page_name, column_name):
+        """
+        Check whether or not the web setting associated to the display of a job property
+        as column on an array on the page "dashboard" or "jobs_list" is set. If it is set,
+        check its boolean value.
+
+        Such a web setting, if set, is accessible by calling web_settings[page_name][column_name].
+        The different columns (ie jobs properties) for each page are now the following:
+        - "dashboard" contains the properties ["clusters", "job_id", "job_name", "job_state", "start_time", "end_time", "links", "actions"]
+        - "jobs_list" contains the properties ["clusters", "users", "job_id", "job_name", "job_state", "start_time", "end_time", "links", "actions"]
+
+        Parameters:
+            web_settings    A dictionary containing the preferences of the user regarding
+                            the web interface display.
+            page_name       The name of the page on which we should display or not the
+                            job properties requested by the user in its preferences. For now,
+                            the values "dashboard" or "jobs_list" are expected
+            column_name     The column showing a specific job property, to display or not regarding
+                            the preferences of the user.
+
+        Returns:
+            True if the web_setting is set and True, False otherwise.
+        """
+        return ("column_display" in web_settings) and (page_name in web_settings["column_display"]) and (column_name in web_settings["column_display"][page_name]) and web_settings["column_display"][page_name][column_name]
+
     @app.route("/")
     def index():
         """

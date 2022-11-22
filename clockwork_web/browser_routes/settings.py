@@ -201,6 +201,79 @@ def route_unset_dark_mode():
             status_code,
         )
 
+@flask_api.route("/web/column/set")
+@login_required
+def route_set_column_display():
+    """
+    Set to true the fact that a specific column is shown on the web page "dashboard"
+    or "jobs list" (regarding the value of the parameter "page").
+
+    .. :quickref: enable the display of a job element on the dashboard or on the jobs list
+    """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the column and page names provided in the request
+    column_name = request.args.get("column", type=str)
+    previous_request_args["column"] = column_name
+
+    page_name = request.args.get("page", type=str)
+    previous_request_args["page"] = page_name
+
+    # Set the column display value to True in the current user's web settings and
+    # retrieve the status code and status message associated to the operation
+    (status_code, status_message) = current_user.settings_column_display_enable(page_name, column_name)
+
+    if status_code == 200:
+        # If a success has been returned
+        return {}
+    else:
+        # Otherwise, return an error
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=status_message,
+                previous_request_args=previous_request_args,
+            ),
+            status_code,
+        )
+
+@flask_api.route("/web/column/unset")
+@login_required
+def route_unset_column_display():
+    """
+    Set to false the fact that a specific column is shown on the web page "dashboard"
+    or "jobs list" (regarding the value of the parameter "page").
+
+    .. :quickref: enable the display of a job element on the dashboard or on the jobs list
+    """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the column and page names provided in the request
+    column_name = request.args.get("column", type=str)
+    previous_request_args["column"] = column_name
+
+    page_name = request.args.get("page", type=str)
+    previous_request_args["page"] = page_name
+
+    # Set the column display value to True in the current user's web settings and
+    # retrieve the status code and status message associated to the operation
+    (status_code, status_message) = current_user.settings_column_display_disable(page_name, column_name)
+
+    if status_code == 200:
+        # If a success has been returned
+        return {}
+    else:
+        # Otherwise, return an error
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=status_message,
+                previous_request_args=previous_request_args,
+            ),
+            status_code,
+        )
 
 @flask_api.route("/web/language/set")
 @login_required

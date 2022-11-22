@@ -25,6 +25,8 @@ from .db import get_db
 from clockwork_web.core.users_helper import (
     enable_dark_mode,
     disable_dark_mode,
+    enable_column_display,
+    disable_column_display,
     get_default_web_settings_values,
     set_items_per_page,
     get_default_setting_value,
@@ -177,6 +179,38 @@ class User(UserMixin):
             - a message describing the state of the operation
         """
         return disable_dark_mode(self.mila_email_username)
+
+    def settings_column_display_enable(self, page_name, column_name):
+        """
+        Enable the display of a specific column on the "dashboard" or "jobs list" page
+        for a User.
+
+        Parameters:
+            page_name   Name of the page on which the column display is enabled
+            column_name Name of the column whose display is enabled
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return enable_column_display(self.mila_email_username, page_name, column_name)
+
+    def settings_column_display_disable(self, page_name, column_name):
+        """
+        Disable the display of a specific column on the "dashboard" or "jobs list" page
+        for a User.
+
+        Parameters:
+            page_name   Name of the page on which the column display is disabled
+            column_name Name of the column whose display is disabled
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return disable_column_display(self.mila_email_username, page_name, column_name)
 
     def settings_nbr_items_per_page_set(self, nbr_items_per_page):
         """
