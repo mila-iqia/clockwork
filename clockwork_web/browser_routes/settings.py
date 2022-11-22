@@ -201,6 +201,7 @@ def route_unset_dark_mode():
             status_code,
         )
 
+
 @flask_api.route("/web/column/set")
 @login_required
 def route_set_column_display():
@@ -222,7 +223,9 @@ def route_set_column_display():
 
     # Set the column display value to True in the current user's web settings and
     # retrieve the status code and status message associated to the operation
-    (status_code, status_message) = current_user.settings_column_display_enable(page_name, column_name)
+    (status_code, status_message) = current_user.settings_column_display_enable(
+        page_name, column_name
+    )
 
     if status_code == 200:
         # If a success has been returned
@@ -237,6 +240,7 @@ def route_set_column_display():
             ),
             status_code,
         )
+
 
 @flask_api.route("/web/column/unset")
 @login_required
@@ -259,7 +263,9 @@ def route_unset_column_display():
 
     # Set the column display value to True in the current user's web settings and
     # retrieve the status code and status message associated to the operation
-    (status_code, status_message) = current_user.settings_column_display_disable(page_name, column_name)
+    (status_code, status_message) = current_user.settings_column_display_disable(
+        page_name, column_name
+    )
 
     if status_code == 200:
         # If a success has been returned
@@ -274,6 +280,7 @@ def route_unset_column_display():
             ),
             status_code,
         )
+
 
 @flask_api.route("/web/language/set")
 @login_required

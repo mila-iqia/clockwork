@@ -150,7 +150,7 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
             return isinstance(setting_value, web_settings_types[setting_key])
         else:
             return web_settings_types[setting_key] == bool
-    
+
     else:
         m = re.match(r"^column_display\.(dashboard|jobs_list)\..+", setting_key)
         if m:
@@ -314,6 +314,7 @@ def disable_dark_mode(mila_email_username):
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, "dark_mode", False)
 
+
 def enable_column_display(mila_email_username, page_name, column_name):
     """
     Enable the display of a specific column on the "dashboard" or "jobs list" page
@@ -334,6 +335,7 @@ def enable_column_display(mila_email_username, page_name, column_name):
 
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, web_setting_key, True)
+
 
 def disable_column_display(mila_email_username, page_name, column_name):
     """
