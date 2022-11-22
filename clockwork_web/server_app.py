@@ -158,13 +158,12 @@ def create_app(extra_config: dict):
     def check_web_settings_column_display(web_settings, page_name, column_name):
         """
         Check whether or not the web setting associated to the display of a job property
-        as column on an array on the page "dashboard" or "jobs_list" is set. If it is set,
+        as column on an array on a page (for now "jobs_list") is set. If it is set,
         check its boolean value.
 
         Such a web setting, if set, is accessible by calling web_settings[page_name][column_name].
-        The different columns (ie jobs properties) for each page are now the following:
-        - "dashboard" contains the properties ["clusters", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
-        - "jobs_list" contains the properties ["clusters", "user", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
+        The different columns (ie jobs properties) for the "jobsèlist" page are now the following:
+        ["clusters", "user", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
 
         Parameters:
             web_settings    A dictionary containing the preferences of the user regarding
@@ -176,7 +175,7 @@ def create_app(extra_config: dict):
                             the preferences of the user.
 
         Returns:
-            True if the web_setting is set and True, False otherwise.
+            True if the web_setting is unset or True, False otherwise.
         """
         return not(("column_display" in web_settings) and (page_name in web_settings["column_display"]) and (column_name in web_settings["column_display"][page_name])) or web_settings["column_display"][page_name][column_name]
 
