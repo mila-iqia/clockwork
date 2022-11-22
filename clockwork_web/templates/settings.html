@@ -45,7 +45,6 @@
 
 			// Retrieve the state of the associated toggle button
 			// The HTML element is identified by the name <corresponding_page>_<column_name>
-			console.log("ENABLE COLUMN "+page_name+" "+column_name);
 			var html_element_id = page_name.concat("_", column_name) + "_toggle";
 			var is_checked = document.getElementById(html_element_id).checked;
 			if (is_checked) {
