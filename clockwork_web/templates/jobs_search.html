@@ -65,13 +65,13 @@
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_state")) %}
                                 <th>Job state</th>
                             {% endif %}
-                            <!-- Start time header -->
-                            {% if (web_settings | check_web_settings_column_display(page_name, "start_time")) %}
-                                <th>Start time</th>
-                            {% endif %}
                             <!-- Submit time header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "submit_time")) %}
                                 <th>Submit time</th>
+                            {% endif %}
+                            <!-- Start time header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "start_time")) %}
+                                <th>Start time</th>
                             {% endif %}
                             <!-- End time header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "end_time")) %}
@@ -122,8 +122,8 @@
                                 <td class="state"><span class="status {{D_job['slurm']['job_state']|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
                             {% endif %}
                             
-                            <!-- Start, submit and end times -->
-                            {% for job_time in ["start_time", "submit_time", "end_time"] %}
+                            <!-- Submit, start and end times -->
+                            {% for job_time in ["submit_time", "start_time", "end_time"] %}
                                 {% if (web_settings | check_web_settings_column_display(page_name, job_time)) %}
                                     {% if D_job["slurm"][job_time] %}
                                         {% set involved_time = D_job["slurm"][job_time] %}
