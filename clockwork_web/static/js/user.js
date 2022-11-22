@@ -106,7 +106,7 @@ function disable_column(page_name, column_name) {
   */
 
   // Define the URL
-  let url = "/settings/web/column/set?";
+  let url = "/settings/web/column/unset?";
   url = url+"page="+page_name;
   url = url+"&column="+column_name;
 

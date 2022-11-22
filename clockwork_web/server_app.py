@@ -164,7 +164,7 @@ def create_app(extra_config: dict):
         Such a web setting, if set, is accessible by calling web_settings[page_name][column_name].
         The different columns (ie jobs properties) for each page are now the following:
         - "dashboard" contains the properties ["clusters", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
-        - "jobs_list" contains the properties ["clusters", "users", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
+        - "jobs_list" contains the properties ["clusters", "user", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
 
         Parameters:
             web_settings    A dictionary containing the preferences of the user regarding
@@ -178,7 +178,7 @@ def create_app(extra_config: dict):
         Returns:
             True if the web_setting is set and True, False otherwise.
         """
-        return ("column_display" in web_settings) and (page_name in web_settings["column_display"]) and (column_name in web_settings["column_display"][page_name]) and web_settings["column_display"][page_name][column_name]
+        return not(("column_display" in web_settings) and (page_name in web_settings["column_display"]) and (column_name in web_settings["column_display"][page_name])) or web_settings["column_display"][page_name][column_name]
 
     @app.route("/")
     def index():
