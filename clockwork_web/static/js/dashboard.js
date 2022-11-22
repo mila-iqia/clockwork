@@ -463,6 +463,7 @@ function populate_table(response_contents) {
     th = document.createElement('th'); th.innerHTML = "Job name [:20]"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "Job state"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "Start time"; tr.appendChild(th);
+    th = document.createElement('th'); th.innerHTML = "Submit time"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "End time"; tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "Links"; th.setAttribute("data-sortable", "false"); tr.appendChild(th);
     th = document.createElement('th'); th.innerHTML = "Actions"; th.setAttribute("data-sortable", "false"); tr.appendChild(th);
@@ -491,38 +492,26 @@ function populate_table(response_contents) {
         td.innerHTML = (
             "<span class=\"status " + job_state + "\">" + formatted_job_state + "</span>"); tr.appendChild(td);
 
-        // start time
-        td = document.createElement('td');
-        if (D_job_slurm["start_time"] == null) {
-            td.innerHTML = "";
-        } else {
-            // If you want to display the time as "2021-07-06 22:19:46" for readability
-            // you need to set it up because this is going to be written as a unix timestamp.
-            // This might include injecting another field with a name
-            // such as "start_time_human_readable" or something like that, and using it here.
+        // Start_time, submit time and end_time of the jobs
+        let job_times = ["start_time", "submit_time", "end_time"];
+        for (var i=0; i<job_times.length; i++) {
+            td = document.createElement('td');
+            let job_time = job_times[i];
+            if (D_job_slurm[job_time] == null) {
+                td.innerHTML = "";
+            } else {
+                // If you want to display the time as "2021-07-06 22:19:46" for readability
+                // you need to set it up because this is going to be written as a unix timestamp.
+                // This might include injecting another field with a name
+                // such as "start_time_human_readable" or something like that, and using it here.
 
-            //td.innerHTML = D_job_slurm["start_time"].toString(); // For a timestamp
-            //td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]); // For a relative time
-            td.innerHTML = format_date(D_job_slurm["start_time"]); // For a human readable time
-        }
-        tr.appendChild(td);
-
-        // end time
-        td = document.createElement('td');
-        if (D_job_slurm["end_time"] == null) {
-            td.innerHTML = "";
-        } else {
-            // If you want to display the time as "2021-07-06 22:19:46" for readability
-            // you need to set it up because this is going to be written as a unix timestamp.
-            // This might include injecting another field with a name
-            // such as "start_time_human_readable" or something like that, and using it here.
-
-            //td.innerHTML = D_job_slurm["end_time"].toString(); // For a timestamp
-            //td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]); // For a relative time
-            td.innerHTML = format_date(D_job_slurm["end_time"]);
-        }
-        tr.appendChild(td);
-
+                //td.innerHTML = D_job_slurm[job_time].toString(); // For a timestamp
+                //td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm[job_time]); // For a relative time
+                td.innerHTML = format_date(D_job_slurm[job_time]); // For a human readable time
+            }
+            tr.appendChild(td);
+        };
+        
         // links
         td = document.createElement('td'); 
         td.className = "links";

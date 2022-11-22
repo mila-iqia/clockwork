@@ -163,8 +163,8 @@ def create_app(extra_config: dict):
 
         Such a web setting, if set, is accessible by calling web_settings[page_name][column_name].
         The different columns (ie jobs properties) for each page are now the following:
-        - "dashboard" contains the properties ["clusters", "job_id", "job_name", "job_state", "start_time", "end_time", "links", "actions"]
-        - "jobs_list" contains the properties ["clusters", "users", "job_id", "job_name", "job_state", "start_time", "end_time", "links", "actions"]
+        - "dashboard" contains the properties ["clusters", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
+        - "jobs_list" contains the properties ["clusters", "users", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
 
         Parameters:
             web_settings    A dictionary containing the preferences of the user regarding
