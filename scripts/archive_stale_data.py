@@ -15,12 +15,9 @@ import time
 from pprint import pprint
 import json
 
-from pymongo import DeleteOne
+from pymongo import MongoClient, DeleteOne
 from pymongo.errors import BulkWriteError
-
-from slurm_state.mongo_client import get_mongo_client
-
-
+from scripts_test.config import get_config
 
 def main(argv):
     # Retrieve the args
@@ -64,9 +61,8 @@ def archive(archive_path, database_name, days_since_last_update):
     # operation fails, in which case we'll have archived something that stuck
     # around in the database.
 
-    # Open the database and insert the users
-    client = get_mongo_client()
-
+    # Connect to MongoDB
+    client = MongoClient(get_config("mongo.connection_string"))
     
     ###################
     ## Retrieve jobs ##
@@ -87,7 +83,7 @@ def archive(archive_path, database_name, days_since_last_update):
     nodes_collection = client[database_name]["nodes"]
     LD_nodes_to_archive = list(nodes_collection.find({"cw.last_slurm_update": {"$lt": threshold_timestamp}}))
     
-    L_nodes_deletion_requests = [DeleteOne({'_id': D_node["_id"]}) for D_job in LD_nodes_to_archive]
+    L_nodes_deletion_requests = [DeleteOne({'_id': D_node["_id"]}) for D_node in LD_nodes_to_archive]
     for D_node in LD_nodes_to_archive:
         del D_node["_id"]
 
