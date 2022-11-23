@@ -19,6 +19,7 @@ from pymongo import MongoClient, DeleteOne
 from pymongo.errors import BulkWriteError
 from scripts_test.config import get_config
 
+
 def main(argv):
     # Retrieve the args
     parser = argparse.ArgumentParser(
@@ -63,51 +64,57 @@ def archive(archive_path, database_name, days_since_last_update):
 
     # Connect to MongoDB
     client = MongoClient(get_config("mongo.connection_string"))
-    
+
     ###################
     ## Retrieve jobs ##
     ###################
     jobs_collection = client[database_name]["jobs"]
-    LD_jobs_to_archive = list(jobs_collection.find({"cw.last_slurm_update": {"$lt": threshold_timestamp}}))
+    LD_jobs_to_archive = list(
+        jobs_collection.find({"cw.last_slurm_update": {"$lt": threshold_timestamp}})
+    )
 
     # We don't want to store those "_id",
-    # but we need them later to make a deletion operation.   
-    L_jobs_deletion_requests = [DeleteOne({'_id': D_job["_id"]}) for D_job in LD_jobs_to_archive]
+    # but we need them later to make a deletion operation.
+    L_jobs_deletion_requests = [
+        DeleteOne({"_id": D_job["_id"]}) for D_job in LD_jobs_to_archive
+    ]
     for D_job in LD_jobs_to_archive:
         del D_job["_id"]
-
 
     ####################
     ## Retrieve nodes ##
     ####################
     nodes_collection = client[database_name]["nodes"]
-    LD_nodes_to_archive = list(nodes_collection.find({"cw.last_slurm_update": {"$lt": threshold_timestamp}}))
-    
-    L_nodes_deletion_requests = [DeleteOne({'_id': D_node["_id"]}) for D_node in LD_nodes_to_archive]
+    LD_nodes_to_archive = list(
+        nodes_collection.find({"cw.last_slurm_update": {"$lt": threshold_timestamp}})
+    )
+
+    L_nodes_deletion_requests = [
+        DeleteOne({"_id": D_node["_id"]}) for D_node in LD_nodes_to_archive
+    ]
     for D_node in LD_nodes_to_archive:
         del D_node["_id"]
-
 
     #############################
     ## Write things in archive ##
     #############################
     contents_archived = {"jobs": LD_jobs_to_archive, "nodes": LD_nodes_to_archive}
-    if (archive_path and
-        os.path.exists(os.path.dirname(archive_path))):
+    if archive_path and os.path.exists(os.path.dirname(archive_path)):
         with open(archive_path, "w") as f:
             json.dump(contents_archived, f, indent=2)
-
 
     #################################
     ## Deletions from the database ##
     #################################
     try:
-        jobs_collection.bulk_write(L_jobs_deletion_requests, ordered=False)
+        if L_jobs_deletion_requests:
+            jobs_collection.bulk_write(L_jobs_deletion_requests, ordered=False)
     except BulkWriteError as bwe:
         pprint(bwe.details)
 
     try:
-        nodes_collection.bulk_write(L_nodes_deletion_requests, ordered=False)
+        if L_nodes_deletion_requests:
+            nodes_collection.bulk_write(L_nodes_deletion_requests, ordered=False)
     except BulkWriteError as bwe:
         pprint(bwe.details)
 
