@@ -607,11 +607,18 @@ function populate_table(response_contents) {
         if (check_web_settings_column_display(page_name, "links")) {
             td = document.createElement('td'); 
             td.className = "links";
-            td.innerHTML = (
-                "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to somewhere'><i class='fa-solid fa-file'></i></a>"
-                + 
-                "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>"
-            ); 
+            
+            // This link works only for Narval and Beluga. See CW-141.
+            if ((D_job_slurm["cluster_name"] == "narval") || (D_job_slurm["cluster_name"] == "beluga")) {
+                // https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid>
+                let target_url = `https://portail.${D_job_slurm["cluster_name"]}.calculquebec.ca/secure/jobstats/${D_job_slurm["username"]}/${D_job_slurm["job_id"]}`
+                link0_innerHTML  = `<a href='${target_url}' data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'><i class='fa-solid fa-file'></i></a>`
+            } else {
+                link0_innerHTML = ""
+            }
+            // This is just a placeholder for now.
+            link1_innerHTML = "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>"
+            td.innerHTML = link0_innerHTML + link1_innerHTML
             tr.appendChild(td);
         }
 
