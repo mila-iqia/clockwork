@@ -60,8 +60,8 @@ def test_settings_set_nbr_items_per_page_wrong_type(client, nbr_items_per_page):
     client.get("/settings/")
 
     # Define the request to test
-    test_request = "/settings/web/nbr_items_per_page/set?nbr_items_per_page={}".format(
-        nbr_items_per_page
+    test_request = (
+        f"/settings/web/nbr_items_per_page/set?nbr_items_per_page={nbr_items_per_page}"
     )
 
     # Retrieve the response to the call we are testing
@@ -88,8 +88,8 @@ def test_settings_set_nbr_items_per_page_zero_or_negative_value(
     client.get("/settings/")
 
     # Define the request to test
-    test_request = "/settings/web/nbr_items_per_page/set?nbr_items_per_page={}".format(
-        nbr_items_per_page
+    test_request = (
+        f"/settings/web/nbr_items_per_page/set?nbr_items_per_page={nbr_items_per_page}"
     )
 
     # Retrieve the response to the call we are testing
@@ -134,13 +134,11 @@ def test_settings_set_column_display_bad_request(
     if page_name == None and column_name == None:
         test_request = "/settings/web/column/set"
     elif page_name == None:
-        test_request = "/settings/web/column/set?column={}".format(column_name)
+        test_request = f"/settings/web/column/set?column={column_name}"
     elif column_name == None:
-        test_request = "/settings/web/column/set?page={}".format(page_name)
+        test_request = f"/settings/web/column/set?page={page_name}"
     else:
-        test_request = "/settings/web/column/set?page={0}&column={1}".format(
-            page_name, column_name
-        )
+        test_request = f"/settings/web/column/set?page={page_name}&column={column_name}"
 
     # Retrieve the response to the call we are testing
     response = client.get(test_request)

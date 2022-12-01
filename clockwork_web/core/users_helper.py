@@ -100,7 +100,7 @@ def _set_web_setting(mila_email_username, setting_key, setting_value):
         #        "$set": {"web_settings.nbr_items_per_page": 34}
         #    }
         # This is what the variable "web_settings_key" is about.)
-        web_settings_key = "web_settings.{}".format(setting_key)
+        web_settings_key = f"web_settings.{setting_key}"
         update_result = users_collection.update_one(
             {
                 "mila_email_username": mila_email_username
@@ -340,7 +340,7 @@ def enable_column_display(mila_email_username, page_name, column_name):
           error occurred)
         - a message describing the state of the operation
     """
-    web_setting_key = "column_display.{0}.{1}".format(page_name, column_name)
+    web_setting_key = f"column_display.{page_name}.{column_name}"
 
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, web_setting_key, True)
@@ -362,7 +362,7 @@ def disable_column_display(mila_email_username, page_name, column_name):
         - a HTTP status code (200 or 400)
         - a message describing the state of the operation
     """
-    web_setting_key = "column_display.{0}.{1}".format(page_name, column_name)
+    web_setting_key = f"column_display.{page_name}.{column_name}"
 
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, web_setting_key, False)
