@@ -28,6 +28,7 @@ from clockwork_web.config import register_config, get_config, string as valid_st
 register_config("translation.available_languages", valid_string)
 
 from clockwork_web.core.users_helper import render_template_with_user_settings
+from clockwork_web.core.utils import get_available_date_formats
 
 
 @flask_api.route("/")
@@ -260,6 +261,71 @@ def route_set_language():
             render_template_with_user_settings(
                 "error.html",
                 error_msg=gettext("Missing argument, or wrong format: language."),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+
+
+@flask_api.route("/web/date_format/set")
+@login_required
+def route_set_date_format():
+    """
+    Set a new preferred format to display the dates for the current authenticated user.
+
+    .. :quickref: update the preferred date format in the current user's settings
+    """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the preferred date format to store in the settings
+    date_format = request.args.get("date_format", type=str)
+    previous_request_args["date_format"] = date_format
+
+    # Check if the date format is expected
+    if date_format:
+        # Check if the date format is supported
+        if date_format in get_available_date_formats():
+            # If the requested date format is expected, update the preferred
+            # date format of the current user and retrieve the status code
+            # and status message associated to this operation
+            (
+                status_code,
+                status_message,
+            ) = current_user.settings_date_format_set(date_format)
+
+            if status_code == 200:
+                # If a success has been return, redirect to the home page
+                return redirect("/")
+            else:
+                # Otherwise, return an error
+                return (
+                    render_template_with_user_settings(
+                        "error.html",
+                        error_msg=status_message,
+                        previous_request_args=previous_request_args,
+                    ),
+                    status_code,
+                )
+
+        else:
+            # If the provided date format is not expected,
+            # return a Bad Request error and redirect to the error page
+            return (
+                render_template_with_user_settings(
+                    "error.html",
+                    error_msg=gettext("The requested date_format is unknown."),
+                    previous_request_args=previous_request_args,
+                ),
+                400,  # Bad Request
+            )
+    else:
+        # If the date format name is not provided or presents a unexpected type,
+        # return Bad Request
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("Missing argument, or wrong format: date_format."),
                 previous_request_args=previous_request_args,
             ),
             400,  # Bad Request

@@ -17,6 +17,8 @@ from clockwork_web.config import (
 )
 from clockwork_web.core.clusters_helper import get_all_clusters
 
+from clockwork_web.core.utils import get_available_date_formats
+
 # Load the web settings from the configuration file
 register_config("settings.default_values.nbr_items_per_page", validator=int)
 register_config("settings.default_values.dark_mode", validator=valid_boolean)
@@ -141,7 +143,7 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
     # Retrieve the types expected for each web setting
     web_settings_types = get_web_settings_types()
 
-    # If the element has a registered expected type
+    # If the element has a generic registered expected type
     if setting_key in web_settings_types:
         # The problem here is that isinstance(True,int) returns True
         # Thus, we handle boolean differently than any other type
@@ -150,7 +152,12 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
         else:
             return web_settings_types[setting_key] == bool
     else:
-        return False
+        # Check for the web setting associated to the date format
+        if setting_key == "date_format":
+            return setting_value in get_available_date_formats()
+        else:
+            # If the provided web setting has no expected type defined
+            return False
 
 
 def set_items_per_page(mila_email_username, nbr_items_per_page):
@@ -324,6 +331,26 @@ def set_language(mila_email_username, language):
     """
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, "language", language)
+
+
+def set_date_format(mila_email_username, date_format):
+    """
+    Set the language to use with a specific user.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users
+                                collection of the database
+
+        date_format             The chosen date format to display timestamps
+                                to this user
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
+    """
+    # Call _set_web_setting and return its response
+    return _set_web_setting(mila_email_username, "date_format", date_format)
 
 
 def render_template_with_user_settings(template_name_or_list, **context):
