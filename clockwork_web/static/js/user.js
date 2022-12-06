@@ -86,3 +86,34 @@ function set_nbr_items_per_page(nbr_items_per_page) {
     }
   )
 }
+
+function set_date_format(date_format) {
+  /*
+    Contact the server in order to update the date format used to display
+    the timestamps on the web interface for the user.
+
+    Parameter:
+    - date_format   The date format, chosen by the user, to use to display
+                    the timestamps on the web interface
+  */
+
+  // Define the URL to send the request
+  let url = "/settings/web/date_format/set?date_format=".concat("", date_format);
+
+   // Send the request and retrieve the response
+   const request = new Request(url,
+    {   method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+  fetch(request)
+  .then(response => {
+      if (response.status === 200) {
+          // We do nothing here... for now
+      } else {
+          throw new Error('Something went wrong on API server!');
+      };
+    }
+  )
+};
