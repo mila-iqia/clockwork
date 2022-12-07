@@ -242,20 +242,52 @@ function count_jobs(response_contents) {
 
 function format_date(timestamp) {
     /*
-        Format a timestamp in order to display it in the following format:
-        yyyy-mm-dd HH:MM
+        Format a timestamp in order to display it in the a format according to the
+        user's web settings.
     */
     let date_to_format = new Date(timestamp*1000); // The timestamp should be in milliseconds, not in seconds
 
-    // Format each element
-    year = date_to_format.getFullYear();
-    month = (date_to_format.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // Months are represented by indices from 0 to 11. Thus, 1 is added to the month. Moreover, this use of 'toLocaleString' is used to display each month with two digits (even the months from 1 to 9)
-    day = date_to_format.getDate().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display each day with two digits (even the days from 1 to 9)
+    // Date
+    // As word
+    // This is donc directly when creating the jobs list
 
-    hours = date_to_format.getHours().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display each hour with two digits (even the hours from 0 to 9)
-    minutes = date_to_format.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display the minutes with two digits (even when there is less than 10 minutes in the current hour)
+    // As timestamp
+    if ("date_format" in web_settings && web_settings["date_format"] == "unix_timestamp"){
+        return timestamp.toString();
+    }
+    else {
+        // Format each element
+        year = date_to_format.getFullYear();
+        month = (date_to_format.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // Months are represented by indices from 0 to 11. Thus, 1 is added to the month. Moreover, this use of 'toLocaleString' is used to display each month with two digits (even the months from 1 to 9)
+        day = date_to_format.getDate().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display each day with two digits (even the days from 1 to 9)
 
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
+        // As MM/DD/YYYY
+        if ("date_format" in web_settings && web_settings["date_format"] == "MM/DD/YYYY"){
+            formatted_date = `${month}/${day}/${year}`;
+        }
+
+        // As DD/MM/YYYY
+        else if ("date_format" in web_settings && web_settings["date_format"] == "DD/MM/YYYY"){
+            formatted_date = `${day}/${month}/${year}`;
+        }
+
+        // As YYYY/MM/DD (arbitrary default value)
+        else {
+            formatted_date = `${year}/${month}/${day}`;
+        }
+
+        // Hour
+        // AM/PM
+        if ("time_format" in web_settings && web_settings["time_format"] == "AM/PM"){
+            formatted_time = date_to_format.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+        }
+        // 24h
+        else {
+            formatted_time = date_to_format.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: false });
+        }
+        
+        return `${formatted_date} ${formatted_time}`;
+    }
 }
 
 function launch_refresh_all_data(query_filter, display_filter) {
@@ -500,10 +532,12 @@ function populate_table(response_contents) {
             // you need to set it up because this is going to be written as a unix timestamp.
             // This might include injecting another field with a name
             // such as "start_time_human_readable" or something like that, and using it here.
-
-            //td.innerHTML = D_job_slurm["start_time"].toString(); // For a timestamp
-            //td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]); // For a relative time
-            td.innerHTML = format_date(D_job_slurm["start_time"]); // For a human readable time
+            if ("date_format" in web_settings && web_settings["date_format"] == "words") {
+                td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]); // For a relative time
+            }
+            else {
+                td.innerHTML = format_date(D_job_slurm["start_time"]); // For a human readable time or a timestamp
+            }
         }
         tr.appendChild(td);
 
@@ -517,9 +551,12 @@ function populate_table(response_contents) {
             // This might include injecting another field with a name
             // such as "start_time_human_readable" or something like that, and using it here.
 
-            //td.innerHTML = D_job_slurm["end_time"].toString(); // For a timestamp
-            //td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]); // For a relative time
-            td.innerHTML = format_date(D_job_slurm["end_time"]);
+            if ("date_format" in web_settings && web_settings["date_format"] == "words") {
+                td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["end_time"]); // For a relative time
+            }
+            else {
+                td.innerHTML = format_date(D_job_slurm["end_time"]); // For a human readable time or a timestamp
+            }
         }
         tr.appendChild(td);
 

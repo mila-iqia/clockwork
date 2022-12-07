@@ -157,7 +157,6 @@ def create_app(extra_config: dict):
 
             # Date
             else:
-
                 # As MM/DD/YYYY
                 if expected_date_format == "MM/DD/YYYY":
                     formatted_date = "%m/%d/%Y"
@@ -166,7 +165,7 @@ def create_app(extra_config: dict):
                 elif expected_date_format == "DD/MM/YYYY":
                     formatted_date = "%d/%m/%Y"
 
-                # As YYYY/MM/DD
+                # As YYYY/MM/DD (arbitrary default value)
                 else:
                     formatted_date = "%Y/%m/%d"
 
@@ -175,7 +174,7 @@ def create_app(extra_config: dict):
                 if expected_time_format == "AM/PM":
                     formatted_time = "%I:%M %p"
 
-                # 24/24
+                # 24h
                 else:
                     formatted_time = "%H:%M"
 
