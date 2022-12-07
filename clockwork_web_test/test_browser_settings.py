@@ -94,3 +94,46 @@ def test_settings_set_nbr_items_per_page_zero_or_negative_value(
 
     # Check if the response is the expected one
     assert response.status_code == 400
+
+
+def test_settings_set_date_format_missing_argument(client):
+    """
+    Test the function route_set_date_format without sending a
+    date_format as argument.
+
+    Parameters:
+    - client    The web client used to send the request
+    """
+    # This is to establish a 'current_user'
+    client.get("/settings/")
+
+    # Retrieve the response to the call we are testing
+    response = client.get("/settings/web/date_format/set")
+
+    # Check if the response is the expected one
+    assert response.status_code == 400
+
+
+@pytest.mark.parametrize("date_format", ["test", 1.3, True])
+def test_settings_set_date_format_wrong_type(client, date_format):
+    """
+    Test the function route_set_date_format when sending the wrong type
+    for date_format.
+
+    Parameters:
+    - client                The web client used to send the request
+    - date_format           The value to try to set as the preferred date
+                            format used to display the timestamps for the
+                            current user
+    """
+    # This is to establish a 'current_user'
+    client.get("/settings/")
+
+    # Define the request to test
+    test_request = "/settings/web/date_format/set?date_format={}".format(date_format)
+
+    # Retrieve the response to the call we are testing
+    response = client.get(test_request)
+
+    # Check if the response is the expected one
+    assert response.status_code == 400

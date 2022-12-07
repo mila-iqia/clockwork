@@ -251,6 +251,9 @@ def test_is_correct_type_for_web_setting_with_unexisting_web_setting():
         ("nbr_items_per_page", True),
         ("dark_mode", "test"),
         ("dark_mode", 52.90),
+        ("date_format", 45),
+        ("date_format", True),
+        ("date_format", "notacorrectdateformat"),
     ],
 )
 def test_is_correct_type_for_web_setting_with_incorrect_value_type(
@@ -276,6 +279,8 @@ def test_is_correct_type_for_web_setting_with_incorrect_value_type(
         ("nbr_items_per_page", 567),
         ("dark_mode", False),
         ("dark_mode", True),
+        ("date_format", "words"),
+        ("date_format", "YYYY/MM/DD"),
     ],
 )
 def test_is_correct_type_for_web_setting_success(setting_key, setting_value):
@@ -410,6 +415,13 @@ def test_set_items_per_page_set_positive_number(app, fake_data, value):
     """
     Test the function set_items_per_page with a known user, and a positive
     integer as value (which is an expected value)
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    - value         A positive number, which is used to update the number
+                    of items to display per page for a specific user
     """
     # Assert that the users of the fake data exist and are not empty
     assert "users" in fake_data and len(fake_data["users"]) > 0
@@ -665,6 +677,118 @@ def test_disable_dark_mode_success(app, fake_data):
         # Assert that the other web settings remain unchanged
         for setting_key in known_user["web_settings"].keys():
             if setting_key != "dark_mode":
+                assert (
+                    known_user["web_settings"][setting_key]
+                    == D_user["web_settings"][setting_key]
+                )
+
+
+@pytest.mark.parametrize(
+    "incorrect_date_format",
+    [54, "not_a_correct_date_format", True, 3.4, ["unix_timestamp"]],
+)
+def test_set_date_format_with_incorrect_value_type(
+    app, fake_data, incorrect_date_format
+):
+    """
+    Test the function set_date_format while providing incorrect parameters
+
+    Parameters:
+    - app                       The scope of our tests, used to set the context
+                                (to access MongoDB)
+    - fake_data                 The data on which our tests are based
+    - incorrect_date_format     An element which does not correspond to what is expected
+                                from a date format
+    """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
+    # Get an existing user from the fake_data
+    known_user = fake_data["users"][0]
+    known_mila_email_username = known_user["mila_email_username"]
+
+    # Use the app context
+    with app.app_context():
+        # Try to update the preferred date format of the user with a value
+        # of an unexpected type
+        (status_code, _) = set_date_format(
+            known_mila_email_username, incorrect_date_format
+        )
+
+        # Check the status code
+        assert status_code == 400  # Bad Request
+
+        # Assert that the users data remains unchanged
+        assert_no_user_has_been_modified(fake_data)
+
+
+def test_set_date_format_with_unknown_user(app, fake_data):
+    """
+    Test the function set_date_format while providing an unexisting user
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    """
+    # Use the app context
+    with app.app_context():
+        # Try to update a date format for an unexisting user and get the status code of the operation
+        unknown_mila_email_username = "userdoesntexist@mila.quebec"  # Unexisting user
+        date_format = "unix_timestamp"  # Valid date format
+        (status_code, _) = set_date_format(unknown_mila_email_username, date_format)
+
+        # Check the status code
+        assert status_code == 500
+
+        # Assert that the users data remains unchanged
+        assert_no_user_has_been_modified(fake_data)
+
+
+@pytest.mark.parametrize(
+    "valid_date_format",
+    ["DD/MM/YYYY", "unix_timestamp"],
+)
+def test_set_date_format_success(app, fake_data, valid_date_format):
+    """
+    Test the function set_date_format
+
+    Parameters:
+    - app                   The scope of our tests, used to set the context
+                            (to access MongoDB)
+    - fake_data             The data on which our tests are based
+    - valid_date_format     An element which does not correspond to what is expected
+                            from a date format
+    """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
+    # Get an existing user from the fake_data
+    known_user = fake_data["users"][0]
+    known_mila_email_username = known_user["mila_email_username"]
+
+    # Use the app context
+    with app.app_context():
+        # Try to update the preferred date format of the user with a value
+        # of an expected type
+        (status_code, _) = set_date_format(known_mila_email_username, valid_date_format)
+
+        # Check the status code
+        assert status_code == 200  # Success
+
+        # Assert that the value has correctly been updated
+        # Retrieve the user from the database
+        mc = get_db()
+        # NB: the argument of find_one is the filter to apply to the user list
+        # the returned user matches this condition
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
+        # Compare the value of the date format with the expected one
+        assert D_user["web_settings"]["date_format"] == valid_date_format
+        # Assert that the other web settings remain unchanged
+        for setting_key in known_user["web_settings"].keys():
+            if setting_key != "date_format":
                 assert (
                     known_user["web_settings"][setting_key]
                     == D_user["web_settings"][setting_key]
