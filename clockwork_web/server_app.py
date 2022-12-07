@@ -142,15 +142,47 @@ def create_app(extra_config: dict):
 
     # Initialize templates filters
     @app.template_filter()
-    def format_date(float_timestamp):
-        montreal_timezone = (
-            "America/Montreal"  # For now, we display the hour in the Montreal timezone
-        )
+    def format_date(float_timestamp, expected_date_format, expected_time_format):
         if float_timestamp is not None:
-            datetime_timestamp = datetime.datetime.fromtimestamp(float_timestamp)
-            return datetime_timestamp.astimezone(timezone(montreal_timezone)).strftime(
-                "%Y-%m-%d %H:%M"
-            )
+            # Define the timezone
+            montreal_timezone = "America/Montreal"  # For now, we display the hour in the Montreal timezone
+
+            # Define the format to display the date and time
+            # As words
+            # This is done directly through the HTML template
+
+            # As timestamp
+            if expected_date_format == "unix_timestamp":
+                return float_timestamp
+
+            # Date
+            else:
+
+                # As MM/DD/YYYY
+                if expected_date_format == "MM/DD/YYYY":
+                    formatted_date = "%m/%d/%Y"
+
+                # As DD/MM/YYYY
+                elif expected_date_format == "DD/MM/YYYY":
+                    formatted_date = "%d/%m/%Y"
+
+                # As YYYY/MM/DD
+                else:
+                    formatted_date = "%Y/%m/%d"
+
+                # Hour
+                # AM/PM
+                if expected_time_format == "AM/PM":
+                    formatted_time = "%I:%M %p"
+
+                # 24/24
+                else:
+                    formatted_time = "%H:%M"
+
+                datetime_timestamp = datetime.datetime.fromtimestamp(float_timestamp)
+                return datetime_timestamp.astimezone(
+                    timezone(montreal_timezone)
+                ).strftime("{0} {1}".format(formatted_date, formatted_time))
         else:
             return ""
 

@@ -55,7 +55,7 @@
                                         <!-- Relative time format -->
                                         (<span data-livestamp='{{v|int}}'></span>, &nbsp;
                                         <!-- Human readable date format -->
-                                        {{ v|format_date }}
+                                        {{ v|format_date(web_settings["date_format"], web_settings["time_format"]) }}
                                         )
                                     </ul>
                                 </td>

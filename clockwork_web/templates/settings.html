@@ -114,7 +114,7 @@
 						<div>
 							<select class="form-select" aria-label="Time formatting" id="date_format_selection" onchange="select_date_format(this)">
 								<!-- In words -->
-								{% if "date_format" not in web_settings or web_settings["date_format"] == "words" %}
+								{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
 									<option value="words" selected>In words (2 months ago)</option>
 								{% else %}
 									<option value="words">In words (2 months ago)</option>
@@ -126,7 +126,7 @@
 									<option value="unix_timestamp">Unix timestamp (1667503950)</option>
 								{% endif %}
 								<!-- Format YYYY/MM/DD -->
-								{% if "date_format" in web_settings and web_settings["date_format"] == "YYYY/MM/DD" %}
+								{% if "date_format" not in web_settings or web_settings["date_format"] == "YYYY/MM/DD" %}
 									<option value="YYYY/MM/DD" selected>YYYY/MM/DD</option>
 								{% else %}
 									<option value="YYYY/MM/DD">YYYY/MM/DD</option>
