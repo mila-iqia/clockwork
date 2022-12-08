@@ -123,14 +123,57 @@ def test_settings_set_date_format_wrong_type(client, date_format):
     Parameters:
     - client                The web client used to send the request
     - date_format           The value to try to set as the preferred date
-                            format used to display the timestamps for the
-                            current user
+                            format used to display the "date part" of the
+                            timestamps for the current user
     """
     # This is to establish a 'current_user'
     client.get("/settings/")
 
     # Define the request to test
     test_request = "/settings/web/date_format/set?date_format={}".format(date_format)
+
+    # Retrieve the response to the call we are testing
+    response = client.get(test_request)
+
+    # Check if the response is the expected one
+    assert response.status_code == 400
+
+
+def test_settings_set_time_format_missing_argument(client):
+    """
+    Test the function route_set_time_format without sending a
+    time_format as argument.
+
+    Parameters:
+    - client    The web client used to send the request
+    """
+    # This is to establish a 'current_user'
+    client.get("/settings/")
+
+    # Retrieve the response to the call we are testing
+    response = client.get("/settings/web/time_format/set")
+
+    # Check if the response is the expected one
+    assert response.status_code == 400
+
+
+@pytest.mark.parametrize("time_format", ["notanexpectedtimeformat", 34.789, False])
+def test_settings_set_time_format_wrong_type(client, time_format):
+    """
+    Test the function route_set_time_format when sending the wrong type
+    for time_format.
+
+    Parameters:
+    - client                The web client used to send the request
+    - time_format           The value to try to set as the preferred time
+                            format used to display the "time part" of the
+                            timestamps for the current user
+    """
+    # This is to establish a 'current_user'
+    client.get("/settings/")
+
+    # Define the request to test
+    test_request = "/settings/web/time_format/set?time_format={}".format(time_format)
 
     # Retrieve the response to the call we are testing
     response = client.get(test_request)

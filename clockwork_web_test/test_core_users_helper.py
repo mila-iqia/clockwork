@@ -254,6 +254,9 @@ def test_is_correct_type_for_web_setting_with_unexisting_web_setting():
         ("date_format", 45),
         ("date_format", True),
         ("date_format", "notacorrectdateformat"),
+        ("time_format", 4986.57),
+        ("time_format", False),
+        ("time_format", "notacorrecttimeformat"),
     ],
 )
 def test_is_correct_type_for_web_setting_with_incorrect_value_type(
@@ -281,6 +284,8 @@ def test_is_correct_type_for_web_setting_with_incorrect_value_type(
         ("dark_mode", True),
         ("date_format", "words"),
         ("date_format", "YYYY/MM/DD"),
+        ("time_format", "24h"),
+        ("time_format", "AM/PM"),
     ],
 )
 def test_is_correct_type_for_web_setting_success(setting_key, setting_value):
@@ -789,6 +794,118 @@ def test_set_date_format_success(app, fake_data, valid_date_format):
         # Assert that the other web settings remain unchanged
         for setting_key in known_user["web_settings"].keys():
             if setting_key != "date_format":
+                assert (
+                    known_user["web_settings"][setting_key]
+                    == D_user["web_settings"][setting_key]
+                )
+
+
+@pytest.mark.parametrize(
+    "incorrect_time_format",
+    [237000, "not_a_correct_time_format", False, 789.09, ["AM/PM"]],
+)
+def test_set_time_format_with_incorrect_value_type(
+    app, fake_data, incorrect_time_format
+):
+    """
+    Test the function set_time_format while providing incorrect parameters
+
+    Parameters:
+    - app                       The scope of our tests, used to set the context
+                                (to access MongoDB)
+    - fake_data                 The data on which our tests are based
+    - incorrect_time_format     An element which does not correspond to what is expected
+                                from a time format
+    """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
+    # Get an existing user from the fake_data
+    known_user = fake_data["users"][0]
+    known_mila_email_username = known_user["mila_email_username"]
+
+    # Use the app context
+    with app.app_context():
+        # Try to update the preferred time format of the user with a value
+        # of an unexpected type
+        (status_code, _) = set_time_format(
+            known_mila_email_username, incorrect_time_format
+        )
+
+        # Check the status code
+        assert status_code == 400  # Bad Request
+
+        # Assert that the users data remains unchanged
+        assert_no_user_has_been_modified(fake_data)
+
+
+def test_set_time_format_with_unknown_user(app, fake_data):
+    """
+    Test the function set_time_format while providing an unexisting user
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    """
+    # Use the app context
+    with app.app_context():
+        # Try to update a time format for an unexisting user and get the status code of the operation
+        unknown_mila_email_username = "userdoesntexist@mila.quebec"  # Unexisting user
+        time_format = "24h"  # Valid time format
+        (status_code, _) = set_time_format(unknown_mila_email_username, time_format)
+
+        # Check the status code
+        assert status_code == 500
+
+        # Assert that the users data remains unchanged
+        assert_no_user_has_been_modified(fake_data)
+
+
+@pytest.mark.parametrize(
+    "valid_time_format",
+    ["AM/PM", "24h"],
+)
+def test_set_time_format_success(app, fake_data, valid_time_format):
+    """
+    Test the function set_time_format
+
+    Parameters:
+    - app                   The scope of our tests, used to set the context
+                            (to access MongoDB)
+    - fake_data             The data on which our tests are based
+    - valid_time_format     An element which does not correspond to what is expected
+                            from a time format
+    """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
+    # Get an existing user from the fake_data
+    known_user = fake_data["users"][0]
+    known_mila_email_username = known_user["mila_email_username"]
+
+    # Use the app context
+    with app.app_context():
+        # Try to update the preferred time format of the user with a value
+        # of an expected type
+        (status_code, _) = set_time_format(known_mila_email_username, valid_time_format)
+
+        # Check the status code
+        assert status_code == 200  # Success
+
+        # Assert that the value has correctly been updated
+        # Retrieve the user from the database
+        mc = get_db()
+        # NB: the argument of find_one is the filter to apply to the user list
+        # the returned user matches this condition
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
+        # Compare the value of the time format with the expected one
+        assert D_user["web_settings"]["time_format"] == valid_time_format
+        # Assert that the other web settings remain unchanged
+        for setting_key in known_user["web_settings"].keys():
+            if setting_key != "time_format":
                 assert (
                     known_user["web_settings"][setting_key]
                     == D_user["web_settings"][setting_key]
