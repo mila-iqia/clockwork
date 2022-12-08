@@ -90,15 +90,46 @@ function set_nbr_items_per_page(nbr_items_per_page) {
 function set_date_format(date_format) {
   /*
     Contact the server in order to update the date format used to display
-    the timestamps on the web interface for the user.
+    the "date part" of the timestamps on the web interface for the user.
 
     Parameter:
     - date_format   The date format, chosen by the user, to use to display
-                    the timestamps on the web interface
+                    the "date part" of the timestamps on the web interface
   */
 
   // Define the URL to send the request
   let url = "/settings/web/date_format/set?date_format=".concat("", date_format);
+
+   // Send the request and retrieve the response
+   const request = new Request(url,
+    {   method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+  fetch(request)
+  .then(response => {
+      if (response.status === 200) {
+          // We do nothing here... for now
+      } else {
+          throw new Error('Something went wrong on API server!');
+      };
+    }
+  )
+};
+
+function set_time_format(time_format) {
+  /*
+    Contact the server in order to update the time format used to display
+    the "time part" of the timestamps on the web interface for the user.
+
+    Parameter:
+    - time_format   The time format, chosen by the user, to use to display
+                    the "time part" from the timestamps on the web interface
+  */
+
+  // Define the URL to send the request
+  let url = "/settings/web/time_format/set?time_format=".concat("", time_format);
 
    // Send the request and retrieve the response
    const request = new Request(url,
