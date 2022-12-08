@@ -42,6 +42,14 @@
 			// Update it in the user's web settings
 			set_date_format(selected_date_format);
 		}
+
+		function select_time_format(time_format_dropdown) {
+			// Retrieve the selected value
+			var selected_time_format = time_format_dropdown.options[time_format_dropdown.selectedIndex].value;
+
+			// Update it in the user's web settings
+			set_time_format(selected_time_format);
+		}
 	</script>
 
 {% endblock %}
@@ -109,8 +117,8 @@
 					</dd>
 
 					<!-- Timestamps -->
-			  		<dt class="col-6"><label for="dark_mode_toggle">{{ gettext("Time formatting") }}</label></dt>
-		 			<dd class="col-6">
+			  		<dt class="col-6"><label for="date_format_selection">{{ gettext("Time formatting") }}</label></dt>
+		 			<dd class="col-3">
 						<div>
 							<select class="form-select" aria-label="Time formatting" id="date_format_selection" onchange="select_date_format(this)">
 								<!-- In words -->
@@ -142,6 +150,24 @@
 									<option value="MM/DD/YYYY" selected>MM/DD/YYYY</option>
 								{% else %}
 									<option value="MM/DD/YYYY">MM/DD/YYYY</option>
+								{% endif %}
+							</select>
+						</div>	
+					</dd>
+					<dd class="col-3">
+						<div>
+							<select class="form-select" aria-label="Time formatting" id="time_format_selection" onchange="select_time_format(this)">
+								<!-- Format AM/PM -->
+								{% if "time_format" in web_settings and web_settings["time_format"] == "AM/PM" %}
+									<option value="AM/PM" selected>AM/PM</option>
+								{% else %}
+									<option value="AM/PM">AM/PM</option>
+								{% endif %}
+								<!-- Format 24h -->
+								{% if "time_format" not in web_settings or web_settings["time_format"] == "24h" %}
+									<option value="24h" selected>24h</option>
+								{% else %}
+									<option value="24h">24h</option>
 								{% endif %}
 							</select>
 						</div>	

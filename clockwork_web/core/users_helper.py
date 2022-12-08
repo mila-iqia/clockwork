@@ -17,7 +17,10 @@ from clockwork_web.config import (
 )
 from clockwork_web.core.clusters_helper import get_all_clusters
 
-from clockwork_web.core.utils import get_available_date_formats
+from clockwork_web.core.utils import (
+    get_available_date_formats,
+    get_available_time_formats,
+)
 
 # Load the web settings from the configuration file
 register_config("settings.default_values.nbr_items_per_page", validator=int)
@@ -155,6 +158,9 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
         # Check for the web setting associated to the date format
         if setting_key == "date_format":
             return setting_value in get_available_date_formats()
+        # Check for the web setting associated to the time format
+        elif setting_key == "time_format":
+            return setting_value in get_available_time_formats()
         else:
             # If the provided web setting has no expected type defined
             return False
@@ -335,7 +341,8 @@ def set_language(mila_email_username, language):
 
 def set_date_format(mila_email_username, date_format):
     """
-    Set the language to use with a specific user.
+    Set the format of the "date part" of the datetimes to display to a
+    specific user on the web interface.
 
     Parameters:
         mila_email_username     Element identifying the User in the users
@@ -351,6 +358,27 @@ def set_date_format(mila_email_username, date_format):
     """
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, "date_format", date_format)
+
+
+def set_time_format(mila_email_username, time_format):
+    """
+    Set the format of the "time part" of the datetimes to display to a
+    specific user on the web interface.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users
+                                collection of the database
+
+        time_format             The chosen time format to display timestamps
+                                to this user
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
+    """
+    # Call _set_web_setting and return its response
+    return _set_web_setting(mila_email_username, "time_format", time_format)
 
 
 def render_template_with_user_settings(template_name_or_list, **context):

@@ -28,7 +28,10 @@ from clockwork_web.config import register_config, get_config, string as valid_st
 register_config("translation.available_languages", valid_string)
 
 from clockwork_web.core.users_helper import render_template_with_user_settings
-from clockwork_web.core.utils import get_available_date_formats
+from clockwork_web.core.utils import (
+    get_available_date_formats,
+    get_available_time_formats,
+)
 
 
 @flask_api.route("/")
@@ -326,6 +329,72 @@ def route_set_date_format():
             render_template_with_user_settings(
                 "error.html",
                 error_msg=gettext("Missing argument, or wrong format: date_format."),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+
+
+@flask_api.route("/web/time_format/set")
+@login_required
+def route_set_time_format():
+    """
+    Set a new preferred format to display the "time part" of the timestamps
+    displayed to the current authenticated user on the web interface.
+
+    .. :quickref: update the preferred time format in the current user's settings
+    """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the preferred time format to store in the settings
+    time_format = request.args.get("time_format", type=str)
+    previous_request_args["time_format"] = time_format
+
+    # Check if the time format is expected
+    if time_format:
+        # Check if the date format is supported
+        if time_format in get_available_time_formats():
+            # If the requested time format is expected, update the preferred
+            # time format of the current user and retrieve the status code
+            # and status message associated to this operation
+            (
+                status_code,
+                status_message,
+            ) = current_user.settings_time_format_set(time_format)
+
+            if status_code == 200:
+                # If a success has been return, redirect to the home page
+                return redirect("/")
+            else:
+                # Otherwise, return an error
+                return (
+                    render_template_with_user_settings(
+                        "error.html",
+                        error_msg=status_message,
+                        previous_request_args=previous_request_args,
+                    ),
+                    status_code,
+                )
+
+        else:
+            # If the provided time format is not expected,
+            # return a Bad Request error and redirect to the error page
+            return (
+                render_template_with_user_settings(
+                    "error.html",
+                    error_msg=gettext("The requested time_format is unknown."),
+                    previous_request_args=previous_request_args,
+                ),
+                400,  # Bad Request
+            )
+    else:
+        # If the time format name is not provided or presents a unexpected type,
+        # return Bad Request
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("Missing argument, or wrong format: time_format."),
                 previous_request_args=previous_request_args,
             ),
             400,  # Bad Request
