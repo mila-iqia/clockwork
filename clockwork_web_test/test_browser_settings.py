@@ -250,9 +250,9 @@ def test_settings_set_and_unset_column_display_good_request(
         assert response.status_code == 200
 
         # Retrieve the user data
-        D_users = get_db()["users"].find_one({"mila_email_username": user_id})
+        D_user = get_db()["users"].find_one({"mila_email_username": user_id})
         # Assert the column display value has been modified
-        assert D_users["web_settings"]["column_display"][page_name][column_name] == (
+        assert D_user["web_settings"]["column_display"][page_name][column_name] == (
             not previous_value
         )
 
