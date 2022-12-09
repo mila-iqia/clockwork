@@ -290,6 +290,29 @@ function format_date(timestamp) {
     }
 }
 
+function check_web_settings_column_display(page_name, column_name){
+    /*
+        Check whether or not the web setting associated to the display of a job property
+        as column on an array on a page (here "dashboard") is set. If it is set,
+        check its boolean value.
+
+        Such a web setting, if set, is accessible by calling web_settings[page_name][column_name].
+        The different columns (ie jobs properties) for the dashboard page are now the following:
+        ["clusters", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
+        
+        Parameters:
+            page_name       The name of the page on which we should display or not the
+                            job properties requested by the user in its preferences. For now,
+                            the values "dashboard" or "jobs_list" are expected
+            column_name     The column showing a specific job property, to display or not regarding
+                            the preferences of the user.
+
+        Returns:
+            True if the web_setting is unset or True, False otherwise.
+    */
+            return !(("column_display" in web_settings) && (page_name in web_settings["column_display"]) && (column_name in web_settings["column_display"][page_name])) || web_settings["column_display"][page_name][column_name];
+}
+
 function launch_refresh_all_data(query_filter, display_filter) {
     /*
         We just clicked on "refresh", or maybe we have freshly loaded
@@ -483,6 +506,8 @@ function populate_table(response_contents) {
             <td>{{e.get('name', "")[:32]}}</td> <!-- truncate after 32 chars -->
             <td>{{e['job_state']}}</td>
     */
+    // Initialize the name of the current page
+    let page_name = "dashboard";
 
     let table = document.getElementById(id_of_table_to_populate);
 
@@ -490,14 +515,62 @@ function populate_table(response_contents) {
     let thead = document.createElement('thead');
     let tr = document.createElement('tr');
     let th;
-    th = document.createElement('th'); th.innerHTML = "Cluster"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "Job ID"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "Job name [:20]"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "Job state"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "Start time"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "End time"; tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "Links"; th.setAttribute("data-sortable", "false"); tr.appendChild(th);
-    th = document.createElement('th'); th.innerHTML = "Actions"; th.setAttribute("data-sortable", "false"); tr.appendChild(th);
+    // Clusters header
+    if (check_web_settings_column_display(page_name, "clusters")) {
+        th = document.createElement('th');
+        th.innerHTML = "Cluster";
+        tr.appendChild(th);
+    }
+    // Job ID header
+    if (check_web_settings_column_display(page_name, "job_id")) {
+        th = document.createElement('th');
+        th.innerHTML = "Job ID";
+        tr.appendChild(th);
+    }
+    // Job name header
+    if (check_web_settings_column_display(page_name, "job_name")) {
+        th = document.createElement('th');
+        th.innerHTML = "Job name [:20]";
+        tr.appendChild(th);
+    }
+    // Job state header
+    if (check_web_settings_column_display(page_name, "job_state")) {
+        th = document.createElement('th');
+        th.innerHTML = "Job state";
+        tr.appendChild(th);
+    }
+    // Submit time header
+    if (check_web_settings_column_display(page_name, "clusters")) {
+        th = document.createElement('th');
+        th.innerHTML = "Submit time";
+        tr.appendChild(th);
+    }
+    // Start time header
+    if (check_web_settings_column_display(page_name, "start_time")) {
+        th = document.createElement('th');
+        th.innerHTML = "Start time";
+        tr.appendChild(th);
+    }
+    // End time header
+    if (check_web_settings_column_display(page_name, "end_time")) {
+        th = document.createElement('th');
+        th.innerHTML = "End time";
+        tr.appendChild(th);
+    }
+    // Links header
+    if (check_web_settings_column_display(page_name, "links")) {
+        th = document.createElement('th');
+        th.innerHTML = "Links";
+        th.setAttribute("data-sortable", "false");
+        tr.appendChild(th);
+    }
+    // Actions header
+    if (check_web_settings_column_display(page_name, "actions")) {
+        th = document.createElement('th');
+        th.innerHTML = "Actions";
+        th.setAttribute("data-sortable", "false");
+        tr.appendChild(th);
+    }
     thead.appendChild(tr);
     table.appendChild(thead);
 
@@ -509,75 +582,82 @@ function populate_table(response_contents) {
         job_state = D_job_slurm["job_state"].toLowerCase();
         let tr = document.createElement('tr');
         let td;
-        td = document.createElement('td'); td.innerHTML = D_job_slurm["cluster_name"]; tr.appendChild(td);
-        td = document.createElement('td'); td.innerHTML = (
-            "<a href=\"" + "/jobs/one?job_id=" + D_job_slurm["job_id"] + "\">" + D_job_slurm["job_id"] + "</a>"); tr.appendChild(td);
-        td = document.createElement('td'); td.innerHTML = (D_job_slurm["name"] ? D_job_slurm["name"] : "").substring(0, 20); tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
-        //td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
-        //kaweb - using the job state as a shorthand to insert icons through CSS
-        td = document.createElement('td'); 
-        td.className = "state";
-        
-        var formatted_job_state = job_state.replace(/_/g, " ");
-        
-        td.innerHTML = (
-            "<span class=\"status " + job_state + "\">" + formatted_job_state + "</span>"); tr.appendChild(td);
 
-        // start time
-        td = document.createElement('td');
-        if (D_job_slurm["start_time"] == null) {
-            td.innerHTML = "";
-        } else {
-            // If you want to display the time as "2021-07-06 22:19:46" for readability
-            // you need to set it up because this is going to be written as a unix timestamp.
-            // This might include injecting another field with a name
-            // such as "start_time_human_readable" or something like that, and using it here.
-            if ("date_format" in web_settings && web_settings["date_format"] == "words") {
-                td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["start_time"]); // For a relative time
-            }
-            else {
-                td.innerHTML = format_date(D_job_slurm["start_time"]); // For a human readable time or a timestamp
-            }
+        // Clusters
+        if (check_web_settings_column_display(page_name, "clusters")) {
+            td = document.createElement('td');
+            td.innerHTML = D_job_slurm["cluster_name"];
+            tr.appendChild(td);
         }
-        tr.appendChild(td);
-
-        // end time
-        td = document.createElement('td');
-        if (D_job_slurm["end_time"] == null) {
-            td.innerHTML = "";
-        } else {
-            // If you want to display the time as "2021-07-06 22:19:46" for readability
-            // you need to set it up because this is going to be written as a unix timestamp.
-            // This might include injecting another field with a name
-            // such as "start_time_human_readable" or something like that, and using it here.
-
-            if ("date_format" in web_settings && web_settings["date_format"] == "words") {
-                td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm["end_time"]); // For a relative time
-            }
-            else {
-                td.innerHTML = format_date(D_job_slurm["end_time"]); // For a human readable time or a timestamp
-            }
+        // Job ID
+        if (check_web_settings_column_display(page_name, "job_id")) {
+            td = document.createElement('td');
+            td.innerHTML = ("<a href=\"" + "/jobs/one?job_id=" + D_job_slurm["job_id"] + "\">" + D_job_slurm["job_id"] + "</a>");
+            tr.appendChild(td);
         }
-        tr.appendChild(td);
+        // Job name
+        if (check_web_settings_column_display(page_name, "job_name")) {
+            td = document.createElement('td');
+            td.innerHTML = (D_job_slurm["name"] ? D_job_slurm["name"] : "").substring(0, 20);
+            tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
+        }
+        // Job state
+        if (check_web_settings_column_display(page_name, "job_state")) {
+            //td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
+            //kaweb - using the job state as a shorthand to insert icons through CSS
+            td = document.createElement('td'); 
+            td.className = "state";
+            
+            var formatted_job_state = job_state.replace(/_/g, " ");
+            
+            td.innerHTML = ("<span class=\"status " + job_state + "\">" + formatted_job_state + "</span>");
+            tr.appendChild(td);
+        }
+        // Submit_time, start time and end_time of the jobs
+        let job_times = ["start_time", "submit_time", "end_time"];
+        for (var i=0; i<job_times.length; i++) {
+            let job_time = job_times[i];
+            if (check_web_settings_column_display(page_name, job_time)) {
+                td = document.createElement('td');
+                if (D_job_slurm[job_time] == null) {
+                    td.innerHTML = "";
+                } else {
+                    // If you want to display the time as "2021-07-06 22:19:46" for readability
+                    // you need to set it up because this is going to be written as a unix timestamp.
+                    // This might include injecting another field with a name
+                    // such as "start_time_human_readable" or something like that, and using it here.
+        
+                    if ("date_format" in web_settings && web_settings["date_format"] == "words") {
+                        td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm[job_time]); // For a relative time
+                    }
+                    else {
+                        td.innerHTML = format_date(D_job_slurm[job_time]); // For a human readable time or a timestamp
+                    }
+                tr.appendChild(td);
+            }
+        };
+        
+        // Links
+        if (check_web_settings_column_display(page_name, "links")) {
+            td = document.createElement('td'); 
+            td.className = "links";
+            td.innerHTML = (
+                "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to somewhere'><i class='fa-solid fa-file'></i></a>"
+                + 
+                "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>"
+            ); 
+            tr.appendChild(td);
+        }
 
-        // links
-        td = document.createElement('td'); 
-        td.className = "links";
-        td.innerHTML = (
-            "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to somewhere'><i class='fa-solid fa-file'></i></a>"
-            + 
-            "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>"
-        ); 
-        tr.appendChild(td);
-
-        // actions
-        td = document.createElement('td'); 
-        td.className = "actions";
-        td.innerHTML = (
-            "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>"
-        ); 
-        tr.appendChild(td);
-
+        // Actions
+        if (check_web_settings_column_display(page_name, "actions")) {
+            td = document.createElement('td'); 
+            td.className = "actions";
+            td.innerHTML = (
+                "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>"
+            ); 
+            tr.appendChild(td);
+        }
 
         tbody.appendChild(tr);
 

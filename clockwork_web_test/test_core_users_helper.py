@@ -48,8 +48,8 @@ def test_set_web_setting_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Set the dark mode for a user who does not exist to True and get the status code of the operation
-        # (in this case, we have valid setting_key and setting_value)
+        # Set the dark mode for a user who does not exist to True and get the status code
+        # of the operation (in this case, we have valid setting_key and setting_value)
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
         (status_code, _) = _set_web_setting(
             unknown_mila_email_username, "dark_mode", True
@@ -236,12 +236,28 @@ def test_set_web_setting_set_dark_mode(app, fake_data):
                 )
 
 
-def test_is_correct_type_for_web_setting_with_unexpected_web_setting():
+@pytest.mark.parametrize(
+    "setting_key,setting_value",
+    [
+        ("settingdoesnotexist", 3),
+        ("column_display.dashboard.not_a_column", True),
+        ("column_display.not_a_page.job_id", False),
+    ],
+)
+def test_is_correct_type_for_web_setting_with_unexpected_web_setting(
+    setting_key, setting_value
+):
     """
     Test the function is_correct_type_for_web_setting when an unexpected
     setting_key is provided
+
+    Parameters:
+    - setting_key       The key identifying the setting we want to update
+    - setting_value     The value to try to set for the setting. For the purpose
+                        of the test, its type must not correspond to the expected
+                        type of the setting
     """
-    assert is_correct_type_for_web_setting("settingdoesnotexist", 3) == False
+    assert is_correct_type_for_web_setting(setting_key, setting_value) == False
 
 
 @pytest.mark.parametrize(
@@ -257,6 +273,8 @@ def test_is_correct_type_for_web_setting_with_unexpected_web_setting():
         ("time_format", 4986.57),
         ("time_format", False),
         ("time_format", "notacorrecttimeformat"),
+        ("column_display.dashboard.job_id", 45),
+        ("column_display.dashboard.job_id", "not a string expected"),
     ],
 )
 def test_is_correct_type_for_web_setting_with_incorrect_value_type(
@@ -286,6 +304,8 @@ def test_is_correct_type_for_web_setting_with_incorrect_value_type(
         ("date_format", "YYYY/MM/DD"),
         ("time_format", "24h"),
         ("time_format", "AM/PM"),
+        ("column_display.dashboard.job_id", True),
+        ("column_display.dashboard.job_id", False),
     ],
 )
 def test_is_correct_type_for_web_setting_success(setting_key, setting_value):
@@ -746,11 +766,10 @@ def test_set_date_format_with_unknown_user(app, fake_data):
         (status_code, _) = set_date_format(unknown_mila_email_username, date_format)
 
         # Check the status code
-        assert status_code == 500
+        assert status_code == 500 # Internal Server Error
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
-
 
 @pytest.mark.parametrize(
     "valid_date_format",
@@ -791,6 +810,7 @@ def test_set_date_format_success(app, fake_data, valid_date_format):
         D_user = mc["users"].find_one(
             {"mila_email_username": known_user["mila_email_username"]}
         )
+
         # Compare the value of the date format with the expected one
         assert D_user["web_settings"]["date_format"] == valid_date_format
         # Assert that the other web settings remain unchanged
@@ -859,7 +879,7 @@ def test_set_time_format_with_unknown_user(app, fake_data):
         (status_code, _) = set_time_format(unknown_mila_email_username, time_format)
 
         # Check the status code
-        assert status_code == 500
+        assert status_code == 500 # Internal Server Error
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -915,6 +935,241 @@ def test_set_time_format_success(app, fake_data, valid_time_format):
                 )
 
 
+@pytest.mark.parametrize("page_name,column_name", [("dashboard", "start_time")])
+def test_enable_column_display_with_unknown_user(
+    app, fake_data, page_name, column_name
+):
+    """
+    Test the function enable_column_display with an unknown user
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    - page_name     Name of the page on which the job property corresponding to the column should be displayed
+    - column_name   Name of the column (corresponding to a job property) whose display is enabled
+    """
+    # Use the app context
+    with app.app_context():
+        # Try to enable the display of the given column on the given page for a user who does not exist and
+        # get the status code of the operation
+        unknown_mila_email_username = "userdoesntexist@mila.quebec"
+        (status_code, _) = enable_column_display(
+            unknown_mila_email_username, page_name, column_name
+        )
+
+        # Check the status code
+        assert status_code == 500 # Internal Server Error
+
+        # Assert that the users data remains unchanged
+        assert_no_user_has_been_modified(fake_data)
+
+
+@pytest.mark.parametrize(
+    "page_name,column_name",
+    [
+        (
+            "not_an_expected_page",
+            "job_id",
+        ),  # Unexpected page, "correct" column (as long as we consider this correct, as an undefined page implies no associated expected column)
+        ("dashboard", "not_an_expected_column"),  # Correct page, unexpected column
+        (
+            None,
+            "job_id",
+        ),  # No page, "correct" column (as long as we consider this correct, as no page implies no associated expected column)
+        ("jobs_list", None),  # Correct column, no page
+        (None, None),  # No page and no column
+    ],
+)
+def test_enable_column_display_bad_request(app, fake_data, page_name, column_name):
+    """
+    Test the function enable_column_display with unexpected page_name and column_name
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    - page_name     Name of the page on which the job property corresponding to the column should be displayed
+    - column_name   Name of the column (corresponding to a job property) whose display is enabled
+    """
+    # Use the app context
+    with app.app_context():
+        # Assert that the users of the fake data exist and are not empty
+        assert "users" in fake_data and len(fake_data["users"]) > 0
+
+        # Get an existing user from the fake_data
+        known_user = fake_data["users"][0]
+
+        # Then disable the corresponding display setting for this user and get the status code of the operation
+        (status_code, _) = enable_column_display(
+            known_user["mila_email_username"], page_name, column_name
+        )
+
+        # Check the status code
+        assert status_code == 400 # Bad Request
+
+        # Assert that the users data remains unchanged
+        assert_no_user_has_been_modified(fake_data)
+
+
+@pytest.mark.parametrize("page_name,column_name", [("dashboard", "start_time")])
+def test_enable_column_display_success(app, fake_data, page_name, column_name):
+    """
+    Test the function enable_column_display when the operation is successful
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    - page_name     Name of the page on which the job property corresponding to the column should be displayed
+    - column_name   Name of the column (corresponding to a job property) whose display is enabled
+    """
+    # Use the app context
+    with app.app_context():
+        # Assert that the users of the fake data exist and are not empty
+        assert "users" in fake_data and len(fake_data["users"]) > 0
+
+        # Get an existing user from the fake_data
+        known_user = fake_data["users"][0]
+
+        # Then disable the corresponding display setting for this user and get the status code of the operation
+        (status_code, _) = enable_column_display(
+            known_user["mila_email_username"], page_name, column_name
+        )
+
+        # Check the status code
+        assert status_code == 200 # Success
+
+        # Assert that the display setting for this column is enabled for this user
+        # Retrieve the user from the database
+        mc = get_db()
+        # NB: the argument of find_one is the filter to apply to the user list
+        # the returned user matches this condition
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
+
+        # Compare the value of the column display setting with True
+        assert D_user["web_settings"]["column_display"][page_name][column_name] == True
+
+
+@pytest.mark.parametrize("page_name,column_name", [("dashboard", "start_time")])
+def test_disable_column_display_with_unknown_user(
+    app, fake_data, page_name, column_name
+):
+    """
+    Test the function disable_column_display with an unknown user
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    - page_name     Name of the page on which the job property corresponding to the column should be displayed
+    - column_name   Name of the column (corresponding to a job property) whose display is enabled
+    """
+    # Use the app context
+    with app.app_context():
+        # Try to enable the display of the given column on the given page for a user who does not exist
+        # and get the status code of the operation
+        unknown_mila_email_username = "userdoesntexist@mila.quebec"
+        (status_code, _) = disable_column_display(
+            unknown_mila_email_username, page_name, column_name
+        )
+
+        # Check the status code
+        assert status_code == 500 # Internal Server Error
+
+        # Assert that the users data remains unchanged
+        assert_no_user_has_been_modified(fake_data)
+
+
+@pytest.mark.parametrize(
+    "page_name,column_name",
+    [
+        (
+            "not_an_expected_page",
+            "job_id",
+        ),  # Unexpected page, "correct" column (as long as we consider this correct, as an undefined page implies no associated expected column)
+        ("dashboard", "not_an_expected_column"),  # Correct page, unexpected column
+        (
+            None,
+            "job_id",
+        ),  # No page, "correct" column (as long as we consider this correct, as no page implies no associated expected column)
+        ("jobs_list", None),  # Correct column, no page
+        (None, None),  # No page and no column
+    ],
+)
+def test_disable_column_display_bad_request(app, fake_data, page_name, column_name):
+    """
+    Test the function disable_column_display with unexpected page_name and column_name
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    - page_name     Name of the page on which the job property corresponding to the column should be displayed
+    - column_name   Name of the column (corresponding to a job property) whose display is enabled
+    """
+    # Use the app context
+    with app.app_context():
+        # Assert that the users of the fake data exist and are not empty
+        assert "users" in fake_data and len(fake_data["users"]) > 0
+
+        # Get an existing user from the fake_data
+        known_user = fake_data["users"][0]
+
+        # Then disable the corresponding display setting for this user and get the status code of the operation
+        (status_code, _) = disable_column_display(
+            known_user["mila_email_username"], page_name, column_name
+        )
+
+        # Check the status code
+        assert status_code == 400 # Bad Request
+
+        # Assert that the users data remains unchanged
+        assert_no_user_has_been_modified(fake_data)
+
+
+@pytest.mark.parametrize("page_name,column_name", [("dashboard", "start_time")])
+def test_disable_column_display_success(app, fake_data, page_name, column_name):
+    """
+    Test the function disable_column_display when the operation is successful
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    - page_name     Name of the page on which the job property corresponding to the column should be displayed
+    - column_name   Name of the column (corresponding to a job property) whose display is enabled
+    """
+    # Use the app context
+    with app.app_context():
+        # Assert that the users of the fake data exist and are not empty
+        assert "users" in fake_data and len(fake_data["users"]) > 0
+
+        # Get an existing user from the fake_data
+        known_user = fake_data["users"][0]
+
+        # Then disable the corresponding display setting for this user and get the status code of the operation
+        (status_code, _) = disable_column_display(
+            known_user["mila_email_username"], page_name, column_name
+        )
+
+        # Check the status code
+        assert status_code == 200 # Success
+
+        # Assert that the display setting for this column is enabled for this user
+        # Retrieve the user from the database
+        mc = get_db()
+        # NB: the argument of find_one is the filter to apply to the user list
+        # the returned user matches this condition
+        D_user = mc["users"].find_one(
+            {"mila_email_username": known_user["mila_email_username"]}
+        )
+        # Compare the value of the column display setting with True
+        assert D_user["web_settings"]["column_display"][page_name][column_name] == False
+        
+        
 def test_get_nbr_items_per_page_none_user(app):
     """
     Test the function get_nbr_items_per_page when the user is None.
