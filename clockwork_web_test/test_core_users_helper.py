@@ -11,15 +11,15 @@ from clockwork_web.db import init_db, get_db
 
 @pytest.mark.parametrize(
     "setting_name",
-    ["unexistingsetting", -1, 4.5, False, {}, ["blbl"]],
+    ["unexpectedsetting", -1, 4.5, False, {}, ["blbl"]],
 )
 def test_get_default_setting_value_wrong_setting_name(setting_name):
     """
-    Test the function get_default_setting_value when an unexisting setting_name
+    Test the function get_default_setting_value when an unexpected setting_name
     is provided
 
     Parameters:
-        setting_name    The name of the unexisting setting_name to check
+        setting_name    The name of the unexpected setting_name to check
     """
     assert get_default_setting_value(setting_name) == None
 
@@ -48,7 +48,7 @@ def test_set_web_setting_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Set the dark mode for unexisting user to True and get the status code of the operation
+        # Set the dark mode for a user who does not exist to True and get the status code of the operation
         # (in this case, we have valid setting_key and setting_value)
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
         (status_code, _) = _set_web_setting(
@@ -79,10 +79,10 @@ def test_set_web_setting_with_wrong_setting_key(app, fake_data):
 
     # Use the app context
     with app.app_context():
-        # Set an unexisting setting by using _set_web_setting and get the status code of the operation
-        unexisting_setting = "settingdoesnotexist"
+        # Set an unexpected setting by using _set_web_setting and get the status code of the operation
+        unexpected_setting = "settingdoesnotexist"
         (status_code, _) = _set_web_setting(
-            known_mila_email_username, unexisting_setting, 42
+            known_mila_email_username, unexpected_setting, 42
         )
 
         # Check the status code
@@ -236,9 +236,9 @@ def test_set_web_setting_set_dark_mode(app, fake_data):
                 )
 
 
-def test_is_correct_type_for_web_setting_with_unexisting_web_setting():
+def test_is_correct_type_for_web_setting_with_unexpected_web_setting():
     """
-    Test the function is_correct_type_for_web_setting when an unexisting
+    Test the function is_correct_type_for_web_setting when an unexpected
     setting_key is provided
     """
     assert is_correct_type_for_web_setting("settingdoesnotexist", 3) == False
@@ -312,7 +312,7 @@ def test_set_items_per_page_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Set the dark mode for unexisting user to True and get the status code of the operation
+        # Set the dark mode for a user who does not exist to True and get the status code of the operation
         # (in this case, we have valid setting_key and setting_value)
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
         (status_code, _) = set_items_per_page(unknown_mila_email_username, 5)
@@ -474,7 +474,7 @@ def test_reset_items_per_page_with_unknown_user(app, fake_data):
     # Use the app context
     with app.app_context():
         # Try to reset the preferred number of items per page to the default
-        # value for an unexisting user and get the status code of the operation
+        # value for a user who does not exist and get the status code of the operation
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
         (status_code, _) = reset_items_per_page(unknown_mila_email_username)
 
@@ -549,7 +549,7 @@ def test_enable_dark_mode_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Try to enable the dark mode for an unexisting user and get the status code of the operation
+        # Try to enable the dark mode for a user who does not exist and get the status code of the operation
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
         (status_code, _) = enable_dark_mode(unknown_mila_email_username)
 
@@ -624,7 +624,7 @@ def test_disable_dark_mode_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Try to disable the dark mode for an unexisting user and get the status code of the operation
+        # Try to disable the dark mode for a user who does not exist and get the status code of the operation
         unknown_mila_email_username = "userdoesntexist@mila.quebec"
         (status_code, _) = disable_dark_mode(unknown_mila_email_username)
 
@@ -729,7 +729,8 @@ def test_set_date_format_with_incorrect_value_type(
 
 def test_set_date_format_with_unknown_user(app, fake_data):
     """
-    Test the function set_date_format while providing an unexisting user
+    Test the function set_date_format while providing a user who does
+    not exist
 
     Parameters:
     - app           The scope of our tests, used to set the context
@@ -738,8 +739,9 @@ def test_set_date_format_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Try to update a date format for an unexisting user and get the status code of the operation
-        unknown_mila_email_username = "userdoesntexist@mila.quebec"  # Unexisting user
+        # Try to update a date format for a user who does not exist and get the status
+        # code of the operation
+        unknown_mila_email_username = "userdoesntexist@mila.quebec"  # Inexistent user
         date_format = "unix_timestamp"  # Valid date format
         (status_code, _) = set_date_format(unknown_mila_email_username, date_format)
 
@@ -841,7 +843,7 @@ def test_set_time_format_with_incorrect_value_type(
 
 def test_set_time_format_with_unknown_user(app, fake_data):
     """
-    Test the function set_time_format while providing an unexisting user
+    Test the function set_time_format while providing a user who does not exist
 
     Parameters:
     - app           The scope of our tests, used to set the context
@@ -850,8 +852,9 @@ def test_set_time_format_with_unknown_user(app, fake_data):
     """
     # Use the app context
     with app.app_context():
-        # Try to update a time format for an unexisting user and get the status code of the operation
-        unknown_mila_email_username = "userdoesntexist@mila.quebec"  # Unexisting user
+        # Try to update a time format for a user who does not exist and get the status
+        # code of the operation
+        unknown_mila_email_username = "userdoesntexist@mila.quebec"  # Inexistent user
         time_format = "24h"  # Valid time format
         (status_code, _) = set_time_format(unknown_mila_email_username, time_format)
 
