@@ -145,3 +145,43 @@ def test_settings_set_column_display_bad_request(
 
     # Check if the response is the expected one
     assert response.status_code == 400
+
+
+def test_settings_set_column_display_good_request(
+    client, fake_data  # , page_name, column_name
+):
+    """
+
+    Parameters:
+    - client
+    - page_name
+    - column_name
+    """
+    page_name = "jobs_list"
+    column_name = "job_id"
+
+    e = client.get("/login/testing?user_id=student00@mila.quebec")
+    print(e)
+    # print(response)
+    # print(status_code)
+
+    # This is to establish a 'current_user'
+    client.get("/settings/")
+
+    # Define the request to test
+    if page_name == None and column_name == None:
+        test_request = "/settings/web/column/set"
+    elif page_name == None:
+        test_request = f"/settings/web/column/set?column={column_name}"
+    elif column_name == None:
+        test_request = f"/settings/web/column/set?page={page_name}"
+    else:
+        test_request = f"/settings/web/column/set?page={page_name}&column={column_name}"
+
+    # Retrieve the response to the call we are testing
+    response = client.get(test_request)
+
+    # Check if the response is the expected one
+    assert response.status_code == 200
+
+    client.get("/login/logout")
