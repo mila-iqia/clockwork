@@ -139,6 +139,39 @@ def test_settings_set_date_format_wrong_type(client, date_format):
     assert response.status_code == 400
 
 
+@pytest.mark.parametrize("date_format", ["words", "unix_timestamp", "MM/DD/YYYY"])
+def test_settings_set_date_format_success(client, fake_data, date_format):
+    """
+    Test the function route_set_date_format when the operation is
+    done successfully.
+
+    Parameters:
+    - client        The web client used to send the request
+    - fake_data     The data on which our tests are based
+    - date_format   The format to display the dates to store in the user's settings
+    """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+    # Define the user used to test the function
+    user_id = fake_data["users"][0]["mila_email_username"]
+
+    # Log in to Clockwork in order to have an active current user
+    login_response = client.get(f"/login/testing?user_id={user_id}")
+    assert login_response.status_code == 302  # Redirect
+
+    # Define the request to test
+    test_request = f"/settings/web/date_format/set?date_format={date_format}"
+    # Retrieve the response to the call we are testing
+    response = client.get(test_request)
+    # Check if the response is the expected one
+    assert response.status_code == 302 # Redirect
+
+    # Retrieve the user data
+    D_user = get_db()["users"].find_one({"mila_email_username": user_id})
+    # Assert the date format setting has been modified
+    assert D_user["web_settings"]["date_format"] == date_format
+
+
 def test_settings_set_time_format_missing_argument(client):
     """
     Test the function route_set_time_format without sending a
@@ -180,3 +213,38 @@ def test_settings_set_time_format_wrong_type(client, time_format):
 
     # Check if the response is the expected one
     assert response.status_code == 400
+
+
+@pytest.mark.parametrize("time_format", ["24h", "AM/PM"])
+def test_settings_set_time_format_success(client, fake_data, time_format):
+    """
+    Test the function route_set_time_format when the operation is
+    done successfully.
+
+    Parameters:
+    - client        The web client used to send the request
+    - fake_data     The data on which our tests are based
+    - time_format   The value to try to set as the preferred time
+                    format used to display the "time part" of the
+                    timestamps for the current user
+    """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+    # Define the user used to test the function
+    user_id = fake_data["users"][0]["mila_email_username"]
+
+    # Log in to Clockwork in order to have an active current user
+    login_response = client.get(f"/login/testing?user_id={user_id}")
+    assert login_response.status_code == 302  # Redirect
+
+    # Define the request to test
+    test_request = f"/settings/web/time_format/set?time_format={time_format}"
+    # Retrieve the response to the call we are testing
+    response = client.get(test_request)
+    # Check if the response is the expected one
+    assert response.status_code == 302 # Redirect
+
+    # Retrieve the user data
+    D_user = get_db()["users"].find_one({"mila_email_username": user_id})
+    # Assert the time format setting has been modified
+    assert D_user["web_settings"]["time_format"] == time_format
