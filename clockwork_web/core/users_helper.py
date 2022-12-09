@@ -5,6 +5,7 @@ Helper functions related to the User entity and the users entries from the datab
 from flask_login import current_user
 from flask import render_template
 import json
+import re
 
 from clockwork_web.db import get_db
 
@@ -16,6 +17,7 @@ from clockwork_web.config import (
     string as valid_string,
 )
 from clockwork_web.core.clusters_helper import get_all_clusters
+from clockwork_web.core.jobs_helper import get_jobs_properties_list_per_page
 
 from clockwork_web.core.utils import (
     get_available_date_formats,
@@ -103,7 +105,7 @@ def _set_web_setting(mila_email_username, setting_key, setting_value):
         #        "$set": {"web_settings.nbr_items_per_page": 34}
         #    }
         # This is what the variable "web_settings_key" is about.)
-        web_settings_key = "web_settings.{}".format(setting_key)
+        web_settings_key = f"web_settings.{setting_key}"
         update_result = users_collection.update_one(
             {
                 "mila_email_username": mila_email_username
@@ -154,15 +156,27 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
             return isinstance(setting_value, web_settings_types[setting_key])
         else:
             return web_settings_types[setting_key] == bool
+
     else:
+        m = re.match(r"^column_display\.(dashboard|jobs_list)\.(.+)", setting_key)
+        if m:
+            # If the web setting is related to the display of a job property on a specific page
+            # Check if the job property is consistent
+            jobs_properties_list_per_page = get_jobs_properties_list_per_page()
+            if m.group(2) in jobs_properties_list_per_page[m.group(1)]:
+                # If it is, check the expected type
+                return type(setting_value) == bool
+            else:
+                # Otherwise, return False
+                return False
         # Check for the web setting associated to the date format
-        if setting_key == "date_format":
+        elif setting_key == "date_format":
             return setting_value in get_available_date_formats()
         # Check for the web setting associated to the time format
         elif setting_key == "time_format":
             return setting_value in get_available_time_formats()
         else:
-            # If the provided web setting has no expected type defined
+            # In every other cases, the provided web setting has no expected type defined
             return False
 
 
@@ -318,6 +332,51 @@ def disable_dark_mode(mila_email_username):
     """
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, "dark_mode", False)
+
+
+def enable_column_display(mila_email_username, page_name, column_name):
+    """
+    Enable the display of a specific column on the "dashboard" or "jobs list" page
+    for a User.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users collection
+                                if the database
+        page_name               Name of the page on which the job property corresponding to the column should be displayed
+        column_name             Name of the column (corresponding to a job property) whose display is enabled
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (200 if success, 400 if a problem occurs with the expected page_name or column_page or 500 if another
+          error occurred)
+        - a message describing the state of the operation
+    """
+    web_setting_key = f"column_display.{page_name}.{column_name}"
+
+    # Call _set_web_setting and return its response
+    return _set_web_setting(mila_email_username, web_setting_key, True)
+
+
+def disable_column_display(mila_email_username, page_name, column_name):
+    """
+    Disable the display of a specific column on the "dashboard" or "jobs list" page
+    for a User.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users collection
+                                if the database
+        page_name               Name of the page on which the column display is disabled
+        column_name             Name of the column whose display is disabled
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (200 or 400)
+        - a message describing the state of the operation
+    """
+    web_setting_key = f"column_display.{page_name}.{column_name}"
+
+    # Call _set_web_setting and return its response
+    return _set_web_setting(mila_email_username, web_setting_key, False)
 
 
 def set_language(mila_email_username, language):
