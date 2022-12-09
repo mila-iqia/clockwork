@@ -540,7 +540,7 @@ function populate_table(response_contents) {
         tr.appendChild(th);
     }
     // Submit time header
-    if (check_web_settings_column_display(page_name, "clusters")) {
+    if (check_web_settings_column_display(page_name, "submit_time")) {
         th = document.createElement('th');
         th.innerHTML = "Submit time";
         tr.appendChild(th);
@@ -633,6 +633,7 @@ function populate_table(response_contents) {
                     else {
                         td.innerHTML = format_date(D_job_slurm[job_time]); // For a human readable time or a timestamp
                     }
+                }
                 tr.appendChild(td);
             }
         };
@@ -669,7 +670,6 @@ function populate_table(response_contents) {
             let url = "../../../joplin_live/arcanix/note/" + note_info["jid"];
             td0.innerHTML = "<a href=\"" + url + "\">" + note_info["title"] + "</a>";
             */
-
 }
 
 
