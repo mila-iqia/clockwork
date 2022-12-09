@@ -123,9 +123,10 @@ def test_settings_set_column_display_bad_request(
     and assert the result is 400 (Bad Request).
 
     Parameters:
-    - client
-    - page_name
-    - column_name
+    - client        The web client used to send the request
+    - fake_data     The data on which our tests are based
+    - page_name     The page name on which the provided job property should appear or not regarding the web setting value
+    - column_name   The job property we try to change whether or not it is displayed
     """
     # This is to establish a 'current_user'
     client.get("/settings/")
@@ -147,41 +148,116 @@ def test_settings_set_column_display_bad_request(
     assert response.status_code == 400
 
 
-def test_settings_set_column_display_good_request(
-    client, fake_data  # , page_name, column_name
+@pytest.mark.parametrize(
+    "page_name,column_name",
+    [
+        (
+            "not_an_expected_page",
+            "job_id",
+        ),  # Unexpected page, "correct" column (as long as we consider this correct, as an undefined page implies no associated expected column)
+        ("dashboard", "not_an_expected_column"),  # Correct page, unexpected column
+        (
+            None,
+            "job_id",
+        ),  # No page, "correct" column (as long as we consider this correct, as no page implies no associated expected column)
+        ("jobs_list", None),  # Correct column, no page
+        (None, None),  # No page and no column
+    ],
+)
+def test_settings_unset_column_display_bad_request(
+    client, fake_data, page_name, column_name
 ):
     """
+    Test the function route_unset_column_display when sending incomplete or unexpected arguments
+    and assert the result is 400 (Bad Request).
 
     Parameters:
-    - client
-    - page_name
-    - column_name
+    - client        The web client used to send the request
+    - fake_data     The data on which our tests are based
+    - page_name     The page name on which the provided job property should appear or not regarding the web setting value
+    - column_name   The job property we try to change whether or not it is displayed
     """
-    page_name = "jobs_list"
-    column_name = "job_id"
-
-    e = client.get("/login/testing?user_id=student00@mila.quebec")
-    print(e)
-    # print(response)
-    # print(status_code)
-
     # This is to establish a 'current_user'
     client.get("/settings/")
 
     # Define the request to test
     if page_name == None and column_name == None:
-        test_request = "/settings/web/column/set"
+        test_request = "/settings/web/column/unset"
     elif page_name == None:
-        test_request = f"/settings/web/column/set?column={column_name}"
+        test_request = f"/settings/web/column/unset?column={column_name}"
     elif column_name == None:
-        test_request = f"/settings/web/column/set?page={page_name}"
+        test_request = f"/settings/web/column/unset?page={page_name}"
     else:
-        test_request = f"/settings/web/column/set?page={page_name}&column={column_name}"
+        test_request = (
+            f"/settings/web/column/unset?page={page_name}&column={column_name}"
+        )
 
     # Retrieve the response to the call we are testing
     response = client.get(test_request)
 
     # Check if the response is the expected one
-    assert response.status_code == 200
+    assert response.status_code == 400
 
-    client.get("/login/logout")
+
+@pytest.mark.parametrize(
+    "page_name,column_name",
+    [("jobs_list", "job_id")],
+)
+def test_settings_set_and_unset_column_display_good_request(
+    client, fake_data, page_name, column_name
+):
+    """
+    Test the functions route_set_column_display and route_unset_column_display when the
+    corresponding updates are done
+
+    Parameters:
+    - client        The web client used to send the requests
+    - fake_data     The data on which our tests are based
+    - page_name     The page name on which the provided job property should appear or not regarding the web setting value
+    - column_name   The job property we try to change whether or not it is displayed
+    """
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+    # Define the user used to test the function
+    user_id = fake_data["users"][0]["mila_email_username"]
+
+    # Log in to Clockwork in order to have an active current user
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
+    # Check the current value of the web setting we want to update through
+    # our requests
+    try:
+        previous_value = fake_data["users"][0]["web_settings"][page_name][column_name]
+    except Exception:
+        previous_value = True  # Default value if the setting has not been defined. Anyway, set and unset are tested below
+
+    # Realize the operation twice, in order to set the column display setting to True and False (or reverse,
+    # regarding of its first value)
+    for i in range(0, 2):
+        # Define the request to test
+        if not previous_value:  # If the web setting value is False, set it to True
+            test_request = (
+                f"/settings/web/column/set?page={page_name}&column={column_name}"
+            )
+        else:  # If the web setting value is True, set it to False
+            test_request = (
+                f"/settings/web/column/unset?page={page_name}&column={column_name}"
+            )
+        # Retrieve the response to the call we are testing
+        response = client.get(test_request)
+        # Check if the response is the expected one
+        assert response.status_code == 200
+
+        # Retrieve the user data
+        D_users = get_db()["users"].find_one({"mila_email_username": user_id})
+        # Assert the column display value has been modified
+        assert D_users["web_settings"]["column_display"][page_name][column_name] == (
+            not previous_value
+        )
+
+        previous_value = not previous_value
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302
