@@ -28,6 +28,7 @@ from clockwork_web.config import register_config, get_config, string as valid_st
 register_config("translation.available_languages", valid_string)
 
 from clockwork_web.core.users_helper import render_template_with_user_settings
+from clockwork_web.core.jobs_helper import get_jobs_properties_list_per_page
 
 
 @flask_api.route("/")
@@ -190,6 +191,136 @@ def route_unset_dark_mode():
     if status_code == 200:
         # If a success has been returned
         return {}  # TODO: I'm not sure this is the correct way to do this
+    else:
+        # Otherwise, return an error
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=status_message,
+                previous_request_args=previous_request_args,
+            ),
+            status_code,
+        )
+
+
+@flask_api.route("/web/column/set")
+@login_required
+def route_set_column_display():
+    """
+    Set to true the fact that a specific column is shown on the web page "dashboard"
+    or "jobs list" (regarding the value of the parameter "page").
+
+    .. :quickref: enable the display of a job element on the dashboard or on the jobs list
+    """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the column and page names provided in the request
+    column_name = request.args.get("column", type=str)
+    previous_request_args["column"] = column_name
+
+    page_name = request.args.get("page", type=str)
+    previous_request_args["page"] = page_name
+
+    # Check if the tuple (page_name, column_name) is consistent
+    jobs_properties_list_per_page = get_jobs_properties_list_per_page()
+    # - Check the page name
+    if page_name not in jobs_properties_list_per_page:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("The provided page name is unexpected."),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+    # - Check the column name
+    if column_name not in jobs_properties_list_per_page[page_name]:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext(
+                    "The provided column name is unexpected for this page."
+                ),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+
+    # Set the column display value to True in the current user's web settings and
+    # retrieve the status code and status message associated to the operation
+    (status_code, status_message) = current_user.settings_column_display_enable(
+        page_name, column_name
+    )
+
+    if status_code == 200:
+        # If a success has been returned
+        return {}
+    else:
+        # Otherwise, return an error
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=status_message,
+                previous_request_args=previous_request_args,
+            ),
+            status_code,
+        )
+
+
+@flask_api.route("/web/column/unset")
+@login_required
+def route_unset_column_display():
+    """
+    Set to false the fact that a specific column is shown on the web page "dashboard"
+    or "jobs list" (regarding the value of the parameter "page").
+
+    .. :quickref: enable the display of a job element on the dashboard or on the jobs list
+    """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the column and page names provided in the request
+    column_name = request.args.get("column", type=str)
+    previous_request_args["column"] = column_name
+
+    page_name = request.args.get("page", type=str)
+    previous_request_args["page"] = page_name
+
+    # Check if the tuple (page_name, column_name) is consistent
+    jobs_properties_list_per_page = get_jobs_properties_list_per_page()
+    # - Check the page name
+    if page_name not in jobs_properties_list_per_page:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("The provided page name is unexpected."),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+    # - Check the column name
+    if column_name not in jobs_properties_list_per_page[page_name]:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext(
+                    "The provided column name is unexpected for this page."
+                ),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+
+    # Set the column display value to True in the current user's web settings and
+    # retrieve the status code and status message associated to the operation
+    (status_code, status_message) = current_user.settings_column_display_disable(
+        page_name, column_name
+    )
+
+    if status_code == 200:
+        # If a success has been returned
+        return {}
     else:
         # Otherwise, return an error
         return (
