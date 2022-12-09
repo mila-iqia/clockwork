@@ -222,7 +222,7 @@ def test_settings_set_and_unset_column_display_good_request(
     user_id = fake_data["users"][0]["mila_email_username"]
 
     # Log in to Clockwork in order to have an active current user
-    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    login_response = client.get(f"/login/testing?user_id={user_id}")
     assert login_response.status_code == 302  # Redirect
 
     # Check the current value of the web setting we want to update through
