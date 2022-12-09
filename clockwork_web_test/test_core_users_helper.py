@@ -766,10 +766,11 @@ def test_set_date_format_with_unknown_user(app, fake_data):
         (status_code, _) = set_date_format(unknown_mila_email_username, date_format)
 
         # Check the status code
-        assert status_code == 500 # Internal Server Error
+        assert status_code == 500  # Internal Server Error
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
+
 
 @pytest.mark.parametrize(
     "valid_date_format",
@@ -879,7 +880,7 @@ def test_set_time_format_with_unknown_user(app, fake_data):
         (status_code, _) = set_time_format(unknown_mila_email_username, time_format)
 
         # Check the status code
-        assert status_code == 500 # Internal Server Error
+        assert status_code == 500  # Internal Server Error
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -959,7 +960,7 @@ def test_enable_column_display_with_unknown_user(
         )
 
         # Check the status code
-        assert status_code == 500 # Internal Server Error
+        assert status_code == 500  # Internal Server Error
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -1006,7 +1007,7 @@ def test_enable_column_display_bad_request(app, fake_data, page_name, column_nam
         )
 
         # Check the status code
-        assert status_code == 400 # Bad Request
+        assert status_code == 400  # Bad Request
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -1038,7 +1039,7 @@ def test_enable_column_display_success(app, fake_data, page_name, column_name):
         )
 
         # Check the status code
-        assert status_code == 200 # Success
+        assert status_code == 200  # Success
 
         # Assert that the display setting for this column is enabled for this user
         # Retrieve the user from the database
@@ -1077,7 +1078,7 @@ def test_disable_column_display_with_unknown_user(
         )
 
         # Check the status code
-        assert status_code == 500 # Internal Server Error
+        assert status_code == 500  # Internal Server Error
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -1124,7 +1125,7 @@ def test_disable_column_display_bad_request(app, fake_data, page_name, column_na
         )
 
         # Check the status code
-        assert status_code == 400 # Bad Request
+        assert status_code == 400  # Bad Request
 
         # Assert that the users data remains unchanged
         assert_no_user_has_been_modified(fake_data)
@@ -1156,7 +1157,7 @@ def test_disable_column_display_success(app, fake_data, page_name, column_name):
         )
 
         # Check the status code
-        assert status_code == 200 # Success
+        assert status_code == 200  # Success
 
         # Assert that the display setting for this column is enabled for this user
         # Retrieve the user from the database
@@ -1168,8 +1169,8 @@ def test_disable_column_display_success(app, fake_data, page_name, column_name):
         )
         # Compare the value of the column display setting with True
         assert D_user["web_settings"]["column_display"][page_name][column_name] == False
-        
-        
+
+
 def test_get_nbr_items_per_page_none_user(app):
     """
     Test the function get_nbr_items_per_page when the user is None.

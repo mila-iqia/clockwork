@@ -96,7 +96,8 @@ def test_settings_set_nbr_items_per_page_zero_or_negative_value(
     response = client.get(test_request)
 
     # Check if the response is the expected one
-    assert response.status_code == 400 # Bad Request
+    assert response.status_code == 400  # Bad Request
+
 
 def test_settings_set_date_format_missing_argument(client):
     """
@@ -113,7 +114,8 @@ def test_settings_set_date_format_missing_argument(client):
     response = client.get("/settings/web/date_format/set")
 
     # Check if the response is the expected one
-    assert response.status_code == 400 # Bad Request
+    assert response.status_code == 400  # Bad Request
+
 
 @pytest.mark.parametrize("date_format", ["test", 1.3, True])
 def test_settings_set_date_format_wrong_type(client, date_format):
@@ -137,7 +139,8 @@ def test_settings_set_date_format_wrong_type(client, date_format):
     response = client.get(test_request)
 
     # Check if the response is the expected one
-    assert response.status_code == 400 # Bad Request
+    assert response.status_code == 400  # Bad Request
+
 
 @pytest.mark.parametrize("date_format", ["words", "unix_timestamp", "MM/DD/YYYY"])
 def test_settings_set_date_format_success(client, fake_data, date_format):
@@ -164,7 +167,7 @@ def test_settings_set_date_format_success(client, fake_data, date_format):
     # Retrieve the response to the call we are testing
     response = client.get(test_request)
     # Check if the response is the expected one
-    assert response.status_code == 302 # Redirect
+    assert response.status_code == 302  # Redirect
 
     # Retrieve the user data
     D_user = get_db()["users"].find_one({"mila_email_username": user_id})
@@ -173,7 +176,8 @@ def test_settings_set_date_format_success(client, fake_data, date_format):
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
-    assert response_logout.status_code == 302 # Redirect
+    assert response_logout.status_code == 302  # Redirect
+
 
 def test_settings_set_time_format_missing_argument(client):
     """
@@ -190,7 +194,7 @@ def test_settings_set_time_format_missing_argument(client):
     response = client.get("/settings/web/time_format/set")
 
     # Check if the response is the expected one
-    assert response.status_code == 400 # Bad Request
+    assert response.status_code == 400  # Bad Request
 
 
 @pytest.mark.parametrize("time_format", ["notanexpectedtimeformat", 34.789, False])
@@ -215,7 +219,7 @@ def test_settings_set_time_format_wrong_type(client, time_format):
     response = client.get(test_request)
 
     # Check if the response is the expected one
-    assert response.status_code == 400 # Bad Request
+    assert response.status_code == 400  # Bad Request
 
 
 @pytest.mark.parametrize("time_format", ["24h", "AM/PM"])
@@ -245,7 +249,7 @@ def test_settings_set_time_format_success(client, fake_data, time_format):
     # Retrieve the response to the call we are testing
     response = client.get(test_request)
     # Check if the response is the expected one
-    assert response.status_code == 302 # Redirect
+    assert response.status_code == 302  # Redirect
 
     # Retrieve the user data
     D_user = get_db()["users"].find_one({"mila_email_username": user_id})
@@ -254,7 +258,7 @@ def test_settings_set_time_format_success(client, fake_data, time_format):
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
-    assert response_logout.status_code == 302 # Redirect
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize(
@@ -303,7 +307,8 @@ def test_settings_set_column_display_bad_request(
     response = client.get(test_request)
 
     # Check if the response is the expected one
-    assert response.status_code == 400 # Bad Request
+    assert response.status_code == 400  # Bad Request
+
 
 @pytest.mark.parametrize(
     "page_name,column_name",
@@ -353,7 +358,7 @@ def test_settings_unset_column_display_bad_request(
     response = client.get(test_request)
 
     # Check if the response is the expected one
-    assert response.status_code == 400 # Bad Request
+    assert response.status_code == 400  # Bad Request
 
 
 @pytest.mark.parametrize(
@@ -404,12 +409,12 @@ def test_settings_set_and_unset_column_display_good_request(
         # Retrieve the response to the call we are testing
         response = client.get(test_request)
         # Check if the response is the expected one
-        assert response.status_code == 200 # Success
+        assert response.status_code == 200  # Success
 
         # Retrieve the user data
-        D_users = get_db()["users"].find_one({"mila_email_username": user_id})
+        D_user = get_db()["users"].find_one({"mila_email_username": user_id})
         # Assert the column display value has been modified
-        assert D_users["web_settings"]["column_display"][page_name][column_name] == (
+        assert D_user["web_settings"]["column_display"][page_name][column_name] == (
             not previous_value
         )
 
@@ -417,4 +422,4 @@ def test_settings_set_and_unset_column_display_good_request(
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
-    assert response_logout.status_code == 302 # Redirect
+    assert response_logout.status_code == 302  # Redirect
