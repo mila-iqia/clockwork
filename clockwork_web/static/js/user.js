@@ -137,7 +137,7 @@ function set_nbr_items_per_page(nbr_items_per_page) {
   */
 
   // Define the URL
-  let url = "/settings/web/nbr_items_per_page/set?nbr_items_per_page=".concat("", nbr_items_per_page)
+  let url = "/settings/web/nbr_items_per_page/set?nbr_items_per_page="+nbr_items_per_page
 
   // Send the request and retrieve the response
   const request = new Request(url,
@@ -199,7 +199,7 @@ function set_time_format(time_format) {
   */
 
   // Define the URL to send the request
-  let url = "/settings/web/time_format/set?time_format=".concat("", time_format);
+  let url = "/settings/web/time_format/set?time_format="+time_format;
 
    // Send the request and retrieve the response
    const request = new Request(url,
