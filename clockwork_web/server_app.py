@@ -162,7 +162,7 @@ def create_app(extra_config: dict):
         check its boolean value.
 
         Such a web setting, if set, is accessible by calling web_settings[page_name][column_name].
-        The different columns (ie jobs properties) for the "jobsèlist" page are now the following:
+        The different columns (ie jobs properties) for the "jobs_list" page are now the following:
         ["clusters", "user", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
 
         Parameters:

@@ -70,9 +70,7 @@ function enable_column(page_name, column_name) {
   */
 
   // Define the URL
-  let url = "/settings/web/column/set?";
-  url = url+"page="+page_name;
-  url = url+"&column="+column_name;
+  let url = `/settings/web/column/set?page=${page_name}&column=${column_name}`;
 
   // Send the request and retrieve the response
   const request = new Request(url,
