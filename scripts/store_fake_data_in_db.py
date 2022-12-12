@@ -1,4 +1,23 @@
-#!/usr/bin/env python3
+"""
+This script is solely for use with "dev.sh" when we
+want to test out certain features of the front-end
+and we need to have some semblance of jobs in there.
+
+It is not used by the test suite, nor is it being used in production.
+It uses the module `test_common`, which might look like bad design
+because functionality for running tests shouldn't be used by the
+actual non-test modules themselves, but it's just a convenience
+to avoid something even messier.
+
+This script also modifies some job status to make them
+more diverse for the purposes of trying out the functionality
+in the web-front end. It does lead to some absurdity with
+some pending jobs having a start/end time and things like that.
+In that regards, this ends up with fake_data that's slightly
+different when we run this script in the context of "dev.sh"
+than when pytest runs with "test.sh" and loads the fake data
+without messing around with the job status.
+"""
 
 import argparse
 import sys
@@ -7,22 +26,17 @@ from datetime import datetime
 import os
 
 from clockwork_web.config import register_config
-from clockwork_web.db import init_db, get_db
-from clockwork_web.server_app import create_app
+from slurm_state.mongo_client import get_mongo_client
+from slurm_state.config import get_config
 from test_common.fake_data import populate_fake_data
 
 
 def store_data_in_db(data_json_file=None):
-    # Create a test context
-    app = create_app(extra_config={"TESTING": True, "LOGIN_DISABLED": True})
-
-    # Within this context of tests
-    with app.app_context():
-        # Initialize the database
-        init_db()
-        db = get_db()
-        # Insert fake data in it
-        cf = populate_fake_data(db, json_file=data_json_file)
+    # Open the database and insert the contents.
+    client = get_mongo_client()
+    populate_fake_data(
+        client[get_config("mongo.database_name")], json_file=data_json_file
+    )
 
 
 def modify_timestamps(data):
@@ -96,7 +110,9 @@ def main(argv):
     register_config("mongo.database_name", "clockwork")
 
     if args.recent:
-        # Load the fake data as a JSON dictionary
+        # Load the fake data as a JSON dictionary.
+        # Understandably, this absolute path refers to something
+        # in the Docker container launched by dev.sh.
         input_file = "/clockwork/test_common/fake_data.json"
         with open(input_file, "r") as infile:
             fake_data = json.load(infile)
