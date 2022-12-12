@@ -137,7 +137,14 @@
                             <!-- Links -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "links")) %}
                                 <td class="links">
-                                <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to somewhere'><i class='fa-solid fa-file'></i></a>
+                                    {% if (D_job['slurm']['cluster_name'] == 'beluga') or (D_job['slurm']['cluster_name'] == 'narval') %}
+                                        <!-- https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid> -->
+                                        <a  href='https://portail.{{D_job["slurm"]["cluster_name"]}}.calculquebec.ca/secure/jobstats/{{D_job["slurm"]["username"]}}/{{D_job["slurm"]["job_id"]}}'
+                                            data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'>
+                                            <i class='fa-solid fa-file'></i>
+                                        </a>
+                                    {% endif %}
+                                    <!-- this is a placeholder -->
                                     <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
                                 </td>
                             {% endif %}
