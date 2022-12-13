@@ -123,19 +123,36 @@
                             {% endif %}
                             
                             <!-- Submit, start and end times -->
-                            {% for job_time in ["submit_time", "start_time", "end_time"] %}
-                                {% if (web_settings | check_web_settings_column_display(page_name, job_time)) %}
-                                    {% if D_job["slurm"][job_time] %}
-                                        {% set involved_time = D_job["slurm"][job_time] %}
-                                        <td data-order='{{involved_time}}'>
-                                            <span class="visually-hidden">{{involved_time}}</span>
+                            {# The properties submit_time, start_time and end_time are presented through the same pattern, #}
+                            {# thus setting these HTML tags is done using an iteration over these three values #}
+                            {% for job_time_key in ["submit_time", "start_time", "end_time"] %}
+
+                                {# Create the elements if the user settings imply to display the value #}
+                                {% if (web_settings | check_web_settings_column_display(page_name, job_time_key)) %}
+                                    {% if D_job["slurm"][job_time_key] %}
+
+                                        {% set job_time_value = D_job["slurm"][job_time_key] %}
+                                        <!-- data-order is the value used to sort the elements of the current column, if requested -->
+                                        <!-- Here, the timestamp is used -->
+                                        <td data-order='{{job_time_value}}'>
+                                            <!-- Such a visually hidden entity can be used by assistive technologies, such as screen readers -->
+                                            <span class="visually-hidden">{{job_time_value}}</span>
+
                                             {% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
-                                                <span data-livestamp='{{involved_time|int}}'></span>
+                                                <!-- data-livestamp is used to display the relative date as words -->
+                                                <span data-livestamp='{{job_time_value|int}}'></span>
                                             {% else %}
-                                                {{ involved_time|format_date(web_settings["date_format"], web_settings["time_format"]) }}
+                                                {# The filter format_date returns a formatted date according to the timestamp and #}
+                                                {# the preferences defined by the user. Note that, in case the user chose a relative #}
+                                                {# time displayed as words, the formatting is done above, because a specific HTML #}
+                                                {# entity is used #}
+                                                {{ job_time_value|format_date(web_settings["date_format"], web_settings["time_format"]) }}
                                             {% endif %}
                                         </td>
                                     {% else %}
+                                        <!-- data-order is the value used to sort the elements of the current column, if requested -->
+                                        <!-- Here, a default value of zero is used, as an existing time would be sorted regarding -->
+                                        <!-- its timestamp -->
                                         <td data-order='0'></td>
                                     {% endif %}
                                 {% endif %}
