@@ -235,7 +235,7 @@
 													<!-- cluster toggle -->
 													<div class="cc_cluster_toggle_subzone form-check form-switch">
 														<label class="form-check-label" for="cluster_toggle_lever_{{cluster_name}}" class="cc_cluster_toggle_name">{{cluster_name}}</label>
-														{% if cluster_name in previous_request_args["cluster_name"] or previous_request_args["cluster_name"]|length == 0 %}
+														{% if "cluster_name" not in previous_request_args or cluster_name in previous_request_args["cluster_name"] or previous_request_args["cluster_name"]|length == 0 %}
 															<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" checked data-no-submit>
 														{% else %}
 														<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" data-no-submit>
