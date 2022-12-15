@@ -238,7 +238,7 @@
 														{% if "cluster_name" not in previous_request_args or cluster_name in previous_request_args["cluster_name"] or previous_request_args["cluster_name"]|length == 0 %}
 															<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" checked data-no-submit>
 														{% else %}
-														<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" data-no-submit>
+															<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" data-no-submit>
 														{% endif %}
 													</div>													
 												</div>
