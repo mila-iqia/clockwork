@@ -46,3 +46,23 @@ def get_custom_array_from_request_args(request_arg):
         ]
     else:
         return []
+
+
+def get_available_date_formats():
+    """
+    Define the different date formats available through the web interface.
+
+    Returns:
+        A list of strings containing identifiers to the date formats
+    """
+    return ["words", "unix_timestamp", "YYYY/MM/DD", "DD/MM/YYYY", "MM/DD/YYYY"]
+
+
+def get_available_time_formats():
+    """
+    Define the different time formats available through the web interface.
+
+    Returns:
+        A list of strings containing identifiers to the time formats
+    """
+    return ["AM/PM", "24h"]

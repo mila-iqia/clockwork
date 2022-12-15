@@ -30,6 +30,8 @@ from clockwork_web.core.users_helper import (
     get_default_web_settings_values,
     set_items_per_page,
     get_default_setting_value,
+    set_date_format,
+    set_time_format,
     set_language,
     is_correct_type_for_web_setting,
     get_default_web_settings_values,
@@ -240,6 +242,36 @@ class User(UserMixin):
             - a message describing the state of the operation
         """
         return set_language(self.mila_email_username, language)
+
+    def settings_date_format_set(self, date_format):
+        """
+        Set a preferred date format for the current user.
+
+        Parameters:
+        - date_format   The date format chosen by the user to display the "date part"
+                        of the timestamps on the web interface
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return set_date_format(self.mila_email_username, date_format)
+
+    def settings_time_format_set(self, time_format):
+        """
+        Set a preferred time format for the current user.
+
+        Parameters:
+        - time_format   The time format chosen by the user to display the "time part"
+                        of the timestamps on the web interface
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return set_time_format(self.mila_email_username, time_format)
 
     def get_language(self):
         return self.web_settings["language"]

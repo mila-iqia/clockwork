@@ -56,10 +56,28 @@
 		}
 
 		function select_nbr_items_per_page(nbr_items_per_page_dropdown) {
-		  // Retrieve the selected value
-		  var selected_nbr = nbr_items_per_page_dropdown.options[nbr_items_per_page_dropdown.selectedIndex].value;
-		  set_nbr_items_per_page(selected_nbr);
+			// Retrieve the selected value
+		  	var selected_nbr = nbr_items_per_page_dropdown.options[nbr_items_per_page_dropdown.selectedIndex].value;
+		  
+			// Update it in the user's web settings
+			set_nbr_items_per_page(selected_nbr);
 		};
+
+		function select_date_format(date_format_dropdown) {
+			// Retrieve the selected value
+			var selected_date_format = date_format_dropdown.options[date_format_dropdown.selectedIndex].value;
+
+			// Update it in the user's web settings
+			set_date_format(selected_date_format);
+		}
+
+		function select_time_format(time_format_dropdown) {
+			// Retrieve the selected value
+			var selected_time_format = time_format_dropdown.options[time_format_dropdown.selectedIndex].value;
+
+			// Update it in the user's web settings
+			set_time_format(selected_time_format);
+		}
 	</script>
 
 {% endblock %}
@@ -127,15 +145,58 @@
 					</dd>
 
 					<!-- Timestamps -->
-			  		<dt class="col-6"><label for="dark_mode_toggle">{{ gettext("Time formatting") }}</label></dt>
-		 			<dd class="col-6">
+			  		<dt class="col-6"><label for="date_format_selection">{{ gettext("Time formatting") }}</label></dt>
+		 			<dd class="col-3">
 						<div>
-							<select class="form-select" aria-label="Time formatting">
-								<option value="time_words" selected>In words (2 months ago)</option>
-								<option value="time_unix">Unix timestamp (1667503950)</option>
-								<option value="time_1">YYYY/MM/DD</option>
-								<option value="time_2">DD/MM/YYYY</option>
-								<option value="time_3">MM/DD/YYYY</option>
+							<select class="form-select" aria-label="Time formatting" id="date_format_selection" onchange="select_date_format(this)">
+								<!-- In words -->
+								{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
+									<option value="words" selected>In words (2 months ago)</option>
+								{% else %}
+									<option value="words">In words (2 months ago)</option>
+								{% endif %}
+								<!-- Unix timestamp -->
+								{% if "date_format" in web_settings and web_settings["date_format"] == "unix_timestamp" %}
+									<option value="unix_timestamp" selected>Unix timestamp (1667503950)</option>
+								{% else %}
+									<option value="unix_timestamp">Unix timestamp (1667503950)</option>
+								{% endif %}
+								<!-- Format YYYY/MM/DD -->
+								{% if "date_format" not in web_settings or web_settings["date_format"] == "YYYY/MM/DD" %}
+									<option value="YYYY/MM/DD" selected>YYYY/MM/DD</option>
+								{% else %}
+									<option value="YYYY/MM/DD">YYYY/MM/DD</option>
+								{% endif %}
+								<!-- Format DD/MM/YYYY -->
+								{% if "date_format" in web_settings and web_settings["date_format"] == "DD/MM/YYYY" %}
+									<option value="DD/MM/YYYY" selected>DD/MM/YYYY</option>
+								{% else %}
+									<option value="DD/MM/YYYY">DD/MM/YYYY</option>
+								{% endif %}
+								<!-- Format MM/DD/YYYY -->
+								{% if "date_format" in web_settings and web_settings["date_format"] == "MM/DD/YYYY" %}
+									<option value="MM/DD/YYYY" selected>MM/DD/YYYY</option>
+								{% else %}
+									<option value="MM/DD/YYYY">MM/DD/YYYY</option>
+								{% endif %}
+							</select>
+						</div>	
+					</dd>
+					<dd class="col-3">
+						<div>
+							<select class="form-select" aria-label="Time formatting" id="time_format_selection" onchange="select_time_format(this)">
+								<!-- Format AM/PM -->
+								{% if "time_format" in web_settings and web_settings["time_format"] == "AM/PM" %}
+									<option value="AM/PM" selected>AM/PM</option>
+								{% else %}
+									<option value="AM/PM">AM/PM</option>
+								{% endif %}
+								<!-- Format 24h -->
+								{% if "time_format" not in web_settings or web_settings["time_format"] == "24h" %}
+									<option value="24h" selected>24h</option>
+								{% else %}
+									<option value="24h">24h</option>
+								{% endif %}
 							</select>
 						</div>	
 					</dd>
