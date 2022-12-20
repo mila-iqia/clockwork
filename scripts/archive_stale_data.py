@@ -21,13 +21,13 @@ from pymongo.errors import BulkWriteError
 try:
     # in actual usage
     from clockwork_web.config import register_config, get_config
+
     # Register the elements to access the database
     register_config("mongo.connection_string", "")
     register_config("mongo.database_name", "clockwork")
 except:
     # while running unit tests
     from scripts_test.config import register_config, get_config
-
 
 
 def main(argv):
@@ -43,12 +43,15 @@ def main(argv):
         help="Optional. JSON file where we will put the elements removed.",
     )
 
-    #parser.add_argument(
+    # parser.add_argument(
     #    "--database_name", default="clockwork", help="Database name to inspect."
-    #)
+    # )
 
     parser.add_argument(
-        "--days_since_last_update", default=30, type=int, help="How many days since last update."
+        "--days_since_last_update",
+        default=30,
+        type=int,
+        help="How many days since last update.",
     )
 
     args = parser.parse_args(argv[1:])
