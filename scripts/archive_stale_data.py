@@ -17,7 +17,17 @@ import json
 
 from pymongo import MongoClient, DeleteOne
 from pymongo.errors import BulkWriteError
-from scripts_test.config import get_config
+
+try:
+    # in actual usage
+    from clockwork_web.config import register_config, get_config
+    # Register the elements to access the database
+    register_config("mongo.connection_string", "")
+    register_config("mongo.database_name", "clockwork")
+except:
+    # while running unit tests
+    from scripts_test.config import register_config, get_config
+
 
 
 def main(argv):
@@ -33,21 +43,25 @@ def main(argv):
         help="Optional. JSON file where we will put the elements removed.",
     )
 
-    parser.add_argument(
-        "--database_name", default="clockwork", help="Database name to inspect."
-    )
+    #parser.add_argument(
+    #    "--database_name", default="clockwork", help="Database name to inspect."
+    #)
 
     parser.add_argument(
-        "--days_since_last_update", default=30, help="How many days since last update."
+        "--days_since_last_update", default=30, type=int, help="How many days since last update."
     )
 
     args = parser.parse_args(argv[1:])
     assert isinstance(args.days_since_last_update, int)
 
-    archive(args.archive_path, args.database_name, args.days_since_last_update)
+    archive(args.archive_path, args.days_since_last_update)
 
 
-def archive(archive_path, database_name, days_since_last_update):
+def archive(archive_path, days_since_last_update, database_name=None):
+
+    # The `database_name` argument is mostly for testing because we want
+    # to use a different database to avoid messing up our fake_data.
+    # The actual value in practice comes from the CLOCKWORK_CONFIG file.
 
     threshold_timestamp = time.time() - days_since_last_update * 24 * 60 * 60
 
@@ -64,6 +78,8 @@ def archive(archive_path, database_name, days_since_last_update):
 
     # Connect to MongoDB
     client = MongoClient(get_config("mongo.connection_string"))
+    if database_name is None:
+        database_name = get_config("mongo.database_name")
 
     ###################
     ## Retrieve jobs ##
@@ -124,3 +140,11 @@ def archive(archive_path, database_name, days_since_last_update):
 
 if __name__ == "__main__":
     main(sys.argv)
+
+"""
+export CLOCKWORK_CONFIG=/etc/clockwork/clockwork.toml
+export PYTHONPATH=$PYTHONPATH:/opt/clockwork
+
+python3 /opt/clockwork/scripts/archive_stale_data.py --days_since_last_update=14 --archive_path=2022-12-19_old_stuff.json
+        
+"""
