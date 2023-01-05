@@ -44,9 +44,15 @@
                                 <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
                             {% elif k == "username" %}
                                 <td>
-                                  <a href="/users/one?username={{D_single_job_cw['mila_email_username']}}">
-                                    {{v}}
-                                  </a>
+                                    {% if "mila_email_username" in D_single_job_cw %}
+                                    {# Add a link to the user if its mila_email_username is known #}
+                                        <a href="/users/one?username={{D_single_job_cw['mila_email_username']}}">
+                                            {{v}}
+                                        </a>
+                                    {% else %}
+                                    {# Otherwise, just display its name #}
+                                        {{v}}
+                                    {% endif %}
                                 </td>
                             {% elif (k == "submit_time" or k == "start_time" or k == "end_time") and v is not none %}
                                 <td>
