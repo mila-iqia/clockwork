@@ -84,9 +84,7 @@ def test_list_jobs_for_a_given_random_user(client, fake_data):
     response = client.get(f"/jobs/list?username={username}")
 
     assert "text/html" in response.content_type
-
     assert username in response.get_data(as_text=True)
-    # assert username.encode("utf-8") in response.data
 
 
 @pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))

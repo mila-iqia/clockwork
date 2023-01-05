@@ -31,7 +31,7 @@ JobId=2 JobName=imagenet.sh
    RunTime=00:00:00 TimeLimit=7-00:00:00 TimeMin=N/A
    SubmitTime=2021-08-12T10:22:30 EligibleTime=2021-08-12T10:24:30
    AccrueTime=2021-08-12T10:24:30
-   StartTime=Unknown EndTime=Unknown Deadline=N/A
+   StartTime="None" EndTime=(null) Deadline=N/A
    SuspendTime=None SecsPreSuspend=0 LastSchedEval=2021-11-22T13:44:32
    Partition=long AllocNode:Sid=login1:28363
    ReqNodeList=(null) ExcNodeList=(null)

@@ -50,4 +50,4 @@ def test_clusters_one_no_cluster_name_provided(client):
     assert response.status_code == 400  # Bad Request
 
     # Assert that the expected error message is in the page
-    assert b"The argument cluster_name is missing." in response.data
+    assert "The argument cluster_name is missing." in response.get_data(as_text=True)
