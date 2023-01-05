@@ -10,7 +10,7 @@ from clockwork_web.user import User
 def test_settings_index(client):
     response = client.get("/settings/")
 
-    assert current_user.clockwork_api_key.encode("ascii") in response.data
+    assert current_user.clockwork_api_key in response.get_data(as_text=True)
 
 
 def test_settings_new_key(client):

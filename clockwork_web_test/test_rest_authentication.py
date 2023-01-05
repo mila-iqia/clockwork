@@ -7,7 +7,7 @@ from base64 import b64encode
 def test_no_authentication(client):
     response = client.get("api/v1/clusters/jobs/list")
     assert response.status_code == 401
-    assert b"Authorization error" in response.data
+    assert "Authorization error" in response.get_data(as_text=True)
 
 
 def test_bad_user(client):
@@ -18,11 +18,11 @@ def test_bad_user(client):
         },
     )
     assert response.status_code == 401
-    assert b"Authorization error" in response.data
+    assert "Authorization error" in response.get_data(as_text=True)
 
 
 def test_bad_key(client, valid_rest_auth_headers):
     valid_rest_auth_headers["Authorization"] += "Mg=="
     response = client.get("api/v1/clusters/jobs/list", headers=valid_rest_auth_headers)
     assert response.status_code == 401
-    assert b"Authorization error" in response.data
+    assert "Authorization error" in response.get_data(as_text=True)
