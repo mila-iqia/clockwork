@@ -29,6 +29,7 @@ from flask_babel import gettext
 # this is what allows the factorization into many files.
 from flask import Blueprint
 
+from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.utils import to_boolean, get_custom_array_from_request_args
 from clockwork_web.core.users_helper import render_template_with_user_settings
 
@@ -220,9 +221,23 @@ def route_search():
     username = request.args.get("username", None)
     previous_request_args["username"] = username
 
-    clusters_names = get_custom_array_from_request_args(
+    requested_clusters_names = get_custom_array_from_request_args(
         request.args.get("cluster_name")
     )
+    if len(requested_clusters_names) < 1:
+        # If no cluster has been requested, then all clusters have been requested
+        # (a filter related to which clusters are available to the current user
+        #  is then applied)
+        requested_clusters_names = get_all_clusters()
+
+    # Limit the cluster options to the clusters the user can access
+    # Check if user_dict["mila_cluster_username"] is not None
+    # Check if user_dict["cc_account_username"] is not None
+    # Retrieve the clusters the user can access
+    user_clusters = current_user.get_available_clusters()
+    clusters_names = [
+        cluster for cluster in requested_clusters_names if cluster in user_clusters
+    ]
     previous_request_args["cluster_name"] = clusters_names
 
     states = get_custom_array_from_request_args(request.args.get("state"))

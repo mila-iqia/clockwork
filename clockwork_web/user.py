@@ -35,6 +35,7 @@ from clockwork_web.core.users_helper import (
     set_language,
     is_correct_type_for_web_setting,
     get_default_web_settings_values,
+    get_available_clusters_from_db,
 )
 
 
@@ -156,6 +157,12 @@ class User(UserMixin):
         )
         if res.modified_count != 1:
             raise ValueError(gettext("could not modify update key"))
+
+    def get_available_clusters(self):
+        """
+        Get a list of the names of the clusters to which the user have access.
+        """
+        return get_available_clusters_from_db(self.mila_email_username)
 
     ###
     #   Web settings

@@ -16,7 +16,7 @@ from clockwork_web.config import (
     boolean as valid_boolean,
     string as valid_string,
 )
-from clockwork_web.core.clusters_helper import get_all_clusters
+from clockwork_web.core.clusters_helper import get_all_clusters, get_account_fields
 from clockwork_web.core.jobs_helper import get_jobs_properties_list_per_page
 
 from clockwork_web.core.utils import (
@@ -298,6 +298,53 @@ def get_users_one(mila_email_username):
     # Return the user. It is a dictionary presenting the user if one has been
     # found, None otherwise.
     return user
+
+
+def get_available_clusters_from_user_dict(D_user):
+    """
+    Deduce the clusters a user can access by using its data.
+
+    Parameters:
+        D_user      Dictionary containing the user's info
+
+    Returns:
+        A list of strings (these strings being the requested names of the clusters)
+    """
+    # Initialize the list to be returned
+    available_clusters = []
+
+    # Retrieve (from configuration file) details about the existing clusters
+    clusters_by_account_fields = get_account_fields()
+
+    # For each "account key" that can be found in the user dictionary
+    for account_key in clusters_by_account_fields:
+        # If the user is associated to the account key
+        if account_key in D_user and D_user[account_key] is not None:
+            # Add each cluster related this account key to the list of
+            # the clusters available for this user
+            for available_cluster in clusters_by_account_fields[account_key]:
+                available_clusters.append(available_cluster)
+
+    return available_clusters
+
+
+def get_available_clusters_from_db(mila_email_username):
+    """
+    Get a list of the names of the clusters to which the user have access
+    by retrieving user information from the database.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users
+                                collection of the database
+
+    Returns:
+        A list of strings (these strings being the requested names of the clusters)
+    """
+    # Retrieve the current user
+    D_user = get_users_one(mila_email_username)
+
+    # Retrieve the available clusters from it
+    return get_available_clusters_from_user_dict(D_user)
 
 
 def enable_dark_mode(mila_email_username):
