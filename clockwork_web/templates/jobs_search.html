@@ -99,8 +99,10 @@
                             {% if (web_settings | check_web_settings_column_display(page_name, "user")) %}
                                 <td>
                                     {% if D_job['cw']['mila_email_username'] is not none %}
-                                        {% set name, domain = D_job['cw']['mila_email_username'].split('@') %}
-                                        {{ name }} <span class="email">@{{ domain }}</span>
+                                        <a href="/users/one?username={{D_job['cw']['mila_email_username']}}">
+                                            {% set name, domain = D_job['cw']['mila_email_username'].split('@') %}
+                                            {{ name }} <span class="email">@{{ domain }}</span>
+                                        </a>
                                     {% endif %}
                                 </td>
                             {% endif %}
