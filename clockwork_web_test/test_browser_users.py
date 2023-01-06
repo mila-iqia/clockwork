@@ -26,11 +26,13 @@ def test_users_one_success(client, fake_data):
     # Check if the response is the expected one
     assert response.status_code == 200  # Success
     if user["mila_cluster_username"]:
-        assert (
-            "{}".format(user["mila_cluster_username"]) in response.get_data(as_text=True)
+        assert "{}".format(user["mila_cluster_username"]) in response.get_data(
+            as_text=True
         )
     if user["cc_account_username"]:
-        assert "{}".format(user["cc_account_username"]) in response.get_data(as_text=True)
+        assert "{}".format(user["cc_account_username"]) in response.get_data(
+            as_text=True
+        )
 
 
 def test_users_one_username_not_found(client):
