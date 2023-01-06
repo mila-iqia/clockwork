@@ -140,7 +140,7 @@ def timelimit(f, ctx):
 
 def timestamp(f, ctx):
     # We add the timezone information for the timestamp
-    if f in ["Unknown", "None", '"None"', None]:
+    if f in ["Unknown", "(null)", "None", '"None"', "'None'", None]:
         return None
     date_naive = datetime.datetime.strptime(f, "%Y-%m-%dT%H:%M:%S")
     date_aware = date_naive.replace(tzinfo=ctx["timezone"])
