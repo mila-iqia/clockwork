@@ -304,7 +304,7 @@ NODE_FIELD_MAP = {
     "Arch": rename(id, "arch"),
     "CoresPerSocket": ignore,
     "CPUAlloc": ignore,
-    "CPUEfctv": ignore
+    "CPUEfctv": ignore,
     "CPUTot": ignore,
     "CPULoad": ignore,
     "AvailableFeatures": rename(id, "features"),
