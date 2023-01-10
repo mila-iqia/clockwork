@@ -92,7 +92,15 @@
                         <tr>
                             <!-- Cluster -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "clusters")) %}
-                                <td>{{D_job['slurm']['cluster_name']}}</td>
+                                {% if D_job['slurm']['cluster_name'] %}
+                                <td>
+                                    <a href="/clusters/one?cluster_name={{D_job['slurm']['cluster_name']}}">
+                                        {{D_job['slurm']['cluster_name']}}
+                                    </a>
+                                </td>
+                                {% else %}
+                                    <td>{{D_job['slurm']['cluster_name']}}</td>
+                                {% endif %}
                             {% endif %}
                             
                             <!-- User -->
