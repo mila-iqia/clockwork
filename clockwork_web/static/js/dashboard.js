@@ -550,11 +550,20 @@ function populate_table(response_contents) {
         job_state = D_job_slurm["job_state"].toLowerCase();
         let tr = document.createElement('tr');
         let td;
+        let a;
 
         // Clusters
         if (check_web_settings_column_display(page_name, "clusters")) {
             td = document.createElement('td');
-            td.innerHTML = D_job_slurm["cluster_name"];
+            if (D_job_slurm["cluster_name"]) {
+                a = document.createElement("a");
+                a.setAttribute("href", "/clusters/one?cluster_name=" + D_job_slurm["cluster_name"]);
+                a.innerHTML = D_job_slurm["cluster_name"];
+                td.appendChild(a);
+            }
+            else {
+                td.innerHTML = D_job_slurm["cluster_name"];
+            }
             tr.appendChild(td);
         }
         // Job ID

@@ -42,6 +42,10 @@
                             {% if k in ['batch_host'] and v != None %}
                                 <!-- TODO : Implement this link because it doesn't work now. -->
                                 <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
+                            
+                            {% elif k == "cluster_name" %}
+                                <td><a href="/clusters/one?cluster_name={{v}}"> {{v}} </a></td>
+
                             {% elif k == "username" %}
                                 <td>
                                     {% if "mila_email_username" in D_single_job_cw %}
