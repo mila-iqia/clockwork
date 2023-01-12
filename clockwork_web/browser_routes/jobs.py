@@ -321,7 +321,10 @@ def route_one():
 
     # Retrieve the given cluster name
     cluster_name = request.args.get("cluster_name", None)
-    previous_request_args["cluster_name"] = cluster_name
+    if cluster_name:
+        previous_request_args["cluster_name"] = cluster_name
+    else:
+        previous_request_args["cluster_name"] = []
 
     # Return an error if no job ID has been given
     if job_id is None:
