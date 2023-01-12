@@ -10,7 +10,6 @@
         {% autoescape false %}
         {{extra_js}}
         {% endautoescape %}
-
     </script>
 
 {% endblock %}
@@ -39,7 +38,11 @@
                         {% for (k, v) in LP_single_node_slurm %}
                         <tr>
                             <td>{{k}}</td>
-                            <td>{{v}}</td>
+                            {% if k == "cluster_name" %}
+                                <td><a href="/clusters/one?cluster_name={{v}}"> {{v}} </a></td>
+                            {% else %}
+                                <td>{{v}}</td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
