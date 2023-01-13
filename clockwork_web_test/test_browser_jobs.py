@@ -25,7 +25,10 @@ from test_common.jobs_test_helpers import (
     helper_jobs_list_with_filter,
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
-from clockwork_web.core.users_helper import get_default_setting_value
+from clockwork_web.core.users_helper import (
+    get_default_setting_value,
+    get_available_clusters_from_db,
+)
 
 
 def test_redirect_index(client):
@@ -265,19 +268,55 @@ def test_jobs_with_page_num_pagination_option(
 #   Tests for route_search
 ###
 @pytest.mark.parametrize(
-    "username,clusters_names,states,page_num,nbr_items_per_page",
+    "current_user_id,username,clusters_names,states,page_num,nbr_items_per_page",
     [
-        ("student05@mila.quebec", ["mila", "graham"], ["RUNNING", "PENDING"], 2, 2),
-        ("student10@mila.quebec", ["graham"], ["RUNNING", "PENDING"], 2, 2),
-        ("student13@mila.quebec", [], ["RUNNING", "PENDING"], 1, 40),
-        ("student13@mila.quebec", [], [], -1, -10),
-        ("student13@mila.quebec", [], [], -1, -10),
-        ("student03@mila.quebec", ["cedar"], [], 1, 50),
-        (None, ["cedar"], [], 2, 10),
+        (
+            "student00@mila.quebec",
+            "student05@mila.quebec",
+            ["mila", "graham"],
+            ["RUNNING", "PENDING"],
+            2,
+            2,
+        ),
+        (
+            "student01@mila.quebec",
+            "student10@mila.quebec",
+            ["graham"],
+            ["RUNNING", "PENDING"],
+            2,
+            2,
+        ),
+        (
+            "student02@mila.quebec",
+            "student13@mila.quebec",
+            [],
+            ["RUNNING", "PENDING"],
+            1,
+            40,
+        ),
+        ("student03@mila.quebec", "student13@mila.quebec", [], [], -1, -10),
+        ("student04@mila.quebec", "student13@mila.quebec", [], [], -1, -10),
+        ("student05@mila.quebec", "student03@mila.quebec", ["cedar"], [], 1, 50),
+        ("student00@mila.quebec", None, ["cedar"], [], 2, 10),
+        (
+            "student06@mila.quebec",
+            "student00@mila.quebec",
+            ["mila", "cedar"],
+            [],
+            1,
+            10,
+        ),  # Nota bene: student06 has only access to the Mila cluster and student00 has jobs on Mila cluster and DRAC clusters
     ],
 )
 def test_route_search(
-    client, fake_data, username, clusters_names, states, page_num, nbr_items_per_page
+    client,
+    fake_data,
+    current_user_id,
+    username,
+    clusters_names,
+    states,
+    page_num,
+    nbr_items_per_page,
 ):
     """
     Test the function route_search with different sets of arguments.
@@ -287,13 +326,18 @@ def test_route_search(
                             depends on other fixtures that are going to put the
                             fake data in the database for us
         fake_data           The data our tests are based on
-        username           The user whose jobs we are looking for
+        current_user_id     ID of the user requesting the jobs
+        username            The user whose jobs we are looking for
         clusters_names      An array of the clusters on which we search jobs
         states              An array of the potential states of the jobs we want
                             to retrieve
         page_num            The number of the plage to display the jobs
         nbr_items_per_page  The number of jobs to display per page
     """
+    # Log in to Clockwork as this user
+    login_response = client.get(f"/login/testing?user_id={current_user_id}")
+    assert login_response.status_code == 302  # Redirect
+
     ###
     # Look for the jobs we are expecting
     ###
@@ -303,8 +347,22 @@ def test_route_search(
 
     # Determine which filters we have to ignored
     ignore_username_filter = username is None
-    ignore_clusters_names_filter = len(clusters_names) < 1
     ignore_states_filter = len(states) < 1
+
+    # Define the union between the requested clusters and the clusters available
+    # for the current user
+    if len(clusters_names) < 1:
+        requested_clusters = get_available_clusters_from_db(current_user_id)
+    else:
+        requested_clusters = [
+            cluster_name
+            for cluster_name in clusters_names
+            if cluster_name in get_available_clusters_from_db(current_user_id)
+        ]
+
+    # union requested et available
+    # si ignore_clusters_names_filters : available
+    # TODO
 
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
@@ -321,9 +379,7 @@ def test_route_search(
 
         # Define the tests which will determine if the job is taken into account or not
         test_username = (retrieved_username == username) or ignore_username_filter
-        test_clusters_names = (
-            retrieved_cluster_name in clusters_names
-        ) or ignore_clusters_names_filter
+        test_clusters_names = retrieved_cluster_name in requested_clusters
         test_states = (retrieved_state in states) or ignore_states_filter
 
         # Select the jobs in regard of the predefined tests
@@ -376,6 +432,10 @@ def test_route_search(
             D_job = LD_prefiltered_jobs[i]
             assert D_job["slurm"]["job_id"] in body_text
 
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
+
 
 def test_cc_portal(client, fake_data):
     """
@@ -385,6 +445,16 @@ def test_cc_portal(client, fake_data):
                             fake data in the database for us.
         fake_data           The data our tests are based on. It's a fixture.
     """
+    # Choose a user who have access to all the clusters
+    user_dict = fake_data["users"][0]
+    assert user_dict["mila_cluster_username"] is not None
+    assert user_dict["cc_account_username"] is not None
+
+    # Log in to Clockwork as this user
+    login_response = client.get(
+        f"/login/testing?user_id={user_dict['mila_email_username']}"
+    )
+    assert login_response.status_code == 302  # Redirect
 
     # Hidden assumption that the /jobs/search will indeed give us
     # all the contents of the database if we set `nbr_items_per_page=10000`.
@@ -416,3 +486,7 @@ def test_cc_portal(client, fake_data):
         # https://portail.beluga.calculquebec.ca/secure/jobstats/<username>/<jobid>
         url = f'https://portail.{D_job_slurm["cluster_name"]}.calculquebec.ca/secure/jobstats/{D_job_slurm["username"]}/{D_job_slurm["job_id"]}'
         assert url in body_text
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
