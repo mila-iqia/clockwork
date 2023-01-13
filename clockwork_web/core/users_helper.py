@@ -302,7 +302,45 @@ def get_users_one(mila_email_username):
 
 def get_available_clusters_from_user_dict(D_user):
     """
-    Deduce the clusters a user can access by using its data.
+    Retrieve the clusters a user can access.
+
+    This is done by using two input data sources:
+    the user dictionary and the dictionary containing the
+    clusters by account fields.
+
+    The user dictionary follows a pattern similar to the one below:
+    {
+      "mila_email_username": "student00@mila.quebec",
+      "status": "enabled",
+      "clockwork_api_key": "000aaa00",
+      "mila_cluster_username": "milauser00",
+      "cc_account_username": "ccuser00",
+      "cc_account_update_key": null,
+      "web_settings": {
+        "nbr_items_per_page": 40,
+        "dark_mode": false,
+        "language": "en"
+      }
+    }
+
+    In this example, the fields we are interested in are the "mila_cluster_username"
+    and the "cc_account_username". They are referred in the account fields (one
+    of the two input sources mentioned previously). The latter is as follows:
+    {
+        "cc_account_username": ["beluga", "cedar", "graham", "narval"],
+        "mila_cluster_username": ["mila"],
+        "test_cluster_username": ["test_cluster"]
+    }
+    and is built from the cluster data provided by the configuration file.
+
+    Considering this example, the user "student00@mila.quebec" has access to the clusters:
+    "beluga", "cedar", "graham" and "narval" because of its field "cc_account_username",
+    and "mila" through the "mila_cluster_username". However, it does not have access to
+    the cluster "test_cluster" because its user dictionary does not contain a field
+    "test_cluster_username".
+
+    The list returned by the function is then:
+    ["beluga", "cedar", "graham", "narval", "mila"]
 
     Parameters:
         D_user      Dictionary containing the user's info
@@ -317,12 +355,12 @@ def get_available_clusters_from_user_dict(D_user):
     clusters_by_account_fields = get_account_fields()
 
     # For each "account key" that can be found in the user dictionary
-    for account_key in clusters_by_account_fields:
+    for account_field in clusters_by_account_fields:
         # If the user is associated to the account key
-        if account_key in D_user and D_user[account_key] is not None:
+        if account_field in D_user and D_user[account_field] is not None:
             # Add each cluster related this account key to the list of
             # the clusters available for this user
-            available_clusters.extend(clusters_by_account_fields[account_key])
+            available_clusters.extend(clusters_by_account_fields[account_field])
 
     return available_clusters
 
@@ -331,6 +369,27 @@ def get_available_clusters_from_db(mila_email_username):
     """
     Get a list of the names of the clusters to which the user have access
     by retrieving user information from the database.
+
+    This is done by retrieving user info from the users collection of the
+    database by using the mila_email_username, which acts as an ID for the
+    user we are considering. The retrieved information follows a pattern
+    similar to the one below:
+    {
+      "mila_email_username": "student00@mila.quebec",
+      "status": "enabled",
+      "clockwork_api_key": "000aaa00",
+      "mila_cluster_username": "milauser00",
+      "cc_account_username": "ccuser00",
+      "cc_account_update_key": null,
+      "web_settings": {
+        "nbr_items_per_page": 40,
+        "dark_mode": false,
+        "language": "en"
+      }
+    }
+
+    The function get_available_clusters_from_user_dict is then called, with
+    this dictionary as the parameter D_user.
 
     Parameters:
         mila_email_username     Element identifying the User in the users
