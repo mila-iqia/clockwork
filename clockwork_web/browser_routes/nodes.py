@@ -85,9 +85,20 @@ def route_list():
     previous_request_args["cluster_name"] = cluster_name
 
     # Define the filters to select the nodes
-    f0 = get_filter_node_name(node_name)
-    f1 = get_filter_cluster_name(cluster_name)
-    filter = combine_all_mongodb_filters(f0, f1)
+    filters = set_up_cluster_name_and_node_name_filters(cluster_name, node_name)
+    # If the cluster filter is None, then an error occurred during its setup
+    if filters[1] is None:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext(f"It seems you have no allocation on the requested cluster ({cluster_name})"),
+                previous_request_args=previous_request_args,
+            ),
+            401,  # Unauthorized
+        )
+
+    # Combine the filters
+    filter = combine_all_mongodb_filters(*filters)
 
     # Retrieve the nodes, by applying the filters and the pagination,
     # and the number of nodes corresponding to the filter without the pagination
@@ -131,10 +142,24 @@ def route_one():
     cluster_name = request.args.get("cluster_name", None)
     previous_request_args["cluster_name"] = cluster_name
 
-    # Set up the filters
-    f0 = get_filter_node_name(node_name)
-    f1 = get_filter_cluster_name(cluster_name)
-    filter = combine_all_mongodb_filters(f0, f1)
+    # Define the filters to select the nodes
+    filters = set_up_cluster_name_and_node_name_filters(cluster_name, node_name)
+    # If the cluster filter is None, then an error occurred during its setup
+    if filters[1] is None:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext(f"It seems you have no allocation on the requested cluster ({cluster_name})"),
+                previous_request_args=previous_request_args,
+            ),
+            401,  # Unauthorized
+        )
+
+    # Combine the filters
+    filter = combine_all_mongodb_filters(*filters)
+
+    # Retrieve a list of nodes according to the filter (and hoping the
+    # list contains only one element)
     (LD_nodes, _) = get_nodes(filter)
 
     # Return an error if 0 or more than 1 node(s) are retrieved
@@ -145,8 +170,8 @@ def route_one():
                 error_msg=f"Node not found",
                 previous_request_args=previous_request_args,
             ),
-            400,
-        )  # bad request
+            400, # Bad Request
+        )
     elif len(LD_nodes) > 1:
         return (
             render_template_with_user_settings(
@@ -154,16 +179,16 @@ def route_one():
                 error_msg=f"Found more than one matching node",
                 previous_request_args=previous_request_args,
             ),
-            400,
-        )  # bad request
+            400,  # Bad Request
+        )
 
     # Strip the _id element from the node
     D_node = strip_artificial_fields_from_node(LD_nodes[0])  # the one and only
 
     # Note that D_node contains the "slurm" field (which we want to list)
     # and the "cw" field (which we will omit in the front-end for now).
-
     D_node_slurm = D_node.get("slurm", {})
+
     # need to format it as list of tuples for the template (unless I'm mistaken)
     LP_single_node_slurm = list(sorted(D_node_slurm.items(), key=lambda e: e[0]))
 
@@ -175,3 +200,39 @@ def route_one():
         mila_email_username=current_user.mila_email_username,
         previous_request_args=previous_request_args,
     )
+
+
+def set_up_cluster_name_and_node_name_filters(cluster_name, node_name):
+    """
+    Set up the filters associated to the cluster_name and the node_name
+    to retrieve one or more nodes.
+
+    Params:
+    - node_name         The name of the node we are looking for. If None,
+                        the research will be done only according to the cluster
+    - cluster_name      The name of the cluster on which we are looking
+                        for the node(s). If None, we are looking on each
+                        cluster the user can access
+
+    Returns:
+        A list containing the filters. The name filter is the first one, the cluster
+        filter is the second one. If one of the filter is None, an error occurred
+        when setting up this filter.
+    """
+    # ... node_name filter
+    f0 = get_filter_node_name(node_name)
+    # ... cluster_name filter
+    user_clusters = current_user.get_available_clusters() # Retrieve the clusters available to the current user
+    if cluster_name == None:
+        # If no cluster has been provided, return only the nodes on the clusters available
+        # for the user
+        f1 = {"slurm.cluster_name": {"$in": user_clusters}}
+    elif cluster_name in user_clusters:
+        # If a cluster has been provided and is contained in the clusters available for
+        # the user, set up the filter for this cluster
+        f1 = get_filter_cluster_name(cluster_name)
+    else:
+        # Otherwise, return an error
+        return [f0, None]
+
+    return [f0, f1]
