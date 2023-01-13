@@ -231,10 +231,9 @@ def route_search():
         requested_clusters_names = get_all_clusters()
 
     # Limit the cluster options to the clusters the user can access
-    # Check if user_dict["mila_cluster_username"] is not None
-    # Check if user_dict["cc_account_username"] is not None
-    # Retrieve the clusters the user can access
-    user_clusters = current_user.get_available_clusters()
+    user_clusters = (
+        current_user.get_available_clusters()
+    )  # Retrieve the clusters the user can access
     clusters_names = [
         cluster for cluster in requested_clusters_names if cluster in user_clusters
     ]
