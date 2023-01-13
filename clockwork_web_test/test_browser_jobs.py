@@ -268,7 +268,7 @@ def test_jobs_with_page_num_pagination_option(
 #   Tests for route_search
 ###
 @pytest.mark.parametrize(
-    "current_user_id,username,clusters_names,states,page_num,nbr_items_per_page",
+    "current_user_id,username,cluster_names,states,page_num,nbr_items_per_page",
     [
         (
             "student00@mila.quebec",
@@ -313,7 +313,7 @@ def test_route_search(
     fake_data,
     current_user_id,
     username,
-    clusters_names,
+    cluster_names,
     states,
     page_num,
     nbr_items_per_page,
@@ -328,7 +328,7 @@ def test_route_search(
         fake_data           The data our tests are based on
         current_user_id     ID of the user requesting the jobs
         username            The user whose jobs we are looking for
-        clusters_names      An array of the clusters on which we search jobs
+        cluster_names      An array of the clusters on which we search jobs
         states              An array of the potential states of the jobs we want
                             to retrieve
         page_num            The number of the plage to display the jobs
@@ -351,19 +351,15 @@ def test_route_search(
 
     # Define the union between the requested clusters and the clusters available
     # for the current user
-    if len(clusters_names) < 1:
+    if len(cluster_names) < 1:
         requested_clusters = get_available_clusters_from_db(current_user_id)
     else:
         requested_clusters = [
             cluster_name
-            for cluster_name in clusters_names
+            for cluster_name in cluster_names
             if cluster_name in get_available_clusters_from_db(current_user_id)
         ]
-
-    # union requested et available
-    # si ignore_clusters_names_filters : available
-    # TODO
-
+    
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
@@ -379,11 +375,11 @@ def test_route_search(
 
         # Define the tests which will determine if the job is taken into account or not
         test_username = (retrieved_username == username) or ignore_username_filter
-        test_clusters_names = retrieved_cluster_name in requested_clusters
+        test_cluster_names = retrieved_cluster_name in requested_clusters
         test_states = (retrieved_state in states) or ignore_states_filter
 
         # Select the jobs in regard of the predefined tests
-        if test_username and test_clusters_names and test_states:
+        if test_username and test_cluster_names and test_states:
             LD_prefiltered_jobs.append(D_job)
 
     ###
@@ -398,8 +394,8 @@ def test_route_search(
         request_line += "username={}&".format(username)
 
     # - cluster_name
-    if len(clusters_names) > 0:
-        request_line += "cluster_name={}&".format(",".join(clusters_names))
+    if len(cluster_names) > 0:
+        request_line += "cluster_name={}&".format(",".join(cluster_names))
     # - state
     if len(states) > 0:
         request_line += "state={}&".format(",".join(states))
