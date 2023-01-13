@@ -48,12 +48,16 @@ def get_predefined_fake_users(N=20):
 
     def gen_single_user(n):
         status = "disabled" if (n % 10 == 9) else "enabled"
+
+        # One of the users has only a Mila account, and no DRAC account
+        cc_account_username = "ccuser%0.2d" % n if not n % 20 == 6 else None
+
         D_user = {
             "mila_email_username": "student%0.2d@mila.quebec" % n,
             "status": status,
             "clockwork_api_key": "000aaa%0.2d" % n,
             "mila_cluster_username": "milauser%0.2d" % n,
-            "cc_account_username": "ccuser%0.2d" % n,
+            "cc_account_username": cc_account_username,
             "_extra": {
                 "mila": {
                     "username": "milauser%0.2d" % n,
@@ -70,15 +74,16 @@ def get_predefined_fake_users(N=20):
             },
         }
 
-        # then add the entries for all the clusters on CC
-        account = L_cc_accounts[n % 2]
-        for cluster_name in L_cc_clusters:
-            D_user["_extra"][cluster_name] = {
-                "username": "ccuser%0.2d" % n,
-                "uid": 10000 + n,
-                "account": account,
-                "cluster_name": cluster_name,
-            }
+        if cc_account_username is not None:
+            # then add the entries for all the clusters on CC
+            account = L_cc_accounts[n % 2]
+            for cluster_name in L_cc_clusters:
+                D_user["_extra"][cluster_name] = {
+                    "username": "ccuser%0.2d" % n,
+                    "uid": 10000 + n,
+                    "account": account,
+                    "cluster_name": cluster_name,
+                }
 
         # Add a link to a personal picture every 3rd user
         example_pictures = [
