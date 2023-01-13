@@ -36,7 +36,7 @@ def test_nodes(client, fake_data: dict[list[dict]]):
 
     for i in range(0, get_default_setting_value("nbr_items_per_page")):
         D_node = sorted_all_nodes[i]
-        assert D_node["slurm"]["name"].encode("utf-8") in response.data
+        assert D_node["slurm"]["name"] in response.get_data(as_text=True)
 
 
 @pytest.mark.parametrize(
@@ -78,7 +78,7 @@ def test_nodes_with_both_pagination_options(
     for i in range(number_of_skipped_items, nbr_items_per_page):
         if i < len(sorted_all_nodes):
             D_node = sorted_all_nodes[i]
-            assert D_node["slurm"]["name"].encode("utf-8") in response.data
+            assert D_node["slurm"]["name"] in response.get_data(as_text=True)
 
 
 @pytest.mark.parametrize("page_num", [1, 2, 3, "lala", 7.8, False])
@@ -116,7 +116,7 @@ def test_nodes_with_page_num_pagination_option(
     for i in range(number_of_skipped_items, nbr_items_per_page):
         if i < len(sorted_all_nodes):
             D_node = sorted_all_nodes[i]
-            assert D_node["slurm"]["name"].encode("utf-8") in response.data
+            assert D_node["slurm"]["name"] in response.get_data(as_text=True)
 
 
 @pytest.mark.parametrize("nbr_items_per_page", [1, 29, 50, -1, [1, 2], True])
@@ -153,7 +153,7 @@ def test_nodes_with_page_num_pagination_option(
     for i in range(number_of_skipped_items, nbr_items_per_page):
         if i < len(sorted_all_nodes):
             D_node = sorted_all_nodes[i]
-            assert D_node["slurm"]["name"].encode("utf-8") in response.data
+            assert D_node["slurm"]["name"] in response.get_data(as_text=True)
 
 
 @pytest.mark.parametrize(
@@ -184,7 +184,7 @@ def test_nodes_with_filter(client, fake_data: dict[list[dict]], cluster_name):
 
     for D_node in sorted_all_nodes:
         if D_node["slurm"]["cluster_name"] == cluster_name:
-            assert D_node["slurm"]["name"].encode("utf-8") in response.data
+            assert D_node["slurm"]["name"] in response.get_data(as_text=True)
         else:
             # We're being a little demanding here by asking that the name of the
             # host should never occur in the document. The host names are unique,
@@ -192,7 +192,7 @@ def test_nodes_with_filter(client, fake_data: dict[list[dict]], cluster_name):
             # show up elsewhere in the page for some other reason.
             # This causes issues when the fake data had node names that were all "machine"
             # with some integer.
-            assert D_node["slurm"]["name"].encode("utf-8") not in response.data
+            assert D_node["slurm"]["name"] not in response.get_data(as_text=True)
 
 
 def test_single_node(client, fake_data):
@@ -201,7 +201,7 @@ def test_single_node(client, fake_data):
         f"/nodes/one?node_name={node['name']}&cluster_name={node['cluster_name']}"
     )
     assert response.status_code == 200
-    assert node["alloc_tres"].encode("ascii") in response.data
+    assert node["alloc_tres"] in response.get_data(as_text=True)
 
 
 def test_single_node_not_found(client):

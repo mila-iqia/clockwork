@@ -6,4 +6,4 @@ def test_000(client):
     """ """
 
     response = client.get("/")
-    assert b"clockwork" in response.data
+    assert "clockwork" in response.get_data(as_text=True)
