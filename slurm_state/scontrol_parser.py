@@ -140,7 +140,7 @@ def timelimit(f, ctx):
 
 def timestamp(f, ctx):
     # We add the timezone information for the timestamp
-    if f == "Unknown" or f is None:
+    if f in ["Unknown", "(null)", "None", '"None"', "'None'", None]:
         return None
     date_naive = datetime.datetime.strptime(f, "%Y-%m-%dT%H:%M:%S")
     date_aware = date_naive.replace(tzinfo=ctx["timezone"])
@@ -304,6 +304,7 @@ NODE_FIELD_MAP = {
     "Arch": rename(id, "arch"),
     "CoresPerSocket": ignore,
     "CPUAlloc": ignore,
+    "CPUEfctv": ignore,
     "CPUTot": ignore,
     "CPULoad": ignore,
     "AvailableFeatures": rename(id, "features"),
