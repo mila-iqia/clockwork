@@ -84,7 +84,7 @@ def get_account_fields():
     # Initialize the dictionary of account fields
     D_account_fields = {}
 
-    for cluster_name in D_all_clusters.keys():
+    for cluster_name in D_all_clusters:
         # For each cluster, get the name of the account field
         account_field = D_all_clusters[cluster_name]["account_field"]
 
