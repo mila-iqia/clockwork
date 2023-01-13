@@ -359,7 +359,7 @@ def test_route_search(
             for cluster_name in cluster_names
             if cluster_name in get_available_clusters_from_db(current_user_id)
         ]
-    
+
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
