@@ -322,8 +322,7 @@ def get_available_clusters_from_user_dict(D_user):
         if account_key in D_user and D_user[account_key] is not None:
             # Add each cluster related this account key to the list of
             # the clusters available for this user
-            for available_cluster in clusters_by_account_fields[account_key]:
-                available_clusters.append(available_cluster)
+            available_clusters.extend(clusters_by_account_fields[account_key])
 
     return available_clusters
 
