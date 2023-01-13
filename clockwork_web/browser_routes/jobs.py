@@ -221,23 +221,23 @@ def route_search():
     username = request.args.get("username", None)
     previous_request_args["username"] = username
 
-    requested_clusters_names = get_custom_array_from_request_args(
+    requested_cluster_names = get_custom_array_from_request_args(
         request.args.get("cluster_name")
     )
-    if len(requested_clusters_names) < 1:
+    if len(requested_cluster_names) < 1:
         # If no cluster has been requested, then all clusters have been requested
         # (a filter related to which clusters are available to the current user
         #  is then applied)
-        requested_clusters_names = get_all_clusters()
+        requested_cluster_names = get_all_clusters()
 
     # Limit the cluster options to the clusters the user can access
     user_clusters = (
         current_user.get_available_clusters()
     )  # Retrieve the clusters the user can access
-    clusters_names = [
-        cluster for cluster in requested_clusters_names if cluster in user_clusters
+    cluster_names = [
+        cluster for cluster in requested_cluster_names if cluster in user_clusters
     ]
-    previous_request_args["cluster_name"] = clusters_names
+    previous_request_args["cluster_name"] = cluster_names
 
     states = get_custom_array_from_request_args(request.args.get("state"))
     previous_request_args["state"] = states
@@ -266,8 +266,8 @@ def route_search():
         f0 = {}
 
     # Define the filter related to the cluster on which the jobs run
-    if len(clusters_names) > 0:
-        f1 = {"slurm.cluster_name": {"$in": clusters_names}}
+    if len(cluster_names) > 0:
+        f1 = {"slurm.cluster_name": {"$in": cluster_names}}
     else:
         f1 = {}  # Apply no filter for the clusters if no cluster has been provided
 
