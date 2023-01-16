@@ -1308,6 +1308,107 @@ def test_get_users_one_known_user(app, fake_data):
         assert D_retrieved_user == D_known_user
 
 
+@pytest.mark.parametrize(
+    "user_dict,expected_clusters",
+    [
+        # User with a Mila account and a CC account
+        (
+            # - user dictionary
+            {
+                "mila_email_username": "student1@mila.quebec",
+                "status": "enabled",
+                "clockwork_api_key": "000aaa01",
+                "mila_cluster_username": "milauser1",
+                "cc_account_username": "ccuser1",
+                "cc_account_update_key": None,
+                "web_settings": {"nbr_items_per_page": 40, "dark_mode": False},
+            },
+            # - expected clusters
+            ["mila", "beluga", "cedar", "graham", "narval"],
+        ),
+        # User with only a Mila account
+        (
+            # - user dictionary
+            {
+                "mila_email_username": "student1@mila.quebec",
+                "status": "enabled",
+                "clockwork_api_key": "000aaa01",
+                "mila_cluster_username": "milauser1",
+                "cc_account_username": None,
+                "cc_account_update_key": None,
+                "web_settings": {"nbr_items_per_page": 40, "dark_mode": False},
+            },
+            # - expected clusters
+            ["mila"],
+        ),
+        # User with only a CC account (this should not happen - for now
+        # at least -, but just in case)
+        (
+            # - user dictionary
+            {
+                "mila_email_username": "student1@mila.quebec",
+                "status": "enabled",
+                "clockwork_api_key": "000aaa01",
+                "mila_cluster_username": None,
+                "cc_account_username": "ccuser1",
+                "cc_account_update_key": None,
+                "web_settings": {"nbr_items_per_page": 40, "dark_mode": False},
+            },
+            # - expected clusters
+            ["beluga", "cedar", "graham", "narval"],
+        ),
+    ],
+)
+def test_get_available_clusters_from_user_dict(user_dict, expected_clusters):
+    """
+    Test the function get_available_clusters_from_user_dict.
+
+    Parameters:
+    - user_dict             Dictionary of the user for who we want to get
+                            the available clusters
+    - expected_clusters     Array of Strings containing the name of the clusters
+                            we expect the function to retrieve
+    """
+    # Retrieve the available clusters for the user from the user dict
+    # by calling the function we want to test
+    retrieved_clusters = get_available_clusters_from_user_dict(user_dict)
+
+    # Check if the retrieved clusters are the expected ones
+    assert set(expected_clusters) == set(retrieved_clusters)
+
+
+@pytest.mark.parametrize(
+    "user_id,expected_clusters",
+    [
+        ("student00@mila.quebec", ["mila", "beluga", "cedar", "graham", "narval"]),
+        (
+            "student06@mila.quebec",
+            ["mila"],
+        ),  # student06 is the one in the fake data who does not have a DRAC account
+    ],
+)
+def test_get_available_clusters_from_db(app, user_id, expected_clusters):
+    """
+    Test the function get_available_clusters_from_db.
+
+    Parameters:
+    - app                   The scope of our tests, used to set the context
+                            (to access MongoDB)
+    - user_id               The ID of the user for who we want to get the available
+                            clusters
+    - expected_clusters     Array of Strings containing the name of the clusters
+                            we expect the function to retrieve
+    """
+    # Use the app context
+    with app.app_context():
+        # Retrieve the available clusters for the user from db
+        # by calling the function we want to test
+        retrieved_clusters = get_available_clusters_from_db(user_id)
+
+        # Check if the retrieved clusters are the expected ones
+        assert set(expected_clusters) == set(retrieved_clusters)
+
+
 # Helpers
 def assert_no_user_has_been_modified(fake_data):
     """
