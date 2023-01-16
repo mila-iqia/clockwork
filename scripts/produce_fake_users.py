@@ -49,7 +49,8 @@ def get_predefined_fake_users(N=20):
     def gen_single_user(n):
         status = "disabled" if (n % 10 == 9) else "enabled"
 
-        # One of the users has only a Mila account, and no DRAC account
+        # One out of 20 of the users will have only a Mila account, and no DRAC account.
+        # This is useful for testing permissions.
         cc_account_username = "ccuser%0.2d" % n if not n % 20 == 6 else None
 
         D_user = {

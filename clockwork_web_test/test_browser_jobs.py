@@ -305,7 +305,9 @@ def test_jobs_with_page_num_pagination_option(
             [],
             1,
             10,
-        ),  # Nota bene: student06 has only access to the Mila cluster and student00 has jobs on Mila cluster and DRAC clusters
+        ),
+        # Note: student06 has only access to the Mila cluster and student00 has jobs on Mila cluster and DRAC clusters,
+        #       so these arguments test that student06 should NOT see the jobs on DRAC clusters
     ],
 )
 def test_route_search(
@@ -339,7 +341,8 @@ def test_route_search(
     assert login_response.status_code == 302  # Redirect
 
     ###
-    # Look for the jobs we are expecting
+    # We need to manually build what the correct answer should be
+    # in order to test that we get the desired behavior.
     ###
 
     # Initialize the jobs we are expecting (before pagination)
@@ -349,16 +352,14 @@ def test_route_search(
     ignore_username_filter = username is None
     ignore_states_filter = len(states) < 1
 
-    # Define the union between the requested clusters and the clusters available
-    # for the current user
-    if len(cluster_names) < 1:
-        requested_clusters = get_available_clusters_from_db(current_user_id)
+    # Intersection between the requested clusters (if specified)
+    # and the clusters available for the current user.
+    if cluster_names:
+        requested_clusters = set(cluster_names).intersection(
+            set(get_available_clusters_from_db(current_user_id))
+        )
     else:
-        requested_clusters = [
-            cluster_name
-            for cluster_name in cluster_names
-            if cluster_name in get_available_clusters_from_db(current_user_id)
-        ]
+        requested_clusters = get_available_clusters_from_db(current_user_id)
 
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
@@ -394,10 +395,10 @@ def test_route_search(
         request_line += "username={}&".format(username)
 
     # - cluster_name
-    if len(cluster_names) > 0:
+    if cluster_names:
         request_line += "cluster_name={}&".format(",".join(cluster_names))
     # - state
-    if len(states) > 0:
+    if states:
         request_line += "state={}&".format(",".join(states))
     # - page_num
     if page_num:
