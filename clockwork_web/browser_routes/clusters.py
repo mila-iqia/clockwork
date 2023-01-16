@@ -48,7 +48,30 @@ def route_one():
 
     # Check if cluster_name is contained in the expected cluster names
     if cluster_name:
-        if cluster_name in D_clusters:
+        if cluster_name not in D_clusters:
+            # Return a 404 error (Not Found) if the cluster is unknown
+            return (
+                render_template_with_user_settings(
+                    "error.html",
+                    error_msg=gettext(f"This cluster is not known."),
+                    previous_request_args=previous_request_args,
+                ),
+                404,  # Not Found
+            )
+
+        elif cluster_name not in current_user.get_available_clusters():
+            # Return a 403 error (Forbidden) if the cluster is not available
+            # for the current user
+            return (
+                render_template_with_user_settings(
+                    "error.html",
+                    error_msg=gettext(f"You don't have access to the requested cluster."),
+                    previous_request_args=previous_request_args,
+                ),
+                403,  # Not Found
+            )
+
+        else:
             # Return a HTML page presenting the requested cluster's information
             return render_template_with_user_settings(
                 "cluster.html",
@@ -56,16 +79,6 @@ def route_one():
                 cluster=D_clusters[cluster_name],
                 mila_email_username=current_user.mila_email_username,
                 previous_request_args=previous_request_args,
-            )
-        else:
-            # Return a 404 error (Not Found) if the cluster is unknown
-            return (
-                render_template_with_user_settings(
-                    "error.html",
-                    error_msg=f"This cluster is not known.",
-                    previous_request_args=previous_request_args,
-                ),
-                404,  # Not Found
             )
 
     else:
