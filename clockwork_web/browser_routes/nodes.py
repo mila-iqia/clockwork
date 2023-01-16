@@ -91,7 +91,9 @@ def route_list():
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=gettext(f"It seems you have no allocation on the requested cluster ({cluster_name})"),
+                error_msg=gettext(
+                    f"It seems you have no allocation on the requested cluster ({cluster_name})"
+                ),
                 previous_request_args=previous_request_args,
             ),
             401,  # Unauthorized
@@ -149,7 +151,9 @@ def route_one():
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=gettext(f"It seems you have no allocation on the requested cluster ({cluster_name})"),
+                error_msg=gettext(
+                    f"It seems you have no allocation on the requested cluster ({cluster_name})"
+                ),
                 previous_request_args=previous_request_args,
             ),
             401,  # Unauthorized
@@ -170,7 +174,7 @@ def route_one():
                 error_msg=f"Node not found",
                 previous_request_args=previous_request_args,
             ),
-            400, # Bad Request
+            400,  # Bad Request
         )
     elif len(LD_nodes) > 1:
         return (
@@ -222,7 +226,9 @@ def set_up_cluster_name_and_node_name_filters(cluster_name, node_name):
     # ... node_name filter
     f0 = get_filter_node_name(node_name)
     # ... cluster_name filter
-    user_clusters = current_user.get_available_clusters() # Retrieve the clusters available to the current user
+    user_clusters = (
+        current_user.get_available_clusters()
+    )  # Retrieve the clusters available to the current user
     if cluster_name == None:
         # If no cluster has been provided, return only the nodes on the clusters available
         # for the user

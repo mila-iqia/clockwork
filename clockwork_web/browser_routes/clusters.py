@@ -65,7 +65,9 @@ def route_one():
             return (
                 render_template_with_user_settings(
                     "error.html",
-                    error_msg=gettext(f"You don't have access to the requested cluster."),
+                    error_msg=gettext(
+                        f"You don't have access to the requested cluster."
+                    ),
                     previous_request_args=previous_request_args,
                 ),
                 403,  # Not Found
