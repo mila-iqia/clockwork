@@ -121,6 +121,9 @@ def archive(archive_path, days_since_last_update, database_name=None):
     if archive_path and os.path.exists(os.path.dirname(archive_path)):
         with open(archive_path, "w") as f:
             json.dump(contents_archived, f, indent=2)
+            print(f"Wrote {archive_path}.")
+    else:
+        print("Not saving the archived contents to filesystem.")
 
     #################################
     ## Deletions from the database ##
