@@ -25,12 +25,17 @@ from .db import get_db
 from clockwork_web.core.users_helper import (
     enable_dark_mode,
     disable_dark_mode,
+    enable_column_display,
+    disable_column_display,
     get_default_web_settings_values,
     set_items_per_page,
     get_default_setting_value,
+    set_date_format,
+    set_time_format,
     set_language,
     is_correct_type_for_web_setting,
     get_default_web_settings_values,
+    get_available_clusters_from_db,
 )
 
 
@@ -153,6 +158,12 @@ class User(UserMixin):
         if res.modified_count != 1:
             raise ValueError(gettext("could not modify update key"))
 
+    def get_available_clusters(self):
+        """
+        Get a list of the names of the clusters to which the user have access.
+        """
+        return get_available_clusters_from_db(self.mila_email_username)
+
     ###
     #   Web settings
     ###
@@ -177,6 +188,38 @@ class User(UserMixin):
             - a message describing the state of the operation
         """
         return disable_dark_mode(self.mila_email_username)
+
+    def settings_column_display_enable(self, page_name, column_name):
+        """
+        Enable the display of a specific column on the "dashboard" or "jobs list" page
+        for a User.
+
+        Parameters:
+            page_name   Name of the page on which the column display is enabled
+            column_name Name of the column whose display is enabled
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return enable_column_display(self.mila_email_username, page_name, column_name)
+
+    def settings_column_display_disable(self, page_name, column_name):
+        """
+        Disable the display of a specific column on the "dashboard" or "jobs list" page
+        for a User.
+
+        Parameters:
+            page_name   Name of the page on which the column display is disabled
+            column_name Name of the column whose display is disabled
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return disable_column_display(self.mila_email_username, page_name, column_name)
 
     def settings_nbr_items_per_page_set(self, nbr_items_per_page):
         """
@@ -206,6 +249,36 @@ class User(UserMixin):
             - a message describing the state of the operation
         """
         return set_language(self.mila_email_username, language)
+
+    def settings_date_format_set(self, date_format):
+        """
+        Set a preferred date format for the current user.
+
+        Parameters:
+        - date_format   The date format chosen by the user to display the "date part"
+                        of the timestamps on the web interface
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return set_date_format(self.mila_email_username, date_format)
+
+    def settings_time_format_set(self, time_format):
+        """
+        Set a preferred time format for the current user.
+
+        Parameters:
+        - time_format   The time format chosen by the user to display the "time part"
+                        of the timestamps on the web interface
+
+        Returns:
+            A tuple containing
+            - a HTTP status code (200 or 400)
+            - a message describing the state of the operation
+        """
+        return set_time_format(self.mila_email_username, time_format)
 
     def get_language(self):
         return self.web_settings["language"]
@@ -254,13 +327,3 @@ class AnonUser(AnonymousUserMixin):
             A dictionary presenting the default web settings.
         """
         return self.web_settings
-
-    # Not implemented dark_mode for AnonUser.
-    # Exists only to avoid problems with javascript calls.
-    def settings_dark_mode_enable(self):
-        # Returns (status_code, status_message).
-        return (200, "")
-
-    def settings_dark_mode_disable(self):
-        # Returns (status_code, status_message).
-        return (200, "")

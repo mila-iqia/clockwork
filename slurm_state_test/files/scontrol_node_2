@@ -1,5 +1,5 @@
 NodeName=test-node Arch=x86_64 CoresPerSocket=20 
-   CPUAlloc=28 CPUTot=80 CPULoad=11.33
+   CPUAlloc=28 CPUEfctv=10 CPUTot=80 CPULoad=11.33
    AvailableFeatures=x86_64,turing,48gb
    ActiveFeatures=x86_64,turing,48gb
    Gres=gpu:rtx8000:8(S:0-1)
