@@ -16,7 +16,8 @@
 		function switch_dark_mode() {
 		  /*
 			Retrieve the state of the toggle button (true if it is checked,
-			false otherwise)
+			false otherwise) and update the user preferences according to
+			its value.
 		  */
 		  var is_checked = document.getElementById("dark_mode_toggle").checked;
 		  if (is_checked) {
@@ -27,11 +28,56 @@
 		  }
 		};
 
+		function switch_column_setting(page_name, column_name) {
+			/*
+				Retrieve the state of the toggle button corresponding to
+				a column. This state is true if it is checked, and false
+				otherwise. Then, update the user preferences according
+				to this value.
+
+				Parameters:
+				page_name		It can get the values "dashboard" or "jobs_list".
+								It identifies the page where the column should or
+								should not appear
+				column_name		Name identifying the column to display or not on
+								the page identified by corresponding_page
+			*/
+
+			// Retrieve the state of the associated toggle button
+			// The HTML element is identified by the name <corresponding_page>_<column_name>
+			var html_element_id = page_name.concat("_", column_name) + "_toggle";
+			var is_checked = document.getElementById(html_element_id).checked;
+			if (is_checked) {
+				enable_column(page_name, column_name);
+			}
+			else {
+				disable_column(page_name, column_name);
+			}
+		}
+
 		function select_nbr_items_per_page(nbr_items_per_page_dropdown) {
-		  // Retrieve the selected value
-		  var selected_nbr = nbr_items_per_page_dropdown.options[nbr_items_per_page_dropdown.selectedIndex].value;
-		  set_nbr_items_per_page(selected_nbr);
+			// Retrieve the selected value
+		  	var selected_nbr = nbr_items_per_page_dropdown.options[nbr_items_per_page_dropdown.selectedIndex].value;
+		  
+			// Update it in the user's web settings
+			set_nbr_items_per_page(selected_nbr);
 		};
+
+		function select_date_format(date_format_dropdown) {
+			// Retrieve the selected value
+			var selected_date_format = date_format_dropdown.options[date_format_dropdown.selectedIndex].value;
+
+			// Update it in the user's web settings
+			set_date_format(selected_date_format);
+		}
+
+		function select_time_format(time_format_dropdown) {
+			// Retrieve the selected value
+			var selected_time_format = time_format_dropdown.options[time_format_dropdown.selectedIndex].value;
+
+			// Update it in the user's web settings
+			set_time_format(selected_time_format);
+		}
 	</script>
 
 {% endblock %}
@@ -99,15 +145,58 @@
 					</dd>
 
 					<!-- Timestamps -->
-			  		<dt class="col-6"><label for="dark_mode_toggle">{{ gettext("Time formatting") }}</label></dt>
-		 			<dd class="col-6">
+			  		<dt class="col-6"><label for="date_format_selection">{{ gettext("Time formatting") }}</label></dt>
+		 			<dd class="col-3">
 						<div>
-							<select class="form-select" aria-label="Time formatting">
-								<option value="time_words" selected>In words (2 months ago)</option>
-								<option value="time_unix">Unix timestamp (1667503950)</option>
-								<option value="time_1">YYYY/MM/DD</option>
-								<option value="time_2">DD/MM/YYYY</option>
-								<option value="time_3">MM/DD/YYYY</option>
+							<select class="form-select" aria-label="Time formatting" id="date_format_selection" onchange="select_date_format(this)">
+								<!-- In words -->
+								{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
+									<option value="words" selected>In words (2 months ago)</option>
+								{% else %}
+									<option value="words">In words (2 months ago)</option>
+								{% endif %}
+								<!-- Unix timestamp -->
+								{% if "date_format" in web_settings and web_settings["date_format"] == "unix_timestamp" %}
+									<option value="unix_timestamp" selected>Unix timestamp (1667503950)</option>
+								{% else %}
+									<option value="unix_timestamp">Unix timestamp (1667503950)</option>
+								{% endif %}
+								<!-- Format YYYY/MM/DD -->
+								{% if "date_format" not in web_settings or web_settings["date_format"] == "YYYY/MM/DD" %}
+									<option value="YYYY/MM/DD" selected>YYYY/MM/DD</option>
+								{% else %}
+									<option value="YYYY/MM/DD">YYYY/MM/DD</option>
+								{% endif %}
+								<!-- Format DD/MM/YYYY -->
+								{% if "date_format" in web_settings and web_settings["date_format"] == "DD/MM/YYYY" %}
+									<option value="DD/MM/YYYY" selected>DD/MM/YYYY</option>
+								{% else %}
+									<option value="DD/MM/YYYY">DD/MM/YYYY</option>
+								{% endif %}
+								<!-- Format MM/DD/YYYY -->
+								{% if "date_format" in web_settings and web_settings["date_format"] == "MM/DD/YYYY" %}
+									<option value="MM/DD/YYYY" selected>MM/DD/YYYY</option>
+								{% else %}
+									<option value="MM/DD/YYYY">MM/DD/YYYY</option>
+								{% endif %}
+							</select>
+						</div>	
+					</dd>
+					<dd class="col-3">
+						<div>
+							<select class="form-select" aria-label="Time formatting" id="time_format_selection" onchange="select_time_format(this)">
+								<!-- Format AM/PM -->
+								{% if "time_format" in web_settings and web_settings["time_format"] == "AM/PM" %}
+									<option value="AM/PM" selected>AM/PM</option>
+								{% else %}
+									<option value="AM/PM">AM/PM</option>
+								{% endif %}
+								<!-- Format 24h -->
+								{% if "time_format" not in web_settings or web_settings["time_format"] == "24h" %}
+									<option value="24h" selected>24h</option>
+								{% else %}
+									<option value="24h">24h</option>
+								{% endif %}
 							</select>
 						</div>	
 					</dd>
@@ -122,6 +211,7 @@
 		                            <th>Job ID</th>
 		                            <th>Job name [:20]</th>
 		                            <th>Job state</th>
+		                            <th>Submit time</th>
 		                            <th>Start time</th>
 		                            <th>End time</th>
 		                            <th>Links</th>
@@ -130,38 +220,16 @@
 		                    </thead>
 		                    <tbody>
 		                    	<tr>
+									{% set page_name = "dashboard" %}
+									{% for column_name in ["clusters", "job_id", "job_name", "job_state", "submit_time", "start_time", "end_time", "links", "actions"] %}
 		                    		<td><div class="form-check form-switch">
-										{# if web_settings["dynamic_clusters"] #}
-											<input name="dynamic_clusters_toggle" id="dynamic_clusters_toggle" type="checkbox" class="form-check-input" checked />
+										{% if (web_settings | check_web_settings_column_display(page_name, column_name)) %}
+											<input name="{{page_name}}_{{column_name}}_toggle" id="{{page_name}}_{{column_name}}_toggle" type="checkbox" class="form-check-input" onclick="switch_column_setting('{{page_name}}', '{{column_name}}')" checked />
+										{% else %}
+											<input name="{{page_name}}_{{column_name}}_toggle" id="{{page_name}}_{{column_name}}_toggle" type="checkbox" class="form-check-input" onclick="switch_column_setting('{{page_name}}', '{{column_name}}')" />
+										{% endif %}
 									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["dynamic_jobid"] #}
-											<input name="dynamic_jobid_toggle" id="dynamic_jobid_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["dynamic_jobname"] #}
-											<input name="dynamic_jobname_toggle" id="dynamic_jobname_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["dynamic_jobstate"] #}
-											<input name="dynamic_jobstate_toggle" id="dynamic_jobstate_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["dynamic_starttime"] #}
-											<input name="dynamic_starttime_toggle" id="dynamic_starttime_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["dynamic_endtime"] #}
-											<input name="dynamic_endtime_toggle" id="dynamic_endtime_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["show_links"] #}
-											<input name="dynamic_links_toggle" id="dynamic_links_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["dynamic_actions"] #}
-											<input name="dynamic_actions_toggle" id="dynamic_actions_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
+									{% endfor %}
 		                    	</tr>
 		                    </tbody>
 		                </table>
@@ -178,6 +246,7 @@
 		                            <th>Job ID</th>
 		                            <th>Job name [:20]</th>
 		                            <th>Job state</th>
+		                            <th>Submit time</th>
 		                            <th>Start time</th>
 		                            <th>End time</th>
 		                            <th>Links</th>
@@ -186,42 +255,16 @@
 		                    </thead>
 		                    <tbody>
 		                    	<tr>
+		                    		{% set page_name = "jobs_list" %}
+									{% for column_name in ["clusters", "user","job_id", "job_name", "job_state", "submit_time", "start_time", "end_time", "links", "actions"] %}
 		                    		<td><div class="form-check form-switch">
-										{# if web_settings["search_clusters"] #}
-											<input name="search_clusters_toggle" id="search_clusters_toggle" type="checkbox" class="form-check-input" checked />
+										{% if (web_settings | check_web_settings_column_display(page_name, column_name)) %}
+											<input name="{{page_name}}_{{column_name}}_toggle" id="{{page_name}}_{{column_name}}_toggle" type="checkbox" class="form-check-input" onclick="switch_column_setting('{{page_name}}', '{{column_name}}')" checked />
+										{% else %}
+											<input name="{{page_name}}_{{column_name}}_toggle" id="{{page_name}}_{{column_name}}_toggle" type="checkbox" class="form-check-input" onclick="switch_column_setting('{{page_name}}', '{{column_name}}')" />
+										{% endif %}
 									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["search_users"] #}
-											<input name="search_users_toggle" id="search_users_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["search_jobid"] #}
-											<input name="search_jobid_toggle" id="search_jobid_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["search_jobname"] #}
-											<input name="search_jobname_toggle" id="search_jobname_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["search_jobstate"] #}
-											<input name="search_jobstate_toggle" id="search_jobstate_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["search_starttime"] #}
-											<input name="search_starttime_toggle" id="search_starttime_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["search_endtime"] #}
-											<input name="search_endtime_toggle" id="search_endtime_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["search_links"] #}
-											<input name="search_links_toggle" id="search_links_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
-		                            <td><div class="form-check form-switch">
-										{# if web_settings["search_actions"] #}
-											<input name="search_actions_toggle" id="search_actions_toggle" type="checkbox" class="form-check-input" checked />
-									</div></td>
+									{% endfor %}
 		                    	</tr>
 		                    </tbody>
 		                </table>

@@ -29,6 +29,7 @@ from flask_babel import gettext
 # this is what allows the factorization into many files.
 from flask import Blueprint
 
+from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.utils import to_boolean, get_custom_array_from_request_args
 from clockwork_web.core.users_helper import render_template_with_user_settings
 
@@ -220,10 +221,23 @@ def route_search():
     username = request.args.get("username", None)
     previous_request_args["username"] = username
 
-    clusters_names = get_custom_array_from_request_args(
+    requested_cluster_names = get_custom_array_from_request_args(
         request.args.get("cluster_name")
     )
-    previous_request_args["cluster_name"] = clusters_names
+    if len(requested_cluster_names) < 1:
+        # If no cluster has been requested, then all clusters have been requested
+        # (a filter related to which clusters are available to the current user
+        #  is then applied)
+        requested_cluster_names = get_all_clusters()
+
+    # Limit the cluster options to the clusters the user can access
+    user_clusters = (
+        current_user.get_available_clusters()
+    )  # Retrieve the clusters the user can access
+    cluster_names = [
+        cluster for cluster in requested_cluster_names if cluster in user_clusters
+    ]
+    previous_request_args["cluster_name"] = cluster_names
 
     states = get_custom_array_from_request_args(request.args.get("state"))
     previous_request_args["state"] = states
@@ -252,8 +266,8 @@ def route_search():
         f0 = {}
 
     # Define the filter related to the cluster on which the jobs run
-    if len(clusters_names) > 0:
-        f1 = {"slurm.cluster_name": {"$in": clusters_names}}
+    if len(cluster_names) > 0:
+        f1 = {"slurm.cluster_name": {"$in": cluster_names}}
     else:
         f1 = {}  # Apply no filter for the clusters if no cluster has been provided
 
@@ -321,7 +335,10 @@ def route_one():
 
     # Retrieve the given cluster name
     cluster_name = request.args.get("cluster_name", None)
-    previous_request_args["cluster_name"] = cluster_name
+    if cluster_name:
+        previous_request_args["cluster_name"] = cluster_name
+    else:
+        previous_request_args["cluster_name"] = []
 
     # Return an error if no job ID has been given
     if job_id is None:

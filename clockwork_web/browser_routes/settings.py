@@ -28,6 +28,11 @@ from clockwork_web.config import register_config, get_config, string as valid_st
 register_config("translation.available_languages", valid_string)
 
 from clockwork_web.core.users_helper import render_template_with_user_settings
+from clockwork_web.core.utils import (
+    get_available_date_formats,
+    get_available_time_formats,
+)
+from clockwork_web.core.jobs_helper import get_jobs_properties_list_per_page
 
 
 @flask_api.route("/")
@@ -202,6 +207,136 @@ def route_unset_dark_mode():
         )
 
 
+@flask_api.route("/web/column/set")
+@login_required
+def route_set_column_display():
+    """
+    Set to true the fact that a specific column is shown on the web page "dashboard"
+    or "jobs list" (regarding the value of the parameter "page").
+
+    .. :quickref: enable the display of a job element on the dashboard or on the jobs list
+    """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the column and page names provided in the request
+    column_name = request.args.get("column", type=str)
+    previous_request_args["column"] = column_name
+
+    page_name = request.args.get("page", type=str)
+    previous_request_args["page"] = page_name
+
+    # Check if the tuple (page_name, column_name) is consistent
+    jobs_properties_list_per_page = get_jobs_properties_list_per_page()
+    # - Check the page name
+    if page_name not in jobs_properties_list_per_page:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("The provided page name is unexpected."),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+    # - Check the column name
+    if column_name not in jobs_properties_list_per_page[page_name]:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext(
+                    "The provided column name is unexpected for this page."
+                ),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+
+    # Set the column display value to True in the current user's web settings and
+    # retrieve the status code and status message associated to the operation
+    (status_code, status_message) = current_user.settings_column_display_enable(
+        page_name, column_name
+    )
+
+    if status_code == 200:
+        # If a success has been returned
+        return {}
+    else:
+        # Otherwise, return an error
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=status_message,
+                previous_request_args=previous_request_args,
+            ),
+            status_code,
+        )
+
+
+@flask_api.route("/web/column/unset")
+@login_required
+def route_unset_column_display():
+    """
+    Set to false the fact that a specific column is shown on the web page "dashboard"
+    or "jobs list" (regarding the value of the parameter "page").
+
+    .. :quickref: enable the display of a job element on the dashboard or on the jobs list
+    """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the column and page names provided in the request
+    column_name = request.args.get("column", type=str)
+    previous_request_args["column"] = column_name
+
+    page_name = request.args.get("page", type=str)
+    previous_request_args["page"] = page_name
+
+    # Check if the tuple (page_name, column_name) is consistent
+    jobs_properties_list_per_page = get_jobs_properties_list_per_page()
+    # - Check the page name
+    if page_name not in jobs_properties_list_per_page:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("The provided page name is unexpected."),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+    # - Check the column name
+    if column_name not in jobs_properties_list_per_page[page_name]:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext(
+                    "The provided column name is unexpected for this page."
+                ),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+
+    # Set the column display value to True in the current user's web settings and
+    # retrieve the status code and status message associated to the operation
+    (status_code, status_message) = current_user.settings_column_display_disable(
+        page_name, column_name
+    )
+
+    if status_code == 200:
+        # If a success has been returned
+        return {}
+    else:
+        # Otherwise, return an error
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=status_message,
+                previous_request_args=previous_request_args,
+            ),
+            status_code,
+        )
+
+
 @flask_api.route("/web/language/set")
 @login_required
 def route_set_language():
@@ -260,6 +395,137 @@ def route_set_language():
             render_template_with_user_settings(
                 "error.html",
                 error_msg=gettext("Missing argument, or wrong format: language."),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+
+
+@flask_api.route("/web/date_format/set")
+@login_required
+def route_set_date_format():
+    """
+    Set a new preferred format to display the dates for the current authenticated user.
+
+    .. :quickref: update the preferred date format in the current user's settings
+    """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the preferred date format to store in the settings
+    date_format = request.args.get("date_format", type=str)
+    previous_request_args["date_format"] = date_format
+
+    # Check if the date format is expected
+    if date_format:
+        # Check if the date format is supported
+        if date_format in get_available_date_formats():
+            # If the requested date format is expected, update the preferred
+            # date format of the current user and retrieve the status code
+            # and status message associated to this operation
+            (
+                status_code,
+                status_message,
+            ) = current_user.settings_date_format_set(date_format)
+
+            if status_code == 200:
+                # If a success has been return, redirect to the home page
+                return redirect("/")
+            else:
+                # Otherwise, return an error
+                return (
+                    render_template_with_user_settings(
+                        "error.html",
+                        error_msg=status_message,
+                        previous_request_args=previous_request_args,
+                    ),
+                    status_code,
+                )
+
+        else:
+            # If the provided date format is not expected,
+            # return a Bad Request error and redirect to the error page
+            return (
+                render_template_with_user_settings(
+                    "error.html",
+                    error_msg=gettext("The requested date_format is unknown."),
+                    previous_request_args=previous_request_args,
+                ),
+                400,  # Bad Request
+            )
+    else:
+        # If the date format name is not provided or presents a unexpected type,
+        # return Bad Request
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("Missing argument, or wrong format: date_format."),
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
+
+
+@flask_api.route("/web/time_format/set")
+@login_required
+def route_set_time_format():
+    """
+    Set a new preferred format to display the "time part" of the timestamps
+    displayed to the current authenticated user on the web interface.
+
+    .. :quickref: update the preferred time format in the current user's settings
+    """
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
+    # Retrieve the preferred time format to store in the settings
+    time_format = request.args.get("time_format", type=str)
+    previous_request_args["time_format"] = time_format
+
+    # Check if the time format is expected
+    if time_format:
+        # Check if the date format is supported
+        if time_format in get_available_time_formats():
+            # If the requested time format is expected, update the preferred
+            # time format of the current user and retrieve the status code
+            # and status message associated to this operation
+            (
+                status_code,
+                status_message,
+            ) = current_user.settings_time_format_set(time_format)
+
+            if status_code == 200:
+                # If a success has been return, redirect to the home page
+                return redirect("/")
+            else:
+                # Otherwise, return an error
+                return (
+                    render_template_with_user_settings(
+                        "error.html",
+                        error_msg=status_message,
+                        previous_request_args=previous_request_args,
+                    ),
+                    status_code,
+                )
+
+        else:
+            # If the provided time format is not expected,
+            # return a Bad Request error and redirect to the error page
+            return (
+                render_template_with_user_settings(
+                    "error.html",
+                    error_msg=gettext("The requested time_format is unknown."),
+                    previous_request_args=previous_request_args,
+                ),
+                400,  # Bad Request
+            )
+    else:
+        # If the time format name is not provided or presents a unexpected type,
+        # return Bad Request
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("Missing argument, or wrong format: time_format."),
                 previous_request_args=previous_request_args,
             ),
             400,  # Bad Request

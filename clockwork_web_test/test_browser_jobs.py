@@ -25,7 +25,10 @@ from test_common.jobs_test_helpers import (
     helper_jobs_list_with_filter,
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
-from clockwork_web.core.users_helper import get_default_setting_value
+from clockwork_web.core.users_helper import (
+    get_default_setting_value,
+    get_available_clusters_from_db,
+)
 
 
 def test_redirect_index(client):
@@ -47,8 +50,9 @@ def test_single_job(client, fake_data):
     response = client.get(f"/jobs/one?job_id={jod_id}")
 
     assert "text/html" in response.content_type
-    assert b"start_time" in response.data
-    assert D_job["slurm"]["name"].encode("utf-8") in response.data
+    body_text = response.get_data(as_text=True)
+    assert "start_time" in body_text
+    assert D_job["slurm"]["name"] in body_text
 
 
 def test_single_job_missing_423908482367(client):
@@ -60,7 +64,7 @@ def test_single_job_missing_423908482367(client):
 
     response = client.get("/jobs/one?job_id={}".format(job_id))
     assert "text/html" in response.content_type
-    assert b"Found no job with job_id" in response.data
+    assert "Found no job with job_id" in response.get_data(as_text=True)
 
 
 def test_single_job_no_id(client):
@@ -83,9 +87,7 @@ def test_list_jobs_for_a_given_random_user(client, fake_data):
     response = client.get(f"/jobs/list?username={username}")
 
     assert "text/html" in response.content_type
-
     assert username in response.get_data(as_text=True)
-    # assert username.encode("utf-8") in response.data
 
 
 @pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
@@ -95,7 +97,7 @@ def test_list_jobs_invalid_username(client, username):
     """
     response = client.get(f"/jobs/list?username={username}")
     assert "text/html" in response.content_type
-    assert username.encode("utf-8") not in response.data  # notice the NOT
+    assert username not in response.get_data(as_text=True)  # notice the NOT
 
 
 def test_list_time(client, fake_data):
@@ -116,7 +118,7 @@ def test_list_invalid_time(client):
     response = client.get(f"/jobs/list?relative_time=this_is_not_a_valid_relative_time")
     assert response.status_code == 400
 
-    assert b"cannot be cast as a valid integer:" in response.data
+    assert "cannot be cast as a valid integer:" in response.get_data(as_text=True)
 
 
 def test_jobs(client, fake_data: dict[list[dict]]):
@@ -132,9 +134,10 @@ def test_jobs(client, fake_data: dict[list[dict]]):
     )
 
     response = client.get("/jobs/list")
+    body_text = response.get_data(as_text=True)
     for i in range(0, get_default_setting_value("nbr_items_per_page")):
         D_job = sorted_all_jobs[i]
-        assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
+        assert D_job["slurm"]["job_id"] in body_text
 
 
 @pytest.mark.parametrize(
@@ -172,11 +175,12 @@ def test_jobs_with_both_pagination_options(
         None, page_num, nbr_items_per_page
     )
 
+    body_text = response.get_data(as_text=True)
     # Assert that the retrieved jobs correspond to the expected jobs
     for i in range(number_of_skipped_items, nbr_items_per_page):
         if i < len(sorted_all_jobs):
             D_job = sorted_all_jobs[i]
-            assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
+            assert D_job["slurm"]["job_id"] in body_text
 
 
 @pytest.mark.parametrize("page_num", [1, 2, 3, "lala", 7.8, False])
@@ -210,10 +214,11 @@ def test_jobs_with_page_num_pagination_option(
     )
     # Assert that the retrieved jobs correspond to the expected jobs
 
+    body_text = response.get_data(as_text=True)
     for i in range(number_of_skipped_items, nbr_items_per_page):
         if i < len(sorted_all_jobs):
             D_job = sorted_all_jobs[i]
-            assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
+            assert D_job["slurm"]["job_id"] in body_text
 
 
 @pytest.mark.parametrize("nbr_items_per_page", [1, 29, 50, -1, [1, 2], True])
@@ -246,11 +251,12 @@ def test_jobs_with_page_num_pagination_option(
         None, None, nbr_items_per_page
     )
 
+    body_text = response.get_data(as_text=True)
     # Assert that the retrieved jobs correspond to the expected jobs
     for i in range(number_of_skipped_items, nbr_items_per_page):
         if i < len(sorted_all_jobs):
             D_job = sorted_all_jobs[i]
-            assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
+            assert D_job["slurm"]["job_id"] in body_text
 
 
 # No equivalent of "test_jobs_list_with_filter" here.
@@ -260,19 +266,57 @@ def test_jobs_with_page_num_pagination_option(
 #   Tests for route_search
 ###
 @pytest.mark.parametrize(
-    "username,clusters_names,states,page_num,nbr_items_per_page",
+    "current_user_id,username,cluster_names,states,page_num,nbr_items_per_page",
     [
-        ("student05@mila.quebec", ["mila", "graham"], ["RUNNING", "PENDING"], 2, 2),
-        ("student10@mila.quebec", ["graham"], ["RUNNING", "PENDING"], 2, 2),
-        ("student13@mila.quebec", [], ["RUNNING", "PENDING"], 1, 40),
-        ("student13@mila.quebec", [], [], -1, -10),
-        ("student13@mila.quebec", [], [], -1, -10),
-        ("student03@mila.quebec", ["cedar"], [], 1, 50),
-        (None, ["cedar"], [], 2, 10),
+        (
+            "student00@mila.quebec",
+            "student05@mila.quebec",
+            ["mila", "graham"],
+            ["RUNNING", "PENDING"],
+            2,
+            2,
+        ),
+        (
+            "student01@mila.quebec",
+            "student10@mila.quebec",
+            ["graham"],
+            ["RUNNING", "PENDING"],
+            2,
+            2,
+        ),
+        (
+            "student02@mila.quebec",
+            "student13@mila.quebec",
+            [],
+            ["RUNNING", "PENDING"],
+            1,
+            40,
+        ),
+        ("student03@mila.quebec", "student13@mila.quebec", [], [], -1, -10),
+        ("student04@mila.quebec", "student13@mila.quebec", [], [], -1, -10),
+        ("student05@mila.quebec", "student03@mila.quebec", ["cedar"], [], 1, 50),
+        ("student00@mila.quebec", None, ["cedar"], [], 2, 10),
+        (
+            "student06@mila.quebec",
+            "student00@mila.quebec",
+            ["mila", "cedar"],
+            [],
+            1,
+            10,
+        ),
+        # Note: student06 has only access to the Mila cluster and student00 has jobs on Mila cluster and DRAC clusters,
+        #       so these arguments test that student06 should NOT see the jobs on DRAC clusters
     ],
 )
 def test_route_search(
-    client, fake_data, username, clusters_names, states, page_num, nbr_items_per_page
+    client,
+    fake_data,
+    current_user_id,
+    username,
+    cluster_names,
+    states,
+    page_num,
+    nbr_items_per_page,
 ):
     """
     Test the function route_search with different sets of arguments.
@@ -282,15 +326,21 @@ def test_route_search(
                             depends on other fixtures that are going to put the
                             fake data in the database for us
         fake_data           The data our tests are based on
-        username           The user whose jobs we are looking for
-        clusters_names      An array of the clusters on which we search jobs
+        current_user_id     ID of the user requesting the jobs
+        username            The user whose jobs we are looking for
+        cluster_names      An array of the clusters on which we search jobs
         states              An array of the potential states of the jobs we want
                             to retrieve
         page_num            The number of the plage to display the jobs
         nbr_items_per_page  The number of jobs to display per page
     """
+    # Log in to Clockwork as this user
+    login_response = client.get(f"/login/testing?user_id={current_user_id}")
+    assert login_response.status_code == 302  # Redirect
+
     ###
-    # Look for the jobs we are expecting
+    # We need to manually build what the correct answer should be
+    # in order to test that we get the desired behavior.
     ###
 
     # Initialize the jobs we are expecting (before pagination)
@@ -298,8 +348,16 @@ def test_route_search(
 
     # Determine which filters we have to ignored
     ignore_username_filter = username is None
-    ignore_clusters_names_filter = len(clusters_names) < 1
     ignore_states_filter = len(states) < 1
+
+    # Intersection between the requested clusters (if specified)
+    # and the clusters available for the current user.
+    if cluster_names:
+        requested_clusters = set(cluster_names).intersection(
+            set(get_available_clusters_from_db(current_user_id))
+        )
+    else:
+        requested_clusters = get_available_clusters_from_db(current_user_id)
 
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
@@ -316,13 +374,11 @@ def test_route_search(
 
         # Define the tests which will determine if the job is taken into account or not
         test_username = (retrieved_username == username) or ignore_username_filter
-        test_clusters_names = (
-            retrieved_cluster_name in clusters_names
-        ) or ignore_clusters_names_filter
+        test_cluster_names = retrieved_cluster_name in requested_clusters
         test_states = (retrieved_state in states) or ignore_states_filter
 
         # Select the jobs in regard of the predefined tests
-        if test_username and test_clusters_names and test_states:
+        if test_username and test_cluster_names and test_states:
             LD_prefiltered_jobs.append(D_job)
 
     ###
@@ -337,10 +393,10 @@ def test_route_search(
         request_line += "username={}&".format(username)
 
     # - cluster_name
-    if len(clusters_names) > 0:
-        request_line += "cluster_name={}&".format(",".join(clusters_names))
+    if cluster_names:
+        request_line += "cluster_name={}&".format(",".join(cluster_names))
     # - state
-    if len(states) > 0:
+    if states:
         request_line += "state={}&".format(",".join(states))
     # - page_num
     if page_num:
@@ -362,10 +418,70 @@ def test_route_search(
         None, page_num, nbr_items_per_page
     )
 
+    body_text = response.get_data(as_text=True)
     # Assert that the retrieved jobs correspond to the expected jobs
     for i in range(
         number_of_skipped_items, number_of_skipped_items + nbr_items_per_page
     ):
         if i < len(LD_prefiltered_jobs):
             D_job = LD_prefiltered_jobs[i]
-            assert D_job["slurm"]["job_id"].encode("utf-8") in response.data
+            assert D_job["slurm"]["job_id"] in body_text
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
+
+
+def test_cc_portal(client, fake_data):
+    """
+    Parameters:
+        client              The web client to request. Note that this fixture
+                            depends on other fixtures that are going to put the
+                            fake data in the database for us.
+        fake_data           The data our tests are based on. It's a fixture.
+    """
+    # Choose a user who have access to all the clusters
+    user_dict = fake_data["users"][0]
+    assert user_dict["mila_cluster_username"] is not None
+    assert user_dict["cc_account_username"] is not None
+
+    # Log in to Clockwork as this user
+    login_response = client.get(
+        f"/login/testing?user_id={user_dict['mila_email_username']}"
+    )
+    assert login_response.status_code == 302  # Redirect
+
+    # Hidden assumption that the /jobs/search will indeed give us
+    # all the contents of the database if we set `nbr_items_per_page=10000`.
+    # Note that asking for `want_json=True` wouldn't work here because
+    # the url generated are only in the html rendering and not part of the original
+    # database entries.
+    request_line = "/jobs/search?cluster_name=beluga,narval&nbr_items_per_page=10000"
+    # Retrieve the results
+    response = client.get(request_line)
+
+    body_text = response.get_data(as_text=True)
+
+    i = 0
+    for D_job in fake_data["jobs"]:
+        D_job_slurm = D_job["slurm"]
+
+        # just pick the first 50 or something
+        if 50 <= i:
+            break
+        # don't try that with other clusters than beluga or narval because CC doesn't support it
+        if D_job_slurm["cluster_name"] not in ["beluga", "narval"]:
+            continue
+        else:
+            i += 1
+
+        # Now comes the time to verify if the url for the CC portal was included in the html content.
+
+        # https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid>
+        # https://portail.beluga.calculquebec.ca/secure/jobstats/<username>/<jobid>
+        url = f'https://portail.{D_job_slurm["cluster_name"]}.calculquebec.ca/secure/jobstats/{D_job_slurm["username"]}/{D_job_slurm["job_id"]}'
+        assert url in body_text
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect

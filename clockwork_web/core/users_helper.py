@@ -5,6 +5,7 @@ Helper functions related to the User entity and the users entries from the datab
 from flask_login import current_user
 from flask import render_template
 import json
+import re
 
 from clockwork_web.db import get_db
 
@@ -15,7 +16,13 @@ from clockwork_web.config import (
     boolean as valid_boolean,
     string as valid_string,
 )
-from clockwork_web.core.clusters_helper import get_all_clusters
+from clockwork_web.core.clusters_helper import get_all_clusters, get_account_fields
+from clockwork_web.core.jobs_helper import get_jobs_properties_list_per_page
+
+from clockwork_web.core.utils import (
+    get_available_date_formats,
+    get_available_time_formats,
+)
 
 # Load the web settings from the configuration file
 register_config("settings.default_values.nbr_items_per_page", validator=int)
@@ -98,7 +105,7 @@ def _set_web_setting(mila_email_username, setting_key, setting_value):
         #        "$set": {"web_settings.nbr_items_per_page": 34}
         #    }
         # This is what the variable "web_settings_key" is about.)
-        web_settings_key = "web_settings.{}".format(setting_key)
+        web_settings_key = f"web_settings.{setting_key}"
         update_result = users_collection.update_one(
             {
                 "mila_email_username": mila_email_username
@@ -141,7 +148,7 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
     # Retrieve the types expected for each web setting
     web_settings_types = get_web_settings_types()
 
-    # If the element has a registered expected type
+    # If the element has a generic registered expected type
     if setting_key in web_settings_types:
         # The problem here is that isinstance(True,int) returns True
         # Thus, we handle boolean differently than any other type
@@ -149,8 +156,28 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
             return isinstance(setting_value, web_settings_types[setting_key])
         else:
             return web_settings_types[setting_key] == bool
+
     else:
-        return False
+        m = re.match(r"^column_display\.(dashboard|jobs_list)\.(.+)", setting_key)
+        if m:
+            # If the web setting is related to the display of a job property on a specific page
+            # Check if the job property is consistent
+            jobs_properties_list_per_page = get_jobs_properties_list_per_page()
+            if m.group(2) in jobs_properties_list_per_page[m.group(1)]:
+                # If it is, check the expected type
+                return type(setting_value) == bool
+            else:
+                # Otherwise, return False
+                return False
+        # Check for the web setting associated to the date format
+        elif setting_key == "date_format":
+            return setting_value in get_available_date_formats()
+        # Check for the web setting associated to the time format
+        elif setting_key == "time_format":
+            return setting_value in get_available_time_formats()
+        else:
+            # In every other cases, the provided web setting has no expected type defined
+            return False
 
 
 def set_items_per_page(mila_email_username, nbr_items_per_page):
@@ -273,6 +300,111 @@ def get_users_one(mila_email_username):
     return user
 
 
+def get_available_clusters_from_user_dict(D_user):
+    """
+    Retrieve the clusters a user can access.
+
+    This is done by using two input data sources:
+    the user dictionary and the dictionary containing the
+    clusters by account fields.
+
+    The user dictionary follows a pattern similar to the one below:
+    {
+      "mila_email_username": "student00@mila.quebec",
+      "status": "enabled",
+      "clockwork_api_key": "000aaa00",
+      "mila_cluster_username": "milauser00",
+      "cc_account_username": "ccuser00",
+      "cc_account_update_key": null,
+      "web_settings": {
+        "nbr_items_per_page": 40,
+        "dark_mode": false,
+        "language": "en"
+      }
+    }
+
+    In this example, the fields we are interested in are the "mila_cluster_username"
+    and the "cc_account_username". They are referred in the account fields (one
+    of the two input sources mentioned previously). The latter is as follows:
+    {
+        "cc_account_username": ["beluga", "cedar", "graham", "narval"],
+        "mila_cluster_username": ["mila"],
+        "test_cluster_username": ["test_cluster"]
+    }
+    and is built from the cluster data provided by the configuration file.
+
+    Considering this example, the user "student00@mila.quebec" has access to the clusters:
+    "beluga", "cedar", "graham" and "narval" because of its field "cc_account_username",
+    and "mila" through the "mila_cluster_username". However, it does not have access to
+    the cluster "test_cluster" because its user dictionary does not contain a field
+    "test_cluster_username".
+
+    The list returned by the function is then:
+    ["beluga", "cedar", "graham", "narval", "mila"]
+
+    Parameters:
+        D_user      Dictionary containing the user's info
+
+    Returns:
+        A list of strings (these strings being the requested names of the clusters)
+    """
+    # Initialize the list to be returned
+    available_clusters = []
+
+    # Retrieve (from configuration file) details about the existing clusters
+    clusters_by_account_fields = get_account_fields()
+
+    # For each "account key" that can be found in the user dictionary
+    for account_field in clusters_by_account_fields:
+        # If the user is associated to the account key
+        if account_field in D_user and D_user[account_field] is not None:
+            # Add each cluster related this account key to the list of
+            # the clusters available for this user
+            available_clusters.extend(clusters_by_account_fields[account_field])
+
+    return available_clusters
+
+
+def get_available_clusters_from_db(mila_email_username):
+    """
+    Get a list of the names of the clusters to which the user have access
+    by retrieving user information from the database.
+
+    This is done by retrieving user info from the users collection of the
+    database by using the mila_email_username, which acts as an ID for the
+    user we are considering. The retrieved information follows a pattern
+    similar to the one below:
+    {
+      "mila_email_username": "student00@mila.quebec",
+      "status": "enabled",
+      "clockwork_api_key": "000aaa00",
+      "mila_cluster_username": "milauser00",
+      "cc_account_username": "ccuser00",
+      "cc_account_update_key": null,
+      "web_settings": {
+        "nbr_items_per_page": 40,
+        "dark_mode": false,
+        "language": "en"
+      }
+    }
+
+    The function get_available_clusters_from_user_dict is then called, with
+    this dictionary as the parameter D_user.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users
+                                collection of the database
+
+    Returns:
+        A list of strings (these strings being the requested names of the clusters)
+    """
+    # Retrieve the current user
+    D_user = get_users_one(mila_email_username)
+
+    # Retrieve the available clusters from it
+    return get_available_clusters_from_user_dict(D_user)
+
+
 def enable_dark_mode(mila_email_username):
     """
     Enable the dark mode display option for a specific user.
@@ -307,6 +439,51 @@ def disable_dark_mode(mila_email_username):
     return _set_web_setting(mila_email_username, "dark_mode", False)
 
 
+def enable_column_display(mila_email_username, page_name, column_name):
+    """
+    Enable the display of a specific column on the "dashboard" or "jobs list" page
+    for a User.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users collection
+                                if the database
+        page_name               Name of the page on which the job property corresponding to the column should be displayed
+        column_name             Name of the column (corresponding to a job property) whose display is enabled
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (200 if success, 400 if a problem occurs with the expected page_name or column_page or 500 if another
+          error occurred)
+        - a message describing the state of the operation
+    """
+    web_setting_key = f"column_display.{page_name}.{column_name}"
+
+    # Call _set_web_setting and return its response
+    return _set_web_setting(mila_email_username, web_setting_key, True)
+
+
+def disable_column_display(mila_email_username, page_name, column_name):
+    """
+    Disable the display of a specific column on the "dashboard" or "jobs list" page
+    for a User.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users collection
+                                if the database
+        page_name               Name of the page on which the column display is disabled
+        column_name             Name of the column whose display is disabled
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (200 or 400)
+        - a message describing the state of the operation
+    """
+    web_setting_key = f"column_display.{page_name}.{column_name}"
+
+    # Call _set_web_setting and return its response
+    return _set_web_setting(mila_email_username, web_setting_key, False)
+
+
 def set_language(mila_email_username, language):
     """
     Set the language to use with a specific user.
@@ -324,6 +501,48 @@ def set_language(mila_email_username, language):
     """
     # Call _set_web_setting and return its response
     return _set_web_setting(mila_email_username, "language", language)
+
+
+def set_date_format(mila_email_username, date_format):
+    """
+    Set the format of the "date part" of the datetimes to display to a
+    specific user on the web interface.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users
+                                collection of the database
+
+        date_format             The chosen date format to display timestamps
+                                to this user
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
+    """
+    # Call _set_web_setting and return its response
+    return _set_web_setting(mila_email_username, "date_format", date_format)
+
+
+def set_time_format(mila_email_username, time_format):
+    """
+    Set the format of the "time part" of the datetimes to display to a
+    specific user on the web interface.
+
+    Parameters:
+        mila_email_username     Element identifying the User in the users
+                                collection of the database
+
+        time_format             The chosen time format to display timestamps
+                                to this user
+
+    Returns:
+        A tuple containing
+        - a HTTP status code (it should only return 200)
+        - a message describing the state of the operation
+    """
+    # Call _set_web_setting and return its response
+    return _set_web_setting(mila_email_username, "time_format", time_format)
 
 
 def render_template_with_user_settings(template_name_or_list, **context):

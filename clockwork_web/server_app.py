@@ -142,17 +142,80 @@ def create_app(extra_config: dict):
 
     # Initialize templates filters
     @app.template_filter()
-    def format_date(float_timestamp):
-        montreal_timezone = (
-            "America/Montreal"  # For now, we display the hour in the Montreal timezone
-        )
+    def format_date(float_timestamp, expected_date_format, expected_time_format):
         if float_timestamp is not None:
-            datetime_timestamp = datetime.datetime.fromtimestamp(float_timestamp)
-            return datetime_timestamp.astimezone(timezone(montreal_timezone)).strftime(
-                "%Y-%m-%d %H:%M"
-            )
+            # Define the timezone
+            montreal_timezone = "America/Montreal"  # For now, we display the hour in the Montreal timezone
+
+            # Define the format to display the date and time
+            # As words
+            # This is done directly through the HTML template
+
+            # As timestamp
+            if expected_date_format == "unix_timestamp":
+                return float_timestamp
+
+            # Date
+            else:
+                # As MM/DD/YYYY
+                if expected_date_format == "MM/DD/YYYY":
+                    formatted_date = "%m/%d/%Y"
+
+                # As DD/MM/YYYY
+                elif expected_date_format == "DD/MM/YYYY":
+                    formatted_date = "%d/%m/%Y"
+
+                # As YYYY/MM/DD (arbitrary default value)
+                else:
+                    formatted_date = "%Y/%m/%d"
+
+                # Hour
+                # AM/PM
+                if expected_time_format == "AM/PM":
+                    formatted_time = "%I:%M %p"
+
+                # 24h
+                else:
+                    formatted_time = "%H:%M"
+
+                datetime_timestamp = datetime.datetime.fromtimestamp(float_timestamp)
+                return datetime_timestamp.astimezone(
+                    timezone(montreal_timezone)
+                ).strftime("{0} {1}".format(formatted_date, formatted_time))
         else:
             return ""
+
+    @app.template_filter()
+    def check_web_settings_column_display(web_settings, page_name, column_name):
+        """
+        Check whether or not the web setting associated to the display of a job property
+        as column on an array on a page (for now "jobs_list") is set. If it is set,
+        check its boolean value.
+
+        Such a web setting, if set, is accessible by calling web_settings[page_name][column_name].
+        The different columns (ie jobs properties) for the "jobs_list" page are now the following:
+        ["clusters", "user", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
+
+        Parameters:
+            web_settings    A dictionary containing the preferences of the user regarding
+                            the web interface display.
+            page_name       The name of the page on which we should display or not the
+                            job properties requested by the user in its preferences. For now,
+                            the values "dashboard" or "jobs_list" are expected
+            column_name     The column showing a specific job property, to display or not regarding
+                            the preferences of the user.
+
+        Returns:
+            True if the web_setting is unset or True, False otherwise.
+        """
+        return (
+            not (
+                ("column_display" in web_settings)
+                and (page_name in web_settings["column_display"])
+                and (column_name in web_settings["column_display"][page_name])
+            )
+            or web_settings["column_display"][page_name][column_name]
+        )
 
     @app.route("/")
     def index():

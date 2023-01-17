@@ -223,6 +223,42 @@ def get_inferred_job_states(global_job_states):
     return requested_slurm_job_states
 
 
+def get_jobs_properties_list_per_page():
+    """
+    Get the list of the displayable jobs properties for the dashboard
+    and the jobs list page.
+
+    Returns
+        A dictionary associating a list of jobs properties names
+        to a page name (here "dashboard" or "jobs_list")
+    """
+    return {
+        "dashboard": [
+            "clusters",
+            "job_id",
+            "job_name",
+            "job_state",
+            "start_time",
+            "submit_time",
+            "end_time",
+            "links",
+            "actions",
+        ],
+        "jobs_list": [
+            "clusters",
+            "user",
+            "job_id",
+            "job_name",
+            "job_state",
+            "start_time",
+            "submit_time",
+            "end_time",
+            "links",
+            "actions",
+        ],
+    }
+
+
 # def get_job_state_totals(
 #     L_entries,
 #     mapping={

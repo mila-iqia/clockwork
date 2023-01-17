@@ -14,7 +14,7 @@
 
 {% endblock %}
 {% block content %}
-
+    {% set page_name = "jobs_list" %}
     <div class="container">
         <div class="row">
             <div class="col-sm-12" id="changeme">
@@ -45,71 +45,152 @@
                 <table class="table table-striped table-hover table-responsive" data-sortable id="search_table">
                     <thead>
                         <tr>
-                            <th>Cluster</th>
-                            <th>User (@mila.quebec)</th>
-                            <th>Job ID</th>
-                            <th>Job name [:20]</th>
-                            <th>Job state</th>
-                            <th>Start time</th>
-                            <th>End time</th>
-                            <th data-sortable="false">Links</th>
-                            <th data-sortable="false">Actions</th>
+                            <!-- Clusters header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "clusters")) %}
+                                <th>Cluster</th>
+                            {% endif %}
+                            <!-- User header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "user")) %}
+                                <th>User (@mila.quebec)</th>
+                            {% endif %}
+                            <!-- Job ID header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_id")) %}
+                                <th>Job ID</th>
+                            {% endif %}
+                            <!-- Job name header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_name")) %}
+                                <th>Job name [:20]</th>
+                            {% endif %}
+                            <!-- Job state header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_state")) %}
+                                <th>Job state</th>
+                            {% endif %}
+                            <!-- Submit time header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "submit_time")) %}
+                                <th>Submit time</th>
+                            {% endif %}
+                            <!-- Start time header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "start_time")) %}
+                                <th>Start time</th>
+                            {% endif %}
+                            <!-- End time header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "end_time")) %}
+                                <th>End time</th>
+                            {% endif %}
+                            <!-- Links header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "links")) %}
+                                <th data-sortable="false">Links</th>
+                            {% endif %}
+                            <!-- Actions header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "actions")) %}
+                                <th data-sortable="false">Actions</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
                         {% for D_job in LD_jobs %}
                         <tr>
                             <!-- Cluster -->
-                            <td>{{D_job['slurm']['cluster_name']}}</td>
-
+                            {% if (web_settings | check_web_settings_column_display(page_name, "clusters")) %}
+                                {% if D_job['slurm']['cluster_name'] %}
+                                <td>
+                                    <a href="/clusters/one?cluster_name={{D_job['slurm']['cluster_name']}}">
+                                        {{D_job['slurm']['cluster_name']}}
+                                    </a>
+                                </td>
+                                {% else %}
+                                    <td>{{D_job['slurm']['cluster_name']}}</td>
+                                {% endif %}
+                            {% endif %}
                             
                             <!-- User -->
-                            <td>
-                                {% if D_job['cw']['mila_email_username'] is not none %}
-                                    {% set name, domain = D_job['cw']['mila_email_username'].split('@') %}
-                                    {{ name }} <span class="email">@{{ domain }}</span>
-                                {% endif %}
-                            </td>
+                            {% if (web_settings | check_web_settings_column_display(page_name, "user")) %}
+                                <td>
+                                    {% if D_job['cw']['mila_email_username'] is not none %}
+                                        <a href="/users/one?username={{D_job['cw']['mila_email_username']}}">
+                                            {% set name, domain = D_job['cw']['mila_email_username'].split('@') %}
+                                            {{ name }} <span class="email">@{{ domain }}</span>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
 
                             <!-- Job ID -->
-                            <td>
-                                <a href="/jobs/one?cluster_name={{D_job['slurm']['cluster_name']}}&job_id={{D_job['slurm']['job_id']}}">{{D_job['slurm']['job_id']}}</a>
-                            </td>
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_id")) %}
+                                <td>
+                                    <a href="/jobs/one?cluster_name={{D_job['slurm']['cluster_name']}}&job_id={{D_job['slurm']['job_id']}}">{{D_job['slurm']['job_id']}}</a>
+                                </td>
+                            {% endif %}
 
                             <!-- Job name -->
-                            <td>{{D_job['slurm'].get("name", "")[0:20]}}</td>
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_name")) %}
+                                <td>{{D_job['slurm'].get("name", "")[0:20]}}</td>
+                            {% endif %}
                             
                             <!-- Job state -->
-                            <td class="state"><span class="status {{D_job['slurm']['job_state']|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_state")) %}
+                                <td class="state"><span class="status {{D_job['slurm']['job_state']|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
+                            {% endif %}
                             
-                            <!-- Start time -->
-                            {% if D_job["slurm"]["start_time"] %}
-                                {% set start_time = D_job["slurm"]["start_time"] %}
-                                <td data-order='{{start_time}}'><span class="visually-hidden">{{start_time}}</span><!--<span data-livestamp='{{start_time|int}}'></span>--> {{ start_time|format_date }}</td>
-                            {% else %}
-                                <td data-order='0'></td>
-                            {% endif %}
+                            <!-- Submit, start and end times -->
+                            {# The properties submit_time, start_time and end_time are presented through the same pattern, #}
+                            {# thus setting these HTML tags is done using an iteration over these three values #}
+                            {% for job_time_key in ["submit_time", "start_time", "end_time"] %}
 
-                            <!-- End time -->
-                            {% if D_job["slurm"]["end_time"] %}
-                                {% set end_time = D_job["slurm"]["end_time"] %}
-                                <td data-order="{{end_time}}"><span class="visually-hidden">{{end_time}}</span><!--<span data-livestamp='{{end_time|int}}'></span>--> {{ end_time|format_date }}</td>
-                            {% else %}
-                                <td data-order='0'></td>
-                            {% endif %}
+                                {# Create the elements if the user settings imply to display the value #}
+                                {% if (web_settings | check_web_settings_column_display(page_name, job_time_key)) %}
+                                    {% if D_job["slurm"][job_time_key] %}
+
+                                        {% set job_time_value = D_job["slurm"][job_time_key] %}
+                                        <!-- data-order is the value used to sort the elements of the current column, if requested -->
+                                        <!-- Here, the timestamp is used -->
+                                        <td data-order='{{job_time_value}}'>
+                                            <!-- Such a visually hidden entity can be used by assistive technologies, such as screen readers -->
+                                            <span class="visually-hidden">{{job_time_value}}</span>
+
+                                            {% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
+                                                <!-- data-livestamp is used to display the relative date as words -->
+                                                <span data-livestamp='{{job_time_value|int}}'></span>
+                                            {% else %}
+                                                {# The filter format_date returns a formatted date according to the timestamp and #}
+                                                {# the preferences defined by the user. Note that, in case the user chose a relative #}
+                                                {# time displayed as words, the formatting is done above, because a specific HTML #}
+                                                {# entity is used #}
+                                                {{ job_time_value|format_date(web_settings["date_format"], web_settings["time_format"]) }}
+                                            {% endif %}
+                                        </td>
+                                    {% else %}
+                                        <!-- data-order is the value used to sort the elements of the current column, if requested -->
+                                        <!-- Here, a default value of zero is used, as an existing time would be sorted regarding -->
+                                        <!-- its timestamp -->
+                                        <td data-order='0'></td>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
 
                             <!-- Links -->
-                            <td class="links">
-                               <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to somewhere'><i class='fa-solid fa-file'></i></a>
-                                <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
-                            </td>
+                            {% if (web_settings | check_web_settings_column_display(page_name, "links")) %}
+                                <td class="links">
+                                    {% if (D_job['slurm']['cluster_name'] == 'beluga') or (D_job['slurm']['cluster_name'] == 'narval') %}
+                                        <!-- https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid> -->
+                                        <a  href='https://portail.{{D_job["slurm"]["cluster_name"]}}.calculquebec.ca/secure/jobstats/{{D_job["slurm"]["username"]}}/{{D_job["slurm"]["job_id"]}}'
+                                            data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'>
+                                            <i class='fa-solid fa-file'></i>
+                                        </a>
+                                    {% endif %}
+                                    <!-- this is a placeholder -->
+                                    <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
+                                </td>
+                            {% endif %}
 
                             <!-- Actions -->
-                            <td class="actions">
-                                {% if mila_email_username == D_job['cw']['best_guess_for_username'] %}
-                                    <a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>
-                                {% endif %}
-                            </td>
+                            {% if (web_settings | check_web_settings_column_display(page_name, "actions")) %}
+                                <td class="actions">
+                                    {% if mila_email_username == D_job['cw']['best_guess_for_username'] %}
+                                        <a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>

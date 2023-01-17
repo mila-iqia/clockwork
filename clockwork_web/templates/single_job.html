@@ -42,11 +42,21 @@
                             {% if k in ['batch_host'] and v != None %}
                                 <!-- TODO : Implement this link because it doesn't work now. -->
                                 <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
+                            
+                            {% elif k == "cluster_name" %}
+                                <td><a href="/clusters/one?cluster_name={{v}}"> {{v}} </a></td>
+
                             {% elif k == "username" %}
                                 <td>
-                                  <a href="/users/one?username={{D_single_job_cw['mila_email_username']}}">
-                                    {{v}}
-                                  </a>
+                                    {% if "mila_email_username" in D_single_job_cw %}
+                                    {# Add a link to the user if its mila_email_username is known #}
+                                        <a href="/users/one?username={{D_single_job_cw['mila_email_username']}}">
+                                            {{v}}
+                                        </a>
+                                    {% else %}
+                                    {# Otherwise, just display its name #}
+                                        {{v}}
+                                    {% endif %}
                                 </td>
                             {% elif (k == "submit_time" or k == "start_time" or k == "end_time") and v is not none %}
                                 <td>
@@ -55,7 +65,7 @@
                                         <!-- Relative time format -->
                                         (<span data-livestamp='{{v|int}}'></span>, &nbsp;
                                         <!-- Human readable date format -->
-                                        {{ v|format_date }}
+                                        {{ v|format_date(web_settings["date_format"], web_settings["time_format"]) }}
                                         )
                                     </ul>
                                 </td>

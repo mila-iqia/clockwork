@@ -41,8 +41,26 @@
                     <tbody>
                         {% for D_node in LD_nodes %}
                         <tr>
-                            <td>{{D_node['slurm']['cluster_name']}}</td>
-                            <td>{{D_node['slurm']['name']}}</td>
+                            {% if D_node['slurm']['cluster_name'] %}
+                                <td>
+                                    <a href="/clusters/one?cluster_name={{D_node['slurm']['cluster_name']}}">
+                                        {{D_node['slurm']['cluster_name']}}
+                                    </a>
+                                </td>
+                            {% else %}
+                                <td>{{D_node['slurm']['cluster_name']}}</td>
+                            {% endif %}
+
+                            {% if D_node['slurm']['cluster_name'] and D_node['slurm']['name'] %}
+                                <td>
+                                    <a href="/nodes/one?node_name={{D_node['slurm']['name']}}&cluster_name={{D_node['slurm']['cluster_name']}}">
+                                        {{D_node['slurm']['name']}}
+                                    </a>
+                                </td>
+                            {% else %}
+                                <td>{{D_node['slurm']['name']}}</td>
+                            {% endif %}
+                            
                             <td>{{D_node['slurm']['alloc_tres']}}</td>
                             <td>{{D_node['slurm']['cfg_tres']}}</td>
                         </tr>
