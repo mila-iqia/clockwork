@@ -306,6 +306,16 @@ def test_jobs_with_page_num_pagination_option(
         ),
         # Note: student06 has only access to the Mila cluster and student00 has jobs on Mila cluster and DRAC clusters,
         #       so these arguments test that student06 should NOT see the jobs on DRAC clusters
+        (
+            "student06@mila.quebec",
+            "student00@mila.quebec",
+            ["cedar"],
+            [],
+            1,
+            10,
+        ),
+        # Note: student06 has only access to the Mila cluster and student00 has jobs on Mila cluster and DRAC clusters,
+        #       so these arguments test that student06 should NOT see the jobs on DRAC clusters
     ],
 )
 def test_route_search(
