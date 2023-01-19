@@ -114,15 +114,22 @@ def archive(archive_path, days_since_last_update, database_name=None):
     for D_node in LD_nodes_to_archive:
         del D_node["_id"]
 
+    print(f"We have {len(LD_jobs_to_archive)} jobs to archive and {len(LD_nodes_to_archive)} nodes to archive.")
+    print(f"We have {len(L_jobs_deletion_requests)} jobs to delete and {len(L_nodes_deletion_requests)} nodes to delete.")
+    
     #############################
     ## Write things in archive ##
     #############################
     contents_archived = {"jobs": LD_jobs_to_archive, "nodes": LD_nodes_to_archive}
-    if archive_path and os.path.exists(os.path.dirname(archive_path)):
+    if archive_path and (not os.path.dirname(archive_path) or os.path.exists(os.path.dirname(archive_path))):
+        # if `archive_path` is given, then either the dirname is empty '' or otherwise it needs to exist,
+        # for us to be saving the file there
         with open(archive_path, "w") as f:
             json.dump(contents_archived, f, indent=2)
             print(f"Wrote {archive_path}.")
     else:
+        print(f"archive_path : {archive_path}")
+        #print(f"os.path.exists(os.path.dirname(archive_path)) : {os.path.exists(os.path.dirname(archive_path))}")
         print("Not saving the archived contents to filesystem.")
 
     #################################
@@ -130,13 +137,15 @@ def archive(archive_path, days_since_last_update, database_name=None):
     #################################
     try:
         if L_jobs_deletion_requests:
-            jobs_collection.bulk_write(L_jobs_deletion_requests, ordered=False)
+            result = jobs_collection.bulk_write(L_jobs_deletion_requests, ordered=False)
+            pprint(result.bulk_api_result)
     except BulkWriteError as bwe:
         pprint(bwe.details)
 
     try:
         if L_nodes_deletion_requests:
-            nodes_collection.bulk_write(L_nodes_deletion_requests, ordered=False)
+            result = nodes_collection.bulk_write(L_nodes_deletion_requests, ordered=False)
+            pprint(result.bulk_api_result)
     except BulkWriteError as bwe:
         pprint(bwe.details)
 
