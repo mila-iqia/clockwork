@@ -32,6 +32,8 @@ from flask import Blueprint
 
 flask_api = Blueprint("nodes", __name__)
 
+
+from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.nodes_helper import get_nodes
 from clockwork_web.core.jobs_helper import (
     get_filter_cluster_name,
@@ -43,6 +45,7 @@ from clockwork_web.core.nodes_helper import (
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
 from clockwork_web.core.users_helper import render_template_with_user_settings
+from clockwork_web.core.utils import get_custom_array_from_request_args
 
 # Note that flask_api.route('/') will lead to a redirection with "/nodes", and pytest might not like that.
 
@@ -68,7 +71,8 @@ def route_list():
     pagination_page_num = request.args.get("page_num", type=int, default="1")
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
     previous_request_args["page_num"] = pagination_page_num
-    previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
+    if pagination_nbr_items_per_page:
+        previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
 
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
     (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
@@ -79,14 +83,39 @@ def route_list():
 
     # Retrieve the arguments given in order to search the expected nodes
     node_name = request.args.get("node_name", None)
-    previous_request_args["node_name"] = node_name
+    if node_name:
+        previous_request_args["node_name"] = node_name
 
-    cluster_name = request.args.get("cluster_name", None)
-    previous_request_args["cluster_name"] = cluster_name
+    requested_cluster_names = get_custom_array_from_request_args(
+        request.args.get("cluster_name")
+    )
+
+    # Limit the cluster options to the clusters the user can access
+    user_clusters = (
+        current_user.get_available_clusters()
+    )  # Retrieve the clusters the user can access
+
+    cluster_names = [
+        cluster for cluster in requested_cluster_names if cluster in user_clusters
+    ]
+
+    if len(cluster_names) < 1:
+        # If no cluster has been requested, then all clusters have been requested
+        # (a filter related to which clusters are available to the current user
+        #  is then applied)
+        cluster_names = current_user.get_available_clusters()
+
+    previous_request_args["cluster_name"] = cluster_names
 
     # Define the filters to select the nodes
+    # - Filter for node_name
     f0 = get_filter_node_name(node_name)
-    f1 = get_filter_cluster_name(cluster_name)
+    # - Filter for cluster_name
+    if len(cluster_names) > 0:
+        f1 = {"slurm.cluster_name": {"$in": cluster_names}}
+    else:
+        f1 = {}  # Apply no filter for the clusters if no cluster has been provided
+    # Combine all filters
     filter = combine_all_mongodb_filters(f0, f1)
 
     # Retrieve the nodes, by applying the filters and the pagination,
@@ -126,10 +155,12 @@ def route_one():
 
     # Retrieve the arguments given in order to search the node
     node_name = request.args.get("node_name", None)
-    previous_request_args["node_name"] = node_name
+    if node_name:
+        previous_request_args["node_name"] = node_name
 
     cluster_name = request.args.get("cluster_name", None)
-    previous_request_args["cluster_name"] = cluster_name
+    if cluster_name:
+        previous_request_args["cluster_name"] = cluster_name
 
     # Set up the filters
     f0 = get_filter_node_name(node_name)

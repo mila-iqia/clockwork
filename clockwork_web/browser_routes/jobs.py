@@ -87,10 +87,12 @@ def route_list():
     else:
         # - If a HTML response is requested, we use 1 as the default number of the current page
         pagination_page_num = request.args.get("page_num", type=int, default="1")
-    previous_request_args["page_num"] = pagination_page_num
+    if pagination_page_num:
+        previous_request_args["page_num"] = pagination_page_num
 
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
-    previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
+    if pagination_nbr_items_per_page:
+        previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
 
     # The default pagination parameters are different whether or not a JSON response is requested.
     # This is because we are using `want_json=True` along with no pagination arguments for a special
@@ -104,7 +106,8 @@ def route_list():
         nbr_items_to_display = None
     else:
         # Otherwise (ie if at least one of the pagination parameters is provided),
-        # we assume that a pagination is expected from the user.
+        # we assume that a pagination is expected from the user. Then, the pagination helper
+        # is used to define the number of elements to skip, and the number of elements to display
         (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
             current_user.mila_email_username,
             pagination_page_num,
@@ -113,7 +116,8 @@ def route_list():
 
     # Define the filter to select the jobs
     username = request.args.get("username", None)
-    previous_request_args["username"] = username
+    if username:
+        previous_request_args["username"] = username
 
     if username is not None:
         f0 = {"cw.mila_email_username": username}
@@ -121,7 +125,8 @@ def route_list():
         f0 = {}
 
     time1 = request.args.get("relative_time", None)
-    previous_request_args["relative_time"] = time1
+    if time1:
+        previous_request_args["relative_time"] = time1
     if time1 is None:
         f1 = {}
     else:
@@ -217,9 +222,17 @@ def route_search():
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
 
+    # Retrieve the format requested to return the information
+    want_json = request.args.get(
+        "want_json", type=str, default="False"
+    )  # If True, the user wants a JSON output
+    want_json = to_boolean(want_json)
+    previous_request_args["want_json"] = want_json
+
     # Retrieve the parameters used to filter the jobs
     username = request.args.get("username", None)
-    previous_request_args["username"] = username
+    if username:
+        previous_request_args["username"] = username
 
     requested_cluster_names = get_custom_array_from_request_args(
         request.args.get("cluster_name")
@@ -243,18 +256,37 @@ def route_search():
     previous_request_args["state"] = states
 
     # Retrieve the pagination parameters
-    pagination_page_num = request.args.get("page_num", type=int, default="1")
+    if want_json:
+        # - If a JSON response is requested, we set no default value to num_page here
+        pagination_page_num = request.args.get("page_num", type=int)
+    else:
+        # - If a HTML response is requested, we use 1 as the default number of the current page
+        pagination_page_num = request.args.get("page_num", type=int, default="1")
     previous_request_args["page_num"] = pagination_page_num
 
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
-    previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
+    if pagination_nbr_items_per_page:
+        previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
 
-    # Use the pagination helper to define the number of elements to skip, and the number of elements to display
-    (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
-        current_user.mila_email_username,
-        pagination_page_num,
-        pagination_nbr_items_per_page,
-    )
+    # The default pagination parameters are different whether or not a JSON response is requested.
+    # This is because we are using `want_json=True` along with no pagination arguments for a special
+    # case when we want to retrieve all the jobs in the dashboard for a given user.
+    # There is a certain notion with `want_json` that we are retrieving the data for the purposes
+    # of listing them exhaustively, and not just for displaying them with scroll bars in some HTML page.
+    if want_json and not pagination_page_num and not pagination_nbr_items_per_page:
+        # In this particular case, we set the default pagination arguments to be `None`,
+        # which will effectively disable pagination.
+        nbr_skipped_items = None
+        nbr_items_to_display = None
+    else:
+        # Otherwise (ie if at least one of the pagination parameters is provided),
+        # we assume that a pagination is expected from the user. Then, the pagination helper
+        # is used to define the number of elements to skip, and the number of elements to display
+        (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
+            current_user.mila_email_username,
+            pagination_page_num,
+            pagination_nbr_items_per_page,
+        )
 
     ###
     # Define the filters to select the jobs
@@ -299,15 +331,19 @@ def route_search():
         for D_job in LD_jobs
     ]
 
-    # Display the HTML page
-    return render_template_with_user_settings(
-        "jobs_search.html",
-        LD_jobs=LD_jobs,
-        mila_email_username=current_user.mila_email_username,
-        page_num=pagination_page_num,
-        nbr_total_jobs=nbr_total_jobs,
-        previous_request_args=previous_request_args,
-    )
+    if want_json:
+        # If requested, return the list as JSON
+        return jsonify({"nbr_total_jobs": nbr_total_jobs, "jobs": LD_jobs})
+    else:
+        # Display the HTML page
+        return render_template_with_user_settings(
+            "jobs_search.html",
+            LD_jobs=LD_jobs,
+            mila_email_username=current_user.mila_email_username,
+            page_num=pagination_page_num,
+            nbr_total_jobs=nbr_total_jobs,
+            previous_request_args=previous_request_args,
+        )
 
 
 @flask_api.route("/one")
@@ -331,7 +367,8 @@ def route_one():
 
     # Retrieve the given job ID
     job_id = request.args.get("job_id", None)
-    previous_request_args["job_id"] = job_id
+    if job_id:
+        previous_request_args["job_id"] = job_id
 
     # Retrieve the given cluster name
     cluster_name = request.args.get("cluster_name", None)
