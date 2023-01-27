@@ -156,7 +156,7 @@ def route_one():
                 ),
                 previous_request_args=previous_request_args,
             ),
-            401,  # Unauthorized
+            403,  # Forbidden
         )
 
     # Combine the filters
