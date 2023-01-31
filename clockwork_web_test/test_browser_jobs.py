@@ -103,6 +103,11 @@ def test_single_job_no_id(client):
     assert response_logout.status_code == 302  # Redirect
 
 
+#######################
+#   Jobs search route #
+#######################
+
+
 def test_search_jobs_for_a_given_random_user(client, fake_data):
     """
     Make a request to /jobs/search.
@@ -129,7 +134,7 @@ def test_search_jobs_for_a_given_random_user(client, fake_data):
 
 
 @pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
-def test_list_jobs_invalid_username(client, username):
+def test_search_jobs_invalid_username(client, username):
     """
     Make a request to /jobs/search.
     """
@@ -329,12 +334,6 @@ def test_jobs_with_page_num_pagination_option(
     assert response_logout.status_code == 302  # Redirect
 
 
-# No equivalent of "test_jobs_list_with_filter" here.
-
-
-###
-#   Tests for route_search
-###
 @pytest.mark.parametrize(
     "current_user_id,username,cluster_names,states,page_num,nbr_items_per_page",
     [
