@@ -2,10 +2,10 @@ import random
 import json
 import pytest
 import re
-from clockwork_web.user import AnonUser
+from clockwork_web.user import User
 
 
-@pytest.mark.parametrize("route", ["/jobs/list", "/nodes/one"])
+@pytest.mark.parametrize("route", ["/jobs/search", "/nodes/one"])
 def test_presence_of_web_settings_javascript_variable(client, route, fake_data):
     """
     Check that the web_settings are present as a Javascript variable
@@ -24,6 +24,10 @@ def test_presence_of_web_settings_javascript_variable(client, route, fake_data):
         fake_data           The data our tests are based on
         nbr_items_per_page  The number of jobs we want to display per page
     """
+    # Log in to Clockwork as a user
+    username = fake_data["users"][0]["mila_email_username"]
+    login_response = client.get(f"/login/testing?user_id={username}")
+    assert login_response.status_code == 302  # Redirect
 
     if route == "/nodes/one":
         node = fake_data["nodes"][0]["slurm"]
@@ -53,7 +57,6 @@ def test_presence_of_web_settings_javascript_variable(client, route, fake_data):
                 ), f"In route {route}, failed to parse the JSON string: {m.group(1)}\ncoming from the line : {line}"
 
     # Let's verify a few things about `parsed_web_settings` to make sure it contains valid values.
-    # Tests run as the anonymous user, so we can just compare against the default settings or something like that.
-    anon_web_settings = AnonUser().get_web_settings()
+    user_web_settings = User.get(username).get_web_settings()
 
-    assert parsed_web_settings == anon_web_settings
+    assert parsed_web_settings == user_web_settings
