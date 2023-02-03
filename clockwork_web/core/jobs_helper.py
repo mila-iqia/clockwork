@@ -71,7 +71,7 @@ def combine_all_mongodb_filters(*mongodb_filters):
         return {"$and": non_empty_mongodb_filters}
 
 
-def get_jobs(
+def get_filtered_and_paginated_jobs(
     mongodb_filter: dict = {},
     nbr_skipped_items=None,
     nbr_items_to_display=None,
@@ -140,6 +140,87 @@ def get_jobs(
 
     # Return the retrieved jobs and the number of unpagined jobs (if requested)
     return (LD_jobs, nbr_total_jobs)
+
+
+def get_global_filter(username=None, job_ids=[], cluster_names=[], states=[]):
+    """
+    Set up a filter for MongoDB in order to filter username, clusters and job states,
+    regarding what has been sent as parameter to the function.
+
+    Parameters:
+        username        ID of the user of whose jobs we want to retrieve
+        cluster_names   List of names of the clusters on which the expected jobs run/will run or have run
+        states          List of names of states the expected jobs could have
+
+    Returns:
+        A dictionary containing the conditions to be applied on the search.
+        (See MongoDB Query documents: https://www.mongodb.com/docs/manual/tutorial/query-documents/)
+    """
+    # Initialize the filters list
+    filters = []
+
+    # Define the user filter
+    if username is not None:
+        filters.append({"cw.mila_email_username": username})
+
+    # Define the filter related to the IDs of the jobs we are looking for
+    if len(job_ids) > 0:
+        filters.append({"slurm.job_id": {"$in": job_ids}})
+
+    # Define the filter related to the cluster on which the jobs run
+    if len(cluster_names) > 0:
+        filters.append({"slurm.cluster_name": {"$in": cluster_names}})
+
+    # Define the filter related to the jobs' states
+    if len(states) > 0:
+        all_inferred_states = get_inferred_job_states(states)
+        filters.append({"slurm.job_state": {"$in": all_inferred_states}})
+
+    # Combine the filters
+    filter = combine_all_mongodb_filters(*filters)
+
+    return filter
+
+
+def get_jobs(
+    username=None,
+    job_ids=[],
+    cluster_names=[],
+    states=[],
+    nbr_skipped_items=None,
+    nbr_items_to_display=None,
+    want_count=False,
+):
+    """
+    Set up the filters according to the parameters and retrieve the requested jobs from the database.
+
+    Parameters:
+        username                ID of the user of whose jobs we want to retrieve
+        job_ids                 List of IDs of the jobs we are looking for
+        cluster_names           List of names of the clusters on which the expected jobs run/will run or have run
+        states                  List of names of states the expected jobs could have
+        nbr_skipped_items       Number of jobs we want to skip in the result
+        nbr_items_to_display    Number of requested jobs
+        want_count              Whether or not the total jobs count is expected.
+
+    Returns:
+        A tuple containing:
+            - the list of jobs as first entity
+            - the total number of jobs corresponding of the filters in the databse, if want_count has been set to
+            True, None otherwise, as second element
+    """
+    # Set up and combine filters
+    filter = get_global_filter(
+        username=username, job_ids=job_ids, cluster_names=cluster_names, states=states
+    )
+    # Retrieve the jobs from the filters and return them
+    # (The return value is a tuple (LD_jobs, nbr_total_jobs))
+    return get_filtered_and_paginated_jobs(
+        mongodb_filter=filter,
+        nbr_skipped_items=nbr_skipped_items,
+        nbr_items_to_display=nbr_items_to_display,
+        want_count=want_count,
+    )
 
 
 def update_job_user_dict(mongodb_filter: dict, new_user_dict: dict):

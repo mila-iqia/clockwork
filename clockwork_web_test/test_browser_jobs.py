@@ -18,7 +18,6 @@ import json
 import pytest
 
 from test_common.jobs_test_helpers import (
-    helper_list_relative_time,
     helper_single_job_missing,
     helper_single_job_at_random,
     helper_list_jobs_for_a_given_random_user,

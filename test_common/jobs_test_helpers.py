@@ -33,7 +33,6 @@ def helper_single_job_at_random(fake_data, cluster_name):
     job_id = original_D_job["slurm"]["job_id"]
 
     def validator(D_job):
-
         for k1 in original_D_job:
             assert k1 in ["slurm", "cw", "user"]
             for k2 in original_D_job[k1]:
@@ -67,57 +66,7 @@ def helper_single_job_missing(fake_data):
     return validator, job_id
 
 
-def helper_list_relative_time(fake_data):
-    """
-    Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
-
-    Since we have access to the `fake_data` we can make sure that all the
-    corresponding entries are indeed returned. We can also use that to pick
-    a query value that's sure to return something, because the `fake_data`
-    contains jobs that are static and not very recent (i.e. asking for "everything
-    that ended earlier than an hour ago" would return nothing except jobs
-    that have "end_time" as `None`).
-    """
-
-    L_end_times = list(
-        sorted(
-            [
-                D_job["slurm"]["end_time"]
-                for D_job in fake_data["jobs"]
-                if D_job["slurm"]["end_time"] is not None
-            ]
-        )
-    )
-    N = len(L_end_times)
-    assert 10 <= N
-    # Adding a +1 second because we don't want to balance on the edge
-    # of whether $gt is inclusive or not in mongodb.
-    # This isn't the point, so we add a +1.
-    mid_end_time = L_end_times[N // 2] + 1
-
-    # now let's find the ground truth
-    LD_jobs_ground_truth = [
-        D_job
-        for D_job in fake_data["jobs"]
-        if (D_job["slurm"]["end_time"] is None)
-        or (mid_end_time <= D_job["slurm"]["end_time"])
-    ]
-
-    relative_mid_end_time = time.time() - mid_end_time
-    assert 0 < relative_mid_end_time
-
-    def validator(LD_jobs_results):
-        # Compare with ground truth. Let's just compare the "job_id"
-        # of the jobs returned in both situations.
-        assert set([D_job["slurm"]["job_id"] for D_job in LD_jobs_ground_truth]) == set(
-            [D_job["slurm"]["job_id"] for D_job in LD_jobs_results]
-        )
-
-    return validator, relative_mid_end_time
-
-
 def helper_list_jobs_for_a_given_random_user(fake_data):
-
     """
     Helper function to make a request to the REST API
     endpoint /api/v1/clusters/jobs/list, and to mtclient.jobs_list.
@@ -209,7 +158,6 @@ def helper_jobs_list_with_filter(fake_data, cluster_name):
     )
 
     def validator(LD_jobs):
-
         assert len(LD_jobs) == len(LD_original_jobs), (
             "Lengths of lists don't match, so we shouldn't expect them to be able "
             "to match the elements themselves."

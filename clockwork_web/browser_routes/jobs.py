@@ -89,6 +89,10 @@ def route_search():
 
     .. :quickref: list all Slurm job as formatted html
     """
+    ###########################
+    # Retrieve the parameters #
+    ###########################
+
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
 
@@ -107,19 +111,16 @@ def route_search():
     requested_cluster_names = get_custom_array_from_request_args(
         request.args.get("cluster_name")
     )
-    if len(requested_cluster_names) < 1:
-        # If no cluster has been requested, then all clusters have been requested
-        # (a filter related to which clusters are available to the current user
-        #  is then applied)
-        requested_cluster_names = get_all_clusters()
-
     # Limit the cluster options to the clusters the user can access
     user_clusters = (
-        current_user.get_available_clusters()
-    )  # Retrieve the clusters the user can access
+        current_user.get_available_clusters()  # Retrieve the clusters the user can access
+    )
     cluster_names = [
         cluster for cluster in requested_cluster_names if cluster in user_clusters
     ]
+    # If the resulting list is empty, then all the available clusters are requested
+    if len(cluster_names) < 1:
+        cluster_names = user_clusters
     previous_request_args["cluster_name"] = cluster_names
 
     states = get_custom_array_from_request_args(request.args.get("state"))
@@ -137,6 +138,10 @@ def route_search():
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
     if pagination_nbr_items_per_page:
         previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
+
+    #########################
+    # Define the pagination #
+    #########################
 
     # The default pagination parameters are different whether or not a JSON response is requested.
     # This is because we are using `want_json=True` along with no pagination arguments for a special
@@ -158,37 +163,15 @@ def route_search():
             pagination_nbr_items_per_page,
         )
 
-    ###
-    # Define the filters to select the jobs
-    ###
-    # Define the user filter
-    if username is not None:
-        f0 = {"cw.mila_email_username": username}
-    else:
-        f0 = {}
+    ################################################
+    # Retrieve the jobs and display or return them #
+    ################################################
 
-    # Define the filter related to the cluster on which the jobs run
-    if len(cluster_names) > 0:
-        f1 = {"slurm.cluster_name": {"$in": cluster_names}}
-    else:
-        f1 = {}  # Apply no filter for the clusters if no cluster has been provided
-
-    # Define the filter related to the jobs' states
-    if len(states) > 0:
-        all_inferred_states = get_inferred_job_states(states)
-        f2 = {"slurm.job_state": {"$in": all_inferred_states}}
-    else:
-        f2 = {}  # Apply no filter for the states if no state has been provided
-
-    # Combine the filters
-    filter = combine_all_mongodb_filters(f0, f1, f2)
-
-    ###
-    # Retrieve the jobs and display them
-    ###
     # Retrieve the jobs, by applying the filters and the pagination
     (LD_jobs, nbr_total_jobs) = get_jobs(
-        filter,
+        username=username,
+        cluster_names=cluster_names,
+        states=states,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
         want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
@@ -236,40 +219,57 @@ def route_one():
     previous_request_args = {}
 
     # Retrieve the given job ID
-    job_id = request.args.get("job_id", None)
-    if job_id:
-        previous_request_args["job_id"] = job_id
+    job_ids = get_custom_array_from_request_args(request.args.get("job_id"))
+    previous_request_args["job_id"] = job_ids
 
-    # Retrieve the given cluster name
-    cluster_name = request.args.get("cluster_name", None)
-    if cluster_name:
-        previous_request_args["cluster_name"] = cluster_name
-    else:
-        previous_request_args["cluster_name"] = []
+    # Retrieve the given cluster names
+    requested_cluster_names = get_custom_array_from_request_args(
+        request.args.get("cluster_name")
+    )
+    if len(requested_cluster_names) < 1:
+        # If no cluster has been requested, then all clusters have been requested
+        # (a filter related to which clusters are available to the current user
+        #  is then applied)
+        requested_cluster_names = get_all_clusters()
 
-    # Return an error if no job ID has been given
-    if job_id is None:
+    # Limit the cluster options to the clusters the user can access
+    user_clusters = (
+        current_user.get_available_clusters()
+    )  # Retrieve the clusters the user can access
+    cluster_names = [
+        cluster for cluster in requested_cluster_names if cluster in user_clusters
+    ]
+    previous_request_args["cluster_name"] = cluster_names
+
+    # Check the job_id input
+    if len(job_ids) < 1:
+        # Return an error if no job ID has been given
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=f"Missing argument job_id.",
+                error_msg=gettext("Missing argument job_id."),
+                previous_request_args=previous_request_args,
+            ),
+            400,
+        )  # bad request
+    elif len(job_ids) > 1:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("Too many job_ids have been requested."),
                 previous_request_args=previous_request_args,
             ),
             400,
         )  # bad request
 
-    # Set up the filters to retrieve the expected job
-    f0 = get_filter_job_id(job_id)
-    f1 = get_filter_cluster_name(cluster_name)
-    filter = combine_all_mongodb_filters(f0, f1)
-
-    (LD_jobs, _) = get_jobs(filter)
+    # Set up the filters and retrieve the expected job
+    (LD_jobs, _) = get_jobs(job_ids=job_ids, cluster_names=cluster_names)
 
     # Return error messages if the number of retrieved jobs is 0 or more than 1
     if len(LD_jobs) == 0:
         return render_template_with_user_settings(
             "error.html",
-            error_msg=f"Found no job with job_id {job_id}.",
+            error_msg=f"Found no job with job_id {job_ids[0]}.",
             previous_request_args=previous_request_args,
         )
 
@@ -302,7 +302,7 @@ def route_one():
         "single_job.html",
         LP_single_job_slurm=LP_single_job_slurm,
         D_single_job_cw=D_single_job_cw,
-        job_id=job_id,
+        job_id=job_ids[0],
         mila_email_username=current_user.mila_email_username,
         previous_request_args=previous_request_args,
     )
