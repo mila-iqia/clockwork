@@ -146,9 +146,13 @@ def get_global_filter(username=None, job_ids=[], cluster_names=[], states=[]):
     """
     Set up a filter for MongoDB in order to filter username, clusters and job states,
     regarding what has been sent as parameter to the function.
+    Important note: this function is just formatting the filter, it does not check
+    whether or not the clusters, the states and the username exist or are accessible. These
+    checks must be done before.
 
     Parameters:
         username        ID of the user of whose jobs we want to retrieve
+        job_ids         List of the IDs of the jobs we are looking for
         cluster_names   List of names of the clusters on which the expected jobs run/will run or have run
         states          List of names of states the expected jobs could have
 

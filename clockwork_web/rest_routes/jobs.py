@@ -128,7 +128,7 @@ def route_api_v1_jobs_one():
     )
     # Limit the cluster options to the clusters the user can access
     user_clusters = (
-        current_user.get_available_clusters()   # Retrieve the clusters the user can access
+        current_user.get_available_clusters()  # Retrieve the clusters the user can access
     )
     cluster_names = [
         cluster for cluster in requested_cluster_names if cluster in user_clusters
