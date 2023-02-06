@@ -312,3 +312,45 @@ def test_combine_all_mongodb_filters(given_filters, expected_filter):
     # Compare the output with the expected result
     assert returned_filter == expected_filter
 
+
+@pytest.mark.parametrize(
+    "username,job_ids,cluster_names,states,expected_result",
+    [
+        (None, [], [], [], {}),  # If nothing has been provided, the filter is empty
+        (
+            "student00@mila.quebec",
+            [123, 456],
+            ["mila", "narval"],
+            ["PENDING", "RUNNING"],
+            {
+                "$and": [
+                    {"cw.mila_email_username": "student00@mila.quebec"},
+                    {"slurm.job_id": {"$in": [123, 456]}},
+                    {"slurm.cluster_name": {"$in": ["mila", "narval"]}},
+                    {"slurm.job_state": {"$in": ["PENDING", "RUNNING", "COMPLETING"]}},
+                ]
+            },
+        ),
+    ],
+)
+def test_get_global_filter(username, job_ids, cluster_names, states, expected_result):
+    """
+    Test the function get_global_filter.
+
+    Parameters:
+        username        ID of the user of whose jobs we want to retrieve
+        job_ids         List of the IDs of the jobs we are looking for
+        cluster_names   List of names of the clusters on which the expected jobs run/will run or have run
+        states          List of names of states the expected jobs could have
+        expected_result Result we are expecting as output of the get_global_filter function when
+                        providing the associated parameters
+    """
+    assert (
+        get_global_filter(
+            username=username,
+            job_ids=job_ids,
+            cluster_names=cluster_names,
+            states=states,
+        )
+        == expected_result
+    )
