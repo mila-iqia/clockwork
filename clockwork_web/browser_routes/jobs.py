@@ -111,6 +111,7 @@ def route_search():
     requested_cluster_names = get_custom_array_from_request_args(
         request.args.get("cluster_name")
     )
+
     # Limit the cluster options to the clusters the user can access
     user_clusters = (
         current_user.get_available_clusters()  # Retrieve the clusters the user can access
@@ -121,6 +122,7 @@ def route_search():
     # If the resulting list is empty, then all the available clusters are requested
     if len(cluster_names) < 1:
         cluster_names = user_clusters
+
     previous_request_args["cluster_name"] = cluster_names
 
     states = get_custom_array_from_request_args(request.args.get("state"))

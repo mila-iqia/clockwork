@@ -5,4 +5,6 @@ RUN pip install -r /requirements_web_test.txt && rm -rf /root/.cache
 
 ENV CLOCKWORK_ENABLE_TESTING_LOGIN="True"
 
+#CMD ["bash"]
+#CMD ["coverage", "run", "--source=clockwork_web", "--rcfile=clockwork_web_test/.coveragerc", "-m", "pytest", "clockwork_web_test/test_rest_jobs.py"]
 CMD ["coverage", "run", "--source=clockwork_web", "--rcfile=clockwork_web_test/.coveragerc", "-m", "pytest", "clockwork_web_test"]
