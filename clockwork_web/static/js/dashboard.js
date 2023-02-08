@@ -283,7 +283,7 @@ function format_date(timestamp) {
         }
         // 24h
         else {
-            formatted_time = date_to_format.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: false });
+            formatted_time = date_to_format.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }); // hourCycle is set to h23 because otherwise, midnight is "24h" instead of "00h" on Chrome
         }
         
         return `${formatted_date} ${formatted_time}`;
@@ -623,7 +623,7 @@ function populate_table(response_contents) {
             tr.appendChild(td);
         }
         // Submit_time, start time and end_time of the jobs
-        let job_times = ["start_time", "submit_time", "end_time"];
+        let job_times = ["submit_time", "start_time", "end_time"];
         for (var i=0; i<job_times.length; i++) {
             let job_time = job_times[i];
             if (check_web_settings_column_display(page_name, job_time)) {
