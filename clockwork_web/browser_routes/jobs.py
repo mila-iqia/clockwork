@@ -152,10 +152,7 @@ def route_list():
         nbr_items_to_display=nbr_items_to_display,
         want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
     )
-    LD_jobs = [
-        strip_artificial_fields_from_job(D_job)
-        for D_job in LD_jobs
-    ]
+    LD_jobs = [strip_artificial_fields_from_job(D_job) for D_job in LD_jobs]
 
     if want_json:
         # If requested, return the list as JSON
@@ -291,10 +288,7 @@ def route_search():
         want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
     )
 
-    LD_jobs = [
-        strip_artificial_fields_from_job(D_job)
-        for D_job in LD_jobs
-    ]
+    LD_jobs = [strip_artificial_fields_from_job(D_job) for D_job in LD_jobs]
 
     # Display the HTML page
     return render_template_with_user_settings(

@@ -60,10 +60,7 @@ def route_api_v1_jobs_list():
     filter = combine_all_mongodb_filters(f0, f1, f2)
     (LD_jobs, _) = get_jobs(filter)
 
-    LD_jobs = [
-        strip_artificial_fields_from_job(D_job)
-        for D_job in LD_jobs
-    ]
+    LD_jobs = [strip_artificial_fields_from_job(D_job) for D_job in LD_jobs]
 
     return jsonify(LD_jobs)
 
@@ -96,7 +93,7 @@ def route_api_v1_jobs_one():
             ),
             500,
         )
-    
+
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
     return jsonify(D_job)
 
