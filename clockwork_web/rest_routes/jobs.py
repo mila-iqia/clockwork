@@ -16,7 +16,6 @@ from clockwork_web.core.jobs_helper import (
     combine_all_mongodb_filters,
     strip_artificial_fields_from_job,
     get_jobs,
-    infer_best_guess_for_username,
 )
 
 
@@ -61,9 +60,8 @@ def route_api_v1_jobs_list():
     filter = combine_all_mongodb_filters(f0, f1, f2)
     (LD_jobs, _) = get_jobs(filter)
 
-    # TODO : Potential redesign. See CW-81.
     LD_jobs = [
-        infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
+        strip_artificial_fields_from_job(D_job)
         for D_job in LD_jobs
     ]
 
@@ -98,11 +96,8 @@ def route_api_v1_jobs_one():
             ),
             500,
         )
-
-    # TODO : Potential redesign. See CW-81.
+    
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
-    D_job = infer_best_guess_for_username(D_job)
-
     return jsonify(D_job)
 
 

@@ -42,7 +42,6 @@ from clockwork_web.core.jobs_helper import (
     combine_all_mongodb_filters,
     strip_artificial_fields_from_job,
     get_jobs,
-    infer_best_guess_for_username,
     get_inferred_job_states,
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
@@ -153,11 +152,8 @@ def route_list():
         nbr_items_to_display=nbr_items_to_display,
         want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
     )
-
-    # TODO : You might want to stop doing the `infer_best_guess_for_username`
-    # at some point to design something better. See CW-81.
     LD_jobs = [
-        infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
+        strip_artificial_fields_from_job(D_job)
         for D_job in LD_jobs
     ]
 
@@ -295,10 +291,8 @@ def route_search():
         want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
     )
 
-    # TODO : You might want to stop doing the `infer_best_guess_for_username`
-    # at some point to design something better. See CW-81.
     LD_jobs = [
-        infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
+        strip_artificial_fields_from_job(D_job)
         for D_job in LD_jobs
     ]
 
@@ -379,7 +373,6 @@ def route_one():
         )  # Not sure what to do about these cases.
 
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
-    D_job = infer_best_guess_for_username(D_job)  # see CW-81
 
     # let's sort alphabetically by keys
     LP_single_job_slurm = list(sorted(D_job["slurm"].items(), key=lambda e: e[0]))
