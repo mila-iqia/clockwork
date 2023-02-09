@@ -129,7 +129,9 @@ def test_archive_stale_data():
         archive_path = f_out.name
 
         contents_archived_0 = archive_stale_data.archive(
-            archive_path, database_name, days_since_last_update
+            archive_path,
+            days_since_last_update=days_since_last_update,
+            database_name=database_name,
         )
 
     with open(archive_path, "r") as f_in:
