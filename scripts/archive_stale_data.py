@@ -63,6 +63,10 @@ def main(argv):
 
 def archive(archive_path, days_since_last_update, database_name=None):
 
+    assert isinstance(days_since_last_update, (float, int)), (
+        f"Wrong type for days_since_last_update: {type(days_since_last_update)}, {days_since_last_update}"
+    )
+    
     # The `database_name` argument is mostly for testing because we want
     # to use a different database to avoid messing up our fake_data.
     # The actual value in practice comes from the CLOCKWORK_CONFIG file.
