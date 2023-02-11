@@ -23,35 +23,70 @@ from clockwork_web.core.users_helper import (
 )
 
 
-def test_nodes(client, fake_data: dict[list[dict]]):
+def _get_associated_nodes_from_fake_data_in_order(current_user_id, fake_data):
+    """
+    There were 5 copies of this exact code.
+    This is a way to avoid redundancy and simplify reading.
+
+    This function simply returns the nodes in the fake_data
+    that pertain to the current user. It is used to determine
+    the ground truth for many tests.
+
+    Returns a sorted list of nodes.
+    """
+
+    user_clusters = get_available_clusters_from_db(
+        current_user_id
+    )  # Retrieve the clusters the current user can access
+
+    expected_nodes = [
+        node
+        for node in fake_data["nodes"]
+        if node["slurm"]["cluster_name"] in user_clusters
+    ]
+
+    # Sort the expected nodes by name, then cluster name
+    return sorted(
+        expected_nodes,
+        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    )
+
+
+@pytest.mark.parametrize(
+    "current_user_id",
+    (
+        "student00@mila.quebec",  # Can access all clusters
+        "student06@mila.quebec",  # Can only access Mila cluster
+    ),
+)
+def test_nodes(client, fake_data: dict[list[dict]], current_user_id):
     """
     Check that all the names of the nodes are present in the HTML generated.
     Note that the `client` fixture depends on other fixtures that
     are going to put the fake data in the database for us.
-    """
-    # Initialization
-    current_user_id = (
-        "student00@mila.quebec"  # student00 has access to the Mila and DRAC clusters
-    )
 
-    # Log in to Clockwork as this user
+    Parameters:
+    client              The web client to request. Note that this fixture
+                        depends on other fixtures that are going to put the
+                        fake data in the database for us
+    fake_data           The data our tests are based on
+    current_user_id     ID of the user requesting the nodes
+    """
+    # Log in to Clockwork as the current_user (provided as parameter)
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
     assert login_response.status_code == 302  # Redirect
 
     # Request the nodes list
     response = client.get("/nodes/list")
 
-    # Sort the nodes contained in the fake data by name, then cluster name
-    sorted_all_nodes = sorted(
-        fake_data["nodes"],
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
 
     # Check if all the expected nodes are contained in the response
     # These are the X first nodes of the nodes list (X being the
     # number of items to display per page the user has set)
-    for i in range(0, get_default_setting_value("nbr_items_per_page")):
-        D_node = sorted_all_nodes[i]
+    for D_node in expected_nodes[0 : get_default_setting_value("nbr_items_per_page")]:
         assert D_node["slurm"]["name"] in response.get_data(as_text=True)
 
     # Log out from Clockwork
@@ -78,27 +113,22 @@ def test_nodes_without_all_access(client, fake_data: dict[list[dict]]):
     # Request the nodes list
     response = client.get("/nodes/list")
 
-    # Sort the nodes contained in the fake data by name, then cluster name
-    sorted_all_nodes = sorted(
-        fake_data["nodes"],
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
+    for D_node in expected_nodes:
+        # As the student06 has only access to the Mila cluster
+        assert D_node["slurm"]["cluster_name"] == "mila"
 
     # Check if only the expected nodes are contained in the response
-    nbr_returned_node = 0
-    i = 0
-    while nbr_returned_node >= get_default_setting_value(
-        "nbr_items_per_page"
-    ) or i >= len(sorted_all_nodes):
-        D_node = sorted_all_nodes[i]
-        if D_node["slurm"]["cluster_name"] in available_clusters_for_the_user:
+    # and the unexpected nodes are not.
+    for D_node in fake_data["nodes"]:
+        if D_node in expected_nodes:
             # Check if expected nodes are returned
             assert D_node["slurm"]["name"] in response.get_data(as_text=True)
-            nbr_returned_node += 1
         else:
             # Check if unexpected nodes are not returned
             assert D_node["slurm"]["name"] not in response.get_data(as_text=True)
-        i += 1
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
@@ -108,11 +138,16 @@ def test_nodes_without_all_access(client, fake_data: dict[list[dict]]):
 @pytest.mark.parametrize(
     "current_user_id,page_num,nbr_items_per_page",
     [
-        ("student00@mila.quebec", 1, 10),
-        ("student06@mila.quebec", 0, 22),
-        ("student01@mila.quebec", "blbl", 30),
-        ("student06@mila.quebec", True, 5),
-        ("student02@mila.quebec", 3, 14),
+        ("student00@mila.quebec", 1, 10),  # student00 can access all clusters
+        ("student06@mila.quebec", 1, 16),  # student06 can only access Mila cluster
+        ("student00@mila.quebec", 0, 22),  # student00 can access all clusters
+        ("student00@mila.quebec", "blbl", 30),
+        # As the provided value is incorrect, the page_num is set to 1 by default
+        # student00 can access all clusters
+        ("student00@mila.quebec", True, 5),
+        # As the provided value is incorrect, the page_num is set to 1 by default
+        # student06 can only access Mila cluster
+        ("student06@mila.quebec", 3, 14),  # student06 can only access Mila cluster
     ],
 )
 def test_nodes_with_both_pagination_options(
@@ -131,11 +166,11 @@ def test_nodes_with_both_pagination_options(
         page_num            The number of the page displaying the nodes
         nbr_items_per_page  The number of nodes we want to display per page
     """
-    # Log in to Clockwork as this user
+    # Log in to Clockwork as the current_user (provided as parameter)
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
     assert login_response.status_code == 302  # Redirect
 
-    # Get the response
+    # Get the response of the request we are testing
     response = client.get(
         f"/nodes/list?page_num={page_num}&nbr_items_per_page={nbr_items_per_page}"
     )
@@ -143,32 +178,29 @@ def test_nodes_with_both_pagination_options(
     # Retrieve the bounds of the interval of index in which the expected nodes
     # are contained
     (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
-        None, page_num, nbr_items_per_page
+        current_user_id, page_num, nbr_items_per_page
     )
 
-    # Sort the nodes contained in the fake data by name, then cluster name
-    sorted_all_nodes = sorted(
-        fake_data["nodes"],
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
 
-    # Check if only the expected nodes are contained in the response
-    nbr_returned_node = 0
-    i = number_of_skipped_items
-    while nbr_returned_node >= get_default_setting_value(
-        "nbr_items_per_page"
-    ) or i >= len(sorted_all_nodes):
-        D_node = sorted_all_nodes[i]
-        if D_node["slurm"]["cluster_name"] in get_available_clusters_from_db(
-            current_user_id
-        ):  # If the user can access the cluster of the node
+    # From it, retrieve the expected nodes regarding the pagination options
+    expected_nodes = expected_nodes[
+        number_of_skipped_items : number_of_skipped_items + nbr_items_per_page
+    ]
+
+    # Check if only the expected nodes are contained in the response and the unexpected nodes aren't
+    for D_node in fake_data["nodes"]:
+        if D_node in expected_nodes:
             # Check if expected nodes are returned
             assert D_node["slurm"]["name"] in response.get_data(as_text=True)
-            nbr_returned_node += 1
         else:
             # Check if unexpected nodes are not returned
             assert D_node["slurm"]["name"] not in response.get_data(as_text=True)
-        i += 1
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
@@ -178,12 +210,26 @@ def test_nodes_with_both_pagination_options(
 @pytest.mark.parametrize(
     "current_user_id,page_num",
     [
-        ("student00@mila.quebec", 1),
-        ("student06@mila.quebec", 2),
-        ("student01@mila.quebec", 3),
-        ("student06@mila.quebec", "lala"),
-        ("student02@mila.quebec", 7.8),
-        ("student06@mila.quebec", False),
+        (
+            "student00@mila.quebec",
+            1,
+        ),  # student00 can access all clusters and his/her nbr_items_per_page preference is set to 40
+        (
+            "student06@mila.quebec",
+            3,
+        ),  # student06 can only access Mila cluster and his/her nbr_items_per_page preference is set to 40
+        (
+            "student00@mila.quebec",
+            "lala",
+        ),  # student00 can access all clusters and his/her nbr_items_per_page preference is set to 40
+        (
+            "student06@mila.quebec",
+            7.8,
+        ),  # student06 can only access Mila cluster and his/her nbr_items_per_page preference is set to 40
+        (
+            "student00@mila.quebec",
+            False,
+        ),  # student00 can access all clusters and his/her nbr_items_per_page preference is set to 40
     ],
 )
 def test_nodes_with_page_num_pagination_option(
@@ -202,7 +248,7 @@ def test_nodes_with_page_num_pagination_option(
         page_num            The number of the page displaying the nodes
         nbr_items_per_page  The number of nodes we want to display per page
     """
-    # Log in to Clockwork as this user
+    # Log in to Clockwork as the current_user (provided as parameter)
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
     assert login_response.status_code == 302  # Redirect
 
@@ -212,32 +258,30 @@ def test_nodes_with_page_num_pagination_option(
     # Retrieve the bounds of the interval of index in which the expected nodes
     # are contained
     (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
-        None, page_num, None
+        current_user_id, page_num, None
     )
 
-    # Sort the nodes contained in the fake data by name, then cluster name
-    sorted_all_nodes = sorted(
-        fake_data["nodes"],
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
 
-    # Check if only the expected nodes are contained in the response
-    nbr_returned_node = 0
-    i = number_of_skipped_items
-    while nbr_returned_node >= get_default_setting_value(
-        "nbr_items_per_page"
-    ) or i >= len(sorted_all_nodes):
-        D_node = sorted_all_nodes[i]
-        if D_node["slurm"]["cluster_name"] in get_available_clusters_from_db(
-            current_user_id
-        ):  # If the user can access the cluster of the node
+    # From it, retrieve the expected nodes regarding the pagination options
+    expected_nodes = expected_nodes[
+        number_of_skipped_items : number_of_skipped_items + nbr_items_per_page
+    ]
+
+    # Check if only the expected nodes are contained in the response and the unexpected nodes aren't
+    for D_node in fake_data["nodes"]:
+        if D_node in expected_nodes:
             # Check if expected nodes are returned
             assert D_node["slurm"]["name"] in response.get_data(as_text=True)
-            nbr_returned_node += 1
         else:
             # Check if unexpected nodes are not returned
             assert D_node["slurm"]["name"] not in response.get_data(as_text=True)
-        i += 1
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
@@ -247,20 +291,20 @@ def test_nodes_with_page_num_pagination_option(
 @pytest.mark.parametrize(
     "current_user_id, nbr_items_per_page",
     [
-        ("student00@mila.quebec", 1),
-        ("student06@mila.quebec", 29),
-        ("student01@mila.quebec", 50),
-        ("student06@mila.quebec", -1),
-        ("student02@mila.quebec", [1, 2]),
-        ("student06@mila.quebec", True),
+        ("student00@mila.quebec", 1),  # student00 can access all clusters
+        ("student06@mila.quebec", 29),  # student06 can only access Mila cluster
+        ("student00@mila.quebec", 50),  # student00 can access all clusters
+        ("student06@mila.quebec", -1),  # student06 can only access Mila cluster
+        ("student00@mila.quebec", [1, 2]),  # student00 can access all clusters
+        ("student06@mila.quebec", True),  # student06 can only access Mila cluster
     ],
 )
-def test_nodes_with_page_num_pagination_option(
+def test_nodes_with_nbr_items_per_page_pagination_option(
     client, fake_data: dict[list[dict]], current_user_id, nbr_items_per_page
 ):
     """
     Check that all the expected names of the nodes are present in the HTML
-    generated using only the page_num pagination option.
+    generated using only the nbr_items_per_page pagination option.
 
     Parameters
         client              The web client to request. Note that this fixture
@@ -270,7 +314,7 @@ def test_nodes_with_page_num_pagination_option(
         current_user_id     ID of the user requesting the nodes
         nbr_items_per_page  The number of nodes we want to display per page
     """
-    # Log in to Clockwork as this user
+    # Log in to Clockwork as the current_user (provided as parameter)
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
     assert login_response.status_code == 302  # Redirect
 
@@ -280,32 +324,30 @@ def test_nodes_with_page_num_pagination_option(
     # Retrieve the bounds of the interval of index in which the expected nodes
     # are contained
     (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
-        None, None, nbr_items_per_page
+        current_user_id, None, nbr_items_per_page
     )
 
-    # Sort the nodes contained in the fake data by name, then cluster name
-    sorted_all_nodes = sorted(
-        fake_data["nodes"],
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
+    # Then keep only the expected nodes based on the pagination options
+    expected_nodes = expected_nodes[
+        number_of_skipped_items : (number_of_skipped_items + nbr_items_per_page)
+    ]
 
     # Check if only the expected nodes are contained in the response
-    nbr_returned_node = 0
-    i = number_of_skipped_items
-    while nbr_returned_node >= get_default_setting_value(
-        "nbr_items_per_page"
-    ) or i >= len(sorted_all_nodes):
-        D_node = sorted_all_nodes[i]
-        if D_node["slurm"]["cluster_name"] in get_available_clusters_from_db(
-            current_user_id
-        ):  # If the user can access the cluster of the node
+    # and the unexpected nodes are not.
+    for D_node in fake_data["nodes"]:
+        if D_node in expected_nodes:
             # Check if expected nodes are returned
             assert D_node["slurm"]["name"] in response.get_data(as_text=True)
-            nbr_returned_node += 1
         else:
             # Check if unexpected nodes are not returned
             assert D_node["slurm"]["name"] not in response.get_data(as_text=True)
-        i += 1
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
@@ -315,14 +357,24 @@ def test_nodes_with_page_num_pagination_option(
 @pytest.mark.parametrize(
     "current_user_id,cluster_name",
     [
-        ("student00@mila.quebec", "mila"),
-        ("student06@mila.quebec", "mila"),
-        ("student00@mila.quebec", "cedar"),
-        ("student06@mila.quebec", "cedar"),
-        ("student01@mila.quebec", "graham"),
-        ("student02@mila.quebec", "beluga"),
-        ("student00@mila.quebec", "sephiroth"),
-        ("student06@mila.quebec", "sephiroth"),
+        ("student00@mila.quebec", "mila"),  # student00 can access to the cluster "mila"
+        ("student06@mila.quebec", "mila"),  # student06 can access to the cluster "mila"
+        (
+            "student00@mila.quebec",
+            "cedar",
+        ),  # student00 can access to the cluster "cedar"
+        (
+            "student06@mila.quebec",
+            "graham",
+        ),  # student06 can not access to the cluster "graham"
+        (
+            "student00@mila.quebec",
+            "beluga",
+        ),  # student00 can access to the cluster "beluga"
+        (
+            "student00@mila.quebec",
+            "sephiroth",
+        ),  # the cluster "sephiroth" does not exist
     ],
 )
 def test_nodes_with_filter(
@@ -331,6 +383,14 @@ def test_nodes_with_filter(
     """
     Same as `test_nodes` but adding a filter for the key "cluster_name".
     This tests the encoding of args with the ?k1=v1&k2=v2 notation in the url.
+
+    Parameters:
+    client              The web client to request. Note that this fixture
+                        depends on other fixtures that are going to put the
+                        fake data in the database for us
+    fake_data           The data our tests are based on
+    current_user_id     ID of the user requesting the nodes
+    cluster_name        The name of the cluster used as filter to the nodes
     """
     # Log in to Clockwork as this user
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
@@ -343,17 +403,20 @@ def test_nodes_with_filter(
     # but it certainly takes care a situation where this test failed because nodes
     # were missing from the response.
 
+    # Log in to Clockwork as the current_user (provided as parameter)
+    login_response = client.get(f"/login/testing?user_id={current_user_id}")
+    assert login_response.status_code == 302  # Redirect
+
+    # Get the response of the request we are testing
     response = client.get(
         f"/nodes/list?cluster_name={cluster_name}&nbr_items_per_page=1000000"
     )
 
-    # Sort the nodes contained in the fake data by name, then cluster name
-    sorted_all_nodes = sorted(
-        fake_data["nodes"],
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
 
-    for D_node in sorted_all_nodes:
+    for D_node in expected_nodes:
         if D_node["slurm"]["cluster_name"] == cluster_name and D_node["slurm"][
             "cluster_name"
         ] in get_available_clusters_from_db(current_user_id):
@@ -365,7 +428,14 @@ def test_nodes_with_filter(
             # show up elsewhere in the page for some other reason.
             # This causes issues when the fake data had node names that were all "machine"
             # with some integer.
-            assert D_node["slurm"]["name"] not in response.get_data(as_text=True)
+            assert (
+                f"/nodes/one?node_name={D_node['slurm']['name']}&cluster_name={cluster_name}"
+                not in response.get_data(as_text=True)
+            )
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
@@ -373,6 +443,7 @@ def test_nodes_with_filter(
 
 
 def test_single_node(client, fake_data):
+
     """
     Check the function route_one when success (ie an authenticated user
     request an existing node to which he/she has access).
@@ -384,7 +455,7 @@ def test_single_node(client, fake_data):
         fake_data           The data our tests are based on
     """
 
-    # Initialization
+    # Log in to Clockwork as student00 (who can access all clusters)
     current_user_id = (
         "student00@mila.quebec"  # student00 has access to the Mila and DRAC clusters
     )
@@ -397,6 +468,8 @@ def test_single_node(client, fake_data):
     response = client.get(
         f"/nodes/one?node_name={node['name']}&cluster_name={node['cluster_name']}"
     )
+
+    # Check the response
     assert response.status_code == 200
     assert node["alloc_tres"] in response.get_data(as_text=True)
 
@@ -405,7 +478,23 @@ def test_single_node(client, fake_data):
     assert response_logout.status_code == 302  # Redirect
 
 
-def test_single_node_not_found(client):
+def test_single_node_not_found_node_name_only(client):
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
+    # Launch the request without providing a cluster name
+    response = client.get("/nodes/one?node_name=patate009")
+
+    # Assert that a 400 Error is returned
+    assert response.status_code == 404
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
+
+
+def test_single_node_not_found_on_available_cluster(client):
     """
     Check the function route_one for a connected user who request an
     unexisting node.
@@ -425,14 +514,14 @@ def test_single_node_not_found(client):
     assert login_response.status_code == 302  # Redirect
 
     response = client.get("/nodes/one?node_name=patate009&cluster_name=mila")
-    assert response.status_code == 400  # Bad Request
+    assert response.status_code == 404  # Not found
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
     assert response_logout.status_code == 302  # Redirect
 
 
-def test_single_node_forbidden(client, fake_data):
+def test_single_node_not_found(client, fake_data):
     """
     Check the function route_one for a connected user who request a node
     on a cluster he/she has no access to.
@@ -445,7 +534,7 @@ def test_single_node_forbidden(client, fake_data):
     """
     # Initialization
     current_user_id = (
-        "student06@mila.quebec"  # student00 has only access to Mila cluster
+        "student06@mila.quebec"  # student06 has only access to Mila cluster
     )
 
     # Retrieve the first node on a cluster which is not the Mila one
@@ -464,7 +553,7 @@ def test_single_node_forbidden(client, fake_data):
     response = client.get(
         f"/nodes/one?node_name={node_name}&cluster_name={cluster_name}"
     )
-    assert response.status_code == 403  # Forbidden
+    assert response.status_code == 404  # Not found
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
@@ -472,6 +561,7 @@ def test_single_node_forbidden(client, fake_data):
 
 
 def test_single_node_cluster_only(client):
+
     """
     Check the function route_one when only the cluster is provided.
 
@@ -489,7 +579,10 @@ def test_single_node_cluster_only(client):
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
     assert login_response.status_code == 302  # Redirect
 
+    # Launch the request without providing a node name
     response = client.get("/nodes/one?cluster_name=mila")
+
+    # Assert that a 400 Error is returned
     assert response.status_code == 400
 
     # Log out from Clockwork
