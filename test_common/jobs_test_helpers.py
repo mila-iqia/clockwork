@@ -159,8 +159,9 @@ def helper_jobs_list_with_filter(fake_data, cluster_name):
 
     def validator(LD_jobs):
         assert len(LD_jobs) == len(LD_original_jobs), (
+            f"{len(LD_jobs)} != {len(LD_original_jobs)}. "
             "Lengths of lists don't match, so we shouldn't expect them to be able "
-            "to match the elements themselves."
+            "to match the elements themselves. "
         )
         # agree on some ordering so you can zip the lists and have
         # matching elements in the same order

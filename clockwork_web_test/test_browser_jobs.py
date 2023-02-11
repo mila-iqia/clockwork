@@ -170,10 +170,8 @@ def test_jobs(client, fake_data: dict[list[dict]]):
 
     response = client.get("/jobs/search")
     body_text = response.get_data(as_text=True)
-    for i in range(
-        0, min(get_default_setting_value("nbr_items_per_page"), len(sorted_all_jobs))
-    ):
-        D_job = sorted_all_jobs[i]
+    # only the first ones from the list
+    for D_job in sorted_all_jobs[: get_default_setting_value("nbr_items_per_page")]:
         assert D_job["slurm"]["job_id"] in body_text
 
     # Log out from Clockwork
@@ -271,13 +269,11 @@ def test_jobs_with_page_num_pagination_option(
     # Assert that the retrieved jobs correspond to the expected jobs
 
     body_text = response.get_data(as_text=True)
-    for i in range(
-        number_of_skipped_items,
-        min(number_of_skipped_items + nbr_items_per_page, len(sorted_all_jobs)),
-    ):
-        if i < len(sorted_all_jobs):
-            D_job = sorted_all_jobs[i]
-            assert D_job["slurm"]["job_id"] in body_text
+    for D_job in sorted_all_jobs[
+        number_of_skipped_items : (number_of_skipped_items + nbr_items_per_page)
+    ]:
+        D_job = sorted_all_jobs[i]
+        assert D_job["slurm"]["job_id"] in body_text
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
@@ -320,13 +316,10 @@ def test_jobs_with_page_num_pagination_option(
 
     body_text = response.get_data(as_text=True)
     # Assert that the retrieved jobs correspond to the expected jobs
-    for i in range(
-        number_of_skipped_items,
-        min(number_of_skipped_items + nbr_items_per_page, len(sorted_all_jobs)),
-    ):
-        if i < len(sorted_all_jobs):
-            D_job = sorted_all_jobs[i]
-            assert D_job["slurm"]["job_id"] in body_text
+    for D_job in sorted_all_jobs[
+        number_of_skipped_items : (number_of_skipped_items + nbr_items_per_page)
+    ]:
+        assert D_job["slurm"]["job_id"] in body_text
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
@@ -498,13 +491,10 @@ def test_route_search(
 
     body_text = response.get_data(as_text=True)
     # Assert that the retrieved jobs correspond to the expected jobs
-    for i in range(
-        number_of_skipped_items,
-        min(number_of_skipped_items + nbr_items_per_page, len(LD_prefiltered_jobs)),
-    ):
-        if i < len(LD_prefiltered_jobs):
-            D_job = LD_prefiltered_jobs[i]
-            assert D_job["slurm"]["job_id"] in body_text
+    for D_job in LD_prefiltered_jobs[
+        number_of_skipped_items : (number_of_skipped_items + nbr_items_per_page)
+    ]:
+        assert D_job["slurm"]["job_id"] in body_text
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")

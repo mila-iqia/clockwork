@@ -26,10 +26,9 @@ def test_jobs_list_with_filter(mtclient, fake_data, cluster_name):
 @pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
 def test_api_list_invalid_username(mtclient, username):
     """ """
-    D_retrieved_jobs = mtclient.jobs_list(username=username)
+    LD_retrieved_jobs = mtclient.jobs_list(username=username)
     # we expect no matches for those made-up names
-    assert len(D_retrieved_jobs["jobs"]) == 0
-    assert D_retrieved_jobs["nbr_total_jobs"] == 0
+    assert len(LD_retrieved_jobs) == 0
 
 
 @pytest.mark.parametrize("cluster_name", ("mila", "beluga", "cedar", "graham"))
@@ -56,7 +55,7 @@ def test_list_jobs_for_a_given_random_user(mtclient, fake_data):
     Verify that we list the jobs properly for a given random user.
     """
     validator, username = helper_list_jobs_for_a_given_random_user(fake_data)
-    LD_jobs = mtclient.jobs_list(username=username)["jobs"]
+    LD_jobs = mtclient.jobs_list(username=username)
     validator(LD_jobs)
 
 
