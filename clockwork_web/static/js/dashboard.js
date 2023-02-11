@@ -68,7 +68,7 @@ self.inWords = function(timeAgo) {
 }());
 
 // We set up a request to retrieve the jobs list as JSON
-const refresh_endpoint = "/jobs/list?want_json=True"
+const refresh_endpoint = "/jobs/search?want_json=True"
 
 // This id is used to identify the table to populate in the associated HTML file
 const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html also
@@ -501,10 +501,10 @@ function populate_table(response_contents) {
 
           For now, we mainly display the "slurm" informations of each job
             <td>{{e['cluster_name']}}</td>
-            <td><a href="/jobs/list/{{e['username']}}"> {{e['username']}} </a></td>
             <td><a href="/jobs/one?job_id={{e['job_id']}}"> {{e['job_id']}} </a></td>
             <td>{{e.get('name', "")[:32]}}</td> <!-- truncate after 32 chars -->
             <td>{{e['job_state']}}</td>
+            ...
     */
     // Initialize the name of the current page
     let page_name = "dashboard";

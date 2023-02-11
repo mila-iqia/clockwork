@@ -57,125 +57,6 @@ def route_index():
     return redirect("interactive")
 
 
-@flask_api.route("/list")
-@login_required
-def route_list():
-    """
-    Can take optional args "cluster_name", "username", "relative_time".
-    "username" refers to the Mila email of a user.
-    "relative_time" refers to how many seconds to go back in time to list jobs.
-    "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
-    "page_num" is optional and used for the pagination: it is a positive integer
-    presenting the number of the current page
-    "nbr_items_per_page" is optional and used for the pagination: it is a
-    positive integer presenting the number of items to display per page
-
-    .. :quickref: list all Slurm job as formatted html
-    """
-    # Initialize the request arguments (it is further transferred to the HTML)
-    previous_request_args = {}
-
-    # Define the type of the return
-    want_json = request.args.get("want_json", type=str, default="False")
-    want_json = to_boolean(want_json)
-    previous_request_args["want_json"] = want_json
-
-    # Retrieve the pagination parameters
-    if want_json:
-        # - If a JSON response is requested, we set no default value to num_page here
-        pagination_page_num = request.args.get("page_num", type=int)
-    else:
-        # - If a HTML response is requested, we use 1 as the default number of the current page
-        pagination_page_num = request.args.get("page_num", type=int, default="1")
-    previous_request_args["page_num"] = pagination_page_num
-
-    pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
-    previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
-
-    # The default pagination parameters are different whether or not a JSON response is requested.
-    # This is because we are using `want_json=True` along with no pagination arguments for a special
-    # case when we want to retrieve all the jobs in the dashboard for a given user.
-    # There is a certain notion with `want_json` that we are retrieving the data for the purposes
-    # of listing them exhaustively, and not just for displaying them with scroll bars in some HTML page.
-    if want_json and not pagination_page_num and not pagination_nbr_items_per_page:
-        # In this particular case, we set the default pagination arguments to be `None`,
-        # which will effectively disable pagination.
-        nbr_skipped_items = None
-        nbr_items_to_display = None
-    else:
-        # Otherwise (ie if at least one of the pagination parameters is provided),
-        # we assume that a pagination is expected from the user.
-        (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
-            current_user.mila_email_username,
-            pagination_page_num,
-            pagination_nbr_items_per_page,
-        )
-
-    # Define the filter to select the jobs
-    username = request.args.get("username", None)
-    previous_request_args["username"] = username
-
-    if username is not None:
-        f0 = {"cw.mila_email_username": username}
-    else:
-        f0 = {}
-
-    time1 = request.args.get("relative_time", None)
-    previous_request_args["relative_time"] = time1
-    if time1 is None:
-        f1 = {}
-    else:
-        try:
-            time1 = float(time1)
-            f1 = get_filter_after_end_time(end_time=time.time() - time1)
-        except Exception:
-            from flask import current_app
-
-            current_app.logger.debug("for time %s", time1, exc_info=True)
-            return (
-                render_template_with_user_settings(
-                    "error.html",
-                    error_msg=gettext(
-                        "Field 'relative_time' cannot be cast as a valid integer: %(time1)."
-                    ).format(time1=time1),
-                    previous_request_args=previous_request_args,
-                ),
-                400,
-            )  # bad request
-
-    # Combine the filters
-    filter = combine_all_mongodb_filters(f0, f1)
-
-    # Retrieve the jobs, by applying the filters and the pagination
-    (LD_jobs, nbr_total_jobs) = get_jobs(
-        filter,
-        nbr_skipped_items=nbr_skipped_items,
-        nbr_items_to_display=nbr_items_to_display,
-        want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
-    )
-
-    # TODO : You might want to stop doing the `infer_best_guess_for_username`
-    # at some point to design something better. See CW-81.
-    LD_jobs = [
-        infer_best_guess_for_username(strip_artificial_fields_from_job(D_job))
-        for D_job in LD_jobs
-    ]
-
-    if want_json:
-        # If requested, return the list as JSON
-        return jsonify({"nbr_total_jobs": nbr_total_jobs, "jobs": LD_jobs})
-    else:
-        # Otherwise, display the HTML page
-        return render_template_with_user_settings(
-            "jobs.html",
-            LD_jobs=LD_jobs,
-            mila_email_username=current_user.mila_email_username,
-            page_num=pagination_page_num,
-            nbr_total_jobs=nbr_total_jobs,
-            previous_request_args=previous_request_args,
-        )
-
-
 @flask_api.route("/search")
 @login_required
 def route_search():
@@ -183,13 +64,6 @@ def route_search():
     Display a list of jobs, which can be filtered by user, cluster and state.
 
     Can take optional arguments:
-
-    - "username"
-    - "cluster_name"
-    - "state"
-    - "page_num"
-    - "nbr_items_per_page".
-
     - "username" refers to the Mila email identifying a user,
       and it will match any of them.
     - "cluster_name" refers to the cluster(s) on which we are looking for the jobs
@@ -211,15 +85,28 @@ def route_search():
       presenting the number of the current page
     - "nbr_items_per_page" is optional and used for the pagination: it is a
       positive integer presenting the number of items to display per page
+    - "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
 
     .. :quickref: list all Slurm job as formatted html
     """
+    ###########################
+    # Retrieve the parameters #
+    ###########################
+
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
 
+    # Retrieve the format requested to return the information
+    want_json = request.args.get(
+        "want_json", type=str, default="False"
+    )  # If True, the user wants a JSON output
+    want_json = to_boolean(want_json)
+    previous_request_args["want_json"] = want_json
+
     # Retrieve the parameters used to filter the jobs
     username = request.args.get("username", None)
-    previous_request_args["username"] = username
+    if username:
+        previous_request_args["username"] = username
 
     requested_cluster_names = get_custom_array_from_request_args(
         request.args.get("cluster_name")
@@ -227,18 +114,14 @@ def route_search():
 
     # Limit the cluster options to the clusters the user can access
     user_clusters = (
-        current_user.get_available_clusters()
-    )  # Retrieve the clusters the user can access
-
+        current_user.get_available_clusters()  # Retrieve the clusters the user can access
+    )
     cluster_names = [
         cluster for cluster in requested_cluster_names if cluster in user_clusters
     ]
-
+    # If the resulting list is empty, then all the available clusters are requested
     if len(cluster_names) < 1:
-        # If no cluster has been requested, then all clusters have been requested
-        # (a filter related to which clusters are available to the current user
-        #  is then applied)
-        cluster_names = current_user.get_available_clusters()
+        cluster_names = user_clusters
 
     previous_request_args["cluster_name"] = cluster_names
 
@@ -246,50 +129,51 @@ def route_search():
     previous_request_args["state"] = states
 
     # Retrieve the pagination parameters
-    pagination_page_num = request.args.get("page_num", type=int, default="1")
+    if want_json:
+        # - If a JSON response is requested, we set no default value to num_page here
+        pagination_page_num = request.args.get("page_num", type=int)
+    else:
+        # - If a HTML response is requested, we use 1 as the default number of the current page
+        pagination_page_num = request.args.get("page_num", type=int, default="1")
     previous_request_args["page_num"] = pagination_page_num
 
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
-    previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
+    if pagination_nbr_items_per_page:
+        previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
 
-    # Use the pagination helper to define the number of elements to skip, and the number of elements to display
-    (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
-        current_user.mila_email_username,
-        pagination_page_num,
-        pagination_nbr_items_per_page,
-    )
+    #########################
+    # Define the pagination #
+    #########################
 
-    ###
-    # Define the filters to select the jobs
-    ###
-    # Define the user filter
-    if username is not None:
-        f0 = {"cw.mila_email_username": username}
+    # The default pagination parameters are different whether or not a JSON response is requested.
+    # This is because we are using `want_json=True` along with no pagination arguments for a special
+    # case when we want to retrieve all the jobs in the dashboard for a given user.
+    # There is a certain notion with `want_json` that we are retrieving the data for the purposes
+    # of listing them exhaustively, and not just for displaying them with scroll bars in some HTML page.
+    if want_json and not pagination_page_num and not pagination_nbr_items_per_page:
+        # In this particular case, we set the default pagination arguments to be `None`,
+        # which will effectively disable pagination.
+        nbr_skipped_items = None
+        nbr_items_to_display = None
     else:
-        f0 = {}
+        # Otherwise (ie if at least one of the pagination parameters is provided),
+        # we assume that a pagination is expected from the user. Then, the pagination helper
+        # is used to define the number of elements to skip, and the number of elements to display
+        (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
+            current_user.mila_email_username,
+            pagination_page_num,
+            pagination_nbr_items_per_page,
+        )
 
-    # Define the filter related to the cluster on which the jobs run
-    if len(cluster_names) > 0:
-        f1 = {"slurm.cluster_name": {"$in": cluster_names}}
-    else:
-        f1 = {}  # Apply no filter for the clusters if no cluster has been provided
+    ################################################
+    # Retrieve the jobs and display or return them #
+    ################################################
 
-    # Define the filter related to the jobs' states
-    if len(states) > 0:
-        all_inferred_states = get_inferred_job_states(states)
-        f2 = {"slurm.job_state": {"$in": all_inferred_states}}
-    else:
-        f2 = {}  # Apply no filter for the states if no state has been provided
-
-    # Combine the filters
-    filter = combine_all_mongodb_filters(f0, f1, f2)
-
-    ###
-    # Retrieve the jobs and display them
-    ###
     # Retrieve the jobs, by applying the filters and the pagination
     (LD_jobs, nbr_total_jobs) = get_jobs(
-        filter,
+        username=username,
+        cluster_names=cluster_names,
+        states=states,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
         want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
@@ -302,15 +186,19 @@ def route_search():
         for D_job in LD_jobs
     ]
 
-    # Display the HTML page
-    return render_template_with_user_settings(
-        "jobs_search.html",
-        LD_jobs=LD_jobs,
-        mila_email_username=current_user.mila_email_username,
-        page_num=pagination_page_num,
-        nbr_total_jobs=nbr_total_jobs,
-        previous_request_args=previous_request_args,
-    )
+    if want_json:
+        # If requested, return the list as JSON
+        return jsonify({"nbr_total_jobs": nbr_total_jobs, "jobs": LD_jobs})
+    else:
+        # Display the HTML page
+        return render_template_with_user_settings(
+            "jobs_search.html",
+            LD_jobs=LD_jobs,
+            mila_email_username=current_user.mila_email_username,
+            page_num=pagination_page_num,
+            nbr_total_jobs=nbr_total_jobs,
+            previous_request_args=previous_request_args,
+        )
 
 
 @flask_api.route("/one")
@@ -333,39 +221,57 @@ def route_one():
     previous_request_args = {}
 
     # Retrieve the given job ID
-    job_id = request.args.get("job_id", None)
-    previous_request_args["job_id"] = job_id
+    job_ids = get_custom_array_from_request_args(request.args.get("job_id"))
+    previous_request_args["job_id"] = job_ids
 
-    # Retrieve the given cluster name
-    cluster_name = request.args.get("cluster_name", None)
-    if cluster_name:
-        previous_request_args["cluster_name"] = cluster_name
-    else:
-        previous_request_args["cluster_name"] = []
+    # Retrieve the given cluster names
+    requested_cluster_names = get_custom_array_from_request_args(
+        request.args.get("cluster_name")
+    )
+    if len(requested_cluster_names) < 1:
+        # If no cluster has been requested, then all clusters have been requested
+        # (a filter related to which clusters are available to the current user
+        #  is then applied)
+        requested_cluster_names = get_all_clusters()
 
-    # Return an error if no job ID has been given
-    if job_id is None:
+    # Limit the cluster options to the clusters the user can access
+    user_clusters = (
+        current_user.get_available_clusters()
+    )  # Retrieve the clusters the user can access
+    cluster_names = [
+        cluster for cluster in requested_cluster_names if cluster in user_clusters
+    ]
+    previous_request_args["cluster_name"] = cluster_names
+
+    # Check the job_id input
+    if len(job_ids) < 1:
+        # Return an error if no job ID has been given
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=f"Missing argument job_id.",
+                error_msg=gettext("Missing argument job_id."),
+                previous_request_args=previous_request_args,
+            ),
+            400,
+        )  # bad request
+    elif len(job_ids) > 1:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("Too many job_ids have been requested."),
                 previous_request_args=previous_request_args,
             ),
             400,
         )  # bad request
 
-    # Set up the filters to retrieve the expected job
-    f0 = get_filter_job_id(job_id)
-    f1 = get_filter_cluster_name(cluster_name)
-    filter = combine_all_mongodb_filters(f0, f1)
-
-    (LD_jobs, _) = get_jobs(filter)
+    # Set up the filters and retrieve the expected job
+    (LD_jobs, _) = get_jobs(job_ids=job_ids, cluster_names=cluster_names)
 
     # Return error messages if the number of retrieved jobs is 0 or more than 1
     if len(LD_jobs) == 0:
         return render_template_with_user_settings(
             "error.html",
-            error_msg=f"Found no job with job_id {job_id}.",
+            error_msg=f"Found no job with job_id {job_ids[0]}.",
             previous_request_args=previous_request_args,
         )
 
@@ -398,7 +304,7 @@ def route_one():
         "single_job.html",
         LP_single_job_slurm=LP_single_job_slurm,
         D_single_job_cw=D_single_job_cw,
-        job_id=job_id,
+        job_id=job_ids[0],
         mila_email_username=current_user.mila_email_username,
         previous_request_args=previous_request_args,
     )
