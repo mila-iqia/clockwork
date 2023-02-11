@@ -19,7 +19,7 @@ def test_jobs_list_with_filter(mtclient, fake_data, cluster_name):
     Note that "sephiroth" is not a valid cluster, so we will expect empty lists as results.
     """
     validator = helper_jobs_list_with_filter(fake_data, cluster_name=cluster_name)
-    LD_jobs = mtclient.jobs_list(cluster_name=cluster_name)["jobs"]
+    LD_jobs = mtclient.jobs_list(cluster_name=cluster_name)
     validator(LD_jobs)
 
 
