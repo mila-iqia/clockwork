@@ -60,9 +60,11 @@ def test_presence_of_web_settings_javascript_variable(client, route, fake_data):
                     False
                 ), f"In route {route}, failed to parse the JSON string: {m.group(1)}\ncoming from the line : {line}"
 
-    # Let's verify a few things about `parsed_web_settings` to make sure it contains valid values.
+    # Let's verify a few things about `parsed_web_settings`
+    # to make sure it contains valid values.
 
-    # Tests run as the first user of the fake_data, so we can just compare against the default settings or something like that.
+    # Tests run as the first user of the fake_data,
+    # so we can just compare against the default settings or something like that.
     user_web_settings = User.get(current_user_id).get_web_settings()
 
     assert parsed_web_settings == user_web_settings

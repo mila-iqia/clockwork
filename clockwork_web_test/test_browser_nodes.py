@@ -23,6 +23,35 @@ from clockwork_web.core.users_helper import (
 )
 
 
+def _get_associated_nodes_from_fake_data_in_order(current_user_id, fake_data):
+    """
+    There were 5 copies of this exact code.
+    This is a way to avoid redundancy and simplify reading.
+
+    This function simply returns the nodes in the fake_data
+    that pertain to the current user. It is used to determine
+    the ground truth for many tests.
+
+    Returns a sorted list of nodes.
+    """
+
+    user_clusters = get_available_clusters_from_db(
+        current_user_id
+    )  # Retrieve the clusters the current user can access
+
+    expected_nodes = [
+        node
+        for node in fake_data["nodes"]
+        if node["slurm"]["cluster_name"] in user_clusters
+    ]
+
+    # Sort the expected nodes by name, then cluster name
+    return sorted(
+        expected_nodes,
+        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    )
+
+
 @pytest.mark.parametrize(
     "current_user_id",
     (
@@ -50,29 +79,14 @@ def test_nodes(client, fake_data: dict[list[dict]], current_user_id):
     # Request the nodes list
     response = client.get("/nodes/list")
 
-    # Filter the nodes contained in the fake data regarding the current user
-    user_clusters = get_available_clusters_from_db(
-        current_user_id
-    )  # Retrieve the clusters the current user can access
-    expected_nodes = [
-        node
-        for node in fake_data["nodes"]
-        if node["slurm"]["cluster_name"] in user_clusters
-    ]
-
-    # Sort the expected nodes by name, then cluster name
-    sorted_all_nodes = sorted(
-        expected_nodes,
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
 
     # Check if all the expected nodes are contained in the response
     # These are the X first nodes of the nodes list (X being the
     # number of items to display per page the user has set)
-    for i in range(
-        0, min(get_default_setting_value("nbr_items_per_page"), len(sorted_all_nodes))
-    ):
-        D_node = sorted_all_nodes[i]
+    for D_node in expected_nodes[0 : get_default_setting_value("nbr_items_per_page")]:
         assert D_node["slurm"]["name"] in response.get_data(as_text=True)
 
     # Log out from Clockwork
@@ -99,20 +113,15 @@ def test_nodes_without_all_access(client, fake_data: dict[list[dict]]):
     # Request the nodes list
     response = client.get("/nodes/list")
 
-    # Retrieve the nodes the user can access to
-    expected_nodes = [
-        node
-        for node in fake_data["nodes"]
-        if node["slurm"]["cluster_name"]
-        == "mila"  # As the student06 has only access to the Mila cluster
-    ]
-    # Sort the expected nodes by name, then cluster name
-    expected_nodes = sorted(
-        expected_nodes,
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
+    for D_node in expected_nodes:
+        # As the student06 has only access to the Mila cluster
+        assert D_node["slurm"]["cluster_name"] == "mila"
 
-    # Check if only the expected nodes are contained in the response and the unexpected nodes aren't
+    # Check if only the expected nodes are contained in the response
+    # and the unexpected nodes are not.
     for D_node in fake_data["nodes"]:
         if D_node in expected_nodes:
             # Check if expected nodes are returned
@@ -172,23 +181,10 @@ def test_nodes_with_both_pagination_options(
         current_user_id, page_num, nbr_items_per_page
     )
 
-    # Filter the nodes contained in the fake data regarding the current user
-    user_clusters = get_available_clusters_from_db(
-        current_user_id
-    )  # Retrieve the clusters the current user can access
-
-    # Retrieve the nodes the user can access to
-    expected_nodes = [
-        node
-        for node in fake_data["nodes"]
-        if node["slurm"]["cluster_name"] in user_clusters
-    ]
-
-    # Sort the expected nodes by name, then cluster name
-    expected_nodes = sorted(
-        expected_nodes,
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
+
     # From it, retrieve the expected nodes regarding the pagination options
     expected_nodes = expected_nodes[
         number_of_skipped_items : number_of_skipped_items + nbr_items_per_page
@@ -265,23 +261,10 @@ def test_nodes_with_page_num_pagination_option(
         current_user_id, page_num, None
     )
 
-    # Filter the nodes contained in the fake data regarding the current user
-    user_clusters = get_available_clusters_from_db(
-        current_user_id
-    )  # Retrieve the clusters the current user can access
-
-    # Retrieve the nodes the user can access to
-    expected_nodes = [
-        node
-        for node in fake_data["nodes"]
-        if node["slurm"]["cluster_name"] in user_clusters
-    ]
-
-    # Sort the expected nodes by name, then cluster name
-    expected_nodes = sorted(
-        expected_nodes,
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
+
     # From it, retrieve the expected nodes regarding the pagination options
     expected_nodes = expected_nodes[
         number_of_skipped_items : number_of_skipped_items + nbr_items_per_page
@@ -344,28 +327,16 @@ def test_nodes_with_nbr_items_per_page_pagination_option(
         current_user_id, None, nbr_items_per_page
     )
 
-    # Filter the nodes contained in the fake data regarding the current user
-    user_clusters = get_available_clusters_from_db(
-        current_user_id
-    )  # Retrieve the clusters the current user can access
-
-    # Retrieve the nodes the user can access to
-    expected_nodes = [
-        node
-        for node in fake_data["nodes"]
-        if node["slurm"]["cluster_name"] in user_clusters
-    ]
-    # Sort the expected nodes by name, then cluster name
-    expected_nodes = sorted(
-        expected_nodes,
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
-    # From it, retrieve the expected nodes regarding the pagination options
+    # Then keep only the expected nodes based on the pagination options
     expected_nodes = expected_nodes[
-        number_of_skipped_items : number_of_skipped_items + nbr_items_per_page
+        number_of_skipped_items : (number_of_skipped_items + nbr_items_per_page)
     ]
 
-    # Check if only the expected nodes are contained in the response and the unexpected nodes aren't
+    # Check if only the expected nodes are contained in the response
+    # and the unexpected nodes are not.
     for D_node in fake_data["nodes"]:
         if D_node in expected_nodes:
             # Check if expected nodes are returned
@@ -441,23 +412,11 @@ def test_nodes_with_filter(
         f"/nodes/list?cluster_name={cluster_name}&nbr_items_per_page=1000000"
     )
 
-    # Filter the nodes contained in the fake data regarding the current user
-    user_clusters = get_available_clusters_from_db(
-        current_user_id
-    )  # Retrieve the clusters the current user can access
-    expected_nodes = [
-        node
-        for node in fake_data["nodes"]
-        if node["slurm"]["cluster_name"] in user_clusters
-    ]
-
-    # Sort the expected nodes by name, then cluster name
-    sorted_all_nodes = sorted(
-        expected_nodes,
-        key=lambda d: (d["slurm"]["name"], d["slurm"]["cluster_name"]),
+    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
+        current_user_id, fake_data
     )
 
-    for D_node in sorted_all_nodes:
+    for D_node in expected_nodes:
         if D_node["slurm"]["cluster_name"] == cluster_name and D_node["slurm"][
             "cluster_name"
         ] in get_available_clusters_from_db(current_user_id):

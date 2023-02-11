@@ -20,6 +20,7 @@ import json
 import pytest
 from clockwork_web.db import get_db
 from clockwork_web.config import get_config
+from clockwork_web.core.utils import to_boolean
 from test_common.jobs_test_helpers import (
     helper_single_job_missing,
     helper_single_job_at_random,
@@ -92,7 +93,7 @@ def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_he
         headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
-    LD_jobs = response.get_json()["jobs"]
+    LD_jobs = response.get_json()
     validator(LD_jobs)
 
 
@@ -106,7 +107,7 @@ def test_api_list_invalid_username(client, valid_rest_auth_headers, username):
         headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
-    LD_jobs = response.get_json()["jobs"]
+    LD_jobs = response.get_json()
 
     # we expect no matches for those made-up names
     assert len(LD_jobs) == 0
@@ -131,7 +132,7 @@ def test_jobs_list_with_filter(
     )
     assert response.content_type == "application/json"
     assert response.status_code == 200
-    LD_jobs_results = response.get_json()["jobs"]
+    LD_jobs_results = response.get_json()
     validator(LD_jobs_results)
 
 

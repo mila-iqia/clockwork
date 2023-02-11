@@ -20,8 +20,7 @@ from clockwork_web.core.jobs_helper import (
     get_jobs,
     infer_best_guess_for_username,
 )
-from clockwork_web.core.utils import get_custom_array_from_request_args
-
+from clockwork_web.core.utils import to_boolean, get_custom_array_from_request_args
 
 from flask import Blueprint
 
@@ -42,6 +41,9 @@ def route_api_v1_jobs_list():
     # Retrieve the parameters used to filter the jobs
     # - username: ID of the user who launched the jobs we are looking for
     username = request.args.get("username", None)
+    want_count = request.args.get("want_count", type=str, default="False")
+
+    want_count = to_boolean(want_count)
 
     # - clusters
     requested_cluster_names = get_custom_array_from_request_args(
@@ -64,7 +66,10 @@ def route_api_v1_jobs_list():
     # If cluster_names is empty, then the user does not have access to any cluster (s)he
     # requested. Thus, an empty jobs list is returned
     if len(cluster_names) < 1:
-        return jsonify({"nbr_total_jobs": 0, "jobs": []})
+        if want_count:
+            return jsonify({"nbr_total_jobs": 0, "jobs": []})
+        else:
+            return jsonify({})
 
     # - states: the possible states of the jobs we are looking for
     states = get_custom_array_from_request_args(request.args.get("state"))
@@ -96,14 +101,17 @@ def route_api_v1_jobs_list():
         states=states,
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
-        want_count=True,
+        want_count=want_count,
     )
 
     # Return the requested jobs, and the number of all the jobs
     LD_jobs = [
         strip_artificial_fields_from_job(D_job) for D_job in LD_jobs
     ]  # Remove the field "_id" of each job before jsonification
-    return jsonify({"nbr_total_jobs": nbr_total_jobs, "jobs": LD_jobs})
+    if want_count:
+        return jsonify({"nbr_total_jobs": nbr_total_jobs, "jobs": LD_jobs})
+    else:
+        return jsonify(LD_jobs)
 
 
 @flask_api.route("/jobs/one")
@@ -126,6 +134,11 @@ def route_api_v1_jobs_one():
     requested_cluster_names = get_custom_array_from_request_args(
         request.args.get("cluster_name")
     )
+    if len(requested_cluster_names) < 1:
+        # If no cluster has been requested, then all clusters have been requested
+        # (a filter related to which clusters are available to the current user
+        #  is then applied)
+        requested_cluster_names = get_all_clusters()
     # Limit the cluster options to the clusters the user can access
     user_clusters = (
         current_user.get_available_clusters()  # Retrieve the clusters the user can access
@@ -133,30 +146,12 @@ def route_api_v1_jobs_one():
     cluster_names = [
         cluster for cluster in requested_cluster_names if cluster in user_clusters
     ]
-    # If the resulting list is empty, then all the available clusters are requested
-    if len(cluster_names) < 1:
-        cluster_names = user_clusters
 
-    """
-    if len(requested_cluster_names) < 1:
-        # If no cluster has been requested, then all clusters have been requested
-        # (a filter related to which clusters are available to the current user
-        #  is then applied)
-        requested_cluster_names = get_all_clusters()
-
-    # Limit the cluster options to the clusters the user can access
-    user_clusters = (
-        current_user.get_available_clusters()
-    )  # Retrieve the clusters the user can access
-    cluster_names = [
-        cluster for cluster in requested_cluster_names if cluster in user_clusters
-    ]
-
-    # If cluster_names is empty, then the user does not have access to any cluster (s)he
-    # requested. Thus, an empty job dictionary is returned
+    # If cluster_names is empty, then the user does not have access to any
+    # of the clusters they requested. Thus, an empty job dictionary is returned
     if len(cluster_names) < 1:
         return jsonify({}), 200
-    """
+
     # Set up the filters and retrieve the expected job
     (LD_jobs, _) = get_jobs(job_ids=[job_id], cluster_names=cluster_names)
 
@@ -178,6 +173,12 @@ def route_api_v1_jobs_one():
     D_job = infer_best_guess_for_username(D_job)
 
     return jsonify(D_job)
+
+
+# Note that this whole `user_dict_update` thing needs to be rewritten
+# in order to use Olivier's proposal about jobs properties
+# being visible only to the users that set them,
+# and where everyone can set properties on all jobs.
 
 
 @flask_api.route("/jobs/user_dict_update", methods=["PUT"])
