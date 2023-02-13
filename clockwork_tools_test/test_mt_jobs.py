@@ -1,7 +1,6 @@
 import pytest
 import random
 from test_common.jobs_test_helpers import (
-    helper_list_relative_time,
     helper_single_job_missing,
     helper_single_job_at_random,
     helper_list_jobs_for_a_given_random_user,
@@ -27,9 +26,9 @@ def test_jobs_list_with_filter(mtclient, fake_data, cluster_name):
 @pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
 def test_api_list_invalid_username(mtclient, username):
     """ """
-    LD_jobs = mtclient.jobs_list(username=username)
+    LD_retrieved_jobs = mtclient.jobs_list(username=username)
     # we expect no matches for those made-up names
-    assert len(LD_jobs) == 0
+    assert len(LD_retrieved_jobs) == 0
 
 
 @pytest.mark.parametrize("cluster_name", ("mila", "beluga", "cedar", "graham"))
@@ -49,16 +48,6 @@ def test_single_job_missing(mtclient, fake_data):
     validator, job_id = helper_single_job_missing(fake_data)
     D_job = mtclient.jobs_one(job_id=job_id)
     validator(D_job)
-
-
-def test_list_relative_time(mtclient, fake_data):
-    """
-    Get jobs that are fresher than the time given.
-    """
-
-    validator, relative_mid_end_time = helper_list_relative_time(fake_data)
-    LD_jobs = mtclient.jobs_list(relative_time=relative_mid_end_time)
-    validator(LD_jobs)
 
 
 def test_list_jobs_for_a_given_random_user(mtclient, fake_data):

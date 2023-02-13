@@ -32,6 +32,8 @@ from flask import Blueprint
 
 flask_api = Blueprint("nodes", __name__)
 
+
+from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.nodes_helper import get_nodes
 from clockwork_web.core.jobs_helper import (
     get_filter_cluster_name,
@@ -43,6 +45,7 @@ from clockwork_web.core.nodes_helper import (
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
 from clockwork_web.core.users_helper import render_template_with_user_settings
+from clockwork_web.core.utils import get_custom_array_from_request_args
 
 # Note that flask_api.route('/') will lead to a redirection with "/nodes", and pytest might not like that.
 
@@ -68,7 +71,8 @@ def route_list():
     pagination_page_num = request.args.get("page_num", type=int, default="1")
     pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
     previous_request_args["page_num"] = pagination_page_num
-    previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
+    if pagination_nbr_items_per_page:
+        previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
 
     # Use the pagination helper to define the number of element to skip, and the number of elements to display
     (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
@@ -79,25 +83,32 @@ def route_list():
 
     # Retrieve the arguments given in order to search the expected nodes
     node_name = request.args.get("node_name", None)
-    previous_request_args["node_name"] = node_name
+    if node_name:
+        previous_request_args["node_name"] = node_name
 
-    cluster_name = request.args.get("cluster_name", None)
-    previous_request_args["cluster_name"] = cluster_name
+    requested_cluster_names = get_custom_array_from_request_args(
+        request.args.get("cluster_name")
+    )
+
+    # Limit the cluster options to the clusters the user can access
+    user_clusters = (
+        current_user.get_available_clusters()
+    )  # Retrieve the clusters the user can access
+
+    cluster_names = [
+        cluster for cluster in requested_cluster_names if cluster in user_clusters
+    ]
+
+    if len(cluster_names) < 1:
+        # If no cluster has been requested, then all clusters have been requested
+        # (a filter related to which clusters are available to the current user
+        #  is then applied)
+        cluster_names = current_user.get_available_clusters()
+
+    previous_request_args["cluster_name"] = cluster_names
 
     # Define the filters to select the nodes
-    filters = set_up_cluster_name_and_node_name_filters(cluster_name, node_name)
-    # If the cluster filter is None, then an error occurred during its setup
-    if filters[1] is None:
-        return (
-            render_template_with_user_settings(
-                "error.html",
-                error_msg=gettext(
-                    f"It seems you have no allocation on the requested cluster ({cluster_name})"
-                ),
-                previous_request_args=previous_request_args,
-            ),
-            401,  # Unauthorized
-        )
+    filters = set_up_cluster_names_and_node_name_filters(cluster_names, node_name)
 
     # Combine the filters
     filter = combine_all_mongodb_filters(*filters)
@@ -139,25 +150,15 @@ def route_one():
 
     # Retrieve the arguments given in order to search the node
     node_name = request.args.get("node_name", None)
-    previous_request_args["node_name"] = node_name
+    if node_name:
+        previous_request_args["node_name"] = node_name
 
     cluster_name = request.args.get("cluster_name", None)
-    previous_request_args["cluster_name"] = cluster_name
+    if cluster_name:
+        previous_request_args["cluster_name"] = cluster_name
 
     # Define the filters to select the nodes
-    filters = set_up_cluster_name_and_node_name_filters(cluster_name, node_name)
-    # If the cluster filter is None, then an error occurred during its setup
-    if filters[1] is None:
-        return (
-            render_template_with_user_settings(
-                "error.html",
-                error_msg=gettext(
-                    f"It seems you have no allocation on the requested cluster ({cluster_name})"
-                ),
-                previous_request_args=previous_request_args,
-            ),
-            403,  # Forbidden
-        )
+    filters = set_up_cluster_names_and_node_name_filters([cluster_name], node_name)
 
     # Combine the filters
     filter = combine_all_mongodb_filters(*filters)
@@ -174,7 +175,7 @@ def route_one():
                 error_msg=f"Node not found",
                 previous_request_args=previous_request_args,
             ),
-            400,  # Bad Request
+            404,  # Not Found
         )
     elif len(LD_nodes) > 1:
         return (
@@ -206,17 +207,17 @@ def route_one():
     )
 
 
-def set_up_cluster_name_and_node_name_filters(cluster_name, node_name):
+def set_up_cluster_names_and_node_name_filters(cluster_names=[], node_name=None):
     """
     Set up the filters associated to the cluster_name and the node_name
     to retrieve one or more nodes.
 
     Params:
-    - node_name         The name of the node we are looking for. If None,
-                        the research will be done only according to the cluster
-    - cluster_name      The name of the cluster on which we are looking
-                        for the node(s). If None, we are looking on each
-                        cluster the user can access
+    - node_name          The name of the node we are looking for. If None,
+                         the research will be done only according to the cluster
+    - cluster_names      List of the names of the clusters on which we are looking
+                         for the node(s). If None, we are looking on each
+                         cluster the user can access
 
     Returns:
         A list containing the filters. The name filter is the first one, the cluster
@@ -229,16 +230,15 @@ def set_up_cluster_name_and_node_name_filters(cluster_name, node_name):
     user_clusters = (
         current_user.get_available_clusters()
     )  # Retrieve the clusters available to the current user
-    if cluster_name == None:
+
+    cluster_names = [
+        cluster_name for cluster_name in cluster_names if cluster_name in user_clusters
+    ]
+    if len(cluster_names) < 1:
         # If no cluster has been provided, return only the nodes on the clusters available
         # for the user
-        f1 = {"slurm.cluster_name": {"$in": user_clusters}}
-    elif cluster_name in user_clusters:
-        # If a cluster has been provided and is contained in the clusters available for
-        # the user, set up the filter for this cluster
-        f1 = get_filter_cluster_name(cluster_name)
-    else:
-        # Otherwise, return an error
-        return [f0, None]
+        cluster_names = user_clusters
+
+    f1 = {"slurm.cluster_name": {"$in": user_clusters}}
 
     return [f0, f1]

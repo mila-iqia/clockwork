@@ -18,7 +18,6 @@ import json
 import pytest
 
 from test_common.jobs_test_helpers import (
-    helper_list_relative_time,
     helper_single_job_missing,
     helper_single_job_at_random,
     helper_list_jobs_for_a_given_random_user,
@@ -30,11 +29,20 @@ from clockwork_web.core.users_helper import (
     get_available_clusters_from_db,
 )
 
+##########
+# Global #
+##########
+
 
 def test_redirect_index(client):
     response = client.get("/jobs/")
     assert response.status_code == 302
     assert response.headers["Location"] == "interactive"
+
+
+####################
+# Single job route #
+####################
 
 
 def test_single_job(client, fake_data):
@@ -43,6 +51,9 @@ def test_single_job(client, fake_data):
     found in "fake_data.json" if we want to compare the results that
     we get when requesting "/jobs/one/<job_id>".
     """
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
 
     D_job = random.choice(fake_data["jobs"])
     jod_id = D_job["slurm"]["job_id"]
@@ -54,11 +65,18 @@ def test_single_job(client, fake_data):
     assert "start_time" in body_text
     assert D_job["slurm"]["name"] in body_text
 
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
+
 
 def test_single_job_missing_423908482367(client):
     """
     This job entry should be missing from the database.
     """
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
 
     job_id = "423908482367"
 
@@ -66,59 +84,72 @@ def test_single_job_missing_423908482367(client):
     assert "text/html" in response.content_type
     assert "Found no job with job_id" in response.get_data(as_text=True)
 
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
+
 
 def test_single_job_no_id(client):
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
     response = client.get("/jobs/one")
     assert response.status_code == 400
 
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
-def test_list_jobs_for_a_given_random_user(client, fake_data):
+
+#######################
+#   Jobs search route #
+#######################
+
+
+def test_search_jobs_for_a_given_random_user(client, fake_data):
     """
-    Make a request to /jobs/list.
+    Make a request to /jobs/search.
 
     Not that we are not testing the actual contents on the web page.
     When we have the html contents better nailed down, we should
     add some tests to make sure we are returning good values there.
     """
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
 
     # the usual validator doesn't work on the html contents
     _, username = helper_list_jobs_for_a_given_random_user(fake_data)
 
-    response = client.get(f"/jobs/list?username={username}")
+    response = client.get(f"/jobs/search?username={username}")
 
     assert "text/html" in response.content_type
     assert username in response.get_data(as_text=True)
 
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
+
 
 @pytest.mark.parametrize("username", ("yoshi", "koopatroopa"))
-def test_list_jobs_invalid_username(client, username):
+def test_search_jobs_invalid_username(client, username):
     """
-    Make a request to /jobs/list.
+    Make a request to /jobs/search.
     """
-    response = client.get(f"/jobs/list?username={username}")
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
+    response = client.get(f"/jobs/search?username={username}")
     assert "text/html" in response.content_type
-    assert username not in response.get_data(as_text=True)  # notice the NOT
+    assert "/jobs/one" not in response.get_data(
+        as_text=True
+    )  # Check that no job is returned
 
-
-def test_list_time(client, fake_data):
-    _, relative_mid_end_time = helper_list_relative_time(fake_data)
-    response = client.get(f"/jobs/list?relative_time={relative_mid_end_time}")
-    assert response.status_code == 200
-    assert "text/html" in response.content_type
-
-    body_text = response.get_data(as_text=True)
-    # assert "RUNNING" in body_text # Now that the jobs are sorted, and as we are expecting 25 jobs to be displayed by default, there is no more RUNNING jobs on this list for the current fake data
-    assert "PENDING" in body_text
-
-
-def test_list_invalid_time(client):
-    """
-    Make a request to /jobs/list.
-    """
-    response = client.get(f"/jobs/list?relative_time=this_is_not_a_valid_relative_time")
-    assert response.status_code == 400
-
-    assert "cannot be cast as a valid integer:" in response.get_data(as_text=True)
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 def test_jobs(client, fake_data: dict[list[dict]]):
@@ -127,17 +158,25 @@ def test_jobs(client, fake_data: dict[list[dict]]):
     Note that the `client` fixture depends on other fixtures that
     are going to put the fake data in the database for us.
     """
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
         key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
     )
 
-    response = client.get("/jobs/list")
+    response = client.get("/jobs/search")
     body_text = response.get_data(as_text=True)
-    for i in range(0, get_default_setting_value("nbr_items_per_page")):
-        D_job = sorted_all_jobs[i]
+    # only the first ones from the list
+    for D_job in sorted_all_jobs[: get_default_setting_value("nbr_items_per_page")]:
         assert D_job["slurm"]["job_id"] in body_text
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize(
@@ -158,6 +197,10 @@ def test_jobs_with_both_pagination_options(
         page_num            The number of the page displaying the jobs
         nbr_items_per_page  The number of jobs we want to display per page
     """
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
@@ -166,7 +209,7 @@ def test_jobs_with_both_pagination_options(
 
     # Get the response
     response = client.get(
-        f"/jobs/list?page_num={page_num}&nbr_items_per_page={nbr_items_per_page}"
+        f"/jobs/search?page_num={page_num}&nbr_items_per_page={nbr_items_per_page}"
     )
 
     # Retrieve the bounds of the interval of index in which the expected jobs
@@ -177,10 +220,17 @@ def test_jobs_with_both_pagination_options(
 
     body_text = response.get_data(as_text=True)
     # Assert that the retrieved jobs correspond to the expected jobs
-    for i in range(number_of_skipped_items, nbr_items_per_page):
+    for i in range(
+        number_of_skipped_items,
+        min(number_of_skipped_items + nbr_items_per_page, len(sorted_all_jobs)),
+    ):
         if i < len(sorted_all_jobs):
             D_job = sorted_all_jobs[i]
             assert D_job["slurm"]["job_id"] in body_text
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize("page_num", [1, 2, 3, "lala", 7.8, False])
@@ -198,6 +248,10 @@ def test_jobs_with_page_num_pagination_option(
         fake_data           The data our tests are based on
         page_num            The number of the page displaying the jobs
     """
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
@@ -205,7 +259,7 @@ def test_jobs_with_page_num_pagination_option(
     )
 
     # Get the response
-    response = client.get(f"/jobs/list?page_num={page_num}")
+    response = client.get(f"/jobs/search?page_num={page_num}")
 
     # Retrieve the bounds of the interval of index in which the expected jobs
     # are contained
@@ -215,10 +269,15 @@ def test_jobs_with_page_num_pagination_option(
     # Assert that the retrieved jobs correspond to the expected jobs
 
     body_text = response.get_data(as_text=True)
-    for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(sorted_all_jobs):
-            D_job = sorted_all_jobs[i]
-            assert D_job["slurm"]["job_id"] in body_text
+    for D_job in sorted_all_jobs[
+        number_of_skipped_items : (number_of_skipped_items + nbr_items_per_page)
+    ]:
+        D_job = sorted_all_jobs[i]
+        assert D_job["slurm"]["job_id"] in body_text
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize("nbr_items_per_page", [1, 29, 50, -1, [1, 2], True])
@@ -236,6 +295,10 @@ def test_jobs_with_page_num_pagination_option(
         fake_data           The data our tests are based on
         nbr_items_per_page  The number of jobs we want to display per page
     """
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
@@ -243,7 +306,7 @@ def test_jobs_with_page_num_pagination_option(
     )
 
     # Get the response
-    response = client.get(f"/jobs/list?nbr_items_per_page={nbr_items_per_page}")
+    response = client.get(f"/jobs/search?nbr_items_per_page={nbr_items_per_page}")
 
     # Retrieve the bounds of the interval of index in which the expected jobs
     # are contained
@@ -253,18 +316,16 @@ def test_jobs_with_page_num_pagination_option(
 
     body_text = response.get_data(as_text=True)
     # Assert that the retrieved jobs correspond to the expected jobs
-    for i in range(number_of_skipped_items, nbr_items_per_page):
-        if i < len(sorted_all_jobs):
-            D_job = sorted_all_jobs[i]
-            assert D_job["slurm"]["job_id"] in body_text
+    for D_job in sorted_all_jobs[
+        number_of_skipped_items : (number_of_skipped_items + nbr_items_per_page)
+    ]:
+        assert D_job["slurm"]["job_id"] in body_text
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
-# No equivalent of "test_jobs_list_with_filter" here.
-
-
-###
-#   Tests for route_search
-###
 @pytest.mark.parametrize(
     "current_user_id,username,cluster_names,states,page_num,nbr_items_per_page",
     [
@@ -344,7 +405,7 @@ def test_route_search(
         page_num            The number of the plage to display the jobs
         nbr_items_per_page  The number of jobs to display per page
     """
-    # Log in to Clockwork as this user
+    # Log in to Clockwork as the current_user
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
     assert login_response.status_code == 302  # Redirect
 
@@ -430,12 +491,10 @@ def test_route_search(
 
     body_text = response.get_data(as_text=True)
     # Assert that the retrieved jobs correspond to the expected jobs
-    for i in range(
-        number_of_skipped_items, number_of_skipped_items + nbr_items_per_page
-    ):
-        if i < len(LD_prefiltered_jobs):
-            D_job = LD_prefiltered_jobs[i]
-            assert D_job["slurm"]["job_id"] in body_text
+    for D_job in LD_prefiltered_jobs[
+        number_of_skipped_items : (number_of_skipped_items + nbr_items_per_page)
+    ]:
+        assert D_job["slurm"]["job_id"] in body_text
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")

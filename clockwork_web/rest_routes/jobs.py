@@ -8,7 +8,9 @@ from flask.json import jsonify
 from flask.globals import current_app
 from .authentication import authentication_required
 from ..db import get_db
+from ..user import User
 
+from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.jobs_helper import (
     get_filter_after_end_time,
     get_filter_cluster_name,
@@ -17,7 +19,7 @@ from clockwork_web.core.jobs_helper import (
     strip_artificial_fields_from_job,
     get_jobs,
 )
-
+from clockwork_web.core.utils import to_boolean, get_custom_array_from_request_args
 
 from flask import Blueprint
 
@@ -31,38 +33,84 @@ def route_api_v1_jobs_list():
 
     .. :quickref: list all Slurm jobs
     """
+    # Retrieve the authentified user
+    current_user_id = g.current_user_with_rest_auth["mila_email_username"]
+    current_user = User.get(current_user_id)
+
+    # Retrieve the parameters used to filter the jobs
+    # - username: ID of the user who launched the jobs we are looking for
     username = request.args.get("username", None)
-    if username is not None:
-        f0 = {"cw.mila_email_username": username}
+    want_count = request.args.get("want_count", type=str, default="False")
+
+    want_count = to_boolean(want_count)
+
+    # - clusters
+    requested_cluster_names = get_custom_array_from_request_args(
+        request.args.get("cluster_name")
+    )
+    if len(requested_cluster_names) < 1:
+        # If no cluster has been requested, then all clusters have been requested
+        # (a filter related to which clusters are available to the current user
+        #  is then applied)
+        requested_cluster_names = get_all_clusters()
+
+    # Limit the cluster options to the clusters the user can access
+    user_clusters = (
+        current_user.get_available_clusters()
+    )  # Retrieve the clusters the user can access
+    cluster_names = [
+        cluster for cluster in requested_cluster_names if cluster in user_clusters
+    ]
+
+    # If cluster_names is empty, then the user does not have access to any cluster (s)he
+    # requested. Thus, an empty jobs list is returned
+    if len(cluster_names) < 1:
+        if want_count:
+            return jsonify({"nbr_total_jobs": 0, "jobs": []})
+        else:
+            return jsonify({})
+
+    # - states: the possible states of the jobs we are looking for
+    states = get_custom_array_from_request_args(request.args.get("state"))
+
+    # Pagination values
+    pagination_page_num = request.args.get("page_num", type=int)
+    pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
+
+    # Set up the pagination parameters
+    if not pagination_page_num and not pagination_nbr_items_per_page:
+        # In this particular case, we set the default pagination arguments to be `None`,
+        # which will effectively disable pagination.
+        nbr_skipped_items = None
+        nbr_items_to_display = None
     else:
-        f0 = {}
+        # Otherwise (ie if at least one of the pagination parameters is provided),
+        # we assume that a pagination is expected from the user. Then, the pagination helper
+        # is used to define the number of elements to skip, and the number of elements to display
+        (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
+            current_user.mila_email_username,
+            pagination_page_num,
+            pagination_nbr_items_per_page,
+        )
 
-    time1 = request.args.get("relative_time", None)
-    if time1 is None:
-        f1 = {}
+    # Call a helper to retrieve the jobs
+    (LD_jobs, nbr_total_jobs) = get_jobs(
+        username=username,
+        cluster_names=cluster_names,
+        states=states,
+        nbr_skipped_items=nbr_skipped_items,
+        nbr_items_to_display=nbr_items_to_display,
+        want_count=want_count,
+    )
+
+    # Return the requested jobs, and the number of all the jobs
+    LD_jobs = [
+        strip_artificial_fields_from_job(D_job) for D_job in LD_jobs
+    ]  # Remove the field "_id" of each job before jsonification
+    if want_count:
+        return jsonify({"nbr_total_jobs": nbr_total_jobs, "jobs": LD_jobs})
     else:
-        try:
-            time1 = float(time1)
-            f1 = get_filter_after_end_time(end_time=time.time() - time1)
-        except Exception:
-            from flask import current_app
-
-            current_app.logger.debug("for time %s", time1, exc_info=True)
-            return (
-                jsonify(
-                    f"Field 'relative_time' cannot be cast as a valid float: {time1}."
-                ),
-                400,
-            )  # bad request
-
-    f2 = get_filter_cluster_name(request.args.get("cluster_name", None))
-
-    filter = combine_all_mongodb_filters(f0, f1, f2)
-    (LD_jobs, _) = get_jobs(filter)
-
-    LD_jobs = [strip_artificial_fields_from_job(D_job) for D_job in LD_jobs]
-
-    return jsonify(LD_jobs)
+        return jsonify(LD_jobs)
 
 
 @flask_api.route("/jobs/one")
@@ -72,14 +120,39 @@ def route_api_v1_jobs_one():
 
     .. :quickref: list one Slurm job
     """
-    job_id = request.args.get("job_id", None)
+    # Retrieve the authentified user
+    current_user_id = g.current_user_with_rest_auth["mila_email_username"]
+    current_user = User.get(current_user_id)
+
+    # Retrieve the requested job ID
+    job_id = request.values.get("job_id", None)
     if job_id is None:
         return jsonify("Missing argument job_id."), 400  # bad request
-    f0 = get_filter_job_id(job_id)
-    f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
-    filter = combine_all_mongodb_filters(f0, f1)
 
-    (LD_jobs, _) = get_jobs(filter)
+    # Retrieve the requested cluster names
+    requested_cluster_names = get_custom_array_from_request_args(
+        request.args.get("cluster_name")
+    )
+    if len(requested_cluster_names) < 1:
+        # If no cluster has been requested, then all clusters have been requested
+        # (a filter related to which clusters are available to the current user
+        #  is then applied)
+        requested_cluster_names = get_all_clusters()
+    # Limit the cluster options to the clusters the user can access
+    user_clusters = (
+        current_user.get_available_clusters()  # Retrieve the clusters the user can access
+    )
+    cluster_names = [
+        cluster for cluster in requested_cluster_names if cluster in user_clusters
+    ]
+
+    # If cluster_names is empty, then the user does not have access to any
+    # of the clusters they requested. Thus, an empty job dictionary is returned
+    if len(cluster_names) < 1:
+        return jsonify({}), 200
+
+    # Set up the filters and retrieve the expected job
+    (LD_jobs, _) = get_jobs(job_ids=[job_id], cluster_names=cluster_names)
 
     if len(LD_jobs) == 0:
         # Not a great when missing the value we want, but it's an acceptable answer.
@@ -89,13 +162,19 @@ def route_api_v1_jobs_one():
         # Perhaps the rest API should always return a list?
         resp = (
             jsonify(
-                f"Found {len(LD_jobs)} jobs with job_id {filter['job_id']}. Not sure what to do about these cases."
+                f"Found {len(LD_jobs)} jobs with job_id {job_id}. Not sure what to do about these cases."
             ),
             500,
         )
 
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
     return jsonify(D_job)
+
+
+# Note that this whole `user_dict_update` thing needs to be rewritten
+# in order to use Olivier's proposal about jobs properties
+# being visible only to the users that set them,
+# and where everyone can set properties on all jobs.
 
 
 @flask_api.route("/jobs/user_dict_update", methods=["PUT"])
@@ -117,18 +196,47 @@ def route_api_v1_jobs_user_dict_update():
 
     .. :quickref: update the user dict for a given Slurm job that belongs to the user
     """
+    # Retrieve the authentified user
+    current_user_id = g.current_user_with_rest_auth["mila_email_username"]
+    current_user = User.get(current_user_id)
+
     # A 'PUT' method is generally to modify resources.
+    # Retrieve the provided job ID
     job_id = request.values.get("job_id", None)
     if job_id is None:
         return jsonify("Missing argument job_id."), 400  # bad request
-    f0 = get_filter_job_id(job_id)
-    f1 = get_filter_cluster_name(request.values.get("cluster_name", None))
-    filter = combine_all_mongodb_filters(f0, f1)
+
+    # Retrieve the provided cluster names
+    requested_cluster_names = get_custom_array_from_request_args(
+        request.args.get("cluster_name")
+    )
+    if len(requested_cluster_names) < 1:
+        # If no cluster has been requested, then all clusters have been requested
+        # (a filter related to which clusters are available to the current user
+        #  is then applied)
+        requested_cluster_names = get_all_clusters()
+
+    # Limit the cluster options to the clusters the user can access
+    user_clusters = (
+        current_user.get_available_clusters()
+    )  # Retrieve the clusters the user can access
+    cluster_names = [
+        cluster for cluster in requested_cluster_names if cluster in user_clusters
+    ]
+
+    # If cluster_names is empty, then the user does not have access to any cluster (s)he
+    # requested. Thus, an error is returned
+    if len(cluster_names) < 1:
+        return (
+            jsonify("It seems you have no access to the requested cluster(s)."),
+            403,
+        )
+
     # Note that we'll have to add some more fields when we make progress in CW-93.
     # We are going to have to check for "array_job_id" and "array_task_id"
     # if those are supplied to identify jobs in situations where the "job_id"
     # are "cluster_name" are insufficient.
-    (LD_jobs, _) = get_jobs(filter)
+    (LD_jobs, _) = get_jobs(job_ids=[job_id], cluster_names=cluster_names)
     # Note that `filter` gets reused later to commit again to the database.
 
     if len(LD_jobs) == 0:
