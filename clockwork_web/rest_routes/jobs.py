@@ -68,7 +68,7 @@ def route_api_v1_jobs_list():
         if want_count:
             return jsonify({"nbr_total_jobs": 0, "jobs": []})
         else:
-            return jsonify({})
+            return jsonify([])
 
     # - states: the possible states of the jobs we are looking for
     states = get_custom_array_from_request_args(request.args.get("state"))
