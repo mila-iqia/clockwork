@@ -182,7 +182,7 @@ def route_search():
 
     if want_json:
         # If requested, return the list as JSON
-        return jsonify({"nbr_total_jobs": nbr_total_jobs, "jobs": LD_jobs})
+        return jsonify(LD_jobs)
     else:
         # Display the HTML page
         return render_template_with_user_settings(
