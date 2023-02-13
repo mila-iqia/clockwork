@@ -15,14 +15,13 @@ Lots of details about these tests depend on the particular values that we put in
 
 import os
 import time
-from pprint import pprint
 import random
 import json
 import pytest
 from clockwork_web.db import get_db
 from clockwork_web.config import get_config
+from clockwork_web.core.utils import to_boolean
 from test_common.jobs_test_helpers import (
-    helper_list_relative_time,
     helper_single_job_missing,
     helper_single_job_at_random,
     helper_list_jobs_for_a_given_random_user,
@@ -41,7 +40,6 @@ def test_single_job_at_random(client, fake_data, valid_rest_auth_headers, cluste
     (i.e. when PySlurm works at one place but not the other, it's worth
     making sure that job_id stored as int vs strings doesn't cause issues).
     """
-
     validator, job_id = helper_single_job_at_random(fake_data, cluster_name)
 
     response = client.get(
@@ -64,6 +62,7 @@ def test_single_job_missing(client, fake_data, valid_rest_auth_headers):
     response = client.get(
         f"/api/v1/clusters/jobs/one?job_id={job_id}", headers=valid_rest_auth_headers
     )
+
     assert "application/json" in response.content_type
     D_job = response.json  # no `json()` here, just `json`
     validator(D_job)
@@ -112,41 +111,6 @@ def test_api_list_invalid_username(client, valid_rest_auth_headers, username):
 
     # we expect no matches for those made-up names
     assert len(LD_jobs) == 0
-
-
-def test_api_list_invalid_relative_time(client, valid_rest_auth_headers):
-    """
-    Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
-    """
-    response = client.get(
-        f"/api/v1/clusters/jobs/list?relative_time=this_is_not_a_valid_relative_time",
-        headers=valid_rest_auth_headers,
-    )
-    assert response.content_type == "application/json"
-    assert response.status_code == 400  # bad request
-    error_msg = response.get_json()
-
-    assert (
-        "Field 'relative_time' cannot be cast as a valid float: this_is_not_a_valid_relative_time."
-        in error_msg
-    )
-
-
-def test_api_list_relative_time(client, fake_data, valid_rest_auth_headers):
-    """
-    Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
-    """
-
-    validator, relative_mid_end_time = helper_list_relative_time(fake_data)
-
-    response = client.get(
-        f"/api/v1/clusters/jobs/list?relative_time={relative_mid_end_time}",
-        headers=valid_rest_auth_headers,
-    )
-    assert response.content_type == "application/json"
-    assert response.status_code == 200
-    LD_jobs_results = response.get_json()
-    validator(LD_jobs_results)
 
 
 @pytest.mark.parametrize(
@@ -248,7 +212,6 @@ def test_jobs_user_dict_update_successful_update(
         )
         assert response.content_type == "application/json"
         if update_allowed:
-            print(response.json)
             assert response.status_code == 200
             # Now check that our update was done properly.
             L = list(
