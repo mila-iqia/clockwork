@@ -36,8 +36,6 @@ def helper_single_job_at_random(fake_data, cluster_name):
         for k1 in original_D_job:
             assert k1 in ["slurm", "cw", "user"]
             for k2 in original_D_job[k1]:
-                if k2 in ["best_guess_for_username"]:
-                    continue
                 assert (
                     D_job[k1][k2] == original_D_job[k1][k2]
                 ), f"{D_job}\n{original_D_job}"
@@ -171,8 +169,6 @@ def helper_jobs_list_with_filter(fake_data, cluster_name):
             for k1 in D_original_job:
                 assert k1 in ["slurm", "cw", "user"]
                 for k2 in D_original_job[k1]:
-                    if k2 in ["best_guess_for_username"]:
-                        continue
                     assert D_job[k1][k2] == D_original_job[k1][k2]
 
     return validator

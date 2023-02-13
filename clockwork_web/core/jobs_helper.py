@@ -241,23 +241,6 @@ def update_job_user_dict(mongodb_filter: dict, new_user_dict: dict):
     )
 
 
-def infer_best_guess_for_username(D_job):
-    """
-    Mutates the argument by adding the "best_guess_for_username" field.
-    """
-
-    # TODO : Rethink this "feature" that's mostly
-    # tied to the web interface to display something
-    # useful to the users. CW-81
-    for k in ["cc_account_username", "mila_cluster_username", "mila_email_username"]:
-        if k in D_job["cw"] and D_job["cw"][k] not in [None, "unknown"]:
-            D_job["cw"]["best_guess_for_username"] = D_job["cw"][k]
-            return D_job
-    # failed to find something better than that
-    D_job["cw"]["best_guess_for_username"] = "unknown"
-    return D_job
-
-
 def strip_artificial_fields_from_job(D_job):
     # Returns a copy. Does not mutate the original.
     fields_to_remove = ["_id"]

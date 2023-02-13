@@ -18,7 +18,6 @@ from clockwork_web.core.jobs_helper import (
     combine_all_mongodb_filters,
     strip_artificial_fields_from_job,
     get_jobs,
-    infer_best_guess_for_username,
 )
 from clockwork_web.core.utils import to_boolean, get_custom_array_from_request_args
 
@@ -168,10 +167,7 @@ def route_api_v1_jobs_one():
             500,
         )
 
-    # TODO : Potential redesign. See CW-81.
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
-    D_job = infer_best_guess_for_username(D_job)
-
     return jsonify(D_job)
 
 
