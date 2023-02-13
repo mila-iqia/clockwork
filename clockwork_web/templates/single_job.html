@@ -51,7 +51,7 @@
                                     {% if "mila_email_username" in D_single_job_cw %}
                                     {# Add a link to the user if its mila_email_username is known #}
                                         <a href="/users/one?username={{D_single_job_cw['mila_email_username']}}">
-                                            {{v}}
+                                            {{v}} ({{D_single_job_cw['mila_email_username']}})
                                         </a>
                                     {% else %}
                                     {# Otherwise, just display its name #}
