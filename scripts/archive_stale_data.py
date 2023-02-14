@@ -64,7 +64,7 @@ def main(argv):
 def archive(archive_path, days_since_last_update, database_name=None):
 
     assert isinstance(
-        days_since_last_update, (float, int)
+        days_since_last_update, int
     ), f"Wrong type for days_since_last_update: {type(days_since_last_update)}, {days_since_last_update}"
 
     # The `database_name` argument is mostly for testing because we want
