@@ -63,8 +63,9 @@ def route_search():
     Display a list of jobs, which can be filtered by user, cluster and state.
 
     Can take optional arguments:
-    - "username" refers to the Mila email identifying a user,
-      and it will match any of them.
+    - "username" refers to the Mila username,
+      and it will match any of them. Either user Mila email (e.g. "myuser@mila.quebec")
+      or Mila username only (e.g. "myuser", will be appended with "@mila.quebec")
     - "cluster_name" refers to the cluster(s) on which we are looking for the jobs
     - "state" refers to the state(s) of the jobs we are looking for. Here are concerned
       the "global states", which are "RUNNING", "PENDING", "COMPLETED" and "ERROR", which
@@ -105,6 +106,10 @@ def route_search():
     # Retrieve the parameters used to filter the jobs
     username = request.args.get("username", None)
     if username:
+        # Append "@mila.quebec" to username if necessary
+        suffix = "@mila.quebec"
+        if not username.endswith(suffix):
+            username += suffix
         previous_request_args["username"] = username
 
     requested_cluster_names = get_custom_array_from_request_args(
