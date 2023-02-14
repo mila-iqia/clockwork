@@ -337,6 +337,17 @@ def test_jobs_with_page_num_pagination_option(
             2,
             2,
         ),
+        # We can also search using just username,
+        # without "@mila.quebec" suffix that will be
+        # automatically appended
+        (
+            "student00@mila.quebec",
+            "student05",
+            ["mila", "graham"],
+            ["RUNNING", "PENDING"],
+            2,
+            2,
+        ),
         (
             "student01@mila.quebec",
             "student10@mila.quebec",
