@@ -52,6 +52,10 @@ register_config(
 )
 
 register_config("logging.stderr", True, validator=boolean)
+register_config(
+    "logging.level_stderr", "info", validator=string_choices(*LOGGING_LEVEL_MAPPING.keys())
+)
+
 register_config("logging.journald", False, validator=boolean)
 
 logger = logging.getLogger()
@@ -59,12 +63,50 @@ logger = logging.getLogger()
 logger.setLevel(LOGGING_LEVEL_MAPPING[get_config("logging.level")])
 
 if get_config("logging.stderr"):
-    logger.addHandler(logging.StreamHandler())
 
+    class ConsoleFormatter(logging.Formatter):
+        def __init__(self, fstring=None, formats=None):
+            """ 
+            A fancier formatter for stderr, with different color depending on the message level.
+            """
+            self.formats = formats
+            if formats is None:
+                self.formats = {
+                    logging.DEBUG   : '\x1b[32;2m',
+                    logging.INFO    : '\x1b[30m',
+                    logging.WARNING : '\x1b[34;1m',
+                    logging.ERROR   : '\x1b[31;1m',
+                    logging.CRITICAL: '\x1b[35;1m',
+                    }
+            self._clean = '\x1b[0m'
+            
+            self.formatstr = fstring
+            if fstring is None:
+                self.formatstr = '{levelname}:{name}:{message}'
+
+        def format(self, record):
+            return ''.join([
+                self.formats[record.levelno],
+                self.formatstr.format(message=record.getMessage(), **(record.__dict__)),
+                self._clean,
+                ])
+
+    stderr_handler = logging.StreamHandler()
+    stderr_handler.setFormatter(ConsoleFormatter())
+    logger.addHandler(stderr_handler)
+    logger.setLevel(LOGGING_LEVEL_MAPPING[get_config("logging.level_stderr")])
+    logging.info ("Logging to stderr")
+    # logging.debug ("test level DEBUG")
+    # logging.info ("test level INFO")
+    # logging.warning ("test level WARNING")
+    # logging.error ("test level ERROR")
+    # logging.critical ("test level CRITICAL")
+    
 if get_config("logging.journald"):
     from systemd.journal import JournalHandler
 
     logger.addHandler(JournalHandler())
+    logging.info("Logging to journald")
 
 
 sentry_dns = get_config("sentry.dns")
