@@ -111,9 +111,7 @@ def route_search():
 
     # Retrieve wether or not we want the number of total jobs
     # if the JSON format is requested
-    want_count = request.args.get(
-        "want_count", type=str, default="False"
-    )
+    want_count = request.args.get("want_count", type=str, default="False")
     want_count = to_boolean(want_count)
     previous_request_args["want_count"] = want_count
 
@@ -204,7 +202,7 @@ def route_search():
         if want_count:
             # If the number of all the jobs is requested, return the jobs list
             # and the number of jobs
-            return { "jobs": LD_jobs, "nbr_total_jobs": nbr_total_jobs}
+            return {"jobs": LD_jobs, "nbr_total_jobs": nbr_total_jobs}
 
         else:
             # Otherwise, only the jobs list is returned
