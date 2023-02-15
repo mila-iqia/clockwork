@@ -2,3 +2,4 @@ pytest
 coverage
 pymongo
 toml
+numpy
