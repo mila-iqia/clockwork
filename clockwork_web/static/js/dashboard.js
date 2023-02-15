@@ -68,7 +68,7 @@ self.inWords = function(timeAgo) {
 }());
 
 // We set up a request to retrieve the jobs list as JSON
-const refresh_endpoint = "/jobs/search?want_json=True"
+const refresh_endpoint = "/jobs/search?want_json=True&want_count=True"
 
 // This id is used to identify the table to populate in the associated HTML file
 const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html also
