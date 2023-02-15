@@ -85,7 +85,13 @@ def route_search():
       presenting the number of the current page
     - "nbr_items_per_page" is optional and used for the pagination: it is a
       positive integer presenting the number of items to display per page
-    - "want_json" is set to True if the expected returned entity is a JSON list of the jobs.
+    - "want_json" is set to True if the expected returned entity is a JSON list of the jobs
+    - "want_count" is useful when want_json is True. If want_count is True, the returned JSON
+      has the following format:
+        {
+            "jobs": [{<job_1>}, ..., {<job_n>}],
+            "nbr_total_jobs": n
+        }
 
     .. :quickref: list all Slurm job as formatted html
     """
@@ -102,6 +108,14 @@ def route_search():
     )  # If True, the user wants a JSON output
     want_json = to_boolean(want_json)
     previous_request_args["want_json"] = want_json
+
+    # Retrieve wether or not we want the number of total jobs
+    # if the JSON format is requested
+    want_count = request.args.get(
+        "want_count", type=str, default="False"
+    )
+    want_count = to_boolean(want_count)
+    previous_request_args["want_count"] = want_count
 
     # Retrieve the parameters used to filter the jobs
     username = request.args.get("username", None)
@@ -187,7 +201,14 @@ def route_search():
 
     if want_json:
         # If requested, return the list as JSON
-        return jsonify(LD_jobs)
+        if want_count:
+            # If the number of all the jobs is requested, return the jobs list
+            # and the number of jobs
+            return { "jobs": LD_jobs, "nbr_total_jobs": nbr_total_jobs}
+
+        else:
+            # Otherwise, only the jobs list is returned
+            return jsonify(LD_jobs)
     else:
         # Display the HTML page
         return render_template_with_user_settings(
