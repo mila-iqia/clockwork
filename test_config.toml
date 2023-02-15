@@ -10,6 +10,7 @@ traces_sample_rate=1.0
 [logging]
 level="error"
 stderr=true
+level_stderr="info"
 # journald requires systemd-python to enable
 journald=false
 
