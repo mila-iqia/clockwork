@@ -319,11 +319,11 @@ function check_web_settings_column_display(page_name, column_name){
  * Reference (2022/02/15): https://dmitripavlutin.com/timeout-fetch-request/
  * @param resource - first parameter for fetch() (url or Request object)
  * @param options - fetch() options. Accepts option `timeout` to specify
- * timeout in milliseconds. Default to 10000 ms (10 seconds).
+ * timeout in milliseconds. Default to 20000 ms (20 seconds).
  * @returns {Promise<Response>}
  */
 async function fetchWithTimeout(resource, options = {}) {
-    const { timeout = 10000 } = options;
+    const { timeout = 20000 } = options;
     console.log(`Fetch with timeout ${timeout} ms`);
 
     const controller = new AbortController();
