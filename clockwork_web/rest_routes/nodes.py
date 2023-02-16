@@ -5,6 +5,8 @@ Define the API requests related to the nodes.
 from flask import request, make_response
 from flask.json import jsonify
 from .authentication import authentication_required
+from flask import g
+import logging
 
 from clockwork_web.core.nodes_helper import (
     get_nodes,
@@ -30,6 +32,9 @@ def route_api_v1_nodes_list():
 
     .. :quickref: list all Slurm nodes
     """
+    current_user_id = g.current_user_with_rest_auth["mila_email_username"]
+    logging.info(f"clockwork REST route: /nodes/list - current_user_with_rest_auth={current_user_id}")
+
     # Set up filters related to the constraints (here, not so much)
     filter = get_filter_cluster_name(request.args.get("cluster_name", None))
     # Get a list of the nodes corresponding to the filters
@@ -50,6 +55,9 @@ def route_api_v1_nodes_one():
 
     .. :quickref: list one Slurm node
     """
+    current_user_id = g.current_user_with_rest_auth["mila_email_username"]
+    logging.info(f"clockwork REST route: /nodes/one - current_user_with_rest_auth={current_user_id}")
+
     f0 = get_filter_node_name(request.args.get("node_name", None))
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
     filter = combine_all_mongodb_filters(f0, f1)
@@ -80,6 +88,9 @@ def route_api_v1_nodes_one_gpu():
 
     .. :quickref: describe the GPU of a node
     """
+    current_user_id = g.current_user_with_rest_auth["mila_email_username"]
+    logging.info(f"clockwork REST route: /nodes/one/gpu - current_user_with_rest_auth={current_user_id}")
+
     # Parse the arguments
     node_name = request.args.get("node_name", None)
     cluster_name = request.args.get("cluster_name", None)
