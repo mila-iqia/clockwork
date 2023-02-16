@@ -223,7 +223,7 @@ if os.environ.get("CLOCKWORK_ENABLE_TESTING_LOGIN", "") == "True":
     @flask_api.route("/testing")
     def route_test_login():
         logging.info("clockwork_web route: /login/testing")
-        
+
         user_id = request.args.get("user_id")
         user = User.get(user_id)
         if user is None or user.status != "enabled":

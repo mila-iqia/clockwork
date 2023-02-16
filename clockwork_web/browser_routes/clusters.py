@@ -1,7 +1,7 @@
 """
 Browser routes dealing with the "cluster" entity
 """
-import logging 
+import logging
 
 from flask import Blueprint, request
 from flask_login import current_user, login_required
@@ -29,7 +29,9 @@ def route_one():
 
     .. :quickref: present a cluster as formatted HTML
     """
-    logging.info(f"clockwork_web route: /clusters/one  - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork_web route: /clusters/one  - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}

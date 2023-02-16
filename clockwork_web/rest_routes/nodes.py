@@ -33,7 +33,9 @@ def route_api_v1_nodes_list():
     .. :quickref: list all Slurm nodes
     """
     current_user_id = g.current_user_with_rest_auth["mila_email_username"]
-    logging.info(f"clockwork REST route: /nodes/list - current_user_with_rest_auth={current_user_id}")
+    logging.info(
+        f"clockwork REST route: /nodes/list - current_user_with_rest_auth={current_user_id}"
+    )
 
     # Set up filters related to the constraints (here, not so much)
     filter = get_filter_cluster_name(request.args.get("cluster_name", None))
@@ -56,7 +58,9 @@ def route_api_v1_nodes_one():
     .. :quickref: list one Slurm node
     """
     current_user_id = g.current_user_with_rest_auth["mila_email_username"]
-    logging.info(f"clockwork REST route: /nodes/one - current_user_with_rest_auth={current_user_id}")
+    logging.info(
+        f"clockwork REST route: /nodes/one - current_user_with_rest_auth={current_user_id}"
+    )
 
     f0 = get_filter_node_name(request.args.get("node_name", None))
     f1 = get_filter_cluster_name(request.args.get("cluster_name", None))
@@ -89,7 +93,9 @@ def route_api_v1_nodes_one_gpu():
     .. :quickref: describe the GPU of a node
     """
     current_user_id = g.current_user_with_rest_auth["mila_email_username"]
-    logging.info(f"clockwork REST route: /nodes/one/gpu - current_user_with_rest_auth={current_user_id}")
+    logging.info(
+        f"clockwork REST route: /nodes/one/gpu - current_user_with_rest_auth={current_user_id}"
+    )
 
     # Parse the arguments
     node_name = request.args.get("node_name", None)
