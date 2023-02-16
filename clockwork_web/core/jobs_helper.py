@@ -76,6 +76,8 @@ def get_filtered_and_paginated_jobs(
     nbr_skipped_items=None,
     nbr_items_to_display=None,
     want_count=False,
+    sort_by="submit_time",
+    sort_asc=1
 ):
     """
     Talk to the database and get the information.
@@ -88,6 +90,10 @@ def get_filtered_and_paginated_jobs(
         nbr_items_to_display    Number of jobs to display
         want_count              Whether or not we are interested by the number of
                                 unpaginated jobs.
+        sort_by                 Field to sort jobs. Sorted only if pagination is
+                                defined.
+        sort_asc                Whether or not to sort in ascending order (1)
+                                or descending order (-1).
 
     Returns:
         Returns a tuple (jobs_list, jobs_count or None).
@@ -112,10 +118,27 @@ def get_filtered_and_paginated_jobs(
     mc = get_db()
     # Get the jobs from it
     if nbr_skipped_items != None and nbr_items_to_display:
+        # Check sorting parameters
+        assert sort_by in {
+            "cluster_name",
+            "user",
+            "job_id",
+            "name",  # job name
+            "job_state",
+            "submit_time",
+            "start_time",
+            "end_time",
+        }
+        assert sort_asc in (-1, 1)
+        # Set sorting
+        sorting = [[f"slurm.{sort_by}", sort_asc]]
+        # Is sorting is not by job_id, add supplementary sorting
+        if sort_by != "job_id":
+            sorting.append(["slurm.job_id", 1])
         LD_jobs = list(
             mc["jobs"]
             .find(mongodb_filter)
-            .sort([["slurm.submit_time", 1], ["slurm.job_id", 1]])
+            .sort(sorting)
             .skip(nbr_skipped_items)
             .limit(nbr_items_to_display)
         )
@@ -194,6 +217,8 @@ def get_jobs(
     nbr_skipped_items=None,
     nbr_items_to_display=None,
     want_count=False,
+    sort_by="submit_time",
+    sort_asc=1
 ):
     """
     Set up the filters according to the parameters and retrieve the requested jobs from the database.
@@ -206,6 +231,10 @@ def get_jobs(
         nbr_skipped_items       Number of jobs we want to skip in the result
         nbr_items_to_display    Number of requested jobs
         want_count              Whether or not the total jobs count is expected.
+        sort_by                 Field to sort jobs. Sorted only if pagination is
+                                defined.
+        sort_asc                Whether or not to sort in ascending order (1)
+                                or descending order (-1).
 
     Returns:
         A tuple containing:
@@ -224,6 +253,8 @@ def get_jobs(
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
         want_count=want_count,
+        sort_by=sort_by,
+        sort_asc=sort_asc
     )
 
 
