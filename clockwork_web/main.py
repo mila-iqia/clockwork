@@ -115,7 +115,9 @@ if get_config("logging.stderr"):
 
 werkzeug_logger = logging.getLogger("werkzeug")
 if werkzeug_logger != None:
-    werkzeug_logger.setLevel(LOGGING_LEVEL_MAPPING[get_config("logging.level_werkzeug")])
+    werkzeug_logger.setLevel(
+        LOGGING_LEVEL_MAPPING[get_config("logging.level_werkzeug")]
+    )
 
 if get_config("logging.journald"):
     from systemd.journal import JournalHandler
