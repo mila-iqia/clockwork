@@ -6,9 +6,6 @@ jQuery(document).ready(function($){
 
     $('[data-bs-toggle="tooltip"]').tooltip();
 
-    search_table = document.querySelector('#search_table');
-    if (search_table) Sortable.initTable(search_table);
-
     $("input[name='username']").click(function () {
         if ($("#user_option_other").is(":checked")) {
             $("#user_option_other_textarea").removeAttr("disabled");
@@ -18,7 +15,7 @@ jQuery(document).ready(function($){
             $("#user_option_other_textarea").attr("disabled", "disabled");
         }
     });
-    
+
     (function($) {
     $.fn.formSubmit = function() {
         return this.each(function() {
@@ -39,7 +36,7 @@ jQuery(document).ready(function($){
             $(this).find("input[name='cluster_name']").each(function(){
                 if ($(this).is(":checked")) clusters.push( $(this).val() );
             });
-            
+
             $(this).find("input[name='state']").each(function(){
                 if ($(this).is(":checked")) states.push( $(this).val() );
             });
@@ -82,7 +79,7 @@ jQuery(document).ready(function($){
         if ($('.form-check-clusters:checked').length == 0 && !this.checked)
             this.checked = true;
     });
-    
+
     $('.form-check-state').on('change', function(e) {
         if ($('.form-check-state:checked').length == 0 && !this.checked)
             this.checked = true;
@@ -103,7 +100,7 @@ jQuery(document).ready(function($){
 
      $('.copy-btn').on("click", function(){
         value = $(this).data('clipboard-text'); //Upto this I am getting value
- 
+
         var $temp = $("<input>");
           $("body").append($temp);
           $temp.val(value).select();
@@ -113,7 +110,7 @@ jQuery(document).ready(function($){
 
     $("#show_hide_password a.copy_clipboard").on('click', function(event) {
         event.preventDefault();
-        
+
         value = $('input#clockwork_api_key').val(); //Upto this I am getting value
 
         var $temp = $("<input>");
@@ -128,9 +125,9 @@ jQuery(document).ready(function($){
         setTimeout(function(){
             $('#show_hide_password a.copy_clipboard i').removeClass( "fa-thumbs-up" );
             $('#show_hide_password a.copy_clipboard i').addClass( "fa-copy" );
-        },5000); 
+        },5000);
 
-        
+
     });
 
     function show_popup(){
@@ -138,7 +135,7 @@ jQuery(document).ready(function($){
     };
     window.setTimeout( show_popup, 2000 ); // 5 seconds
 
-    
+
 
     //$('#nbr_items_per_page').on('change', function() {
         //$("form.searchform").formSubmit();
