@@ -21,7 +21,9 @@ def route_list():
 
     .. :quickref: list all the GPU as formatted HTML
     """
-    logging.info(f"clockwork_web route: /gpu/list  - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork_web route: /gpu/list  - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
@@ -52,7 +54,9 @@ def route_one():
 
     .. :quickref: display the information of one GPU as formatted HTML
     """
-    logging.info(f"clockwork_web route: /gpu/one  - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork_web route: /gpu/one  - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}

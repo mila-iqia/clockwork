@@ -38,7 +38,9 @@ def route_api_v1_jobs_list():
     current_user_id = g.current_user_with_rest_auth["mila_email_username"]
     current_user = User.get(current_user_id)
 
-    logging.info(f"clockwork REST route: /jobs/list - current_user_with_rest_auth={current_user_id}")
+    logging.info(
+        f"clockwork REST route: /jobs/list - current_user_with_rest_auth={current_user_id}"
+    )
 
     # Retrieve the parameters used to filter the jobs
     # - username: ID of the user who launched the jobs we are looking for
@@ -127,7 +129,9 @@ def route_api_v1_jobs_one():
     current_user_id = g.current_user_with_rest_auth["mila_email_username"]
     current_user = User.get(current_user_id)
 
-    logging.info(f"clockwork REST route: /jobs/one - current_user_with_rest_auth={current_user_id}")
+    logging.info(
+        f"clockwork REST route: /jobs/one - current_user_with_rest_auth={current_user_id}"
+    )
 
     # Retrieve the requested job ID
     job_id = request.values.get("job_id", None)
@@ -205,7 +209,9 @@ def route_api_v1_jobs_user_dict_update():
     current_user_id = g.current_user_with_rest_auth["mila_email_username"]
     current_user = User.get(current_user_id)
 
-    logging.info(f"clockwork REST route: /jobs/user_dict_update - current_user_with_rest_auth={current_user_id}")
+    logging.info(
+        f"clockwork REST route: /jobs/user_dict_update - current_user_with_rest_auth={current_user_id}"
+    )
 
     # A 'PUT' method is generally to modify resources.
     # Retrieve the provided job ID

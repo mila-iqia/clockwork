@@ -28,7 +28,9 @@ def route_one():
     """
     # Initialize the request arguments (it is further transferred to the HTML)
 
-    logging.info(f"clockwork WEB route: /users/one - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork WEB route: /users/one - current_user={current_user.mila_email_username}"
+    )
 
     previous_request_args = {}
 

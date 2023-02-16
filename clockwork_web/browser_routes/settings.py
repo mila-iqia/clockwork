@@ -43,7 +43,9 @@ def route_index():
 
     .. :quickref: access the settings page as html
     """
-    logging.info(f"clockwork browser route: /settings - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
@@ -64,7 +66,9 @@ def route_key():
     """
     Generate a new API key, invalidating the old one.
     """
-    logging.info(f"clockwork browser route: /settings/new_key - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings/new_key - current_user={current_user.mila_email_username}"
+    )
 
     current_user.new_api_key()
     return redirect("/settings/")
@@ -76,7 +80,9 @@ def route_update_key():
     """
     Generate a new account update key.
     """
-    logging.info(f"clockwork browser route: /settings/new_update_key - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings/new_update_key - current_user={current_user.mila_email_username}"
+    )
 
     current_user.new_update_key()
     return redirect("/settings/")
@@ -95,7 +101,9 @@ def route_set_nbr_items_per_page():
     .. :quickref: set the number of items to display per page in the current
                   user's settings
     """
-    logging.info(f"clockwork browser route: /settings/web/nbr_items_per_page/set - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings/web/nbr_items_per_page/set - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
@@ -164,7 +172,9 @@ def route_set_dark_mode():
 
     .. :quickref: enable the dark mode for the current user
     """
-    logging.info(f"clockwork browser route: /settings/web/dark_mode/set - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings/web/dark_mode/set - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
@@ -196,7 +206,9 @@ def route_unset_dark_mode():
 
     .. :quickref: disable the dark mode for the current user
     """
-    logging.info(f"clockwork browser route: /settings/web/dark_mode/unset - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings/web/dark_mode/unset - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
@@ -229,7 +241,9 @@ def route_set_column_display():
 
     .. :quickref: enable the display of a job element on the dashboard or on the jobs list
     """
-    logging.info(f"clockwork browser route: /settings/web/column/set - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings/web/column/set - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
@@ -296,7 +310,9 @@ def route_unset_column_display():
 
     .. :quickref: enable the display of a job element on the dashboard or on the jobs list
     """
-    logging.info(f"clockwork browser route: /settings/web/column/unset - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings/web/column/unset - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
@@ -362,7 +378,9 @@ def route_set_language():
 
     .. :quickref: update the preferred language in the current user's settings
     """
-    logging.info(f"clockwork browser route: /settings/web/language/set - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings/web/language/set - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
@@ -428,7 +446,9 @@ def route_set_date_format():
 
     .. :quickref: update the preferred date format in the current user's settings
     """
-    logging.info(f"clockwork browser route: /settings/web/date_format/set - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings/web/date_format/set - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
@@ -496,7 +516,9 @@ def route_set_time_format():
 
     .. :quickref: update the preferred time format in the current user's settings
     """
-    logging.info(f"clockwork browser route: /settings/web/time_format/set - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /settings/web/time_format/set - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}

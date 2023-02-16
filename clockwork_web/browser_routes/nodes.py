@@ -64,7 +64,9 @@ def route_list():
 
     .. :quickref: list all Slurm nodes as formatted html
     """
-    logging.info(f"clockwork browser route: /nodes/list - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /nodes/list - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
@@ -147,7 +149,9 @@ def route_one():
 
     .. :quickref: list one Slurm node as formatted html
     """
-    logging.info(f"clockwork browser route: /nodes/one - current_user={current_user.mila_email_username}")
+    logging.info(
+        f"clockwork browser route: /nodes/one - current_user={current_user.mila_email_username}"
+    )
 
     # Initialize the request arguments (it is further transferred to the expected HTML)
     previous_request_args = {}
