@@ -165,6 +165,8 @@ def route_search():
     # Retrieve the sorting field
     sort_by = request.args.get("sort_by", default="submit_time", type=str)
     sort_asc = request.args.get("sort_asc", default=1, type=int)
+    previous_request_args["sort_by"] = sort_by
+    previous_request_args["sort_asc"] = sort_asc
 
     #########################
     # Define the pagination #

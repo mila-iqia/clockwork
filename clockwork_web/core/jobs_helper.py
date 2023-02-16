@@ -131,7 +131,10 @@ def get_filtered_and_paginated_jobs(
         }
         assert sort_asc in (-1, 1)
         # Set sorting
-        sorting = [[f"slurm.{sort_by}", sort_asc]]
+        if sort_by == "user":
+            sorting = [["cw.mila_email_username", sort_asc]]
+        else:
+            sorting = [[f"slurm.{sort_by}", sort_asc]]
         # Is sorting is not by job_id, add supplementary sorting
         if sort_by != "job_id":
             sorting.append(["slurm.job_id", 1])
