@@ -12,12 +12,12 @@
 //date stuff
 var TimeAgo = (function() {
 var self = {};
-  
+
   // Public Methods
 self.locales = {
     prefix: '',
     sufix:  'ago',
-    
+
     seconds: 'less than a minute',
     minute:  'about a minute',
     minutes: '%d minutes',
@@ -30,7 +30,7 @@ self.locales = {
     year:    'about a year',
     years:   '%d years'
 };
-  
+
 self.inWords = function(timeAgo) {
     var seconds = Math.floor((new Date() - parseInt(timeAgo)) / 1000),
         separator = this.locales.separator || ' ',
@@ -43,12 +43,12 @@ self.inWords = function(timeAgo) {
           hour:   seconds / 3600,
           minute: seconds / 60
     };
-    
+
     var distance = this.locales.seconds;
-    
+
     for (var key in intervals) {
         interval = Math.floor(intervals[key]);
-      
+
         if (interval > 1) {
             distance = this.locales[key + 's'];
             break;
@@ -57,13 +57,13 @@ self.inWords = function(timeAgo) {
             break;
         }
     }
-    
+
         distance = distance.replace(/%d/i, interval);
         words += distance + separator + this.locales.sufix;
 
         return words.trim();
     };
-  
+
     return self;
 }());
 
@@ -122,10 +122,10 @@ function removeAllChildNodes(parent) {
 }
 function make_pagination(page_num, nbr_items_per_page, total_items) {
     var TotalPages = Math.ceil(total_items / nbr_items_per_page);
- 
+
     let pagingDiv = document.getElementById("pagingDiv");
     removeAllChildNodes(pagingDiv);
-    if (TotalPages > 1) { 
+    if (TotalPages > 1) {
         if (+page_num > 1) {
             // if has more than one page, add a PREVIOUS link
             const prevLI = document.createElement('li')
@@ -150,7 +150,7 @@ function make_pagination(page_num, nbr_items_per_page, total_items) {
             prevLI.appendChild(prevSpan);
             prevSpan.appendChild(prevI);
         }
-        
+
         for (var i = 1; i <= TotalPages; i++) {
             if (i >= 1) {
                 if (+page_num != i) {
@@ -160,7 +160,7 @@ function make_pagination(page_num, nbr_items_per_page, total_items) {
 
                     pagingDiv.appendChild(prevLI);
                     prevLI.appendChild(pageLink);
-                    
+
                     pageLink.addEventListener('click', changeValue.bind(null, i))
 
                 } else {
@@ -222,16 +222,16 @@ function count_jobs(response_contents) {
 
         if (job_state == "completed") {
             counter_completed++;
-        } 
+        }
         if (job_state == "running" || job_state == "completing") {
             counter_running++;
-        } 
+        }
         if (job_state == "pending") {
             counter_pending++;
-        } 
+        }
         if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled") {
             counter_stalled++;
-        } 
+        }
     });
     completed.textContent = counter_completed;
     running.textContent = counter_running;
@@ -285,7 +285,7 @@ function format_date(timestamp) {
         else {
             formatted_time = date_to_format.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }); // hourCycle is set to h23 because otherwise, midnight is "24h" instead of "00h" on Chrome
         }
-        
+
         return `${formatted_date} ${formatted_time}`;
     }
 }
@@ -299,7 +299,7 @@ function check_web_settings_column_display(page_name, column_name){
         Such a web setting, if set, is accessible by calling web_settings[page_name][column_name].
         The different columns (ie jobs properties) for the dashboard page are now the following:
         ["clusters", "job_id", "job_name", "job_state", "start_time", "submit_time", "end_time", "links", "actions"]
-        
+
         Parameters:
             page_name       The name of the page on which we should display or not the
                             job properties requested by the user in its preferences. For now,
@@ -311,6 +311,29 @@ function check_web_settings_column_display(page_name, column_name){
             True if the web_setting is unset or True, False otherwise.
     */
             return !(("column_display" in web_settings) && (page_name in web_settings["column_display"]) && (column_name in web_settings["column_display"][page_name])) || web_settings["column_display"][page_name][column_name];
+}
+
+/**
+ * Improved version of fetch() that accepts a timeout in milliseconds
+ * into options.
+ * Reference (2022/02/15): https://dmitripavlutin.com/timeout-fetch-request/
+ * @param resource - first parameter for fetch() (url or Request object)
+ * @param options - fetch() options. Accepts option `timeout` to specify
+ * timeout in milliseconds. Default to 20000 ms (20 seconds).
+ * @returns {Promise<Response>}
+ */
+async function fetchWithTimeout(resource, options = {}) {
+    const { timeout = 20000 } = options;
+    console.log(`Fetch with timeout ${timeout} ms`);
+
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    const response = await fetch(resource, {
+        ...options,
+        signal: controller.signal
+    });
+    clearTimeout(id);
+    return response;
 }
 
 function launch_refresh_all_data(query_filter, display_filter) {
@@ -361,7 +384,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
     // below because we do not want to add pagination on the dashboard for now.
     //page_num = document.getElementById('page_num').value;
     //url = url + "&page_num=" + page_num;
-    
+
     // Send the request, and retrieve the response
     const request = new Request(url,
         {   method: 'GET',
@@ -369,7 +392,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
                 'Content-Type': 'application/json'
             }
         });
-    fetch(request)
+    fetchWithTimeout(request)
     .then(response => {
         if (response.status === 200) {
             return response.json();
@@ -380,7 +403,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
     .then(response_contents => {
         latest_response_contents = response_contents;
         refresh_display(display_filter);
-        
+
     }).catch(error => {
         console.error(error);
     });
@@ -393,9 +416,9 @@ function refresh_display(display_filter) {
     */
     latest_filtered_response_contents = apply_filter(latest_response_contents["jobs"], display_filter);
     alljobs_filtered = apply_filter(latest_response_contents["jobs"], display_filter);
-    
+
     total_jobs = latest_response_contents["nbr_total_jobs"];
-        
+
     //for testing only - use a smaller number
     //nbr_items_per_page = 3;
 
@@ -614,11 +637,11 @@ function populate_table(response_contents) {
         if (check_web_settings_column_display(page_name, "job_state")) {
             //td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
             //kaweb - using the job state as a shorthand to insert icons through CSS
-            td = document.createElement('td'); 
+            td = document.createElement('td');
             td.className = "state";
-            
+
             var formatted_job_state = job_state.replace(/_/g, " ");
-            
+
             td.innerHTML = ("<span class=\"status " + job_state + "\">" + formatted_job_state + "</span>");
             tr.appendChild(td);
         }
@@ -635,7 +658,7 @@ function populate_table(response_contents) {
                     // you need to set it up because this is going to be written as a unix timestamp.
                     // This might include injecting another field with a name
                     // such as "start_time_human_readable" or something like that, and using it here.
-        
+
                     if ("date_format" in web_settings && web_settings["date_format"] == "words") {
                         td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm[job_time]); // For a relative time
                     }
@@ -646,12 +669,12 @@ function populate_table(response_contents) {
                 tr.appendChild(td);
             }
         };
-        
+
         // Links
         if (check_web_settings_column_display(page_name, "links")) {
-            td = document.createElement('td'); 
+            td = document.createElement('td');
             td.className = "links";
-            
+
             // This link works only for Narval and Beluga. See CW-141.
             if ((D_job_slurm["cluster_name"] == "narval") || (D_job_slurm["cluster_name"] == "beluga")) {
                 // https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid>
@@ -668,11 +691,11 @@ function populate_table(response_contents) {
 
         // Actions
         if (check_web_settings_column_display(page_name, "actions")) {
-            td = document.createElement('td'); 
+            td = document.createElement('td');
             td.className = "actions";
             td.innerHTML = (
                 "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>"
-            ); 
+            );
             tr.appendChild(td);
         }
 
@@ -708,16 +731,16 @@ function count_jobs(response_contents) {
 
         if (job_state == "running" || job_state == "completing") {
             counter_running++;
-        } 
+        }
         if (job_state == "completed") {
             counter_completed++;
-        } 
+        }
         if (job_state == "pending") {
             counter_pending++;
-        } 
+        }
         if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled" || job_state == "preempted") {
             counter_stalled++;
-        } 
+        }
     });
     running.textContent = counter_running;
     completed.textContent = counter_completed;
