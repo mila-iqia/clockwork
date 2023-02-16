@@ -316,7 +316,7 @@ def test_combine_all_mongodb_filters(given_filters, expected_filter):
 @pytest.mark.parametrize(
     "username,job_ids,cluster_names,states,expected_result",
     [
-        (None, [], [], [], {}),  # If nothing has been provided, the filter is empty
+        (None, [], None, [], {}),  # If nothing has been provided, the filter is empty
         (
             "student00@mila.quebec",
             [123, 456],

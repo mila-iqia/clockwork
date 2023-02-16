@@ -168,7 +168,7 @@ def get_filtered_and_paginated_jobs(
     return (LD_jobs, nbr_total_jobs)
 
 
-def get_global_filter(username=None, job_ids=[], cluster_names=[], states=[]):
+def get_global_filter(username=None, job_ids=[], cluster_names=None, states=[]):
     """
     Set up a filter for MongoDB in order to filter username, clusters and job states,
     regarding what has been sent as parameter to the function.
@@ -198,7 +198,7 @@ def get_global_filter(username=None, job_ids=[], cluster_names=[], states=[]):
         filters.append({"slurm.job_id": {"$in": job_ids}})
 
     # Define the filter related to the cluster on which the jobs run
-    if len(cluster_names) > 0:
+    if cluster_names is not None:
         filters.append({"slurm.cluster_name": {"$in": cluster_names}})
 
     # Define the filter related to the jobs' states
@@ -215,7 +215,7 @@ def get_global_filter(username=None, job_ids=[], cluster_names=[], states=[]):
 def get_jobs(
     username=None,
     job_ids=[],
-    cluster_names=[],
+    cluster_names=None,
     states=[],
     nbr_skipped_items=None,
     nbr_items_to_display=None,

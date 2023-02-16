@@ -259,6 +259,19 @@
         "dark_mode": false,
         "language": "fr"
       }
+    },
+    {
+      "mila_email_username": "student20@mila.quebec",
+      "status": "enabled",
+      "clockwork_api_key": "000aaa20",
+      "mila_cluster_username": null,
+      "cc_account_username": null,
+      "cc_account_update_key": null,
+      "web_settings": {
+        "nbr_items_per_page": 40,
+        "dark_mode": false,
+        "language": "en"
+      }
     }
   ],
   "jobs": [

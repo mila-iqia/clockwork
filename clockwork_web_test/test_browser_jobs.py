@@ -13,8 +13,10 @@ Lots of details about these tests depend on the particular values that we put in
 
 """
 
+from pprint import pprint
 import random
 import json
+import re
 import pytest
 
 from test_common.jobs_test_helpers import (
@@ -434,11 +436,10 @@ def test_route_search(
 
     # Intersection between the requested clusters (if specified)
     # and the clusters available for the current user.
-    if cluster_names:
-        requested_clusters = set(cluster_names).intersection(
-            set(get_available_clusters_from_db(current_user_id))
-        )
-    else:
+    requested_clusters = set(cluster_names).intersection(
+        set(get_available_clusters_from_db(current_user_id))
+    )
+    if not requested_clusters:
         requested_clusters = get_available_clusters_from_db(current_user_id)
 
     # Sort the jobs contained in the fake data by submit time, then by job id
@@ -501,11 +502,30 @@ def test_route_search(
     )
 
     body_text = response.get_data(as_text=True)
+
     # Assert that the retrieved jobs correspond to the expected jobs
-    for D_job in LD_prefiltered_jobs[
+    expected_jobs = LD_prefiltered_jobs[
         number_of_skipped_items : (number_of_skipped_items + nbr_items_per_page)
-    ]:
-        assert D_job["slurm"]["job_id"] in body_text
+    ]
+    expected_ids = [x["slurm"]["job_id"] for x in expected_jobs]
+    found_ids = re.findall(pattern="job_id=([0-9]+)", string=body_text)
+
+    if found_ids != expected_ids:
+
+        def _find(job_id):
+            for job in fake_data["jobs"]:
+                if job["slurm"]["job_id"] == job_id:
+                    pprint(job)
+                    return
+
+        for job_id in set(found_ids) - set(expected_ids):
+            print("Found job that should NOT be there:")
+            _find(job_id)
+        for job_id in set(expected_ids) - set(found_ids):
+            print("Did not find job that SHOULD be there:")
+            _find(job_id)
+
+    assert found_ids == expected_ids
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
