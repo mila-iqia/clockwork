@@ -703,6 +703,11 @@ function populate_table(response_contents) {
 
     });
     table.appendChild(tbody);
+    if (table.getAttribute('data-sortable-initialized')) {
+        table.setAttribute('data-sortable-initialized', "false");
+    }
+    console.log(`Init sorting for ${id_of_table_to_populate}`);
+    Sortable.initTable(table);
 
     /* some of that can be used for adding the href back in the code above
         let td0 = document.createElement('td');

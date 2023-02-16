@@ -31,7 +31,7 @@
             {% for D_cluster in clusters %}
                 display_filter["cluster_name"]["{{D_cluster}}"] = true;
             {% endfor %}
-            
+
             // Grouping the states into 4 bins to simplify the interface and usability.
             status_running = true
             status_pending = true
@@ -69,7 +69,7 @@
 
             read_query_filter();
             read_display_filter();
-            
+
             var rotate_icons = document.querySelectorAll("i.fa-arrows-rotate");
             rotate_icons.forEach((rotate_icon) => {
                 rotate_icon.classList.add("fa-spin");
@@ -87,7 +87,7 @@
                   num.classList.remove("hidden");
                 }, 2000);
             });
-            
+
             // note that `launch_refresh_all_data` comes from "jobs.js"
             launch_refresh_all_data(query_filter, display_filter);
 
@@ -164,13 +164,13 @@
                 </div>
                 <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
             </div>
-            
-            
+
+
             <div class="col-12" id="changeme">
 
                 <!-- <h1>{{channel_title}}</h1> -->
 
-                <table class="table table-striped table-hover table-responsive" id="dashboard_table">
+                <table class="table table-striped table-hover table-responsive" data-sortable id="dashboard_table">
                     <!-- This table starts empty and is populated automatically when the DOM is ready. -->
                 </table>
 
