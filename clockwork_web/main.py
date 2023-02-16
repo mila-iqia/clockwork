@@ -51,9 +51,14 @@ register_config(
     "logging.level", "error", validator=string_choices(*LOGGING_LEVEL_MAPPING.keys())
 )
 
-register_config("logging.stderr", True, validator=boolean)
+register_config("logging.stderr", False, validator=boolean)
 register_config(
     "logging.level_stderr",
+    "info",
+    validator=string_choices(*LOGGING_LEVEL_MAPPING.keys()),
+)
+register_config(
+    "logging.level_werkzeug",
     "info",
     validator=string_choices(*LOGGING_LEVEL_MAPPING.keys()),
 )
@@ -107,6 +112,11 @@ if get_config("logging.stderr"):
     # logging.warning ("test level WARNING")
     # logging.error ("test level ERROR")
     # logging.critical ("test level CRITICAL")
+
+vl = logging.getLogger("werkzeug")
+if vl != None:
+    print("logger werkzeug found!")
+    vl.setLevel(LOGGING_LEVEL_MAPPING[get_config("logging.level_werkzeug")])
 
 if get_config("logging.journald"):
     from systemd.journal import JournalHandler
