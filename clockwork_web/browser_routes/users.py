@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from flask_login import current_user, login_required
+import logging
 
 flask_api = Blueprint("users", __name__)
 
@@ -26,6 +27,9 @@ def route_one():
     .. :quickref: display the information of one user as formatted HTML
     """
     # Initialize the request arguments (it is further transferred to the HTML)
+
+    logging.info(f"clockwork WEB route: /users/one - current_user={current_user.mila_email_username}")
+
     previous_request_args = {}
 
     username = request.args.get("username", None)
