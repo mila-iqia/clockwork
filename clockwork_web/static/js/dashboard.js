@@ -506,6 +506,69 @@ function apply_filter(response_contents, display_filter) {
     //return response_contents;
 }
 
+/**
+ * Backup variable to store sortable settings if we can't store it in localStorage.
+ * By default, we want to store sortable settings in Javascript localStorage, so that
+ * settings are saved even if user closes web page or browser. But storing in localStorage
+ * may fail, so we need to define a backup strategy, that will save settings just for
+ * current opened page.
+ * More info: https://developer.mozilla.org/en-US/docs/Web/API/Storage/setItem#exceptions
+ */
+let BACKUP_SORTABLE_STORAGE = null;
+
+/**
+ * Get sortable settings. Return an object with fields
+ * `name` for column name (string), and `ascending` for sorting direction (integer),
+ * either 1 (ascending) or -1 (descending).
+ */
+function getSortableState() {
+    const data = window.localStorage.getItem('SORTABLE_STATE');
+    if (data) {
+        return JSON.parse(data);
+    } else {
+        return BACKUP_SORTABLE_STORAGE || {name: null, ascending: 0};
+    }
+}
+
+/**
+ * Store sortable settings.
+ */
+function setSortableState(sortableState) {
+    try {
+        window.localStorage.setItem('SORTABLE_STATE', JSON.stringify(sortableState || {name: null, ascending: 0}));
+    } catch (exception) {
+        console.error(exception);
+        BACKUP_SORTABLE_STORAGE = sortableState;
+    }
+}
+
+/**
+ * Event listener to listen clicks on table column header.
+ * Capture click to infer sortable settings and store it.
+ * @param event - click event (currently not used)
+ * @param colName - column name
+ * @param colIndex - column index in table (starting at 0)
+ * @param table - table HTML element
+ */
+function onClickSortableColumn(event, colName, colIndex, table) {
+    const sortableState = getSortableState();
+    // Get default sorting direction from framework Sortable.
+    // Default direction is descending for number, ascending for other types.
+    const defaultSortDirection = Sortable.getColumnType(table, colIndex).defaultSortDirection;
+    console.log(colName, defaultSortDirection);
+    if (sortableState.name === colName) {
+        // If we are on same column, new direction is reverse from previous.
+        sortableState.ascending = -sortableState.ascending;
+    } else {
+        // Otherwise, we got full new sortable settings.
+        sortableState.name = colName;
+        sortableState.ascending = defaultSortDirection === 'descending' ? -1 : 1;
+    }
+    // Store inferred settings.
+    setSortableState(sortableState);
+    console.log(`Current sorting: ${colName}/${sortableState.ascending === 1 ? 'ascending' : 'descending'}`);
+}
+
 
 function populate_table(response_contents) {
     /*
@@ -538,46 +601,78 @@ function populate_table(response_contents) {
     let thead = document.createElement('thead');
     let tr = document.createElement('tr');
     let th;
+    // We will find the column to sort using current sortable state.
+    let thToSort;
+    const currentSortableState = getSortableState();
+    setSortableState({name: null, ascending: 0});
     // Clusters header
     if (check_web_settings_column_display(page_name, "clusters")) {
         th = document.createElement('th');
         th.innerHTML = "Cluster";
+        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'clusters', 0, table));
+        if (currentSortableState.name === 'clusters') {
+            thToSort = th;
+        }
         tr.appendChild(th);
     }
     // Job ID header
     if (check_web_settings_column_display(page_name, "job_id")) {
         th = document.createElement('th');
         th.innerHTML = "Job ID";
+        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'job_id', 1, table));
+        if (currentSortableState.name === 'job_id') {
+            thToSort = th;
+        }
         tr.appendChild(th);
     }
     // Job name header
     if (check_web_settings_column_display(page_name, "job_name")) {
         th = document.createElement('th');
         th.innerHTML = "Job name [:20]";
+        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'job_name', 2, table));
+        if (currentSortableState.name === 'job_name') {
+            thToSort = th;
+        }
         tr.appendChild(th);
     }
     // Job state header
     if (check_web_settings_column_display(page_name, "job_state")) {
         th = document.createElement('th');
         th.innerHTML = "Job state";
+        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'job_state', 3, table));
+        if (currentSortableState.name === 'job_state') {
+            thToSort = th;
+        }
         tr.appendChild(th);
     }
     // Submit time header
     if (check_web_settings_column_display(page_name, "submit_time")) {
         th = document.createElement('th');
         th.innerHTML = "Submit time";
+        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'submit_time', 4, table));
+        if (currentSortableState.name === 'submit_time') {
+            thToSort = th;
+        }
         tr.appendChild(th);
     }
     // Start time header
     if (check_web_settings_column_display(page_name, "start_time")) {
         th = document.createElement('th');
         th.innerHTML = "Start time";
+        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'start_time', 5, table));
+        if (currentSortableState.name === 'start_time') {
+            thToSort = th;
+        }
         tr.appendChild(th);
     }
     // End time header
     if (check_web_settings_column_display(page_name, "end_time")) {
         th = document.createElement('th');
         th.innerHTML = "End time";
+        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'end_time', 6, table));
+        if (currentSortableState.name === 'end_time') {
+            thToSort = th;
+        }
         tr.appendChild(th);
     }
     // Links header
@@ -703,11 +798,22 @@ function populate_table(response_contents) {
 
     });
     table.appendChild(tbody);
+    // Activate sorting.
     if (table.getAttribute('data-sortable-initialized')) {
         table.setAttribute('data-sortable-initialized', "false");
     }
     console.log(`Init sorting for ${id_of_table_to_populate}`);
     Sortable.initTable(table);
+    // Sort newly populated table using current sortable state.
+    // To do sorting, we click on column once for ascending direction, twice for descending.
+    if (thToSort) {
+        console.log('click once');
+        thToSort.click();
+        if (currentSortableState.ascending === -1) {
+            console.log('click twice');
+            thToSort.click();
+        }
+    }
 
     /* some of that can be used for adding the href back in the code above
         let td0 = document.createElement('td');
