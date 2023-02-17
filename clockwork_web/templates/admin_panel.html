@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="cc_subheader_banner">
+        <div class="row">
+            <div class="col s2">
+                <!-- spacing on the left -->
+            </div>
+            <div class="col s4">
+                <h4>{{ gettext("jobs") }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s1">
+            <!-- spacing on the left -->
+        </div>
+        
+    </div>
+{% endblock %}

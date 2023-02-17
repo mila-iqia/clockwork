@@ -24,6 +24,7 @@ from .browser_routes.gpu import flask_api as gpu_routes_flask_api
 from .browser_routes.users import flask_api as users_routes_flask_api
 from .browser_routes.clusters import flask_api as clusters_routes_flask_api
 from .browser_routes.settings import flask_api as settings_routes_flask_api
+from .browser_routes.admin import flask_api as admin_routes_flask_api
 
 # from .jobs_routes import flask_api as jobs_routes_flask_api  # TODO: this will be updated as well with new pattern
 from .login_routes import flask_api as login_routes_flask_api
@@ -68,11 +69,13 @@ def create_app(extra_config: dict):
     app.register_blueprint(clusters_routes_flask_api, url_prefix="/clusters")
     app.register_blueprint(settings_routes_flask_api, url_prefix="/settings")
     app.register_blueprint(login_routes_flask_api, url_prefix="/login")
+    app.register_blueprint(admin_routes_flask_api, url_prefix="/admin")
 
     # TODO : See if you should include the "/jobs" part here or have it in the rest_routes/jobs.py file.
     app.register_blueprint(rest_jobs_flask_api, url_prefix="/api/v1/clusters")
     app.register_blueprint(rest_nodes_flask_api, url_prefix="/api/v1/clusters")
     app.register_blueprint(rest_gpu_flask_api, url_prefix="/api/v1/clusters")
+    # TODO : add a route for admin eventually
 
     # User session management setup
     # https://flask-login.readthedocs.io/en/latest
