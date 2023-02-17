@@ -4,6 +4,7 @@ Define the API requests related to the GPU.
 
 from flask import Blueprint, request
 from flask.json import jsonify
+import logging
 
 from clockwork_web.core.gpu_helper import get_gpu_info, get_gpu_list
 
@@ -17,6 +18,8 @@ def route_api_v1_gpu_one():
     .. :quickref: return the information related to one GPU (corresponding to
         the name given as argument)
     """
+    logging.info(f"clockwork REST route: /gpu/one")
+
     # Parse the arguments
     gpu_name = request.args.get("gpu_name", None)
     # Check if the mandatory argument 'gpu_name' has been provided, and return
@@ -32,4 +35,5 @@ def route_api_v1_gpu_list():
     """
     .. :quickref: list all the GPUs' specifications known by Clockwork
     """
+    logging.info(f"clockwork REST route: /gpu/list")
     return jsonify(get_gpu_list())
