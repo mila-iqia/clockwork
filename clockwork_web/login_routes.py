@@ -18,6 +18,7 @@ import os
 import json
 import random
 import string
+import logging
 
 from flask import redirect, request, url_for, session, current_app
 
@@ -81,6 +82,8 @@ def route_index():
 
     Returns: Redirects the browser to Google's authentication server.
     """
+    logging.info("clockwork_web route: /login/")
+
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -119,6 +122,7 @@ def route_callback():
     Returns: Redirects the browser to the index of the page afterwards,
     which will now act differently facing an authenticated user.
     """
+    logging.info("clockwork_web route: /login/callback")
 
     state = session["state"]
 
@@ -207,6 +211,8 @@ def route_logout():
     Everything happens through the `flask_login` module,
     and we just need to call `logout_user()`.
     """
+    logging.info("clockwork_web route: /login/logout")
+
     logout_user()
     return redirect(url_for("index"))
 
@@ -216,6 +222,8 @@ if os.environ.get("CLOCKWORK_ENABLE_TESTING_LOGIN", "") == "True":
     # the app is run in testing mode.
     @flask_api.route("/testing")
     def route_test_login():
+        logging.info("clockwork_web route: /login/testing")
+
         user_id = request.args.get("user_id")
         user = User.get(user_id)
         if user is None or user.status != "enabled":
