@@ -166,9 +166,12 @@ def route_callback():
     if userinfo.get("email_verified"):
         users_email = userinfo["email"]
     else:
-        logging.warning(
-            f"clockwork login failed (email not verified) - user={userinfo['email']}"
-        )
+        email = ""
+        if ("email") in userinfo:
+            email = userinfo["email"]
+        else:
+            email = "-no email provided-"
+        logging.warning(f"clockwork login failed (email not verified) - user={email}")
         return render_template_with_user_settings(
             "error.html",
             error_msg="User email not available or not verified by Google.",
