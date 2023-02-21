@@ -264,10 +264,9 @@ def test_get_and_count_jobs_by_cluster_and_state_with_pagination(
 
         # Retrieve the expected jobs
         LD_expected_jobs = []
-        expected_states = get_inferred_job_states(L_states)
         for D_job in sorted_all_jobs:
             if (D_job["slurm"]["cluster_name"] in L_clusters) and (
-                D_job["slurm"]["job_state"] in expected_states
+                D_job["slurm"]["job_state"] in L_states
             ):
                 LD_expected_jobs.append(D_job)
 
@@ -328,11 +327,7 @@ def test_combine_all_mongodb_filters(given_filters, expected_filter):
                     {"cw.mila_email_username": "student00@mila.quebec"},
                     {"slurm.job_id": {"$in": [123, 456]}},
                     {"slurm.cluster_name": {"$in": ["mila", "narval"]}},
-                    {
-                        "slurm.job_state": {
-                            "$in": get_inferred_job_states(["PENDING", "RUNNING"])
-                        }
-                    },
+                    {"slurm.job_state": {"$in": ["PENDING", "RUNNING"]}},
                 ]
             },
         ),

@@ -204,8 +204,7 @@ def get_global_filter(username=None, job_ids=[], cluster_names=None, states=[]):
 
     # Define the filter related to the jobs' states
     if len(states) > 0:
-        all_inferred_states = get_inferred_job_states(states)
-        filters.append({"slurm.job_state": {"$in": all_inferred_states}})
+        filters.append({"slurm.job_state": {"$in": states}})
 
     # Combine the filters
     filter = combine_all_mongodb_filters(*filters)

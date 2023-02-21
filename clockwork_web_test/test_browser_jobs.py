@@ -482,7 +482,7 @@ def test_route_search(
         request_line += "cluster_name={}&".format(",".join(cluster_names))
     # - state
     if states:
-        request_line += "state={}&".format(",".join(states))
+        request_line += "aggregated_job_state={}&".format(",".join(states))
     # - page_num
     if page_num:
         request_line += "page_num={}&".format(page_num)

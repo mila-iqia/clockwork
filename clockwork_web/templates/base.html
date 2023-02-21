@@ -283,12 +283,12 @@
 												<div class="cc_toggle_zone_row">
 													<div class="cc_cluster_toggle_subzone form-check form-switch">
 														<label class="form-check-label" for="{{state['input_id']}}" class="{{state['input_id']}}"><span class="status {{state['span_class']}}">{{state['label']}}</span></label>
-														{% if state["value"] in previous_request_args["state"] or previous_request_args["state"]|length == 0 %}
+														{% if state["value"] in previous_request_args["aggregated_job_state"] or previous_request_args["aggregated_job_state"]|length == 0 %}
 															{# Create a checked toggle button #}
-															<input class="form-check-input float-end" type="checkbox" name="state" id="{{state['input_id']}}" value="{{state['value']}}" checked data-no-submit>
+															<input class="form-check-input float-end" type="checkbox" name="aggregated_job_state" id="{{state['input_id']}}" value="{{state['value']}}" checked data-no-submit>
 														{% else %}
 															{# Create an unchecked toggle button #}
-															<input class="form-check-input float-end" type="checkbox" name="state" id="{{state['input_id']}}" value="{{state['value']}}" data-no-submit>
+															<input class="form-check-input float-end" type="checkbox" name="aggregated_job_state" id="{{state['input_id']}}" value="{{state['value']}}" data-no-submit>
 														{% endif %}
 													</div>
 												</div>	
