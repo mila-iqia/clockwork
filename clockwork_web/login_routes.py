@@ -18,6 +18,7 @@ import os
 import json
 import random
 import string
+import logging
 
 from flask import redirect, request, url_for, session, current_app
 
@@ -81,6 +82,8 @@ def route_index():
 
     Returns: Redirects the browser to Google's authentication server.
     """
+    logging.info("clockwork_web route: /login/")
+
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -119,6 +122,7 @@ def route_callback():
     Returns: Redirects the browser to the index of the page afterwards,
     which will now act differently facing an authenticated user.
     """
+    logging.info("clockwork_web route: /login/callback")
 
     state = session["state"]
 
@@ -162,12 +166,21 @@ def route_callback():
     if userinfo.get("email_verified"):
         users_email = userinfo["email"]
     else:
+        email = ""
+        if ("email") in userinfo:
+            email = userinfo["email"]
+        else:
+            email = "-no email provided-"
+        logging.warning(f"clockwork login failed (email not verified) - user={email}")
         return render_template_with_user_settings(
             "error.html",
             error_msg="User email not available or not verified by Google.",
         )
 
     if not users_email.endswith("@mila.quebec"):
+        logging.warning(
+            f"clockwork login failed (email not @mila.quebec) - user={userinfo['email']}"
+        )
         return render_template_with_user_settings(
             "error.html", error_msg="We accept only accounts from @mila.quebec"
         )
@@ -175,6 +188,9 @@ def route_callback():
     user = User.get(users_email)
 
     if user is None:
+        logging.warning(
+            f"clockwork login failed (User not available) - user={userinfo['email']}"
+        )
         return render_template_with_user_settings(
             "error.html",
             error_msg=f"User not available, contact support for more information",
@@ -182,6 +198,9 @@ def route_callback():
     # At this point in the code, the user cannot possibly be `None`.
 
     if user.status != "enabled":
+        logging.warning(
+            f"clockwork login failed (User not enabled) - user={userinfo['email']}"
+        )
         return render_template_with_user_settings(
             "error.html",
             error_msg="The user retrieved does not have its status as 'enabled'.",
@@ -207,6 +226,10 @@ def route_logout():
     Everything happens through the `flask_login` module,
     and we just need to call `logout_user()`.
     """
+    logging.info(
+        f"clockwork_web route: /login/logout  - current_user={current_user.mila_email_username}"
+    )
+
     logout_user()
     return redirect(url_for("index"))
 
@@ -216,6 +239,8 @@ if os.environ.get("CLOCKWORK_ENABLE_TESTING_LOGIN", "") == "True":
     # the app is run in testing mode.
     @flask_api.route("/testing")
     def route_test_login():
+        logging.info("clockwork_web route: /login/testing")
+
         user_id = request.args.get("user_id")
         user = User.get(user_id)
         if user is None or user.status != "enabled":

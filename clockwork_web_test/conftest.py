@@ -24,7 +24,7 @@ register_config("clockwork.test.email")
 register_config("clockwork.test.api_key")
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def app():
     """Create and configure a new app instance for each test."""
     # create the app with common test config
