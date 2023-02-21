@@ -6,6 +6,7 @@ Utilities to prepare fake data for tests.
 import pytest
 import os
 import json
+from clockwork_web.core.jobs_helper import job_state_to_aggregated
 
 from clockwork_web.db import get_db
 
@@ -22,10 +23,11 @@ def fake_data():
     )
     with open(json_file, "r") as f:
         E = json.load(f)
+    mutate_some_job_status(E)
     return E
 
 
-def populate_fake_data(db_insertion_point, json_file=None):
+def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
     """
     This json file should contain a dict with keys "users", "jobs", "nodes" and "gpu".
     Not all those keys need to be present. If they are,
@@ -52,6 +54,9 @@ def populate_fake_data(db_insertion_point, json_file=None):
     ), f"Failed to find the fake data file to populate the database for testing: {json_file}."
     with open(json_file, "r") as f:
         E = json.load(f)
+
+    if mutate:
+        mutate_some_job_status(E)
 
     # Create indices. This isn't half as important as when we're
     # dealing with large quantities of data, but it's part of the
@@ -109,6 +114,80 @@ def populate_fake_data(db_insertion_point, json_file=None):
                     )
 
     return cleanup_function
+
+
+# Relative proportions of jobs for each job state
+status_counts = {
+    "BOOT_FAIL": 1,
+    "CANCELLED": 1,
+    "COMPLETED": 10,
+    "CONFIGURING": 1,
+    "COMPLETING": 1,
+    "DEADLINE": 1,
+    "FAILED": 10,
+    "NODE_FAIL": 1,
+    "OUT_OF_MEMORY": 1,
+    "PENDING": 10,
+    "PREEMPTED": 1,
+    "RUNNING": 20,
+    "RESV_DEL_HOLD": 1,
+    "REQUEUE_FED": 1,
+    "REQUEUE_HOLD": 1,
+    "REQUEUED": 1,
+    "RESIZING": 1,
+    "REVOKED": 1,
+    "SIGNALING": 1,
+    "SPECIAL_EXIT": 1,
+    "STAGE_OUT": 1,
+    "STOPPED": 1,
+    "SUSPENDED": 1,
+    "TIMEOUT": 1,
+}
+
+
+def mutate_some_job_status(data):
+    """
+    Mutates all job statuses to match a certain distribution. The start_time,
+    end_time and nodes fields are made coherent with the rest.
+
+            Modifies in place about 1/5 of the job status to get more variations.
+
+    Note that this produces values of "job_state" that are not necessarily
+    coherent with other fields such as "start_time" and "end_time" because
+    we can end up with jobs that are COMPLETED but don't have proper
+    "start_time" and "end_time", or jobs that are CANCELLED but have an
+    "end_time" anyways.
+    Fixing this is not a priority, though, because right now it's used only
+    for running some tests and trying out the visual front-end.
+    """
+    L_status = []
+    for status, n in status_counts.items():
+        L_status += [status] * n
+
+    nodes = data["nodes"]
+
+    for (i, job) in enumerate(data["jobs"]):
+        slurm = job["slurm"]
+        job_state = L_status[i % len(L_status)]
+        slurm["job_state"] = job_state
+        agg = job_state_to_aggregated[job_state]
+
+        if agg == "PENDING":
+            slurm["start_time"] = None
+            slurm["nodes"] = None
+
+        if agg in ("PENDING", "RUNNING"):
+            slurm["end_time"] = None
+
+        if agg in ("RUNNING", "COMPLETED", "FAILED"):
+            if not slurm["start_time"]:
+                slurm["start_time"] = slurm["submit_time"]
+            if not slurm["nodes"]:
+                slurm["nodes"] = nodes[i % len(nodes)]["slurm"]["name"]
+
+        if agg in ("COMPLETED", "FAILED"):
+            if not slurm["end_time"]:
+                slurm["end_time"] = slurm["start_time"] + 7200  # 2 hours
 
 
 @pytest.fixture

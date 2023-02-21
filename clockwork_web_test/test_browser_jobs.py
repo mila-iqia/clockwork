@@ -18,6 +18,7 @@ import random
 import json
 import re
 import pytest
+from clockwork_web.core.jobs_helper import get_inferred_job_states
 
 from test_common.jobs_test_helpers import (
     helper_single_job_missing,
@@ -432,6 +433,7 @@ def test_route_search(
 
     # Determine which filters we have to ignored
     ignore_username_filter = username is None
+    states = get_inferred_job_states(states)
     ignore_states_filter = len(states) < 1
 
     # Intersection between the requested clusters (if specified)

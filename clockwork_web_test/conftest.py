@@ -44,7 +44,7 @@ def app():
     with app.app_context():
         init_db()
         db = get_db()
-        cleanup_function = populate_fake_data(db)
+        cleanup_function = populate_fake_data(db, mutate=True)
 
     yield app
 
