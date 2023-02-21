@@ -91,7 +91,7 @@ def test_single_node_gpu_with_specs(client, fake_data, valid_rest_auth_headers):
     original_D_gpu = {}
     for D_gpu in fake_data["gpu"]:
         if D_gpu["cw_name"] == original_D_node["cw"]["gpu"]["cw_name"]:
-            original_D_gpu = D_gpu
+            original_D_gpu.update(D_gpu)
             break
 
     # Retrieve the response of the API call

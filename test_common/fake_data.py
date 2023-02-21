@@ -7,8 +7,10 @@ import pytest
 import os
 import json
 
+from clockwork_web.db import get_db
 
-@pytest.fixture
+
+@pytest.fixture(scope="session")
 def fake_data():
     """
     The genius of having `fake_data` as fixture is that all those tests that depend
@@ -107,3 +109,25 @@ def populate_fake_data(db_insertion_point, json_file=None):
                     )
 
     return cleanup_function
+
+
+@pytest.fixture
+def known_user(app, fake_data):
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
+    known_user = fake_data["users"][0]
+    known_mila_email_username = known_user["mila_email_username"]
+    known_settings = known_user["web_settings"]
+
+    # Use the app context
+    with app.app_context():
+        try:
+            yield known_user
+        finally:
+            # reset_settings
+            users_collection = get_db()["users"]
+            users_collection.update_one(
+                {"mila_email_username": known_mila_email_username},
+                {"$set": {"web_settings": known_settings}},
+            )

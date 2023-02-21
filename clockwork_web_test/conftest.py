@@ -18,7 +18,7 @@ from clockwork_web.db import get_db, init_db
 # from clockwork_web.user import User
 from clockwork_web.config import get_config, register_config
 
-from test_common.fake_data import fake_data, populate_fake_data
+from test_common.fake_data import fake_data, known_user, populate_fake_data
 
 register_config("clockwork.test.email")
 register_config("clockwork.test.api_key")

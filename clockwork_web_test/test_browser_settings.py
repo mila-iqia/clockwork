@@ -143,20 +143,17 @@ def test_settings_set_date_format_wrong_type(client, date_format):
 
 
 @pytest.mark.parametrize("date_format", ["words", "unix_timestamp", "MM/DD/YYYY"])
-def test_settings_set_date_format_success(client, fake_data, date_format):
+def test_settings_set_date_format_success(client, known_user, date_format):
     """
     Test the function route_set_date_format when the operation is
     done successfully.
 
     Parameters:
     - client        The web client used to send the request
-    - fake_data     The data on which our tests are based
+    - known_user    A known user we will check or edit
     - date_format   The format to display the dates to store in the user's settings
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-    # Define the user used to test the function
-    user_id = fake_data["users"][0]["mila_email_username"]
+    user_id = known_user["mila_email_username"]
 
     # Log in to Clockwork in order to have an active current user
     login_response = client.get(f"/login/testing?user_id={user_id}")
@@ -223,22 +220,19 @@ def test_settings_set_time_format_wrong_type(client, time_format):
 
 
 @pytest.mark.parametrize("time_format", ["24h", "AM/PM"])
-def test_settings_set_time_format_success(client, fake_data, time_format):
+def test_settings_set_time_format_success(client, known_user, time_format):
     """
     Test the function route_set_time_format when the operation is
     done successfully.
 
     Parameters:
     - client        The web client used to send the request
-    - fake_data     The data on which our tests are based
+    - known_user    A known user we will check or edit
     - time_format   The value to try to set as the preferred time
                     format used to display the "time part" of the
                     timestamps for the current user
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-    # Define the user used to test the function
-    user_id = fake_data["users"][0]["mila_email_username"]
+    user_id = known_user["mila_email_username"]
 
     # Log in to Clockwork in order to have an active current user
     login_response = client.get(f"/login/testing?user_id={user_id}")
@@ -366,7 +360,7 @@ def test_settings_unset_column_display_bad_request(
     [("jobs_list", "job_id")],
 )
 def test_settings_set_and_unset_column_display_good_request(
-    client, fake_data, page_name, column_name
+    client, known_user, page_name, column_name
 ):
     """
     Test the functions route_set_column_display and route_unset_column_display when the
@@ -374,14 +368,11 @@ def test_settings_set_and_unset_column_display_good_request(
 
     Parameters:
     - client        The web client used to send the requests
-    - fake_data     The data on which our tests are based
+    - known_user    A known user we will check or edit
     - page_name     The page name on which the provided job property should appear or not regarding the web setting value
     - column_name   The job property we try to change whether or not it is displayed
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-    # Define the user used to test the function
-    user_id = fake_data["users"][0]["mila_email_username"]
+    user_id = known_user["mila_email_username"]
 
     # Log in to Clockwork in order to have an active current user
     login_response = client.get(f"/login/testing?user_id={user_id}")
@@ -390,7 +381,7 @@ def test_settings_set_and_unset_column_display_good_request(
     # Check the current value of the web setting we want to update through
     # our requests
     try:
-        previous_value = fake_data["users"][0]["web_settings"][page_name][column_name]
+        previous_value = known_user["web_settings"][page_name][column_name]
     except Exception:
         previous_value = True  # Default value if the setting has not been defined. Anyway, set and unset are tested below
 
