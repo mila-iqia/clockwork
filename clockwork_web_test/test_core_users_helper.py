@@ -6,7 +6,29 @@ import pytest
 
 from clockwork_web.core.users_helper import *
 from clockwork_web.core.users_helper import _set_web_setting
-from clockwork_web.db import init_db, get_db
+from clockwork_web.db import get_db
+
+
+@pytest.fixture
+def known_user(app, fake_data):
+    # Assert that the users of the fake data exist and are not empty
+    assert "users" in fake_data and len(fake_data["users"]) > 0
+
+    known_user = fake_data["users"][0]
+    known_mila_email_username = known_user["mila_email_username"]
+    known_settings = known_user["web_settings"]
+
+    # Use the app context
+    with app.app_context():
+        try:
+            yield known_user
+        finally:
+            # reset_settings
+            users_collection = get_db()["users"]
+            users_collection.update_one(
+                {"mila_email_username": known_mila_email_username},
+                {"$set": {"web_settings": known_settings}},
+            )
 
 
 @pytest.mark.parametrize(
@@ -97,143 +119,118 @@ def test_set_web_setting_with_wrong_setting_key(app, fake_data):
     [("nbr_items_per_page", True), ("dark_mode", 6)],
 )
 def test_set_web_setting_incorrect_value_for_existing_setting(
-    app, fake_data, setting_key, setting_value
+    known_user, fake_data, setting_key, setting_value
 ):
     """
     Test the function _set_web_setting with a known user, but an incorrect value
     type for the setting nbr_items_per_page
 
     Parameters:
-    - app               The scope of our tests, used to set the context
-                        (to access MongoDB)
+    - known_user        A known user that we will check or edit
     - fake_data         The data on which our tests are based
     - setting_key       The key identifying the setting we want to update
     - setting_value     The value to try to set for the setting. For the purpose
                         of the test, its type must not correspond to the expected
                         type of the setting
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-
     # Get an existing mila_email_username from the fake_data
-    known_mila_email_username = fake_data["users"][0]["mila_email_username"]
+    known_mila_email_username = known_user["mila_email_username"]
 
-    # Use the app context
-    with app.app_context():
-        # Try to set a wrong value type for the setting and get the status code of the operation
-        (status_code, _) = _set_web_setting(
-            known_mila_email_username, setting_key, setting_value
-        )
+    # Try to set a wrong value type for the setting and get the status code of the operation
+    (status_code, _) = _set_web_setting(
+        known_mila_email_username, setting_key, setting_value
+    )
 
-        # Check the status code
-        assert status_code == 400
+    # Check the status code
+    assert status_code == 400
 
-        # Assert that the users data remains unchanged
-        assert_no_user_has_been_modified(fake_data)
+    # Assert that the users data remains unchanged
+    assert_no_user_has_been_modified(fake_data)
 
 
 @pytest.mark.parametrize(
     "value",
     [54, 22, 0, -6],
 )
-def test_set_web_setting_set_nbr_items_per_page(app, fake_data, value):
+def test_set_web_setting_set_nbr_items_per_page(known_user, value):
     """
     Test the function _set_web_setting with a known user for the setting
     nbr_items_per_page
 
     Parameters:
-    - app           The scope of our tests, used to set the context (to access MongoDB)
     - fake_data     The data on which our tests are based
     - value         The value to set
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-
-    # Get an existing user from the fake_data
-    known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
-    # Use the app context
-    with app.app_context():
-        # Retrieve value of the user's nbr_items_per_page setting
-        previous_nbr_items_per_page = known_user["web_settings"]["nbr_items_per_page"]
+    # Set the setting nbr_items_per_page of the user to value and get the status code of the operation
+    (status_code, _) = _set_web_setting(
+        known_mila_email_username, "nbr_items_per_page", value
+    )
 
-        # Set the setting nbr_items_per_page of the user to value and get the status code of the operation
-        (status_code, _) = _set_web_setting(
-            known_mila_email_username, "nbr_items_per_page", value
-        )
+    # Check the status code
+    assert status_code == 200
 
-        # Check the status code
-        assert status_code == 200
-
-        # Assert that the user has been correctly modified
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
-        # Compare the value of nbr_items_per_page with the new value we tried to set
-        assert D_user["web_settings"]["nbr_items_per_page"] == value
-        # Assert that the other web settings remain unchanged
-        for setting_key in known_user["web_settings"].keys():
-            if setting_key != "nbr_items_per_page":
-                assert (
-                    known_user["web_settings"][setting_key]
-                    == D_user["web_settings"][setting_key]
-                )
+    # Assert that the user has been correctly modified
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
+    # Compare the value of nbr_items_per_page with the new value we tried to set
+    assert D_user["web_settings"]["nbr_items_per_page"] == value
+    # Assert that the other web settings remain unchanged
+    for setting_key in known_user["web_settings"].keys():
+        if setting_key != "nbr_items_per_page":
+            assert (
+                known_user["web_settings"][setting_key]
+                == D_user["web_settings"][setting_key]
+            )
 
 
-def test_set_web_setting_set_dark_mode(app, fake_data):
+def test_set_web_setting_set_dark_mode(known_user):
     """
     Test the function _set_web_setting with a known user. Modify the value for
     the setting dark_mode
 
     Parameters:
-    - app           The scope of our tests, used to set the context (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-
-    # Get an existing user from the fake_data
-    known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
-    # Use the app context
-    with app.app_context():
-        # Retrieve value of the user's dark_mode setting
-        previous_dark_mode = known_user["web_settings"]["dark_mode"]
+    # Retrieve value of the user's dark_mode setting
+    previous_dark_mode = known_user["web_settings"]["dark_mode"]
 
-        # Set the setting dark_mode of the user to True if its previous value
-        # was False, and to False if its previous value was True
-        new_dark_mode = not previous_dark_mode
-        # ... set this new value and get the status code of the operation
-        (status_code, _) = _set_web_setting(
-            known_mila_email_username, "dark_mode", new_dark_mode
-        )
+    # Set the setting dark_mode of the user to True if its previous value
+    # was False, and to False if its previous value was True
+    new_dark_mode = not previous_dark_mode
+    # ... set this new value and get the status code of the operation
+    (status_code, _) = _set_web_setting(
+        known_mila_email_username, "dark_mode", new_dark_mode
+    )
 
-        # Check the status code
-        assert status_code == 200
+    # Check the status code
+    assert status_code == 200
 
-        # Assert that the user has been correctly modified
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
-        # Compare the value of dark_mode with the new value we tried to set
-        assert D_user["web_settings"]["dark_mode"] == new_dark_mode
-        # Assert that the other web settings remain unchanged
-        for setting_key in known_user["web_settings"].keys():
-            if setting_key != "dark_mode":
-                assert (
-                    known_user["web_settings"][setting_key]
-                    == D_user["web_settings"][setting_key]
-                )
+    # Assert that the user has been correctly modified
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
+    # Compare the value of dark_mode with the new value we tried to set
+    assert D_user["web_settings"]["dark_mode"] == new_dark_mode
+    # Assert that the other web settings remain unchanged
+    for setting_key in known_user["web_settings"].keys():
+        if setting_key != "dark_mode":
+            assert (
+                known_user["web_settings"][setting_key]
+                == D_user["web_settings"][setting_key]
+            )
 
 
 @pytest.mark.parametrize(
@@ -348,54 +345,46 @@ def test_set_items_per_page_with_unknown_user(app, fake_data):
     "value",
     [0, -1, -36],
 )
-def test_set_items_per_page_set_negative_number(app, fake_data, value):
+def test_set_items_per_page_set_negative_number(known_user, value):
     """
     Test the function set_items_per_page with a known user, and a negative value
     (or 0) for the setting nbr_items_per_page
 
     Parameters:
-    - app           The scope of our tests, used to set the context (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     - value         The value to set. It must be negative or 0 for the purpose
                     of the test
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-
-    # Get an existing user from the fake_data
-    known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
-    # Use the app context
-    with app.app_context():
-        # Set the setting nbr_items_per_page of the user to a negative number
-        # (or 0) and get the status code of the operation
-        (status_code, _) = set_items_per_page(known_mila_email_username, value)
+    # Set the setting nbr_items_per_page of the user to a negative number
+    # (or 0) and get the status code of the operation
+    (status_code, _) = set_items_per_page(known_mila_email_username, value)
 
-        # Check the status code
-        assert status_code == 200
+    # Check the status code
+    assert status_code == 200
 
-        # Assert that the default value of the nbr_items_per_page setting
-        # has been set for this user
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
-        # Compare the value of nbr_items_per_page with the default value of
-        # the setting nbr_items_per_page
-        assert D_user["web_settings"][
-            "nbr_items_per_page"
-        ] == get_default_setting_value("nbr_items_per_page")
-        # Assert that the other web settings remain unchanged
-        for setting_key in known_user["web_settings"].keys():
-            if setting_key != "nbr_items_per_page":
-                assert (
-                    known_user["web_settings"][setting_key]
-                    == D_user["web_settings"][setting_key]
-                )
+    # Assert that the default value of the nbr_items_per_page setting
+    # has been set for this user
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
+    # Compare the value of nbr_items_per_page with the default value of
+    # the setting nbr_items_per_page
+    assert D_user["web_settings"]["nbr_items_per_page"] == get_default_setting_value(
+        "nbr_items_per_page"
+    )
+    # Assert that the other web settings remain unchanged
+    for setting_key in known_user["web_settings"].keys():
+        if setting_key != "nbr_items_per_page":
+            assert (
+                known_user["web_settings"][setting_key]
+                == D_user["web_settings"][setting_key]
+            )
 
 
 @pytest.mark.parametrize(
@@ -436,50 +425,41 @@ def test_set_items_per_page_with_incorrect_value_type(app, fake_data, value):
     "value",
     [54, 23],
 )
-def test_set_items_per_page_set_positive_number(app, fake_data, value):
+def test_set_items_per_page_set_positive_number(known_user, value):
     """
     Test the function set_items_per_page with a known user, and a positive
     integer as value (which is an expected value)
 
     Parameters:
-    - app           The scope of our tests, used to set the context
-                    (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     - value         A positive number, which is used to update the number
                     of items to display per page for a specific user
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-
-    # Get an existing user from the fake_data
-    known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
-    # Use the app context
-    with app.app_context():
-        # Set the setting nbr_items_per_page of the user to a positive number and get the status code of the operation
-        (status_code, _) = set_items_per_page(known_mila_email_username, value)
+    # Set the setting nbr_items_per_page of the user to a positive number and get the status code of the operation
+    (status_code, _) = set_items_per_page(known_mila_email_username, value)
 
-        # Check the status code
-        assert status_code == 200
+    # Check the status code
+    assert status_code == 200
 
-        # Assert that the user has been correctly modified
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
-        # Compare the value of nbr_items_per_page with the new value we tried to set
-        assert D_user["web_settings"]["nbr_items_per_page"] == value
-        # Assert that the other web settings remain unchanged
-        for setting_key in known_user["web_settings"].keys():
-            if setting_key != "nbr_items_per_page":
-                assert (
-                    known_user["web_settings"][setting_key]
-                    == D_user["web_settings"][setting_key]
-                )
+    # Assert that the user has been correctly modified
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
+    # Compare the value of nbr_items_per_page with the new value we tried to set
+    assert D_user["web_settings"]["nbr_items_per_page"] == value
+    # Assert that the other web settings remain unchanged
+    for setting_key in known_user["web_settings"].keys():
+        if setting_key != "nbr_items_per_page":
+            assert (
+                known_user["web_settings"][setting_key]
+                == D_user["web_settings"][setting_key]
+            )
 
 
 def test_reset_items_per_page_with_unknown_user(app, fake_data):
@@ -505,57 +485,45 @@ def test_reset_items_per_page_with_unknown_user(app, fake_data):
         assert_no_user_has_been_modified(fake_data)
 
 
-def test_reset_items_per_page_with_known_user(app, fake_data):
+def test_reset_items_per_page_with_known_user(known_user):
     """
     Test the function reset_items_per_page with a known user
 
     Parameters:
-    - app           The scope of our tests, used to set the context
-                    (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     """
-    # Use the app context
-    with app.app_context():
-        # Assert that the users of the fake data exist and are not empty
-        assert "users" in fake_data and len(fake_data["users"]) > 0
+    # First set its nbr_items_per_page to a number different from the
+    # default number and get the status code of the operation
+    (status_code, _) = set_items_per_page(known_user["mila_email_username"], 56)
 
-        # Get an existing user from the fake_data
-        known_user = fake_data["users"][0]
+    # Check the status code
+    assert status_code == 200
 
-        # First set its nbr_items_per_page to a number different from the
-        # default number and get the status code of the operation
-        (status_code, _) = set_items_per_page(known_user["mila_email_username"], 56)
+    # Then reset this value and get the status code of the operation
+    (status_code, _) = reset_items_per_page(known_user["mila_email_username"])
 
-        # Check the status code
-        assert status_code == 200
+    # Check the status code
+    assert status_code == 200
 
-        # Then reset this value and get the status code of the operation
-        (status_code, _) = reset_items_per_page(known_user["mila_email_username"])
-
-        # Check the status code
-        assert status_code == 200
-
-        # Assert that the default value has been set for this user
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
-        # Compare the value of nbr_items_per_page with the new value we tried to set
-        assert D_user["web_settings"][
-            "nbr_items_per_page"
-        ] == get_default_setting_value(
-            "nbr_items_per_page"
-        )  # TODO: maybe put it in the configuration file?
-        # Assert that the other web settings remain unchanged
-        for setting_key in known_user["web_settings"].keys():
-            if setting_key != "nbr_items_per_page":
-                assert (
-                    known_user["web_settings"][setting_key]
-                    == D_user["web_settings"][setting_key]
-                )
+    # Assert that the default value has been set for this user
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
+    # Compare the value of nbr_items_per_page with the new value we tried to set
+    assert D_user["web_settings"]["nbr_items_per_page"] == get_default_setting_value(
+        "nbr_items_per_page"
+    )  # TODO: maybe put it in the configuration file?
+    # Assert that the other web settings remain unchanged
+    for setting_key in known_user["web_settings"].keys():
+        if setting_key != "nbr_items_per_page":
+            assert (
+                known_user["web_settings"][setting_key]
+                == D_user["web_settings"][setting_key]
+            )
 
 
 def test_enable_dark_mode_with_unknown_user(app, fake_data):
@@ -580,57 +548,47 @@ def test_enable_dark_mode_with_unknown_user(app, fake_data):
         assert_no_user_has_been_modified(fake_data)
 
 
-def test_enable_dark_mode_success(app, fake_data):
+def test_enable_dark_mode_success(known_user):
     """
     Test the function enable_dark_mode with a known user
 
     Parameters:
-    - app           The scope of our tests, used to set the context
-                    (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     """
-    # Use the app context
-    with app.app_context():
-        # Assert that the users of the fake data exist and are not empty
-        assert "users" in fake_data and len(fake_data["users"]) > 0
+    # First set its dark mode option to False and get the status code of the operation
+    (status_code, _) = _set_web_setting(
+        known_user["mila_email_username"], "dark_mode", False
+    )
 
-        # Get an existing user from the fake_data
-        known_user = fake_data["users"][0]
+    # Check the status code
+    assert status_code == 200
 
-        # First set its dark mode option to False and get the status code of the operation
-        (status_code, _) = _set_web_setting(
-            known_user["mila_email_username"], "dark_mode", False
-        )
+    # TODO: I did not check if the modification has been done because it is
+    # suppose to be tested in another function, but we can discuss it
 
-        # Check the status code
-        assert status_code == 200
+    # Then enable the dark mode for this user and get the status code of the operation
+    (status_code, _) = enable_dark_mode(known_user["mila_email_username"])
 
-        # TODO: I did not check if the modification has been done because it is
-        # suppose to be tested in another function, but we can discuss it
+    # Check the status code
+    assert status_code == 200
 
-        # Then enable the dark mode for this user and get the status code of the operation
-        (status_code, _) = enable_dark_mode(known_user["mila_email_username"])
-
-        # Check the status code
-        assert status_code == 200
-
-        # Assert that True has been set to the dark_mode setting for this user
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
-        # Compare the value of dark_mode with True
-        assert D_user["web_settings"]["dark_mode"] == True
-        # Assert that the other web settings remain unchanged
-        for setting_key in known_user["web_settings"].keys():
-            if setting_key != "dark_mode":
-                assert (
-                    known_user["web_settings"][setting_key]
-                    == D_user["web_settings"][setting_key]
-                )
+    # Assert that True has been set to the dark_mode setting for this user
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
+    # Compare the value of dark_mode with True
+    assert D_user["web_settings"]["dark_mode"] == True
+    # Assert that the other web settings remain unchanged
+    for setting_key in known_user["web_settings"].keys():
+        if setting_key != "dark_mode":
+            assert (
+                known_user["web_settings"][setting_key]
+                == D_user["web_settings"][setting_key]
+            )
 
 
 def test_disable_dark_mode_with_unknown_user(app, fake_data):
@@ -655,57 +613,47 @@ def test_disable_dark_mode_with_unknown_user(app, fake_data):
         assert_no_user_has_been_modified(fake_data)
 
 
-def test_disable_dark_mode_success(app, fake_data):
+def test_disable_dark_mode_success(known_user):
     """
     Test the function disable_dark_mode with a known user
 
     Parameters:
-    - app           The scope of our tests, used to set the context
-                    (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     """
-    # Use the app context
-    with app.app_context():
-        # Assert that the users of the fake data exist and are not empty
-        assert "users" in fake_data and len(fake_data["users"]) > 0
+    # First set its dark mode option to True and get the status code of the operation
+    (status_code, _) = _set_web_setting(
+        known_user["mila_email_username"], "dark_mode", True
+    )
 
-        # Get an existing user from the fake_data
-        known_user = fake_data["users"][0]
+    # Check the status code
+    assert status_code == 200
 
-        # First set its dark mode option to True and get the status code of the operation
-        (status_code, _) = _set_web_setting(
-            known_user["mila_email_username"], "dark_mode", True
-        )
+    # TODO: I did not check if the modification has been done because it is
+    # suppose to be tested in another function, but we can discuss it
 
-        # Check the status code
-        assert status_code == 200
+    # Then disable the dark mode for this user and get the status code of the operation
+    (status_code, _) = disable_dark_mode(known_user["mila_email_username"])
 
-        # TODO: I did not check if the modification has been done because it is
-        # suppose to be tested in another function, but we can discuss it
+    # Check the status code
+    assert status_code == 200
 
-        # Then disable the dark mode for this user and get the status code of the operation
-        (status_code, _) = disable_dark_mode(known_user["mila_email_username"])
-
-        # Check the status code
-        assert status_code == 200
-
-        # Assert that False has been set to the dark_mode setting for this user
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
-        # Compare the value of dark_mode with False
-        assert D_user["web_settings"]["dark_mode"] == False
-        # Assert that the other web settings remain unchanged
-        for setting_key in known_user["web_settings"].keys():
-            if setting_key != "dark_mode":
-                assert (
-                    known_user["web_settings"][setting_key]
-                    == D_user["web_settings"][setting_key]
-                )
+    # Assert that False has been set to the dark_mode setting for this user
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
+    # Compare the value of dark_mode with False
+    assert D_user["web_settings"]["dark_mode"] == False
+    # Assert that the other web settings remain unchanged
+    for setting_key in known_user["web_settings"].keys():
+        if setting_key != "dark_mode":
+            assert (
+                known_user["web_settings"][setting_key]
+                == D_user["web_settings"][setting_key]
+            )
 
 
 @pytest.mark.parametrize(
@@ -713,7 +661,7 @@ def test_disable_dark_mode_success(app, fake_data):
     [54, "not_a_correct_date_format", True, 3.4, ["unix_timestamp"]],
 )
 def test_set_date_format_with_incorrect_value_type(
-    app, fake_data, incorrect_date_format
+    known_user, fake_data, incorrect_date_format
 ):
     """
     Test the function set_date_format while providing incorrect parameters
@@ -721,30 +669,22 @@ def test_set_date_format_with_incorrect_value_type(
     Parameters:
     - app                       The scope of our tests, used to set the context
                                 (to access MongoDB)
+    - known_user                A known user that will be checked or modified
     - fake_data                 The data on which our tests are based
     - incorrect_date_format     An element which does not correspond to what is expected
                                 from a date format
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-
-    # Get an existing user from the fake_data
-    known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
-    # Use the app context
-    with app.app_context():
-        # Try to update the preferred date format of the user with a value
-        # of an unexpected type
-        (status_code, _) = set_date_format(
-            known_mila_email_username, incorrect_date_format
-        )
+    # Try to update the preferred date format of the user with a value
+    # of an unexpected type
+    (status_code, _) = set_date_format(known_mila_email_username, incorrect_date_format)
 
-        # Check the status code
-        assert status_code == 400  # Bad Request
+    # Check the status code
+    assert status_code == 400  # Bad Request
 
-        # Assert that the users data remains unchanged
-        assert_no_user_has_been_modified(fake_data)
+    # Assert that the users data remains unchanged
+    assert_no_user_has_been_modified(fake_data)
 
 
 def test_set_date_format_with_unknown_user(app, fake_data):
@@ -776,51 +716,42 @@ def test_set_date_format_with_unknown_user(app, fake_data):
     "valid_date_format",
     ["DD/MM/YYYY", "unix_timestamp"],
 )
-def test_set_date_format_success(app, fake_data, valid_date_format):
+def test_set_date_format_success(known_user, valid_date_format):
     """
     Test the function set_date_format
 
     Parameters:
-    - app                   The scope of our tests, used to set the context
-                            (to access MongoDB)
-    - fake_data             The data on which our tests are based
+    - known_user            A known user that will be checked or modified
     - valid_date_format     An element which does not correspond to what is expected
                             from a date format
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-
-    # Get an existing user from the fake_data
-    known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
-    # Use the app context
-    with app.app_context():
-        # Try to update the preferred date format of the user with a value
-        # of an expected type
-        (status_code, _) = set_date_format(known_mila_email_username, valid_date_format)
+    # Try to update the preferred date format of the user with a value
+    # of an expected type
+    (status_code, _) = set_date_format(known_mila_email_username, valid_date_format)
 
-        # Check the status code
-        assert status_code == 200  # Success
+    # Check the status code
+    assert status_code == 200  # Success
 
-        # Assert that the value has correctly been updated
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
+    # Assert that the value has correctly been updated
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
 
-        # Compare the value of the date format with the expected one
-        assert D_user["web_settings"]["date_format"] == valid_date_format
-        # Assert that the other web settings remain unchanged
-        for setting_key in known_user["web_settings"].keys():
-            if setting_key != "date_format":
-                assert (
-                    known_user["web_settings"][setting_key]
-                    == D_user["web_settings"][setting_key]
-                )
+    # Compare the value of the date format with the expected one
+    assert D_user["web_settings"]["date_format"] == valid_date_format
+    # Assert that the other web settings remain unchanged
+    for setting_key in known_user["web_settings"].keys():
+        if setting_key != "date_format":
+            assert (
+                known_user["web_settings"][setting_key]
+                == D_user["web_settings"][setting_key]
+            )
 
 
 @pytest.mark.parametrize(
@@ -828,38 +759,28 @@ def test_set_date_format_success(app, fake_data, valid_date_format):
     [237000, "not_a_correct_time_format", False, 789.09, ["AM/PM"]],
 )
 def test_set_time_format_with_incorrect_value_type(
-    app, fake_data, incorrect_time_format
+    known_user, fake_data, incorrect_time_format
 ):
     """
     Test the function set_time_format while providing incorrect parameters
 
     Parameters:
-    - app                       The scope of our tests, used to set the context
-                                (to access MongoDB)
+    - known_user    A known user that will be checked or modified
     - fake_data                 The data on which our tests are based
     - incorrect_time_format     An element which does not correspond to what is expected
                                 from a time format
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-
-    # Get an existing user from the fake_data
-    known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
-    # Use the app context
-    with app.app_context():
-        # Try to update the preferred time format of the user with a value
-        # of an unexpected type
-        (status_code, _) = set_time_format(
-            known_mila_email_username, incorrect_time_format
-        )
+    # Try to update the preferred time format of the user with a value
+    # of an unexpected type
+    (status_code, _) = set_time_format(known_mila_email_username, incorrect_time_format)
 
-        # Check the status code
-        assert status_code == 400  # Bad Request
+    # Check the status code
+    assert status_code == 400  # Bad Request
 
-        # Assert that the users data remains unchanged
-        assert_no_user_has_been_modified(fake_data)
+    # Assert that the users data remains unchanged
+    assert_no_user_has_been_modified(fake_data)
 
 
 def test_set_time_format_with_unknown_user(app, fake_data):
@@ -890,50 +811,41 @@ def test_set_time_format_with_unknown_user(app, fake_data):
     "valid_time_format",
     ["AM/PM", "24h"],
 )
-def test_set_time_format_success(app, fake_data, valid_time_format):
+def test_set_time_format_success(known_user, valid_time_format):
     """
     Test the function set_time_format
 
     Parameters:
-    - app                   The scope of our tests, used to set the context
-                            (to access MongoDB)
-    - fake_data             The data on which our tests are based
+    - known_user            A known user that will be checked or modified
     - valid_time_format     An element which does not correspond to what is expected
                             from a time format
     """
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-
-    # Get an existing user from the fake_data
-    known_user = fake_data["users"][0]
     known_mila_email_username = known_user["mila_email_username"]
 
-    # Use the app context
-    with app.app_context():
-        # Try to update the preferred time format of the user with a value
-        # of an expected type
-        (status_code, _) = set_time_format(known_mila_email_username, valid_time_format)
+    # Try to update the preferred time format of the user with a value
+    # of an expected type
+    (status_code, _) = set_time_format(known_mila_email_username, valid_time_format)
 
-        # Check the status code
-        assert status_code == 200  # Success
+    # Check the status code
+    assert status_code == 200  # Success
 
-        # Assert that the value has correctly been updated
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
-        # Compare the value of the time format with the expected one
-        assert D_user["web_settings"]["time_format"] == valid_time_format
-        # Assert that the other web settings remain unchanged
-        for setting_key in known_user["web_settings"].keys():
-            if setting_key != "time_format":
-                assert (
-                    known_user["web_settings"][setting_key]
-                    == D_user["web_settings"][setting_key]
-                )
+    # Assert that the value has correctly been updated
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
+    # Compare the value of the time format with the expected one
+    assert D_user["web_settings"]["time_format"] == valid_time_format
+    # Assert that the other web settings remain unchanged
+    for setting_key in known_user["web_settings"].keys():
+        if setting_key != "time_format":
+            assert (
+                known_user["web_settings"][setting_key]
+                == D_user["web_settings"][setting_key]
+            )
 
 
 @pytest.mark.parametrize("page_name,column_name", [("dashboard", "start_time")])
@@ -982,76 +894,58 @@ def test_enable_column_display_with_unknown_user(
         (None, None),  # No page and no column
     ],
 )
-def test_enable_column_display_bad_request(app, fake_data, page_name, column_name):
+def test_enable_column_display_bad_request(
+    known_user, fake_data, page_name, column_name
+):
     """
     Test the function enable_column_display with unexpected page_name and column_name
 
     Parameters:
-    - app           The scope of our tests, used to set the context
-                    (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     - page_name     Name of the page on which the job property corresponding to the column should be displayed
     - column_name   Name of the column (corresponding to a job property) whose display is enabled
     """
-    # Use the app context
-    with app.app_context():
-        # Assert that the users of the fake data exist and are not empty
-        assert "users" in fake_data and len(fake_data["users"]) > 0
+    # Then disable the corresponding display setting for this user and get the status code of the operation
+    (status_code, _) = enable_column_display(
+        known_user["mila_email_username"], page_name, column_name
+    )
 
-        # Get an existing user from the fake_data
-        known_user = fake_data["users"][0]
+    # Check the status code
+    assert status_code == 400  # Bad Request
 
-        # Then disable the corresponding display setting for this user and get the status code of the operation
-        (status_code, _) = enable_column_display(
-            known_user["mila_email_username"], page_name, column_name
-        )
-
-        # Check the status code
-        assert status_code == 400  # Bad Request
-
-        # Assert that the users data remains unchanged
-        assert_no_user_has_been_modified(fake_data)
+    # Assert that the users data remains unchanged
+    assert_no_user_has_been_modified(fake_data)
 
 
 @pytest.mark.parametrize("page_name,column_name", [("dashboard", "start_time")])
-def test_enable_column_display_success(app, fake_data, page_name, column_name):
+def test_enable_column_display_success(known_user, page_name, column_name):
     """
     Test the function enable_column_display when the operation is successful
 
     Parameters:
-    - app           The scope of our tests, used to set the context
-                    (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     - page_name     Name of the page on which the job property corresponding to the column should be displayed
     - column_name   Name of the column (corresponding to a job property) whose display is enabled
     """
-    # Use the app context
-    with app.app_context():
-        # Assert that the users of the fake data exist and are not empty
-        assert "users" in fake_data and len(fake_data["users"]) > 0
+    # Then disable the corresponding display setting for this user and get the status code of the operation
+    (status_code, _) = enable_column_display(
+        known_user["mila_email_username"], page_name, column_name
+    )
 
-        # Get an existing user from the fake_data
-        known_user = fake_data["users"][0]
+    # Check the status code
+    assert status_code == 200  # Success
 
-        # Then disable the corresponding display setting for this user and get the status code of the operation
-        (status_code, _) = enable_column_display(
-            known_user["mila_email_username"], page_name, column_name
-        )
+    # Assert that the display setting for this column is enabled for this user
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
 
-        # Check the status code
-        assert status_code == 200  # Success
-
-        # Assert that the display setting for this column is enabled for this user
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
-
-        # Compare the value of the column display setting with True
-        assert D_user["web_settings"]["column_display"][page_name][column_name] == True
+    # Compare the value of the column display setting with True
+    assert D_user["web_settings"]["column_display"][page_name][column_name] == True
 
 
 @pytest.mark.parametrize("page_name,column_name", [("dashboard", "start_time")])
@@ -1100,75 +994,58 @@ def test_disable_column_display_with_unknown_user(
         (None, None),  # No page and no column
     ],
 )
-def test_disable_column_display_bad_request(app, fake_data, page_name, column_name):
+def test_disable_column_display_bad_request(
+    known_user, fake_data, page_name, column_name
+):
     """
     Test the function disable_column_display with unexpected page_name and column_name
 
     Parameters:
-    - app           The scope of our tests, used to set the context
-                    (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     - page_name     Name of the page on which the job property corresponding to the column should be displayed
     - column_name   Name of the column (corresponding to a job property) whose display is enabled
     """
     # Use the app context
-    with app.app_context():
-        # Assert that the users of the fake data exist and are not empty
-        assert "users" in fake_data and len(fake_data["users"]) > 0
+    # Then disable the corresponding display setting for this user and get the status code of the operation
+    (status_code, _) = disable_column_display(
+        known_user["mila_email_username"], page_name, column_name
+    )
 
-        # Get an existing user from the fake_data
-        known_user = fake_data["users"][0]
+    # Check the status code
+    assert status_code == 400  # Bad Request
 
-        # Then disable the corresponding display setting for this user and get the status code of the operation
-        (status_code, _) = disable_column_display(
-            known_user["mila_email_username"], page_name, column_name
-        )
-
-        # Check the status code
-        assert status_code == 400  # Bad Request
-
-        # Assert that the users data remains unchanged
-        assert_no_user_has_been_modified(fake_data)
+    # Assert that the users data remains unchanged
+    assert_no_user_has_been_modified(fake_data)
 
 
 @pytest.mark.parametrize("page_name,column_name", [("dashboard", "start_time")])
-def test_disable_column_display_success(app, fake_data, page_name, column_name):
+def test_disable_column_display_success(known_user, page_name, column_name):
     """
     Test the function disable_column_display when the operation is successful
 
     Parameters:
-    - app           The scope of our tests, used to set the context
-                    (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     - page_name     Name of the page on which the job property corresponding to the column should be displayed
     - column_name   Name of the column (corresponding to a job property) whose display is enabled
     """
-    # Use the app context
-    with app.app_context():
-        # Assert that the users of the fake data exist and are not empty
-        assert "users" in fake_data and len(fake_data["users"]) > 0
+    # Then disable the corresponding display setting for this user and get the status code of the operation
+    (status_code, _) = disable_column_display(
+        known_user["mila_email_username"], page_name, column_name
+    )
 
-        # Get an existing user from the fake_data
-        known_user = fake_data["users"][0]
+    # Check the status code
+    assert status_code == 200  # Success
 
-        # Then disable the corresponding display setting for this user and get the status code of the operation
-        (status_code, _) = disable_column_display(
-            known_user["mila_email_username"], page_name, column_name
-        )
-
-        # Check the status code
-        assert status_code == 200  # Success
-
-        # Assert that the display setting for this column is enabled for this user
-        # Retrieve the user from the database
-        mc = get_db()
-        # NB: the argument of find_one is the filter to apply to the user list
-        # the returned user matches this condition
-        D_user = mc["users"].find_one(
-            {"mila_email_username": known_user["mila_email_username"]}
-        )
-        # Compare the value of the column display setting with True
-        assert D_user["web_settings"]["column_display"][page_name][column_name] == False
+    # Assert that the display setting for this column is enabled for this user
+    # Retrieve the user from the database
+    mc = get_db()
+    # NB: the argument of find_one is the filter to apply to the user list
+    # the returned user matches this condition
+    D_user = mc["users"].find_one(
+        {"mila_email_username": known_user["mila_email_username"]}
+    )
+    # Compare the value of the column display setting with True
+    assert D_user["web_settings"]["column_display"][page_name][column_name] == False
 
 
 def test_get_nbr_items_per_page_none_user(app):
@@ -1204,54 +1081,47 @@ def test_get_nbr_items_per_page_unknown_user(app):
         )
 
 
-def test_get_nbr_items_per_page_known_user(app, fake_data):
+def test_get_nbr_items_per_page_known_user(known_user):
     """
     Test the function get_nbr_items_per_page when the user is stored in
     the database.
 
     Parameters:
-    - app           The scope of our tests, used to set the context
-                    (to access MongoDB)
-    - fake_data     The data on which our tests are based
+    - known_user    A known user that will be checked or modified
     """
-    # Use the app context
-    with app.app_context():
-        # Assert that the users of the fake data exist and are not empty
-        assert "users" in fake_data and len(fake_data["users"]) > 0
+    # Get a user from the fake_data
+    D_known_user = known_user
 
-        # Get a user from the fake_data
-        D_known_user = fake_data["users"][0]
+    # Retrieve its nbr_items_per_page through the function we are testing
+    retrieved_nbr_items_per_page = get_nbr_items_per_page(
+        D_known_user["mila_email_username"]
+    )
 
-        # Retrieve its nbr_items_per_page through the function we are testing
-        retrieved_nbr_items_per_page = get_nbr_items_per_page(
-            D_known_user["mila_email_username"]
-        )
+    # Compare its nbr_items_per_page with the one we know
+    assert (
+        retrieved_nbr_items_per_page
+        == D_known_user["web_settings"]["nbr_items_per_page"]
+    )
 
-        # Compare its nbr_items_per_page with the one we know
-        assert (
-            retrieved_nbr_items_per_page
-            == D_known_user["web_settings"]["nbr_items_per_page"]
-        )
+    # (The following is to be sure that we don't always return the default value)
+    # Set a new value to its nbr_items_per_page and get the status code of the operation
+    new_value = (
+        retrieved_nbr_items_per_page + 33
+    )  # Thus, we are sure that the values differ
+    (status_code, _) = set_items_per_page(
+        D_known_user["mila_email_username"], new_value
+    )
 
-        # (The following is to be sure that we don't always return the default value)
-        # Set a new value to its nbr_items_per_page and get the status code of the operation
-        new_value = (
-            retrieved_nbr_items_per_page + 33
-        )  # Thus, we are sure that the values differ
-        (status_code, _) = set_items_per_page(
-            D_known_user["mila_email_username"], new_value
-        )
+    # Check the status code
+    assert status_code == 200
 
-        # Check the status code
-        assert status_code == 200
+    # Retrieve its nbr_items_per_page through the function we are testing
+    retrieved_nbr_items_per_page = get_nbr_items_per_page(
+        D_known_user["mila_email_username"]
+    )
 
-        # Retrieve its nbr_items_per_page through the function we are testing
-        retrieved_nbr_items_per_page = get_nbr_items_per_page(
-            D_known_user["mila_email_username"]
-        )
-
-        # Compare its nbr_items_per_page with the one we know
-        assert retrieved_nbr_items_per_page == new_value
+    # Compare its nbr_items_per_page with the one we know
+    assert retrieved_nbr_items_per_page == new_value
 
 
 def test_get_users_one_none_user(app):

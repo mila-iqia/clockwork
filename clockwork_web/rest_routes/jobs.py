@@ -9,6 +9,7 @@ from flask.globals import current_app
 from .authentication import authentication_required
 from ..db import get_db
 from ..user import User
+import logging
 
 from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.jobs_helper import (
@@ -36,6 +37,10 @@ def route_api_v1_jobs_list():
     # Retrieve the authentified user
     current_user_id = g.current_user_with_rest_auth["mila_email_username"]
     current_user = User.get(current_user_id)
+
+    logging.info(
+        f"clockwork REST route: /jobs/list - current_user_with_rest_auth={current_user_id}"
+    )
 
     # Retrieve the parameters used to filter the jobs
     # - username: ID of the user who launched the jobs we are looking for
@@ -124,6 +129,10 @@ def route_api_v1_jobs_one():
     current_user_id = g.current_user_with_rest_auth["mila_email_username"]
     current_user = User.get(current_user_id)
 
+    logging.info(
+        f"clockwork REST route: /jobs/one - current_user_with_rest_auth={current_user_id}"
+    )
+
     # Retrieve the requested job ID
     job_id = request.values.get("job_id", None)
     if job_id is None:
@@ -199,6 +208,10 @@ def route_api_v1_jobs_user_dict_update():
     # Retrieve the authentified user
     current_user_id = g.current_user_with_rest_auth["mila_email_username"]
     current_user = User.get(current_user_id)
+
+    logging.info(
+        f"clockwork REST route: /jobs/user_dict_update - current_user_with_rest_auth={current_user_id}"
+    )
 
     # A 'PUT' method is generally to modify resources.
     # Retrieve the provided job ID

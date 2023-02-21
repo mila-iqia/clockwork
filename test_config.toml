@@ -10,6 +10,10 @@ traces_sample_rate=1.0
 [logging]
 level="error"
 stderr=true
+# for dev/debug purpose, we can have a lower logging level to stderr
+# we can also increase the level of werkzeug logger to avoid stderr flooding
+level_stderr="info"
+level_werkzeug="warning"
 # journald requires systemd-python to enable
 journald=false
 

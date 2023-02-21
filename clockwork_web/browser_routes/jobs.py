@@ -4,6 +4,7 @@ import os
 import json
 import requests
 import time
+import logging
 from collections import defaultdict
 
 # Use of "Markup" described there to avoid Flask escaping it when passing to a template.
@@ -53,6 +54,9 @@ def route_index():
     """
     Not implemented, but this will be the new name for the jobs.html with interactions.
     """
+    logging.info(
+        f"clockwork browser route: /jobs/ - current_user={current_user.mila_email_username}"
+    )
     return redirect("interactive")
 
 
@@ -95,6 +99,10 @@ def route_search():
 
     .. :quickref: list all Slurm job as formatted html
     """
+    logging.info(
+        f"clockwork browser route: /jobs/search - current_user={current_user.mila_email_username}"
+    )
+
     ###########################
     # Retrieve the parameters #
     ###########################
@@ -235,6 +243,10 @@ def route_one():
 
     .. :quickref: list one Slurm job as formatted html
     """
+    logging.info(
+        f"clockwork browser route: /jobs/one - current_user={current_user.mila_email_username}"
+    )
+
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
 
@@ -336,6 +348,10 @@ def route_interactive():
     """
     Displays the list of the current user's jobs.
     """
+    logging.info(
+        f"clockwork browser route: /jobs/interactive - current_user={current_user.mila_email_username}"
+    )
+
     return render_template_with_user_settings(
         "jobs_interactive.html",
         mila_email_username=current_user.mila_email_username,
