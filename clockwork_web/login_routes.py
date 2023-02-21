@@ -166,11 +166,7 @@ def route_callback():
     if userinfo.get("email_verified"):
         users_email = userinfo["email"]
     else:
-        email = ""
-        if ("email") in userinfo:
-            email = userinfo["email"]
-        else:
-            email = "-no email provided-"
+        email = userinfo.get("email", "-no email provided-")
         logging.warning(f"clockwork login failed (email not verified) - user={email}")
         return render_template_with_user_settings(
             "error.html",
@@ -179,7 +175,7 @@ def route_callback():
 
     if not users_email.endswith("@mila.quebec"):
         logging.warning(
-            f"clockwork login failed (email not @mila.quebec) - user={userinfo['email']}"
+            f"clockwork login failed (email not @mila.quebec) - user={users_email}"
         )
         return render_template_with_user_settings(
             "error.html", error_msg="We accept only accounts from @mila.quebec"
@@ -189,7 +185,7 @@ def route_callback():
 
     if user is None:
         logging.warning(
-            f"clockwork login failed (User not available) - user={userinfo['email']}"
+            f"clockwork login failed (User not available) - user={users_email}"
         )
         return render_template_with_user_settings(
             "error.html",
@@ -199,7 +195,7 @@ def route_callback():
 
     if user.status != "enabled":
         logging.warning(
-            f"clockwork login failed (User not enabled) - user={userinfo['email']}"
+            f"clockwork login failed (User not enabled) - user={users_email} - status={user.status}"
         )
         return render_template_with_user_settings(
             "error.html",
