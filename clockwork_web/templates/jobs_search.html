@@ -178,7 +178,7 @@
 
                             <!-- Job state -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_state")) %}
-                                <td class="state"><span class="status {{D_job['slurm']['job_state']|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
+                                <td class="state"><span class="status {{D_job['slurm']['job_state']|aggregated|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
                             {% endif %}
 
                             <!-- Submit, start and end times -->
