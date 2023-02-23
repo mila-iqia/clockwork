@@ -63,7 +63,7 @@ class User(UserMixin):
         """
         self.mila_email_username = mila_email_username
         self.status = status
-        self.admin = admin
+        self.admin = admin != None
         self.clockwork_api_key = clockwork_api_key
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
@@ -117,7 +117,7 @@ class User(UserMixin):
             user = User(
                 mila_email_username=e["mila_email_username"],
                 status=e["status"],
-                admin=e.get("admin",None),
+                admin=e.get("admin", None),
                 clockwork_api_key=e["clockwork_api_key"],
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
