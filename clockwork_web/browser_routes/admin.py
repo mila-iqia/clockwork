@@ -42,8 +42,7 @@ def admin_required(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        admin = current_user.admin
-        if admin is None:
+        if not current_user.admin:
             return jsonify("Authorization error."), 403
 
         return f(*args, **kwargs)
