@@ -96,6 +96,11 @@ def route_search():
             "jobs": [{<job_1>}, ..., {<job_n>}],
             "nbr_total_jobs": n
         }
+    - "sort_by" is optional and used to specify sorting field (default "submit_time").
+      Allowed values: "cluster_name", "user", "job_id", "name" (for job name), "job_state",
+      "submit_time", "start_time", "end_time"
+    - "sort_asc" is an optional integer and used to specify if sorting is
+      ascending (1) or descending (-1). Default is 1.
 
     .. :quickref: list all Slurm job as formatted html
     """
@@ -165,6 +170,12 @@ def route_search():
     if pagination_nbr_items_per_page:
         previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
 
+    # Retrieve the sorting field
+    sort_by = request.args.get("sort_by", default="submit_time", type=str)
+    sort_asc = request.args.get("sort_asc", default=1, type=int)
+    previous_request_args["sort_by"] = sort_by
+    previous_request_args["sort_asc"] = sort_asc
+
     #########################
     # Define the pagination #
     #########################
@@ -201,6 +212,8 @@ def route_search():
         nbr_skipped_items=nbr_skipped_items,
         nbr_items_to_display=nbr_items_to_display,
         want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
+        sort_by=sort_by,
+        sort_asc=sort_asc
     )
 
     LD_jobs = [strip_artificial_fields_from_job(D_job) for D_job in LD_jobs]
