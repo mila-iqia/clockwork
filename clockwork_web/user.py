@@ -114,7 +114,6 @@ class User(UserMixin):
             return None
         else:
             e = L[0]
-            print (e)
             user = User(
                 mila_email_username=e["mila_email_username"],
                 status=e["status"],
