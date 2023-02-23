@@ -6,9 +6,6 @@ Utilities to prepare fake data for tests.
 import pytest
 import os
 import json
-from clockwork_web.core.jobs_helper import job_state_to_aggregated
-
-from clockwork_web.db import get_db
 
 
 @pytest.fixture(scope="session")
@@ -116,6 +113,37 @@ def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
     return cleanup_function
 
 
+# Map from job state to aggregated
+# CAUTION: this is a copy/paste from clockwork_web.core.jobs_helper,
+# do not modify without modifying the other copy.
+job_state_to_aggregated = {
+    "BOOT_FAIL": "FAILED",
+    "CANCELLED": "FAILED",
+    "COMPLETED": "COMPLETED",
+    "CONFIGURING": "PENDING",
+    "COMPLETING": "RUNNING",
+    "DEADLINE": "FAILED",
+    "FAILED": "FAILED",
+    "NODE_FAIL": "FAILED",
+    "OUT_OF_MEMORY": "FAILED",
+    "PENDING": "PENDING",
+    "PREEMPTED": "FAILED",
+    "RUNNING": "RUNNING",
+    "RESV_DEL_HOLD": "PENDING",
+    "REQUEUE_FED": "PENDING",
+    "REQUEUE_HOLD": "PENDING",
+    "REQUEUED": "PENDING",
+    "RESIZING": "PENDING",
+    "REVOKED": "FAILED",
+    "SIGNALING": "RUNNING",
+    "SPECIAL_EXIT": "FAILED",
+    "STAGE_OUT": "RUNNING",
+    "STOPPED": "FAILED",
+    "SUSPENDED": "FAILED",
+    "TIMEOUT": "FAILED",
+}
+
+
 # Relative proportions of jobs for each job state
 status_counts = {
     "BOOT_FAIL": 1,
@@ -178,25 +206,3 @@ def mutate_some_job_status(data):
         if agg in ("COMPLETED", "FAILED"):
             if not slurm["end_time"]:
                 slurm["end_time"] = slurm["start_time"] + 7200  # 2 hours
-
-
-@pytest.fixture
-def known_user(app, fake_data):
-    # Assert that the users of the fake data exist and are not empty
-    assert "users" in fake_data and len(fake_data["users"]) > 0
-
-    known_user = fake_data["users"][0]
-    known_mila_email_username = known_user["mila_email_username"]
-    known_settings = known_user["web_settings"]
-
-    # Use the app context
-    with app.app_context():
-        try:
-            yield known_user
-        finally:
-            # reset_settings
-            users_collection = get_db()["users"]
-            users_collection.update_one(
-                {"mila_email_username": known_mila_email_username},
-                {"$set": {"web_settings": known_settings}},
-            )
