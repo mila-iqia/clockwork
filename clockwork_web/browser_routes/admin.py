@@ -4,7 +4,9 @@ import os
 import json
 import requests
 import time
+import logging
 from collections import defaultdict
+from functools import wraps
 
 # Use of "Markup" described there to avoid Flask escaping it when passing to a template.
 # https://stackoverflow.com/questions/3206344/passing-html-to-template-using-flask-jinja2
@@ -35,12 +37,36 @@ from clockwork_web.core.users_helper import render_template_with_user_settings
 flask_api = Blueprint("admin", __name__)
 
 
+
+def admin_required(f):
+    """Checks for user admin rights."""
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        admin = current_user.admin
+        if admin is None:
+            return jsonify("Authorization error."), 403
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+
 @flask_api.route("/panel")
-# TODO : Add a decorator to check that the user is an admin.
 @login_required
-def route_index():
+@admin_required
+def panel():
     """ """
+    logging.info(
+        f"clockwork browser route: /admin/panel - current_user={current_user.mila_email_username}"
+    )
+
+    # Initialize the request arguments (it is further transferred to the HTML)
+    previous_request_args = {}
+
     return render_template_with_user_settings(
-        "jobs_search.html",
+        "admin_panel.html",
         mila_email_username=current_user.mila_email_username,
+        previous_request_args=previous_request_args,
     )
