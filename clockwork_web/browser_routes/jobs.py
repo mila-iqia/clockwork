@@ -100,7 +100,8 @@ def route_search():
       Allowed values: "cluster_name", "user", "job_id", "name" (for job name), "job_state",
       "submit_time", "start_time", "end_time"
     - "sort_asc" is an optional integer and used to specify if sorting is
-      ascending (1) or descending (-1). Default is 1.
+      ascending (1) or descending (-1). Default is ascending when sorting by cluster name,
+      user, job name or job state ; descending otherwise
 
     .. :quickref: list all Slurm job as formatted html
     """
@@ -172,7 +173,19 @@ def route_search():
 
     # Retrieve the sorting field
     sort_by = request.args.get("sort_by", default="submit_time", type=str)
-    sort_asc = request.args.get("sort_asc", default=1, type=int)
+    sort_asc = request.args.get("sort_asc", type=int)
+    # Default value of sort_asc is ascending for cluster, job name, job state and user
+    if sort_asc not in {-1, 1} and sort_by in [
+        "cluster_name",
+        "user",
+        "name",
+        "job_state",
+    ]:
+        sort_asc = 1
+    # Default value of sort_asc is descending otherwise
+    elif sort_asc not in {-1, 1}:
+        sort_asc = -1
+
     previous_request_args["sort_by"] = sort_by
     previous_request_args["sort_asc"] = sort_asc
 
@@ -213,7 +226,7 @@ def route_search():
         nbr_items_to_display=nbr_items_to_display,
         want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
         sort_by=sort_by,
-        sort_asc=sort_asc
+        sort_asc=sort_asc,
     )
 
     LD_jobs = [strip_artificial_fields_from_job(D_job) for D_job in LD_jobs]

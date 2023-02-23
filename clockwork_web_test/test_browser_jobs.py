@@ -17,6 +17,8 @@ import random
 import json
 import pytest
 
+# import time
+
 from test_common.jobs_test_helpers import (
     helper_single_job_missing,
     helper_single_job_at_random,
@@ -165,7 +167,11 @@ def test_jobs(client, fake_data: dict[list[dict]]):
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
-        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+        key=lambda d: (
+            d["slurm"]["submit_time"],
+            -int(d["slurm"]["job_id"]),
+        ),  # These are the default values for the sorting
+        reverse=True,
     )
 
     response = client.get("/jobs/search")
@@ -204,8 +210,9 @@ def test_jobs_with_both_pagination_options(
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
-        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
-    )
+        key=lambda d: (d["slurm"]["submit_time"], -int(d["slurm"]["job_id"])),
+        reverse=True,
+    )  # This is the default sorting
 
     # Get the response
     response = client.get(
@@ -220,13 +227,10 @@ def test_jobs_with_both_pagination_options(
 
     body_text = response.get_data(as_text=True)
     # Assert that the retrieved jobs correspond to the expected jobs
-    for i in range(
-        number_of_skipped_items,
-        min(number_of_skipped_items + nbr_items_per_page, len(sorted_all_jobs)),
-    ):
-        if i < len(sorted_all_jobs):
-            D_job = sorted_all_jobs[i]
-            assert D_job["slurm"]["job_id"] in body_text
+    for D_job in sorted_all_jobs[
+        number_of_skipped_items : number_of_skipped_items + nbr_items_per_page
+    ]:
+        assert D_job["slurm"]["job_id"] in body_text
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
@@ -255,7 +259,8 @@ def test_jobs_with_page_num_pagination_option(
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
-        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+        key=lambda d: (d["slurm"]["submit_time"], -int(d["slurm"]["job_id"])),
+        reverse=True,
     )
 
     # Get the response
@@ -302,8 +307,9 @@ def test_jobs_with_page_num_pagination_option(
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
         fake_data["jobs"],
-        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
-    )
+        key=lambda d: (d["slurm"]["submit_time"], -int(d["slurm"]["job_id"])),
+        reverse=True,
+    )  # This is the default sorting
 
     # Get the response
     response = client.get(f"/jobs/search?nbr_items_per_page={nbr_items_per_page}")
@@ -327,7 +333,7 @@ def test_jobs_with_page_num_pagination_option(
 
 
 @pytest.mark.parametrize(
-    "current_user_id,username,cluster_names,states,page_num,nbr_items_per_page",
+    "current_user_id,username,cluster_names,states,page_num,nbr_items_per_page,sort_by,sort_asc",
     [
         (
             "student00@mila.quebec",
@@ -336,6 +342,8 @@ def test_jobs_with_page_num_pagination_option(
             ["RUNNING", "PENDING"],
             2,
             2,
+            "user",
+            -1,
         ),
         # We can also search using just username,
         # without "@mila.quebec" suffix that will be
@@ -347,6 +355,8 @@ def test_jobs_with_page_num_pagination_option(
             ["RUNNING", "PENDING"],
             2,
             2,
+            "submit_time",
+            1,
         ),
         (
             "student01@mila.quebec",
@@ -355,6 +365,8 @@ def test_jobs_with_page_num_pagination_option(
             ["RUNNING", "PENDING"],
             2,
             2,
+            "name",
+            -1,
         ),
         (
             "student02@mila.quebec",
@@ -363,11 +375,31 @@ def test_jobs_with_page_num_pagination_option(
             ["RUNNING", "PENDING"],
             1,
             40,
+            "end_time",
+            1,
         ),
-        ("student03@mila.quebec", "student13@mila.quebec", [], [], -1, -10),
-        ("student04@mila.quebec", "student13@mila.quebec", [], [], -1, -10),
-        ("student05@mila.quebec", "student03@mila.quebec", ["cedar"], [], 1, 50),
-        ("student00@mila.quebec", None, ["cedar"], [], 2, 10),
+        ("student03@mila.quebec", "student13@mila.quebec", [], [], -1, -10, "user", 1),
+        (
+            "student04@mila.quebec",
+            "student13@mila.quebec",
+            [],
+            [],
+            -1,
+            -10,
+            "job_state",
+            -1,
+        ),
+        (
+            "student05@mila.quebec",
+            "student03@mila.quebec",
+            ["cedar"],
+            [],
+            1,
+            50,
+            "name",
+            1,
+        ),
+        ("student00@mila.quebec", None, ["cedar"], [], 2, 10, "end_time", -1),
         (
             "student06@mila.quebec",
             "student00@mila.quebec",
@@ -375,6 +407,8 @@ def test_jobs_with_page_num_pagination_option(
             [],
             1,
             10,
+            "start_time",
+            -1,
         ),
         # Note: student06 has only access to the Mila cluster and student00 has jobs on Mila cluster and DRAC clusters,
         #       so these arguments test that student06 should NOT see the jobs on DRAC clusters
@@ -385,6 +419,8 @@ def test_jobs_with_page_num_pagination_option(
             [],
             1,
             10,
+            "job_id",
+            1,
         ),
         # Note: student06 has only access to the Mila cluster and student00 has jobs on Mila cluster and DRAC clusters,
         #       so these arguments test that student06 should NOT see the jobs on DRAC clusters
@@ -399,6 +435,8 @@ def test_route_search(
     states,
     page_num,
     nbr_items_per_page,
+    sort_by,
+    sort_asc,
 ):
     """
     Test the function route_search with different sets of arguments.
@@ -415,6 +453,13 @@ def test_route_search(
                             to retrieve
         page_num            The number of the plage to display the jobs
         nbr_items_per_page  The number of jobs to display per page
+        sort_by             String specifying the field on which we are based
+                            to sort the jobs. Its value could be "cluster_name",
+                            "user", "job_id", "name" (for job name), "job_state",
+                            "submit_time", "start_time" and "end_time". Default is
+                            "submit_time"
+        sort_asc            Integer from {-1;1} specifying if the sorting is
+                            ascending (1) or descending (-1). Default is 1.
     """
     # Log in to Clockwork as the current_user
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
@@ -441,11 +486,27 @@ def test_route_search(
     else:
         requested_clusters = get_available_clusters_from_db(current_user_id)
 
-    # Sort the jobs contained in the fake data by submit time, then by job id
-    sorted_all_jobs = sorted(
-        fake_data["jobs"],
-        key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
-    )
+    # Define the filters to sort the jobs
+    if sort_by == "user":
+        sorting_key = lambda d: (
+            d["cw"]["mila_email_username"] or "",
+            sort_asc * int(d["slurm"]["job_id"]),
+        )
+    elif sort_by == "job_id":
+        sorting_key = lambda d: (d["slurm"]["job_id"])
+    elif sort_by in ["submit_time", "start_time", "end_time"]:
+        sorting_key = lambda d: (
+            d["slurm"][sort_by] or 0,  # time.time(),
+            sort_asc * int(d["slurm"]["job_id"]),
+        )
+    else:
+        sorting_key = lambda d: (
+            d["slurm"][sort_by] or "",
+            sort_asc * int(d["slurm"]["job_id"]),
+        )
+
+    # Sort the jobs contained in the fake data by the sorting field, then by job id
+    sorted_all_jobs = sorted(fake_data["jobs"], key=sorting_key, reverse=sort_asc == -1)
 
     # For each job, determine if it could be expected (before applying the pagination)
     for D_job in sorted_all_jobs:
@@ -485,7 +546,13 @@ def test_route_search(
         request_line += "page_num={}&".format(page_num)
     # - nbr_items_per_page
     if nbr_items_per_page:
-        request_line += "nbr_items_per_page={}".format(nbr_items_per_page)
+        request_line += "nbr_items_per_page={}&".format(nbr_items_per_page)
+    # - sort_by
+    if sort_by:
+        request_line += "sort_by={}&".format(sort_by)
+    # - sort_asc
+    if sort_asc:
+        request_line += "sort_asc={}".format(sort_asc)
 
     # Retrieve the results
     response = client.get(request_line)

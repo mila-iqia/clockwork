@@ -77,7 +77,7 @@ def get_filtered_and_paginated_jobs(
     nbr_items_to_display=None,
     want_count=False,
     sort_by="submit_time",
-    sort_asc=1
+    sort_asc=None,
 ):
     """
     Talk to the database and get the information.
@@ -129,6 +129,18 @@ def get_filtered_and_paginated_jobs(
             "start_time",
             "end_time",
         }
+
+        # Default value of sort_asc is ascending for cluster, job name, job state and user
+        if sort_asc not in {-1, 1} and sort_by in [
+            "cluster_name",
+            "user",
+            "name",
+            "job_state",
+        ]:
+            sort_asc = 1
+        # Default value of sort_asc is descending otherwise
+        elif sort_asc not in {-1, 1}:
+            sort_asc = -1
         assert sort_asc in (-1, 1)
         # Set sorting
         if sort_by == "user":
@@ -221,7 +233,7 @@ def get_jobs(
     nbr_items_to_display=None,
     want_count=False,
     sort_by="submit_time",
-    sort_asc=1
+    sort_asc=None,
 ):
     """
     Set up the filters according to the parameters and retrieve the requested jobs from the database.
@@ -245,6 +257,19 @@ def get_jobs(
             - the total number of jobs corresponding of the filters in the databse, if want_count has been set to
             True, None otherwise, as second element
     """
+    # Define the sort_asc default value
+    # Default value of sort_asc is ascending for cluster, job name, job state and user
+    if sort_asc not in {-1, 1} and sort_by in [
+        "cluster_name",
+        "user",
+        "name",
+        "job_state",
+    ]:
+        sort_asc = 1
+    # Default value of sort_asc is descending otherwise
+    elif sort_asc not in {-1, 1}:
+        sort_asc = -1
+
     # Set up and combine filters
     filter = get_global_filter(
         username=username, job_ids=job_ids, cluster_names=cluster_names, states=states
@@ -257,7 +282,7 @@ def get_jobs(
         nbr_items_to_display=nbr_items_to_display,
         want_count=want_count,
         sort_by=sort_by,
-        sort_asc=sort_asc
+        sort_asc=sort_asc,
     )
 
 

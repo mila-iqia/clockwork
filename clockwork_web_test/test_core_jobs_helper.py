@@ -43,8 +43,9 @@ def test_get_jobs_with_pagination(app, fake_data, page_num, nbr_items_per_page):
         # Sort the jobs contained in the fake data by submit time, then job id
         sorted_all_jobs = sorted(
             fake_data["jobs"],
-            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
-        )
+            key=lambda d: (d["slurm"]["submit_time"], -int(d["slurm"]["job_id"])),
+            reverse=True,
+        )  # This is the default sorting
 
         # Assert that they correspond to the jobs we expect
         assert (
@@ -80,16 +81,18 @@ def test_get_and_count_jobs_without_filters_or_pagination(app, fake_data, want_c
         LD_retrieved_jobs = list(
             sorted(
                 LD_retrieved_jobs,
-                key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
+                key=lambda d: (d["slurm"]["submit_time"], -int(d["slurm"]["job_id"])),
+                reverse=True,
             )
-        )
+        )  # This is the default sorting
 
         # Sort the jobs contained in the fake data by submit time, then by job id
         LD_truth_jobs = list(
             sorted(
                 fake_data["jobs"],
-                key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
-            )
+                key=lambda d: (d["slurm"]["submit_time"], -int(d["slurm"]["job_id"])),
+                reverse=True,
+            )  # This is the default sorting
         )
 
         if want_count:
@@ -140,8 +143,9 @@ def test_get_and_count_jobs_with_pagination(
         # Sort the jobs contained in the fake data by submit time, then by job id
         sorted_all_jobs = sorted(
             fake_data["jobs"],
-            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
-        )
+            key=lambda d: (d["slurm"]["submit_time"], -int(d["slurm"]["job_id"])),
+            reverse=True,
+        )  # This is the default sorting
 
         # Assert that they correspond to the jobs we expect
         assert (
@@ -196,8 +200,9 @@ def test_get_and_count_jobs_by_mail_with_pagination(
         # Sort the jobs contained in the fake data by submit time, then by job id
         sorted_all_jobs = sorted(
             fake_data["jobs"],
-            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
-        )
+            key=lambda d: (d["slurm"]["submit_time"], -int(d["slurm"]["job_id"])),
+            reverse=True,
+        )  # This is the default sorting
 
         # Retrieve the expected jobs
         LD_expected_jobs = []
@@ -259,8 +264,9 @@ def test_get_and_count_jobs_by_cluster_and_state_with_pagination(
         # Sort the jobs contained in the fake data by submit time, then by job id
         sorted_all_jobs = sorted(
             fake_data["jobs"],
-            key=lambda d: (d["slurm"]["submit_time"], d["slurm"]["job_id"]),
-        )
+            key=lambda d: (d["slurm"]["submit_time"], -int(d["slurm"]["job_id"])),
+            reverse=True,
+        )  # This is the default sorting
 
         # Retrieve the expected jobs
         LD_expected_jobs = []
