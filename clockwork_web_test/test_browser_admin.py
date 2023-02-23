@@ -28,6 +28,8 @@ def test_admin_panel_user_admin(client, fake_data: dict[list[dict]]):
     """
     # Log in to Clockwork as the user student00@mila.quebec (admin)
     response = load_admin_page(client,"student00@mila.quebec")
+    assert response.status_code == 200
+
 
 
 def test_admin_panel_user_not_admin(client, fake_data: dict[list[dict]]):
@@ -42,4 +44,5 @@ def test_admin_panel_user_not_admin(client, fake_data: dict[list[dict]]):
     """
     # Log in to Clockwork as the user student01@mila.quebec (NOT admin)
     response = load_admin_page(client,"student01@mila.quebec")
+    assert response.status_code == 403 
     
