@@ -1,3 +1,28 @@
+{# Generate query with appropriate sorting parameters for given field #}
+{% macro modify_query_sorting(field) %}
+    {% if (previous_request_args["sort_by"] == field) %}
+        {# If field does not change, just reverse sorting #}
+        {% set sort_asc = -previous_request_args["sort_asc"] %}
+    {% else %}
+        {# By default, sort ascending #}
+        {% set sort_asc = 1 %}
+    {% endif %}
+    {{ modify_query(sort_by=field, sort_asc=sort_asc) }}
+{% endmacro %}
+
+{# Generate sorting icon (arrow up or down) for given field #}
+{% macro get_sorting_icon(field) %}
+    {# We generate an icon only for field currently sorted #}
+    {% if field == previous_request_args["sort_by"] %}
+        {% if previous_request_args["sort_asc"] == 1 %}
+            {% set arrow = "up" %}
+        {% else %}
+            {% set arrow = "down" %}
+        {% endif %}
+        <i class="fa-solid fa-caret-{{ arrow }}"></i>
+    {% endif %}
+{% endmacro %}
+
 {% extends "base.html" %}
 {% block title %} {{note_title}} {% endblock %}
 {% block head %}
@@ -27,7 +52,7 @@
                     </div>
                     <!-- <div class="col-4">
                         <form id="nbr_per_page" method="get">
-                            {% if request.args.get('nbr_items_per_page') is not none %} 
+                            {% if request.args.get('nbr_items_per_page') is not none %}
                                 {% set nbr_items_per_page = request.args.get('nbr_items_per_page') | int %}
                             {% else %}
                                 {% set nbr_items_per_page = web_settings["nbr_items_per_page"] | int %}
@@ -42,48 +67,72 @@
                         </form>
                     </div> -->
                 </div>
-                <table class="table table-striped table-hover table-responsive" data-sortable id="search_table">
+                <table class="table table-striped table-hover table-responsive table-jobs" id="search_table">
                     <thead>
                         <tr>
                             <!-- Clusters header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "clusters")) %}
-                                <th>Cluster</th>
+                                {% set sort_by = "cluster_name" %}
+                                <th>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">Cluster{{ get_sorting_icon(sort_by) }}</a>
+                                </th>
                             {% endif %}
                             <!-- User header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "user")) %}
-                                <th>User (@mila.quebec)</th>
+                                {% set sort_by = "user" %}
+                                <th>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">User (@mila.quebec){{ get_sorting_icon(sort_by) }}</a>
+                                </th>
                             {% endif %}
                             <!-- Job ID header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_id")) %}
-                                <th>Job ID</th>
+                                {% set sort_by = "job_id" %}
+                                <th>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">Job ID{{ get_sorting_icon(sort_by) }}</a>
+                                </th>
                             {% endif %}
                             <!-- Job name header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_name")) %}
-                                <th>Job name [:20]</th>
+                                {% set sort_by = "name" %}
+                                <th>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">Job name [:20]{{ get_sorting_icon(sort_by) }}</a>
+                                </th>
                             {% endif %}
                             <!-- Job state header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_state")) %}
-                                <th>Job state</th>
+                                {% set sort_by = "job_state" %}
+                                <th>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">Job state{{ get_sorting_icon(sort_by) }}</a>
+                                </th>
                             {% endif %}
                             <!-- Submit time header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "submit_time")) %}
-                                <th>Submit time</th>
+                                {% set sort_by = "submit_time" %}
+                                <th>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">Submit time{{ get_sorting_icon(sort_by) }}</a>
+                                </th>
                             {% endif %}
                             <!-- Start time header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "start_time")) %}
-                                <th>Start time</th>
+                                {% set sort_by = "start_time" %}
+                                <th>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">Start time{{ get_sorting_icon(sort_by) }}</a>
+                                </th>
                             {% endif %}
                             <!-- End time header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "end_time")) %}
-                                <th>End time</th>
+                                {% set sort_by = "end_time" %}
+                                <th>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">End time{{ get_sorting_icon(sort_by) }}</a>
+                                </th>
                             {% endif %}
                             <!-- Links header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "links")) %}
-                                <th data-sortable="false">Links</th>
+                                <th>Links</th>
                             {% endif %}
                             <!-- Actions header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "actions")) %}
-                                <th data-sortable="false">Actions</th>
+                                <th>Actions</th>
                             {% endif %}
                         </tr>
                     </thead>
@@ -102,7 +151,7 @@
                                     <td>{{D_job['slurm']['cluster_name']}}</td>
                                 {% endif %}
                             {% endif %}
-                            
+
                             <!-- User -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "user")) %}
                                 <td>
@@ -126,12 +175,12 @@
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_name")) %}
                                 <td>{{D_job['slurm'].get("name", "")[0:20]}}</td>
                             {% endif %}
-                            
+
                             <!-- Job state -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_state")) %}
                                 <td class="state"><span class="status {{D_job['slurm']['job_state']|lower}}">{{D_job['slurm']["job_state"]|title|replace("_", " ")}}</span></td>
                             {% endif %}
-                            
+
                             <!-- Submit, start and end times -->
                             {# The properties submit_time, start_time and end_time are presented through the same pattern, #}
                             {# thus setting these HTML tags is done using an iteration over these three values #}
@@ -199,7 +248,7 @@
                 {% set total_items = nbr_total_jobs | int %}
 
                 <!-- get query params -->
-                {% if request.args.get('page_num') is not none %} 
+                {% if request.args.get('page_num') is not none %}
                     {% set page_num = request.args.get('page_num') | int %}
                 {% else %}
                     {% set page_num = 1 | int %}
@@ -211,7 +260,7 @@
                     {% set total_pages = 1 %}
                 {% endif %}
 
-                {% if total_pages > 1 %}   
+                {% if total_pages > 1 %}
                     <nav class="table_nav" aria-label="table_nav">
                         <ul class="pagination">
                             {% if page_num == 1 %}
@@ -227,12 +276,12 @@
                             {% for page in range(total_pages) %}
                                 {% set page = page + 1 %}
 
-                                    {% if (page) == page_num %}   
+                                    {% if (page) == page_num %}
                                         <li class="page-item current"><a class="page-link disable">{{ page }}</a></li>
                                     {% elif (page < page_num - 3) %}
-                                        
-                                    {% elif (page > page_num + 3) %}   
-                                        
+
+                                    {% elif (page > page_num + 3) %}
+
                                     {% else %}
                                         {% set x=previous_request_args.__setitem__("page_num", page) %}
                                         <!-- magically update query params using new function -->

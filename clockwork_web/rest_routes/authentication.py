@@ -12,6 +12,7 @@ import re
 import base64
 from functools import wraps
 import secrets
+import logging
 
 from flask import g
 from flask.globals import current_app
@@ -28,14 +29,21 @@ def authentication_required(f):
     def decorated(*args, **kwargs):
         auth = request.authorization
         if auth is None:
+            logging.warning("REST authentication error : no authorization in request")
             return jsonify("Authorization error."), 401
 
         mc = get_db()
         L = list(mc["users"].find({"mila_email_username": auth["username"]}))
 
         if not L:
+            logging.warning(
+                f"REST authentication error : user {auth['username']} not in database"
+            )
             return jsonify("Authorization error."), 401
         elif len(L) > 1:
+            logging.warning(
+                f"REST authentication error : database error (user {auth['username']} present {len(L)} times in database)"
+            )
             return jsonify("Database error."), 500
 
         D_user = L[0]
@@ -45,6 +53,9 @@ def authentication_required(f):
             # no need to manually clear `g.current_user_with_rest_auth` because
             # it gets cleared when the app context pops
         else:
+            logging.warning(
+                f"REST authentication error : bad key (user {auth['username']})"
+            )
             return jsonify("Authorization error."), 401
 
     return decorated
