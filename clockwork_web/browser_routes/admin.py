@@ -37,7 +37,6 @@ from clockwork_web.core.users_helper import render_template_with_user_settings
 flask_api = Blueprint("admin", __name__)
 
 
-
 def admin_required(f):
     """Checks for user admin rights."""
 
@@ -50,7 +49,6 @@ def admin_required(f):
         return f(*args, **kwargs)
 
     return decorated
-
 
 
 @flask_api.route("/panel")

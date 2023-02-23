@@ -7,7 +7,7 @@ from clockwork_web.db import get_db
 from clockwork_web.user import User
 
 
-def load_admin_page(client,user_id):
+def load_admin_page(client, user_id):
     login_response = client.get(f"/login/testing?user_id={user_id}")
     assert login_response.status_code == 302  # Redirect
 
@@ -15,6 +15,7 @@ def load_admin_page(client,user_id):
     response = client.get(f"/admin/panel")
 
     return response
+
 
 def test_admin_panel_user_admin(client, fake_data: dict[list[dict]]):
     """
@@ -27,9 +28,8 @@ def test_admin_panel_user_admin(client, fake_data: dict[list[dict]]):
         fake_data           The data our tests are based on
     """
     # Log in to Clockwork as the user student00@mila.quebec (admin)
-    response = load_admin_page(client,"student00@mila.quebec")
+    response = load_admin_page(client, "student00@mila.quebec")
     assert response.status_code == 200
-
 
 
 def test_admin_panel_user_not_admin(client, fake_data: dict[list[dict]]):
@@ -43,6 +43,5 @@ def test_admin_panel_user_not_admin(client, fake_data: dict[list[dict]]):
         fake_data           The data our tests are based on
     """
     # Log in to Clockwork as the user student01@mila.quebec (NOT admin)
-    response = load_admin_page(client,"student01@mila.quebec")
-    assert response.status_code == 403 
-    
+    response = load_admin_page(client, "student01@mila.quebec")
+    assert response.status_code == 403
