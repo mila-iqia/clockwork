@@ -77,7 +77,7 @@ def get_filtered_and_paginated_jobs(
     nbr_items_to_display=None,
     want_count=False,
     sort_by="submit_time",
-    sort_asc=1
+    sort_asc=1,
 ):
     """
     Talk to the database and get the information.
@@ -221,7 +221,7 @@ def get_jobs(
     nbr_items_to_display=None,
     want_count=False,
     sort_by="submit_time",
-    sort_asc=1
+    sort_asc=1,
 ):
     """
     Set up the filters according to the parameters and retrieve the requested jobs from the database.
@@ -257,7 +257,7 @@ def get_jobs(
         nbr_items_to_display=nbr_items_to_display,
         want_count=want_count,
         sort_by=sort_by,
-        sort_asc=sort_asc
+        sort_asc=sort_asc,
     )
 
 
