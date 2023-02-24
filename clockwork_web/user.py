@@ -320,7 +320,7 @@ class AnonUser(AnonymousUserMixin):
     def __init__(self):
         self.mila_email_username = "anonymous@mila.quebec"
         self.status = "enabled"
-        self.admin_access = (False,)
+        self.admin_access = False
         self.clockwork_api_key = "deadbeef"
         self.cc_account_username = None
         self.mila_cluster_username = None
