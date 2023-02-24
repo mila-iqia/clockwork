@@ -7,40 +7,27 @@ from clockwork_web.db import get_db
 from clockwork_web.user import User
 
 
-def load_admin_page(client, fake_data: dict[list[dict]],  user_id):
-
-    # # Check that the fake_data provide users (otherwise, the tests are pointless)
-    # assert "users" in fake_data
-    # assert len(fake_data["users"]) > 0
-
-    # # Retrieve the name of an existing user from the fake_data
-    # user = fake_data["users"][0]
-    # user_id = user["mila_email_username"]
-
-    # print(f"Using username {username}")
-
-    # modify user entry in the database
-    # old_admin_access = user.get("admin_access",None)
-    # TODO
-    # mc = get_db()
-    # L = list(mc["users"].find({"mila_email_username": "student00@mila.quebec"}))
-    # assert(len(L)==1)
-
-    # print (L[0])
-
-    login_response = client.get(f"/login/testing?user_id={user_id}")
-    assert login_response.status_code == 302  # Redirect
-
-    # Get the response
-    response = client.get(f"/admin/panel")
-
-    #restore user entry in the database
-    # TODO
-
-    return response
-
-
-def test_admin_panel_user_admin(client, fake_data: dict[list[dict]]):
+@pytest.mark.parametrize(
+    "admin_access,expected_return_code",
+    (
+        ("True", 200),
+        ("true", 200),
+        ("TRUE", 200),
+        ("1", 200),
+        (1, 200),
+        (None, 403),
+        ("", 403),
+        ("false", 403),
+        ("False", 403),
+        ("tartiflette", 403),
+        ("0", 403),
+        (0, 403),
+        (-1, 403),
+    ),
+)
+def test_admin_panel(
+    client, app, fake_data: dict[list[dict]], admin_access, expected_return_code
+):
     """
     Checks that a user with admin rights has access to the admin page.
 
@@ -50,21 +37,34 @@ def test_admin_panel_user_admin(client, fake_data: dict[list[dict]]):
                             fake data in the database for us
         fake_data           The data our tests are based on
     """
-    # Log in to Clockwork as the user student00@mila.quebec (admin)
-    response = load_admin_page(client, fake_data, "student00@mila.quebec")
-    assert response.status_code == 200
+    # Check that the fake_data provide users (otherwise, the tests are pointless)
+    assert "users" in fake_data
+    assert len(fake_data["users"]) > 0
 
-def test_admin_panel_user_not_admin(client, fake_data: dict[list[dict]]):
-    """
-    Checks that a user without admin rights does NOT have access to the admin page.
+    # Retrieve the name of an existing user from the fake_data
+    user = fake_data["users"][0]
+    user_id = user["mila_email_username"]
 
-    Parameters
-        client              The web client to request. Note that this fixture
-                            depends on other fixtures that are going to put the
-                            fake data in the database for us
-        fake_data           The data our tests are based on
-    """
-    # Log in to Clockwork as the user student01@mila.quebec (NOT admin)
-    response = load_admin_page(client, fake_data, "student01@mila.quebec")
-    assert response.status_code == 403
+    # modify user entry in the database
+    old_admin_access = user.get("admin_access", None)
+    with app.app_context():
+        users_collection = get_db()["users"]
+        L = list(users_collection.find({"mila_email_username": user_id}))
+        assert len(L) == 1
+        users_collection.update_one(
+            {"mila_email_username": user_id}, {"$set": {"admin_access": admin_access}}
+        )
 
+    login_response = client.get(f"/login/testing?user_id={user_id}")
+
+    # Get the response
+    response = client.get(f"/admin/panel")
+
+    # restore user entry in the database
+    with app.app_context():
+        get_db()["users"].update_one(
+            {"mila_email_username": user_id},
+            {"$set": {"admin_access": old_admin_access}},
+        )
+
+    assert response.status_code == expected_return_code

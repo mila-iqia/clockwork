@@ -3,7 +3,7 @@
     {
       "mila_email_username": "student00@mila.quebec",
       "status": "enabled",
-      "admin": "true",
+      "admin_access": "true",
       "clockwork_api_key": "000aaa00",
       "mila_cluster_username": "milauser00",
       "cc_account_username": "ccuser00",
