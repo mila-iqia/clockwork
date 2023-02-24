@@ -213,7 +213,7 @@ def route_search():
         nbr_items_to_display=nbr_items_to_display,
         want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
         sort_by=sort_by,
-        sort_asc=sort_asc
+        sort_asc=sort_asc,
     )
 
     LD_jobs = [strip_artificial_fields_from_job(D_job) for D_job in LD_jobs]
