@@ -37,12 +37,12 @@ from clockwork_web.core.users_helper import render_template_with_user_settings
 flask_api = Blueprint("admin", __name__)
 
 
-def admin_required(f):
+def admin_access_required(f):
     """Checks for user admin rights."""
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        if not current_user.admin:
+        if not current_user.admin_access:
             return jsonify("Authorization error."), 403
 
         return f(*args, **kwargs)
@@ -52,7 +52,7 @@ def admin_required(f):
 
 @flask_api.route("/panel")
 @login_required
-@admin_required
+@admin_access_required
 def panel():
     """ """
     logging.info(

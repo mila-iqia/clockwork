@@ -39,6 +39,7 @@ from clockwork_web.core.users_helper import (
 )
 
 
+
 class User(UserMixin):
     """
     The methods of this class are determined by the demands of the
@@ -46,11 +47,12 @@ class User(UserMixin):
     a `None` if it fails to find the user.
     """
 
+
     def __init__(
         self,
         mila_email_username,
         status,
-        admin=None,
+        admin_access=False,
         clockwork_api_key=None,
         mila_cluster_username=None,
         cc_account_username=None,
@@ -61,9 +63,20 @@ class User(UserMixin):
         This constructor is called only by the `get` method.
         We never call it directly.
         """
+        def boolean(value):
+            if isinstance(value, bool):
+                return value
+            elif isinstance(value, str):
+                if value in ["True", "true", "TRUE","1"]:
+                    return True
+            elif isinstance(value, int):
+                if value == 1:
+                    return True
+            return False
+
         self.mila_email_username = mila_email_username
         self.status = status
-        self.admin = admin != None
+        self.admin_access = boolean(admin_access)
         self.clockwork_api_key = clockwork_api_key
         self.mila_cluster_username = mila_cluster_username
         self.cc_account_username = cc_account_username
@@ -117,7 +130,7 @@ class User(UserMixin):
             user = User(
                 mila_email_username=e["mila_email_username"],
                 status=e["status"],
-                admin=e.get("admin", None),
+                admin_access=e.get("admin", False),
                 clockwork_api_key=e["clockwork_api_key"],
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
@@ -308,6 +321,7 @@ class AnonUser(AnonymousUserMixin):
     def __init__(self):
         self.mila_email_username = "anonymous@mila.quebec"
         self.status = "enabled"
+        self.admin_access=False,
         self.clockwork_api_key = "deadbeef"
         self.cc_account_username = None
         self.mila_cluster_username = None
