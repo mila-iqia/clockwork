@@ -100,6 +100,9 @@
 											<li><h3>Clockwork</h3></li>
 											<li><a class="dropdown-item" href="#" target="_blank">Documentation</a></li>
 											<li><a class="dropdown-item" href="#" target="_blank">Github</a></li>
+											{% if current_user["admin_access"] == true %}
+												<li><a class="dropdown-item" href="{{url_for('admin.panel')}}" target="_blank"><i class="fa-solid fa-gears"></i> Admin</a></li>
+											{% endif %}		
 						        		</ul>
 							        </li>
 								</ul>

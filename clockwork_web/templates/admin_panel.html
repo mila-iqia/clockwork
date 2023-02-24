@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+
+    </script>
+
+{% endblock %}
+{% block content %}
+<div class="cc_subheader_banner">
+    <h1>Hello, admin world !</h1>
+    This page is a placeholder.
+</div>
+{% endblock %}
