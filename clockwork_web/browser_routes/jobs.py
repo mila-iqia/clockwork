@@ -23,7 +23,7 @@ from flask_login import (
     current_user,
     login_required,
 )
-from clockwork_web.core.search_helper import parse_search_request
+from clockwork_web.core.search_helper import search_request
 from flask_babel import gettext
 
 # As described on
@@ -119,13 +119,11 @@ def route_search():
     )  # If True, the user wants a JSON output
     want_json = to_boolean(want_json)
 
-    # Retrieve wether or not we want the number of total jobs
-    # if the JSON format is requested
-    want_count = request.args.get("want_count", type=str, default="False")
-    want_count = to_boolean(want_count)
+    ################################################
+    # Retrieve the jobs and display or return them #
+    ################################################
 
-    # Parse the request arguments
-    query = parse_search_request(
+    (query, LD_jobs, nbr_total_jobs) = search_request(
         current_user,
         request.args,
         # The default pagination parameters are different whether or not a JSON response is requested.
@@ -136,27 +134,11 @@ def route_search():
         force_pagination=not want_json,
     )
 
-    ################################################
-    # Retrieve the jobs and display or return them #
-    ################################################
-
-    # Retrieve the jobs, by applying the filters and the pagination
-    (LD_jobs, nbr_total_jobs) = get_jobs(
-        username=query.username,
-        cluster_names=query.cluster_name,
-        states=query.job_state,
-        nbr_skipped_items=query.nbr_skipped_items,
-        nbr_items_to_display=query.nbr_items_to_display,
-        want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
-        sort_by=query.sort_by,
-        sort_asc=query.sort_asc,
-    )
-
     LD_jobs = [strip_artificial_fields_from_job(D_job) for D_job in LD_jobs]
 
     if want_json:
         # If requested, return the list as JSON
-        if want_count:
+        if query.want_count:
             # If the number of all the jobs is requested, return the jobs list
             # and the number of jobs
             return {"jobs": LD_jobs, "nbr_total_jobs": nbr_total_jobs}
@@ -179,7 +161,7 @@ def route_search():
                 "page_num": query.pagination_page_num,
                 "nbr_items_per_page": query.pagination_nbr_items_per_page,
                 "want_json": want_json,
-                "want_count": want_count,
+                "want_count": query.want_count,
                 "sort_by": query.sort_by,
                 "sort_asc": query.sort_asc,
             },

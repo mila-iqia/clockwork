@@ -1,10 +1,11 @@
 from types import SimpleNamespace
 
 from clockwork_web.core.clusters_helper import get_all_clusters
-from clockwork_web.core.jobs_helper import get_inferred_job_states
+from clockwork_web.core.jobs_helper import get_inferred_job_states, get_jobs
 from clockwork_web.core.utils import (
     get_custom_array_from_request_args,
     normalize_username,
+    to_boolean,
 )
 
 
@@ -16,6 +17,9 @@ def parse_search_request(user, args, force_pagination=True):
     force_pagination: Whether to force pagination or not.
     """
     from clockwork_web.core.pagination_helper import get_pagination_values
+
+    want_count = args.get("want_count", type=str, default="False")
+    want_count = to_boolean(want_count)
 
     default_page_number = "1" if force_pagination else None
 
@@ -51,6 +55,7 @@ def parse_search_request(user, args, force_pagination=True):
         pagination_nbr_items_per_page=args.get("nbr_items_per_page", type=int),
         sort_by=args.get("sort_by", default="submit_time", type=str),
         sort_asc=args.get("sort_asc", default=1, type=int),
+        want_count=want_count,
     )
 
     #########################
@@ -77,3 +82,21 @@ def parse_search_request(user, args, force_pagination=True):
         )
 
     return query
+
+
+def search_request(user, args, force_pagination=True):
+    query = parse_search_request(user, args, force_pagination=force_pagination)
+
+    # Call a helper to retrieve the jobs
+    (jobs, nbr_total_jobs) = get_jobs(
+        username=query.username,
+        cluster_names=query.cluster_name,
+        states=query.job_state,
+        nbr_skipped_items=query.nbr_skipped_items,
+        nbr_items_to_display=query.nbr_items_to_display,
+        want_count=query.want_count,
+        sort_by=query.sort_by,
+        sort_asc=query.sort_asc,
+    )
+
+    return (query, jobs, nbr_total_jobs)

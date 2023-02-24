@@ -7,7 +7,7 @@ from flask import request, make_response
 from flask.json import jsonify
 from flask.globals import current_app
 
-from clockwork_web.core.search_helper import parse_search_request
+from clockwork_web.core.search_helper import search_request
 from .authentication import authentication_required
 from ..db import get_db
 from ..user import User
@@ -44,33 +44,21 @@ def route_api_v1_jobs_list():
         f"clockwork REST route: /jobs/list - current_user_with_rest_auth={current_user_id}"
     )
 
-    want_count = request.args.get("want_count", type=str, default="False")
-    want_count = to_boolean(want_count)
+    # want_count = request.args.get("want_count", type=str, default="False")
+    # want_count = to_boolean(want_count)
 
     # Parse the request arguments
-    query = parse_search_request(
+    (query, LD_jobs, nbr_total_jobs) = search_request(
         current_user,
         request.args,
         force_pagination=False,
-    )
-
-    # Call a helper to retrieve the jobs
-    (LD_jobs, nbr_total_jobs) = get_jobs(
-        username=query.username,
-        cluster_names=query.cluster_name,
-        states=query.job_state,
-        nbr_skipped_items=query.nbr_skipped_items,
-        nbr_items_to_display=query.nbr_items_to_display,
-        want_count=want_count,
-        sort_by=query.sort_by,
-        sort_asc=query.sort_asc,
     )
 
     # Return the requested jobs, and the number of all the jobs
     LD_jobs = [
         strip_artificial_fields_from_job(D_job) for D_job in LD_jobs
     ]  # Remove the field "_id" of each job before jsonification
-    if want_count:
+    if query.want_count:
         return jsonify({"nbr_total_jobs": nbr_total_jobs, "jobs": LD_jobs})
     else:
         return jsonify(LD_jobs)
