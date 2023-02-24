@@ -39,14 +39,12 @@ from clockwork_web.core.users_helper import (
 )
 
 
-
 class User(UserMixin):
     """
     The methods of this class are determined by the demands of the
     `login_manager` library. For example, the fact that `get` returns
     a `None` if it fails to find the user.
     """
-
 
     def __init__(
         self,
@@ -63,11 +61,12 @@ class User(UserMixin):
         This constructor is called only by the `get` method.
         We never call it directly.
         """
+
         def boolean(value):
             if isinstance(value, bool):
                 return value
             elif isinstance(value, str):
-                if value in ["True", "true", "TRUE","1"]:
+                if value in ["True", "true", "TRUE", "1"]:
                     return True
             elif isinstance(value, int):
                 if value == 1:
@@ -130,7 +129,7 @@ class User(UserMixin):
             user = User(
                 mila_email_username=e["mila_email_username"],
                 status=e["status"],
-                admin_access=e.get("admin", False),
+                admin_access=e.get("admin_access", False),
                 clockwork_api_key=e["clockwork_api_key"],
                 mila_cluster_username=e["mila_cluster_username"],
                 cc_account_username=e["cc_account_username"],
@@ -321,7 +320,7 @@ class AnonUser(AnonymousUserMixin):
     def __init__(self):
         self.mila_email_username = "anonymous@mila.quebec"
         self.status = "enabled"
-        self.admin_access=False,
+        self.admin_access = (False,)
         self.clockwork_api_key = "deadbeef"
         self.cc_account_username = None
         self.mila_cluster_username = None
