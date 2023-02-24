@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+
 from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.jobs_helper import get_inferred_job_states
 from clockwork_web.core.utils import (
@@ -7,9 +8,7 @@ from clockwork_web.core.utils import (
 )
 
 
-def parse_search_request(
-    user, args, force_pagination=True, allow_no_cluster_names=False
-):
+def parse_search_request(user, args, force_pagination=True):
     """Parse a search request.
 
     user: The current user.
@@ -28,15 +27,13 @@ def parse_search_request(
         # If no cluster has been requested, then all clusters have been requested
         # (a filter related to which clusters are available to the current user
         #  is then applied)
-        requested_cluster_names = get_all_clusters()
+        requested_cluster_names = list(get_all_clusters().keys())
     user_clusters = (
         user.get_available_clusters()  # Retrieve the clusters the user can access
     )
     cluster_names = [
         cluster for cluster in requested_cluster_names if cluster in user_clusters
     ]
-    if not cluster_names and not allow_no_cluster_names:
-        cluster_names = user_clusters
 
     # Parse the list of states to filter for
     aggregated_states = get_custom_array_from_request_args(
