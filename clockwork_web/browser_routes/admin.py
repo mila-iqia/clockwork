@@ -43,7 +43,14 @@ def admin_access_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if not current_user.admin_access:
-            return jsonify("Authorization error."), 403
+            return (
+                render_template_with_user_settings(
+                    "error.html",
+                    error_msg=f"Authorization error.",
+                    previous_request_args={},
+                ),
+                403,  # access rights error
+            )
 
         return f(*args, **kwargs)
 
