@@ -69,7 +69,9 @@ def db_with_fake_data():
     assert "MONGODB_DATABASE_NAME" in os.environ
 
     db = MongoClient(os.environ["MONGODB_CONNECTION_STRING"])
-    cleanup_function = populate_fake_data(db[os.environ["MONGODB_DATABASE_NAME"]])
+    cleanup_function = populate_fake_data(
+        db[os.environ["MONGODB_DATABASE_NAME"]], mutate=True
+    )
     yield db  # This would be `yield None` instead to make our intentions more explicit.
     cleanup_function()
 

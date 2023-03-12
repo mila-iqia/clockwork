@@ -36,6 +36,7 @@ from .rest_routes.gpu import flask_api as rest_gpu_flask_api
 from .config import register_config, get_config, string, string_list, timezone
 
 from .core.users_helper import render_template_with_user_settings
+from .core.jobs_helper import job_state_to_aggregated
 
 
 from werkzeug.urls import url_encode
@@ -76,6 +77,10 @@ def create_app(extra_config: dict):
     app.register_blueprint(rest_nodes_flask_api, url_prefix="/api/v1/clusters")
     app.register_blueprint(rest_gpu_flask_api, url_prefix="/api/v1/clusters")
     # TODO : add a route for admin eventually
+
+    @app.template_filter()
+    def aggregated(job_state):
+        return job_state_to_aggregated.get(job_state, "unknown")
 
     # User session management setup
     # https://flask-login.readthedocs.io/en/latest

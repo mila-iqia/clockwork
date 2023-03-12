@@ -1,3 +1,4 @@
+"use strict";
 
 /*
     Two main functions :
@@ -67,6 +68,35 @@ self.inWords = function(timeAgo) {
     return self;
 }());
 
+
+const job_state_to_aggregated = {
+    "BOOT_FAIL": "FAILED",
+    "CANCELLED": "FAILED",
+    "COMPLETED": "COMPLETED",
+    "CONFIGURING": "PENDING",
+    "COMPLETING": "RUNNING",
+    "DEADLINE": "FAILED",
+    "FAILED": "FAILED",
+    "NODE_FAIL": "FAILED",
+    "OUT_OF_MEMORY": "FAILED",
+    "PENDING": "PENDING",
+    "PREEMPTED": "FAILED",
+    "RUNNING": "RUNNING",
+    "RESV_DEL_HOLD": "PENDING",
+    "REQUEUE_FED": "PENDING",
+    "REQUEUE_HOLD": "PENDING",
+    "REQUEUED": "PENDING",
+    "RESIZING": "PENDING",
+    "REVOKED": "FAILED",
+    "SIGNALING": "RUNNING",
+    "SPECIAL_EXIT": "FAILED",
+    "STAGE_OUT": "RUNNING",
+    "STOPPED": "FAILED",
+    "SUSPENDED": "FAILED",
+    "TIMEOUT": "FAILED",
+};
+
+
 // We set up a request to retrieve the jobs list as JSON
 const refresh_endpoint = "/jobs/search?want_json=True&want_count=True"
 
@@ -114,12 +144,6 @@ function changeValue(newval) {
     launch_refresh_all_data(query_filter, display_filter);
 }
 
-// unfinished, need more info
-function removeAllChildNodes(parent) {
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
-}
 function make_pagination(page_num, nbr_items_per_page, total_items) {
     var TotalPages = Math.ceil(total_items / nbr_items_per_page);
 
@@ -204,41 +228,26 @@ function make_pagination(page_num, nbr_items_per_page, total_items) {
 }
 
 function count_jobs(response_contents) {
+    const categories = [
+        ["COMPLETED", "completed"],
+        ["RUNNING", "running"],
+        ["PENDING", "pending"],
+        ["FAILED", "stalled"],
+    ];
 
-    let completed = document.getElementById("dashboard_completed");
-    let running = document.getElementById("dashboard_running");
-    let pending = document.getElementById("dashboard_pending");
-    let stalled = document.getElementById("dashboard_stalled");
-
-    let counter_completed = 0;
-    let counter_running = 0;
-    let counter_pending = 0;
-    let counter_stalled = 0;
-
-    /* then add the information for all the jobs */
-    [].forEach.call(response_contents, function(D_job) {
-        D_job_slurm = D_job["slurm"];
-        job_state = D_job_slurm["job_state"].toLowerCase();
-
-        if (job_state == "completed") {
-            counter_completed++;
+    for (const [category, element_name] of categories) {
+        const div = document.getElementById("dashboard_" + element_name);
+        let counter = 0;
+        for (const D_job of response_contents) {
+            const job_state = D_job["slurm"]["job_state"];
+            if (job_state_to_aggregated[job_state] === category) {
+                counter++;
+            }
         }
-        if (job_state == "running" || job_state == "completing") {
-            counter_running++;
-        }
-        if (job_state == "pending") {
-            counter_pending++;
-        }
-        if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled") {
-            counter_stalled++;
-        }
-    });
-    completed.textContent = counter_completed;
-    running.textContent = counter_running;
-    pending.textContent = counter_pending;
-    stalled.textContent = counter_stalled;
-
+        div.textContent = counter;
+    }
 }
+
 
 function format_date(timestamp) {
     /*
@@ -257,9 +266,11 @@ function format_date(timestamp) {
     }
     else {
         // Format each element
-        year = date_to_format.getFullYear();
-        month = (date_to_format.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // Months are represented by indices from 0 to 11. Thus, 1 is added to the month. Moreover, this use of 'toLocaleString' is used to display each month with two digits (even the months from 1 to 9)
-        day = date_to_format.getDate().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display each day with two digits (even the days from 1 to 9)
+        let formatted_date, formatted_time;
+
+        const year = date_to_format.getFullYear();
+        const month = (date_to_format.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // Months are represented by indices from 0 to 11. Thus, 1 is added to the month. Moreover, this use of 'toLocaleString' is used to display each month with two digits (even the months from 1 to 9)
+        const day = date_to_format.getDate().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}); // This use of 'toLocaleString' is used to display each day with two digits (even the days from 1 to 9)
 
         // As MM/DD/YYYY
         if ("date_format" in web_settings && web_settings["date_format"] == "MM/DD/YYYY"){
@@ -414,10 +425,10 @@ function refresh_display(display_filter) {
         Clear and populate the jobs table with the latest response content,
         filtered by the "display filters" given as parameters.
     */
-    latest_filtered_response_contents = apply_filter(latest_response_contents["jobs"], display_filter);
-    alljobs_filtered = apply_filter(latest_response_contents["jobs"], display_filter);
+    const latest_filtered_response_contents = apply_filter(latest_response_contents["jobs"], display_filter);
+    const alljobs_filtered = apply_filter(latest_response_contents["jobs"], display_filter);
 
-    total_jobs = latest_response_contents["nbr_total_jobs"];
+    const total_jobs = latest_response_contents["nbr_total_jobs"];
 
     //for testing only - use a smaller number
     //nbr_items_per_page = 3;
@@ -695,18 +706,18 @@ function populate_table(response_contents) {
     let tbody = document.createElement('tbody');
     /* then add the information for all the jobs */
     [].forEach.call(response_contents, function(D_job) {
-        D_job_slurm = D_job["slurm"];
+        const D_job_slurm = D_job["slurm"];
         //kaweb - displaying the job state in lowercase to manipulate it in CSS
-        job_state = D_job_slurm["job_state"].toLowerCase();
+        const job_state = D_job_slurm["job_state"].toLowerCase();
         let tr = document.createElement('tr');
         let td;
         let a;
 
         // Clusters
         if (check_web_settings_column_display(page_name, "clusters")) {
-            td = document.createElement('td');
+            const td = document.createElement('td');
             if (D_job_slurm["cluster_name"]) {
-                a = document.createElement("a");
+                const a = document.createElement("a");
                 a.setAttribute("href", "/clusters/one?cluster_name=" + D_job_slurm["cluster_name"]);
                 a.innerHTML = D_job_slurm["cluster_name"];
                 td.appendChild(a);
@@ -718,13 +729,13 @@ function populate_table(response_contents) {
         }
         // Job ID
         if (check_web_settings_column_display(page_name, "job_id")) {
-            td = document.createElement('td');
+            const td = document.createElement('td');
             td.innerHTML = ("<a href=\"" + "/jobs/one?job_id=" + D_job_slurm["job_id"] + "\">" + D_job_slurm["job_id"] + "</a>");
             tr.appendChild(td);
         }
         // Job name
         if (check_web_settings_column_display(page_name, "job_name")) {
-            td = document.createElement('td');
+            const td = document.createElement('td');
             td.innerHTML = (D_job_slurm["name"] ? D_job_slurm["name"] : "").substring(0, 20);
             tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
         }
@@ -732,12 +743,13 @@ function populate_table(response_contents) {
         if (check_web_settings_column_display(page_name, "job_state")) {
             //td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
             //kaweb - using the job state as a shorthand to insert icons through CSS
-            td = document.createElement('td');
+            const td = document.createElement('td');
             td.className = "state";
 
-            var formatted_job_state = job_state.replace(/_/g, " ");
+            const formatted_job_state = job_state.replace(/_/g, " ");
+            const aggregated_state = (job_state_to_aggregated[job_state.toUpperCase()] || "NONE").toLowerCase();
 
-            td.innerHTML = ("<span class=\"status " + job_state + "\">" + formatted_job_state + "</span>");
+            td.innerHTML = ("<span class=\"status " + aggregated_state + "\">" + formatted_job_state + "</span>");
             tr.appendChild(td);
         }
         // Submit_time, start time and end_time of the jobs
@@ -745,7 +757,7 @@ function populate_table(response_contents) {
         for (var i=0; i<job_times.length; i++) {
             let job_time = job_times[i];
             if (check_web_settings_column_display(page_name, job_time)) {
-                td = document.createElement('td');
+                const td = document.createElement('td');
                 if (D_job_slurm[job_time] == null) {
                     td.innerHTML = "";
                 } else {
@@ -767,26 +779,27 @@ function populate_table(response_contents) {
 
         // Links
         if (check_web_settings_column_display(page_name, "links")) {
-            td = document.createElement('td');
+            const td = document.createElement('td');
             td.className = "links";
-
+            
+            let link0_innerHTML;
             // This link works only for Narval and Beluga. See CW-141.
             if ((D_job_slurm["cluster_name"] == "narval") || (D_job_slurm["cluster_name"] == "beluga")) {
                 // https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid>
                 let target_url = `https://portail.${D_job_slurm["cluster_name"]}.calculquebec.ca/secure/jobstats/${D_job_slurm["username"]}/${D_job_slurm["job_id"]}`
-                link0_innerHTML  = `<a href='${target_url}' data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'><i class='fa-solid fa-file'></i></a>`
+                link0_innerHTML = `<a href='${target_url}' data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'><i class='fa-solid fa-file'></i></a>`
             } else {
                 link0_innerHTML = ""
             }
             // This is just a placeholder for now.
-            link1_innerHTML = "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>"
+            const link1_innerHTML = "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>"
             td.innerHTML = link0_innerHTML + link1_innerHTML
             tr.appendChild(td);
         }
 
         // Actions
         if (check_web_settings_column_display(page_name, "actions")) {
-            td = document.createElement('td');
+            const td = document.createElement('td');
             td.className = "actions";
             td.innerHTML = (
                 "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>"
@@ -822,42 +835,6 @@ function populate_table(response_contents) {
             */
 }
 
-
-function count_jobs(response_contents) {
-
-    let running = document.getElementById("dashboard_running");
-    let completed = document.getElementById("dashboard_completed");
-    let pending = document.getElementById("dashboard_pending");
-    let stalled = document.getElementById("dashboard_stalled");
-
-    let counter_running = 0;
-    let counter_completed = 0;
-    let counter_pending = 0;
-    let counter_stalled = 0;
-
-    /* then add the information for all the jobs */
-    [].forEach.call(response_contents, function(D_job) {
-        D_job_slurm = D_job["slurm"];
-        job_state = D_job_slurm["job_state"].toLowerCase();
-
-        if (job_state == "running" || job_state == "completing") {
-            counter_running++;
-        }
-        if (job_state == "completed") {
-            counter_completed++;
-        }
-        if (job_state == "pending") {
-            counter_pending++;
-        }
-        if (job_state == "timeout" || job_state == "out_of_memory" || job_state == "failed" || job_state == "cancelled" || job_state == "preempted") {
-            counter_stalled++;
-        }
-    });
-    running.textContent = counter_running;
-    completed.textContent = counter_completed;
-    pending.textContent = counter_pending;
-    stalled.textContent = counter_stalled;
-}
 
 function retrieve_username_from_email(email) {
     /*

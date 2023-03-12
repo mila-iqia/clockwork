@@ -2,6 +2,7 @@
 This file contains a lot of arbitrary decisions that could change in the future.
 """
 
+from collections import defaultdict
 import re
 import time
 
@@ -168,7 +169,7 @@ def get_filtered_and_paginated_jobs(
     return (LD_jobs, nbr_total_jobs)
 
 
-def get_global_filter(username=None, job_ids=[], cluster_names=[], states=[]):
+def get_global_filter(username=None, job_ids=[], cluster_names=None, states=[]):
     """
     Set up a filter for MongoDB in order to filter username, clusters and job states,
     regarding what has been sent as parameter to the function.
@@ -198,7 +199,7 @@ def get_global_filter(username=None, job_ids=[], cluster_names=[], states=[]):
         filters.append({"slurm.job_id": {"$in": job_ids}})
 
     # Define the filter related to the cluster on which the jobs run
-    if len(cluster_names) > 0:
+    if cluster_names is not None:
         filters.append({"slurm.cluster_name": {"$in": cluster_names}})
 
     # Define the filter related to the jobs' states
@@ -215,7 +216,7 @@ def get_global_filter(username=None, job_ids=[], cluster_names=[], states=[]):
 def get_jobs(
     username=None,
     job_ids=[],
-    cluster_names=[],
+    cluster_names=None,
     states=[],
     nbr_skipped_items=None,
     nbr_items_to_display=None,
@@ -281,6 +282,47 @@ def strip_artificial_fields_from_job(D_job):
     return dict((k, v) for (k, v) in D_job.items() if k not in fields_to_remove)
 
 
+job_state_to_aggregated = {
+    "BOOT_FAIL": "FAILED",
+    "CANCELLED": "FAILED",
+    "COMPLETED": "COMPLETED",
+    "CONFIGURING": "PENDING",
+    "COMPLETING": "RUNNING",
+    "DEADLINE": "FAILED",
+    "FAILED": "FAILED",
+    "NODE_FAIL": "FAILED",
+    "OUT_OF_MEMORY": "FAILED",
+    "PENDING": "PENDING",
+    "PREEMPTED": "FAILED",
+    "RUNNING": "RUNNING",
+    # Unsure what "RESV_DEL_HOLD: Job is being held after requested reservation
+    # was deleted." means
+    "RESV_DEL_HOLD": "PENDING",
+    "REQUEUE_FED": "PENDING",
+    "REQUEUE_HOLD": "PENDING",
+    "REQUEUED": "PENDING",
+    "RESIZING": "PENDING",
+    "REVOKED": "FAILED",
+    "SIGNALING": "RUNNING",
+    "SPECIAL_EXIT": "FAILED",
+    "STAGE_OUT": "RUNNING",
+    "STOPPED": "FAILED",
+    "SUSPENDED": "FAILED",
+    "TIMEOUT": "FAILED",
+}
+
+
+def _make_states_mapping():
+    results = defaultdict(set)
+    for job_state, aggregated_job_state in job_state_to_aggregated.items():
+        if aggregated_job_state is not None:
+            results[aggregated_job_state].add(job_state)
+    return results
+
+
+aggregated_states_mapping = _make_states_mapping()
+
+
 def get_inferred_job_states(global_job_states):
     """
     Get all the job states infered by the "global job states" provided as input.
@@ -309,17 +351,9 @@ def get_inferred_job_states(global_job_states):
     # Initialize the "Slurm job states" associated to the "global job states" provided as input
     requested_slurm_job_states = []
 
-    # Define the mapping between the job states and the gathered job states
-    states_mapping = {
-        "PENDING": ["PENDING"],
-        "RUNNING": ["RUNNING", "COMPLETING"],
-        "COMPLETED": ["COMPLETED"],
-        "FAILED": ["CANCELLED", "FAILED", "OUT_OF_MEMORY", "TIMEOUT", "PREEMPTED"],
-    }
-
     # For each requested "global job state", provide the associated "Slurm job states"
     for global_job_state in global_job_states:
-        requested_slurm_job_states.extend(states_mapping[global_job_state])
+        requested_slurm_job_states.extend(aggregated_states_mapping[global_job_state])
 
     # Return the requested Slurm states
     return requested_slurm_job_states

@@ -28,7 +28,7 @@ import os
 from clockwork_web.config import register_config
 from slurm_state.mongo_client import get_mongo_client
 from slurm_state.config import get_config
-from test_common.fake_data import populate_fake_data
+from test_common.fake_data import mutate_some_job_status, populate_fake_data
 
 
 def store_data_in_db(data_json_file=None):
@@ -64,33 +64,6 @@ def modify_timestamps(data):
             job["slurm"]["start_time"] += time_delta
         if job["slurm"]["end_time"]:
             job["slurm"]["end_time"] += time_delta
-
-
-def mutate_some_job_status(data):
-    """
-    Modifies in place about 1/5 of the job status to get more variations.
-
-    Note that this produces values of "job_state" that are not necessarily
-    coherent with other fields such as "start_time" and "end_time" because
-    we can end up with jobs that are COMPLETED but don't have proper
-    "start_time" and "end_time", or jobs that are CANCELLED but have an
-    "end_time" anyways.
-    Fixing this is not a priority, though, because right now it's used only
-    for running some tests and trying out the visual front-end.
-    """
-    L_status = [
-        "COMPLETED",
-        "COMPLETING",
-        "FAILED",
-        "OUT_OF_MEMORY",
-        "TIMEOUT",
-        "CANCELLED",
-        "PREEMPTED",
-    ]
-
-    for (i, job) in enumerate(data["jobs"]):
-        if i % 30 < len(L_status):
-            job["slurm"]["job_state"] = L_status[i % 30]
 
 
 def main(argv):

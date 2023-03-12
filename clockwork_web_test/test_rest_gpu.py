@@ -64,6 +64,7 @@ def test_gpu_list_success(client, fake_data, valid_rest_auth_headers):
     # Create a dictionary of the gpus, omitting the "cw_name" of each entry
     expected_gpu_results = []
     for gpu_entry in fake_data["gpu"]:
+        gpu_entry = dict(gpu_entry)
         gpu_entry.pop("cw_name")
         expected_gpu_results.append(gpu_entry)
 

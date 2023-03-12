@@ -11512,12 +11512,7 @@ table.table-striped span.status:after,
   padding: 0 6px 0 0;
 }
 
-table.table-striped span.failed:after, table.table-striped span.out_of_memory:after, table.table-striped span.cancelled:after, table.table-striped span.timeout:after, table.table-striped span.preempted:after, table.table-striped span.failed:after,
-.cc_cluster_toggle_subzone .form-check-label span.failed:after,
-.cc_cluster_toggle_subzone .form-check-label span.out_of_memory:after,
-.cc_cluster_toggle_subzone .form-check-label span.cancelled:after,
-.cc_cluster_toggle_subzone .form-check-label span.timeout:after,
-.cc_cluster_toggle_subzone .form-check-label span.preempted:after,
+table.table-striped span.failed:after,
 .cc_cluster_toggle_subzone .form-check-label span.failed:after {
   color: #8a5e8a;
   content: "\f071";
@@ -11532,9 +11527,8 @@ table.table-striped span.pending:after,
   color: #dba46a;
   content: "\f28b";
 }
-table.table-striped span.running:after, table.table-striped span.completing:after,
-.cc_cluster_toggle_subzone .form-check-label span.running:after,
-.cc_cluster_toggle_subzone .form-check-label span.completing:after {
+table.table-striped span.running:after,
+.cc_cluster_toggle_subzone .form-check-label span.running:after {
   color: #55b496;
   content: "\e29e";
 }

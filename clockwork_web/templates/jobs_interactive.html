@@ -32,28 +32,10 @@
                 display_filter["cluster_name"]["{{D_cluster}}"] = true;
             {% endfor %}
 
-            // Grouping the states into 4 bins to simplify the interface and usability.
-            status_running = true
-            status_pending = true
-            status_completed = true
-            status_any_errors = true
-
-            display_filter["job_state"] = {
-                "COMPLETED": status_completed,
-                // let's say that "COMPLETING" is still like "RUNNING"
-                "RUNNING": status_running,
-                "COMPLETING": status_running,
-                //
-                "PENDING": status_pending,
-                // catchall category about everything where the job didn't run properly
-                "FAILED": status_any_errors,
-                "OUT_OF_MEMORY": status_any_errors,
-                "TIMEOUT": status_any_errors,
-                "FAILED": status_any_errors,
-                "CANCELLED": status_any_errors,
-                "PREEMPTED": status_any_errors
-            }
-
+            // We display all possible states (see dashboard.js for list)
+            display_filter["job_state"] = Object.fromEntries(
+                Object.keys(job_state_to_aggregated).map(k => [k, true])
+            );
             display_filter["num_per_page"] = web_settings["nbr_items_per_page"];
 
         }
