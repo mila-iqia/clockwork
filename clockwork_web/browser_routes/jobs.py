@@ -23,6 +23,7 @@ from flask_login import (
     current_user,
     login_required,
 )
+from clockwork_web.core.search_helper import search_request
 from flask_babel import gettext
 
 # As described on
@@ -71,8 +72,8 @@ def route_search():
       and it will match any of them. Either user Mila email (e.g. "myuser@mila.quebec")
       or Mila username only (e.g. "myuser", will be appended with "@mila.quebec")
     - "cluster_name" refers to the cluster(s) on which we are looking for the jobs
-    - "state" refers to the state(s) of the jobs we are looking for. Here are concerned
-      the "global states", which are "RUNNING", "PENDING", "COMPLETED" and "ERROR", which
+    - "aggregated_job_state" refers to the state(s) of the jobs we are looking for. Here are concerned
+      the "global states", which are "RUNNING", "PENDING", "COMPLETED" and "FAILED", which
       gather multiple states according to the following mapping:
       {
         "PENDING": "PENDING",
@@ -112,115 +113,32 @@ def route_search():
     # Retrieve the parameters #
     ###########################
 
-    # Initialize the request arguments (it is further transferred to the HTML)
-    previous_request_args = {}
-
     # Retrieve the format requested to return the information
     want_json = request.args.get(
         "want_json", type=str, default="False"
     )  # If True, the user wants a JSON output
     want_json = to_boolean(want_json)
-    previous_request_args["want_json"] = want_json
-
-    # Retrieve wether or not we want the number of total jobs
-    # if the JSON format is requested
-    want_count = request.args.get("want_count", type=str, default="False")
-    want_count = to_boolean(want_count)
-    previous_request_args["want_count"] = want_count
-
-    # Retrieve the parameters used to filter the jobs
-    username = request.args.get("username", None)
-    if username:
-        # Append "@mila.quebec" to username if necessary
-        suffix = "@mila.quebec"
-        if not username.endswith(suffix):
-            username += suffix
-        previous_request_args["username"] = username
-
-    requested_cluster_names = get_custom_array_from_request_args(
-        request.args.get("cluster_name")
-    )
-
-    # Limit the cluster options to the clusters the user can access
-    user_clusters = (
-        current_user.get_available_clusters()  # Retrieve the clusters the user can access
-    )
-    cluster_names = [
-        cluster for cluster in requested_cluster_names if cluster in user_clusters
-    ]
-    # If the resulting list is empty, then all the available clusters are requested
-    if len(cluster_names) < 1:
-        cluster_names = user_clusters
-
-    previous_request_args["cluster_name"] = cluster_names
-
-    states = get_custom_array_from_request_args(request.args.get("state"))
-    previous_request_args["state"] = states
-
-    # Retrieve the pagination parameters
-    if want_json:
-        # - If a JSON response is requested, we set no default value to num_page here
-        pagination_page_num = request.args.get("page_num", type=int)
-    else:
-        # - If a HTML response is requested, we use 1 as the default number of the current page
-        pagination_page_num = request.args.get("page_num", type=int, default="1")
-    previous_request_args["page_num"] = pagination_page_num
-
-    pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
-    if pagination_nbr_items_per_page:
-        previous_request_args["nbr_items_per_page"] = pagination_nbr_items_per_page
-
-    # Retrieve the sorting field
-    sort_by = request.args.get("sort_by", default="submit_time", type=str)
-    sort_asc = request.args.get("sort_asc", default=1, type=int)
-    previous_request_args["sort_by"] = sort_by
-    previous_request_args["sort_asc"] = sort_asc
-
-    #########################
-    # Define the pagination #
-    #########################
-
-    # The default pagination parameters are different whether or not a JSON response is requested.
-    # This is because we are using `want_json=True` along with no pagination arguments for a special
-    # case when we want to retrieve all the jobs in the dashboard for a given user.
-    # There is a certain notion with `want_json` that we are retrieving the data for the purposes
-    # of listing them exhaustively, and not just for displaying them with scroll bars in some HTML page.
-    if want_json and not pagination_page_num and not pagination_nbr_items_per_page:
-        # In this particular case, we set the default pagination arguments to be `None`,
-        # which will effectively disable pagination.
-        nbr_skipped_items = None
-        nbr_items_to_display = None
-    else:
-        # Otherwise (ie if at least one of the pagination parameters is provided),
-        # we assume that a pagination is expected from the user. Then, the pagination helper
-        # is used to define the number of elements to skip, and the number of elements to display
-        (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
-            current_user.mila_email_username,
-            pagination_page_num,
-            pagination_nbr_items_per_page,
-        )
 
     ################################################
     # Retrieve the jobs and display or return them #
     ################################################
 
-    # Retrieve the jobs, by applying the filters and the pagination
-    (LD_jobs, nbr_total_jobs) = get_jobs(
-        username=username,
-        cluster_names=cluster_names,
-        states=states,
-        nbr_skipped_items=nbr_skipped_items,
-        nbr_items_to_display=nbr_items_to_display,
-        want_count=True,  # We want the result as a tuple (jobs_list, jobs_count)
-        sort_by=sort_by,
-        sort_asc=sort_asc,
+    (query, LD_jobs, nbr_total_jobs) = search_request(
+        current_user,
+        request.args,
+        # The default pagination parameters are different whether or not a JSON response is requested.
+        # This is because we are using `want_json=True` along with no pagination arguments for a special
+        # case when we want to retrieve all the jobs in the dashboard for a given user.
+        # There is a certain notion with `want_json` that we are retrieving the data for the purposes
+        # of listing them exhaustively, and not just for displaying them with scroll bars in some HTML page.
+        force_pagination=not want_json,
     )
 
     LD_jobs = [strip_artificial_fields_from_job(D_job) for D_job in LD_jobs]
 
     if want_json:
         # If requested, return the list as JSON
-        if want_count:
+        if query.want_count:
             # If the number of all the jobs is requested, return the jobs list
             # and the number of jobs
             return {"jobs": LD_jobs, "nbr_total_jobs": nbr_total_jobs}
@@ -234,9 +152,19 @@ def route_search():
             "jobs_search.html",
             LD_jobs=LD_jobs,
             mila_email_username=current_user.mila_email_username,
-            page_num=pagination_page_num,
+            page_num=query.pagination_page_num,
             nbr_total_jobs=nbr_total_jobs,
-            previous_request_args=previous_request_args,
+            previous_request_args={
+                "username": query.username,
+                "cluster_name": query.cluster_name,
+                "aggregated_job_state": query.aggregated_job_state,
+                "page_num": query.pagination_page_num,
+                "nbr_items_per_page": query.pagination_nbr_items_per_page,
+                "want_json": want_json,
+                "want_count": query.want_count,
+                "sort_by": query.sort_by,
+                "sort_asc": query.sort_asc,
+            },
         )
 
 

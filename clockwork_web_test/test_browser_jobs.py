@@ -438,11 +438,11 @@ def test_route_search(
 
     # Intersection between the requested clusters (if specified)
     # and the clusters available for the current user.
+    if not cluster_names:
+        cluster_names = get_available_clusters_from_db(current_user_id)
     requested_clusters = set(cluster_names).intersection(
         set(get_available_clusters_from_db(current_user_id))
     )
-    if not requested_clusters:
-        requested_clusters = get_available_clusters_from_db(current_user_id)
 
     # Sort the jobs contained in the fake data by submit time, then by job id
     sorted_all_jobs = sorted(
@@ -482,7 +482,7 @@ def test_route_search(
         request_line += "cluster_name={}&".format(",".join(cluster_names))
     # - state
     if states:
-        request_line += "state={}&".format(",".join(states))
+        request_line += "aggregated_job_state={}&".format(",".join(states))
     # - page_num
     if page_num:
         request_line += "page_num={}&".format(page_num)

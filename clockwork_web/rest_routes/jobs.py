@@ -6,6 +6,8 @@ from flask import g
 from flask import request, make_response
 from flask.json import jsonify
 from flask.globals import current_app
+
+from clockwork_web.core.search_helper import search_request
 from .authentication import authentication_required
 from ..db import get_db
 from ..user import User
@@ -42,77 +44,21 @@ def route_api_v1_jobs_list():
         f"clockwork REST route: /jobs/list - current_user_with_rest_auth={current_user_id}"
     )
 
-    # Retrieve the parameters used to filter the jobs
-    # - username: ID of the user who launched the jobs we are looking for
-    username = request.args.get("username", None)
-    want_count = request.args.get("want_count", type=str, default="False")
+    # want_count = request.args.get("want_count", type=str, default="False")
+    # want_count = to_boolean(want_count)
 
-    want_count = to_boolean(want_count)
-
-    # - clusters
-    requested_cluster_names = get_custom_array_from_request_args(
-        request.args.get("cluster_name")
-    )
-    if len(requested_cluster_names) < 1:
-        # If no cluster has been requested, then all clusters have been requested
-        # (a filter related to which clusters are available to the current user
-        #  is then applied)
-        requested_cluster_names = get_all_clusters()
-
-    # Limit the cluster options to the clusters the user can access
-    user_clusters = (
-        current_user.get_available_clusters()
-    )  # Retrieve the clusters the user can access
-    cluster_names = [
-        cluster for cluster in requested_cluster_names if cluster in user_clusters
-    ]
-
-    # If cluster_names is empty, then the user does not have access to any cluster (s)he
-    # requested. Thus, an empty jobs list is returned
-    if len(cluster_names) < 1:
-        if want_count:
-            return jsonify({"nbr_total_jobs": 0, "jobs": []})
-        else:
-            return jsonify([])
-
-    # - states: the possible states of the jobs we are looking for
-    states = get_custom_array_from_request_args(request.args.get("state"))
-
-    # Pagination values
-    pagination_page_num = request.args.get("page_num", type=int)
-    pagination_nbr_items_per_page = request.args.get("nbr_items_per_page", type=int)
-
-    # Set up the pagination parameters
-    if not pagination_page_num and not pagination_nbr_items_per_page:
-        # In this particular case, we set the default pagination arguments to be `None`,
-        # which will effectively disable pagination.
-        nbr_skipped_items = None
-        nbr_items_to_display = None
-    else:
-        # Otherwise (ie if at least one of the pagination parameters is provided),
-        # we assume that a pagination is expected from the user. Then, the pagination helper
-        # is used to define the number of elements to skip, and the number of elements to display
-        (nbr_skipped_items, nbr_items_to_display) = get_pagination_values(
-            current_user.mila_email_username,
-            pagination_page_num,
-            pagination_nbr_items_per_page,
-        )
-
-    # Call a helper to retrieve the jobs
-    (LD_jobs, nbr_total_jobs) = get_jobs(
-        username=username,
-        cluster_names=cluster_names,
-        states=states,
-        nbr_skipped_items=nbr_skipped_items,
-        nbr_items_to_display=nbr_items_to_display,
-        want_count=want_count,
+    # Parse the request arguments
+    (query, LD_jobs, nbr_total_jobs) = search_request(
+        current_user,
+        request.args,
+        force_pagination=False,
     )
 
     # Return the requested jobs, and the number of all the jobs
     LD_jobs = [
         strip_artificial_fields_from_job(D_job) for D_job in LD_jobs
     ]  # Remove the field "_id" of each job before jsonification
-    if want_count:
+    if query.want_count:
         return jsonify({"nbr_total_jobs": nbr_total_jobs, "jobs": LD_jobs})
     else:
         return jsonify(LD_jobs)
