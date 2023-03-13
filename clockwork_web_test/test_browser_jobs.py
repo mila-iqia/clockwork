@@ -340,17 +340,6 @@ def test_jobs_with_page_num_pagination_option(
             2,
             2,
         ),
-        # We can also search using just username,
-        # without "@mila.quebec" suffix that will be
-        # automatically appended
-        (
-            "student00@mila.quebec",
-            "student05",
-            ["mila", "graham"],
-            ["RUNNING", "PENDING"],
-            2,
-            2,
-        ),
         (
             "student01@mila.quebec",
             "student10@mila.quebec",
@@ -431,7 +420,7 @@ def test_route_search(
     # Initialize the jobs we are expecting (before pagination)
     LD_prefiltered_jobs = []
 
-    # Determine which filters we have to ignored
+    # Determine which filters we have to ignore
     ignore_username_filter = username is None
     states = get_inferred_job_states(states)
     ignore_states_filter = len(states) < 1

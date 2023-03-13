@@ -25,7 +25,7 @@ jQuery(document).ready(function($){
 
             $(this).find("input[name='username']").each(function(){
                 if ($("#user_option_other").is(":checked")) {
-                    user = $("#user_option_other_textarea").val();
+                    user = normalize_username($("#user_option_other_textarea").val());
                 } else if ($("#user_option_only_me").is(":checked")) {
                     user = $("#user_option_only_me").val();
                 } else {
@@ -135,6 +135,16 @@ jQuery(document).ready(function($){
     };
     window.setTimeout( show_popup, 2000 ); // 5 seconds
 
+
+    function normalize_username(username){
+        /*
+            Add the @mila.quebec suffix to the username if not present
+        */
+       if (username != null && !username.includes("@")){
+            username += "@mila.quebec";
+       }
+       return username;
+    };
 
 
     //$('#nbr_items_per_page').on('change', function() {

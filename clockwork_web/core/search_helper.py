@@ -4,7 +4,6 @@ from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.jobs_helper import get_inferred_job_states, get_jobs
 from clockwork_web.core.utils import (
     get_custom_array_from_request_args,
-    normalize_username,
     to_boolean,
 )
 
@@ -47,7 +46,7 @@ def parse_search_request(user, args, force_pagination=True):
     states += get_custom_array_from_request_args(args.get("job_state"))
 
     query = SimpleNamespace(
-        username=normalize_username(args.get("username")),
+        username=args.get("username"),
         cluster_name=cluster_names,
         aggregated_job_state=aggregated_states,
         job_state=states,
