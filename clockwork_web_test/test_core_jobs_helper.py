@@ -333,7 +333,9 @@ def test_combine_all_mongodb_filters(given_filters, expected_filter):
         ),
     ],
 )
-def test_get_global_filter(username, job_ids, cluster_names, job_states, expected_result):
+def test_get_global_filter(
+    username, job_ids, cluster_names, job_states, expected_result
+):
     """
     Test the function get_global_filter.
 
