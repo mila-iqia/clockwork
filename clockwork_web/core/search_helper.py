@@ -4,7 +4,6 @@ from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.jobs_helper import get_inferred_job_states, get_jobs
 from clockwork_web.core.utils import (
     get_custom_array_from_request_args,
-    normalize_username,
     to_boolean,
 )
 
@@ -39,18 +38,18 @@ def parse_search_request(user, args, force_pagination=True):
         cluster for cluster in requested_cluster_names if cluster in user_clusters
     ]
 
-    # Parse the list of states to filter for
-    aggregated_states = get_custom_array_from_request_args(
+    # Parse the list of job states to filter for
+    aggregated_job_states = get_custom_array_from_request_args(
         args.get("aggregated_job_state")
     )
-    states = get_inferred_job_states(aggregated_states)
-    states += get_custom_array_from_request_args(args.get("job_state"))
+    job_states = get_inferred_job_states(aggregated_job_states)
+    job_states += get_custom_array_from_request_args(args.get("job_state"))
 
     query = SimpleNamespace(
-        username=normalize_username(args.get("username")),
+        username=args.get("username"),
         cluster_name=cluster_names,
-        aggregated_job_state=aggregated_states,
-        job_state=states,
+        aggregated_job_state=aggregated_job_states,
+        job_state=job_states,
         pagination_page_num=args.get("page_num", type=int, default=default_page_number),
         pagination_nbr_items_per_page=args.get("nbr_items_per_page", type=int),
         sort_by=args.get("sort_by", default="submit_time", type=str),
@@ -91,7 +90,7 @@ def search_request(user, args, force_pagination=True):
     (jobs, nbr_total_jobs) = get_jobs(
         username=query.username,
         cluster_names=query.cluster_name,
-        states=query.job_state,
+        job_states=query.job_state,
         nbr_skipped_items=query.nbr_skipped_items,
         nbr_items_to_display=query.nbr_items_to_display,
         want_count=query.want_count,

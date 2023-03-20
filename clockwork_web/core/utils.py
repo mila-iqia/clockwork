@@ -66,11 +66,3 @@ def get_available_time_formats():
         A list of strings containing identifiers to the time formats
     """
     return ["AM/PM", "24h"]
-
-
-def normalize_username(username):
-    """Add the @mila.quebec suffix to the username if not present."""
-    if username and "@" not in username:
-        # Default to "@mila.quebec"
-        username += "@mila.quebec"
-    return username

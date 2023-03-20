@@ -21,11 +21,11 @@ jQuery(document).ready(function($){
         return this.each(function() {
             params = {};
             clusters = [];
-            states = [];
+            job_states = [];
 
             $(this).find("input[name='username']").each(function(){
                 if ($("#user_option_other").is(":checked")) {
-                    user = $("#user_option_other_textarea").val();
+                    user = normalize_username($("#user_option_other_textarea").val());
                 } else if ($("#user_option_only_me").is(":checked")) {
                     user = $("#user_option_only_me").val();
                 } else {
@@ -38,7 +38,7 @@ jQuery(document).ready(function($){
             });
             
             $(this).find("input[name='aggregated_job_state']").each(function(){
-                if ($(this).is(":checked")) states.push( $(this).val() );
+                if ($(this).is(":checked")) job_states.push( $(this).val() );
             });
 
             // not a real solution to GEN-160
@@ -47,13 +47,13 @@ jQuery(document).ready(function($){
             //});
 
             clusters = clusters.toString();
-            states = states.toString();
+            job_states = job_states.toString();
 
             if (user) {
                 params['username'] = user;
             }
             params['cluster_name'] = clusters;
-            params['aggregated_job_state'] = states;
+            params['aggregated_job_state'] = job_states;
             if (web_settings['nbr_items_per_page']) {
                 params['nbr_items_per_page'] = web_settings['nbr_items_per_page'];
             }
@@ -80,8 +80,8 @@ jQuery(document).ready(function($){
             this.checked = true;
     });
 
-    $('.form-check-state').on('change', function(e) {
-        if ($('.form-check-state:checked').length == 0 && !this.checked)
+    $('.form-check-job-state').on('change', function(e) {
+        if ($('.form-check-job-state:checked').length == 0 && !this.checked)
             this.checked = true;
     });
 
@@ -135,6 +135,16 @@ jQuery(document).ready(function($){
     };
     window.setTimeout( show_popup, 2000 ); // 5 seconds
 
+
+    function normalize_username(username){
+        /*
+            Add the @mila.quebec suffix to the username if not present
+        */
+       if (username != null && !username.includes("@")){
+            username += "@mila.quebec";
+       }
+       return username;
+    };
 
 
     //$('#nbr_items_per_page').on('change', function() {
