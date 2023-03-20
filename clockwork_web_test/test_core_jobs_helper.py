@@ -219,7 +219,7 @@ def test_get_and_count_jobs_by_mail_with_pagination(
 
 
 @pytest.mark.parametrize("page_num, nbr_items_per_page", [(1, 10), (3, 2)])
-def test_get_and_count_jobs_by_cluster_and_state_with_pagination(
+def test_get_and_count_jobs_by_cluster_and_job_state_with_pagination(
     app, fake_data, page_num, nbr_items_per_page
 ):
     """
@@ -240,12 +240,12 @@ def test_get_and_count_jobs_by_cluster_and_state_with_pagination(
 
         # Set up the filter applied in this test
         L_clusters = ["mila", "graham"]
-        L_states = ["RUNNING"]
+        L_job_states = ["RUNNING"]
 
         # Retrieve the jobs we want to list
         (LD_retrieved_jobs, nbr_total_jobs) = get_jobs(
             cluster_names=L_clusters,
-            states=L_states,
+            job_states=L_job_states,
             nbr_skipped_items=nbr_skipped_items,
             nbr_items_to_display=nbr_items_to_display,
             want_count=True,
@@ -266,7 +266,7 @@ def test_get_and_count_jobs_by_cluster_and_state_with_pagination(
         LD_expected_jobs = []
         for D_job in sorted_all_jobs:
             if (D_job["slurm"]["cluster_name"] in L_clusters) and (
-                D_job["slurm"]["job_state"] in L_states
+                D_job["slurm"]["job_state"] in L_job_states
             ):
                 LD_expected_jobs.append(D_job)
 
@@ -314,7 +314,7 @@ def test_combine_all_mongodb_filters(given_filters, expected_filter):
 
 
 @pytest.mark.parametrize(
-    "username,job_ids,cluster_names,states,expected_result",
+    "username,job_ids,cluster_names,job_states,expected_result",
     [
         (None, [], None, [], {}),  # If nothing has been provided, the filter is empty
         (
@@ -333,7 +333,7 @@ def test_combine_all_mongodb_filters(given_filters, expected_filter):
         ),
     ],
 )
-def test_get_global_filter(username, job_ids, cluster_names, states, expected_result):
+def test_get_global_filter(username, job_ids, cluster_names, job_states, expected_result):
     """
     Test the function get_global_filter.
 
@@ -341,7 +341,7 @@ def test_get_global_filter(username, job_ids, cluster_names, states, expected_re
         username        ID of the user of whose jobs we want to retrieve
         job_ids         List of the IDs of the jobs we are looking for
         cluster_names   List of names of the clusters on which the expected jobs run/will run or have run
-        states          List of names of states the expected jobs could have
+        job_states      List of names of job states the expected jobs could have
         expected_result Result we are expecting as output of the get_global_filter function when
                         providing the associated parameters
     """
@@ -350,7 +350,7 @@ def test_get_global_filter(username, job_ids, cluster_names, states, expected_re
             username=username,
             job_ids=job_ids,
             cluster_names=cluster_names,
-            states=states,
+            job_states=job_states,
         )
         == expected_result
     )
