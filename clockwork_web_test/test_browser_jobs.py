@@ -330,7 +330,7 @@ def test_jobs_with_page_num_pagination_option(
 
 
 @pytest.mark.parametrize(
-    "current_user_id,username,cluster_names,states,page_num,nbr_items_per_page",
+    "current_user_id,username,cluster_names,job_states,page_num,nbr_items_per_page",
     [
         (
             "student00@mila.quebec",
@@ -388,7 +388,7 @@ def test_route_search(
     current_user_id,
     username,
     cluster_names,
-    states,
+    job_states,
     page_num,
     nbr_items_per_page,
 ):
@@ -402,8 +402,8 @@ def test_route_search(
         fake_data           The data our tests are based on
         current_user_id     ID of the user requesting the jobs
         username            The user whose jobs we are looking for
-        cluster_names      An array of the clusters on which we search jobs
-        states              An array of the potential states of the jobs we want
+        cluster_names       An array of the clusters on which we search jobs
+        job_states          An array of the potential states of the jobs we want
                             to retrieve
         page_num            The number of the plage to display the jobs
         nbr_items_per_page  The number of jobs to display per page
@@ -422,8 +422,8 @@ def test_route_search(
 
     # Determine which filters we have to ignore
     ignore_username_filter = username is None
-    states = get_inferred_job_states(states)
-    ignore_states_filter = len(states) < 1
+    job_states = get_inferred_job_states(job_states)
+    ignore_job_states_filter = len(job_states) < 1
 
     # Intersection between the requested clusters (if specified)
     # and the clusters available for the current user.
@@ -444,15 +444,17 @@ def test_route_search(
         # Retrieve the values we may want to test
         retrieved_username = D_job["cw"]["mila_email_username"]
         retrieved_cluster_name = D_job["slurm"]["cluster_name"]
-        retrieved_state = D_job["slurm"]["job_state"]
+        retrieved_job_state = D_job["slurm"]["job_state"]
 
         # Define the tests which will determine if the job is taken into account or not
         test_username = (retrieved_username == username) or ignore_username_filter
         test_cluster_names = retrieved_cluster_name in requested_clusters
-        test_states = (retrieved_state in states) or ignore_states_filter
+        test_job_states = (
+            retrieved_job_state in job_states
+        ) or ignore_job_states_filter
 
         # Select the jobs in regard of the predefined tests
-        if test_username and test_cluster_names and test_states:
+        if test_username and test_cluster_names and test_job_states:
             LD_prefiltered_jobs.append(D_job)
 
     ###
@@ -469,9 +471,9 @@ def test_route_search(
     # - cluster_name
     if cluster_names:
         request_line += "cluster_name={}&".format(",".join(cluster_names))
-    # - state
-    if states:
-        request_line += "aggregated_job_state={}&".format(",".join(states))
+    # - job_state
+    if job_states:
+        request_line += "aggregated_job_state={}&".format(",".join(job_states))
     # - page_num
     if page_num:
         request_line += "page_num={}&".format(page_num)

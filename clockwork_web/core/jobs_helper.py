@@ -169,19 +169,19 @@ def get_filtered_and_paginated_jobs(
     return (LD_jobs, nbr_total_jobs)
 
 
-def get_global_filter(username=None, job_ids=[], cluster_names=None, states=[]):
+def get_global_filter(username=None, job_ids=[], cluster_names=None, job_states=[]):
     """
     Set up a filter for MongoDB in order to filter username, clusters and job states,
     regarding what has been sent as parameter to the function.
     Important note: this function is just formatting the filter, it does not check
-    whether or not the clusters, the states and the username exist or are accessible. These
-    checks must be done before.
+    whether or not the clusters, the job states and the username exist or are accessible.
+    These checks must be done before.
 
     Parameters:
         username        ID of the user of whose jobs we want to retrieve
         job_ids         List of the IDs of the jobs we are looking for
         cluster_names   List of names of the clusters on which the expected jobs run/will run or have run
-        states          List of names of states the expected jobs could have
+        job_states      List of names of job_states the expected jobs could have
 
     Returns:
         A dictionary containing the conditions to be applied on the search.
@@ -203,8 +203,8 @@ def get_global_filter(username=None, job_ids=[], cluster_names=None, states=[]):
         filters.append({"slurm.cluster_name": {"$in": cluster_names}})
 
     # Define the filter related to the jobs' states
-    if len(states) > 0:
-        filters.append({"slurm.job_state": {"$in": states}})
+    if len(job_states) > 0:
+        filters.append({"slurm.job_state": {"$in": job_states}})
 
     # Combine the filters
     filter = combine_all_mongodb_filters(*filters)
@@ -216,7 +216,7 @@ def get_jobs(
     username=None,
     job_ids=[],
     cluster_names=None,
-    states=[],
+    job_states=[],
     nbr_skipped_items=None,
     nbr_items_to_display=None,
     want_count=False,
@@ -230,7 +230,7 @@ def get_jobs(
         username                ID of the user of whose jobs we want to retrieve
         job_ids                 List of IDs of the jobs we are looking for
         cluster_names           List of names of the clusters on which the expected jobs run/will run or have run
-        states                  List of names of states the expected jobs could have
+        job_states              List of names of job states the expected jobs could have
         nbr_skipped_items       Number of jobs we want to skip in the result
         nbr_items_to_display    Number of requested jobs
         want_count              Whether or not the total jobs count is expected.
@@ -247,7 +247,10 @@ def get_jobs(
     """
     # Set up and combine filters
     filter = get_global_filter(
-        username=username, job_ids=job_ids, cluster_names=cluster_names, states=states
+        username=username,
+        job_ids=job_ids,
+        cluster_names=cluster_names,
+        job_states=job_states,
     )
     # Retrieve the jobs from the filters and return them
     # (The return value is a tuple (LD_jobs, nbr_total_jobs))
@@ -311,7 +314,7 @@ job_state_to_aggregated = {
 }
 
 
-def _make_states_mapping():
+def _make_job_states_mapping():
     results = defaultdict(set)
     for job_state, aggregated_job_state in job_state_to_aggregated.items():
         if aggregated_job_state is not None:
@@ -319,7 +322,7 @@ def _make_states_mapping():
     return results
 
 
-aggregated_states_mapping = _make_states_mapping()
+aggregated_job_states_mapping = _make_job_states_mapping()
 
 
 def get_inferred_job_states(global_job_states):
@@ -329,7 +332,7 @@ def get_inferred_job_states(global_job_states):
     Parameter:
     - global_job_state  A list of strings referring to the "global state(s)" a job
                         could have, which are "RUNNING", "PENDING", "COMPLETED" and
-                        "ERROR", which gather multiple states according to the
+                        "ERROR", which gather multiple job states according to the
                         following mapping:
                         {
                             "PENDING": "PENDING",
@@ -352,9 +355,11 @@ def get_inferred_job_states(global_job_states):
 
     # For each requested "global job state", provide the associated "Slurm job states"
     for global_job_state in global_job_states:
-        requested_slurm_job_states.extend(aggregated_states_mapping[global_job_state])
+        requested_slurm_job_states.extend(
+            aggregated_job_states_mapping[global_job_state]
+        )
 
-    # Return the requested Slurm states
+    # Return the requested Slurm job states
     return requested_slurm_job_states
 
 

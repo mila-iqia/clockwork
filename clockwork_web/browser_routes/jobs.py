@@ -65,14 +65,14 @@ def route_index():
 @login_required
 def route_search():
     """
-    Display a list of jobs, which can be filtered by user, cluster and state.
+    Display a list of jobs, which can be filtered by user, cluster and job state.
 
     Can take optional arguments:
     - "username" refers to the Mila username, identifying the user
     - "cluster_name" refers to the cluster(s) on which we are looking for the jobs
     - "aggregated_job_state" refers to the state(s) of the jobs we are looking for. Here are concerned
-      the "global states", which are "RUNNING", "PENDING", "COMPLETED" and "FAILED", which
-      gather multiple states according to the following mapping:
+      the "global job states", which are "RUNNING", "PENDING", "COMPLETED" and "FAILED", which
+      gather multiple job states according to the following mapping:
       {
         "PENDING": "PENDING",
         "PREEMPTED": "FAILED",

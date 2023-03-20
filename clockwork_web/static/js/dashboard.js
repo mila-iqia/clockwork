@@ -744,12 +744,12 @@ function populate_table(response_contents) {
             //td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
             //kaweb - using the job state as a shorthand to insert icons through CSS
             const td = document.createElement('td');
-            td.className = "state";
+            td.className = "job_state";
 
             const formatted_job_state = job_state.replace(/_/g, " ");
-            const aggregated_state = (job_state_to_aggregated[job_state.toUpperCase()] || "NONE").toLowerCase();
+            const aggregated_job_state = (job_state_to_aggregated[job_state.toUpperCase()] || "NONE").toLowerCase();
 
-            td.innerHTML = ("<span class=\"status " + aggregated_state + "\">" + formatted_job_state + "</span>");
+            td.innerHTML = ("<span class=\"status " + aggregated_job_state + "\">" + formatted_job_state + "</span>");
             tr.appendChild(td);
         }
         // Submit_time, start time and end_time of the jobs
