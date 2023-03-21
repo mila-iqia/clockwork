@@ -36,7 +36,7 @@ jQuery(document).ready(function($){
             $(this).find("input[name='cluster_name']").each(function(){
                 if ($(this).is(":checked")) clusters.push( $(this).val() );
             });
-            
+
             $(this).find("input[name='aggregated_job_state']").each(function(){
                 if ($(this).is(":checked")) job_states.push( $(this).val() );
             });
@@ -57,6 +57,8 @@ jQuery(document).ready(function($){
             if (web_settings['nbr_items_per_page']) {
                 params['nbr_items_per_page'] = web_settings['nbr_items_per_page'];
             }
+            params['sort_by'] = $(this).find("input[name='sort_by']").val();
+            params['sort_asc'] = parseInt($(this).find("input[name='sort_asc']").val());
 
             var formData = $.param( params );
             var formData = decodeURIComponent(formData);
