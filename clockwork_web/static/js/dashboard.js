@@ -537,7 +537,7 @@ function getSortableState() {
     if (data) {
         return JSON.parse(data);
     } else {
-        return BACKUP_SORTABLE_STORAGE || {name: null, ascending: 0};
+        return BACKUP_SORTABLE_STORAGE || {name: null, ascending: 0, defaultAscending: 0};
     }
 }
 
@@ -546,7 +546,7 @@ function getSortableState() {
  */
 function setSortableState(sortableState) {
     try {
-        window.localStorage.setItem('SORTABLE_STATE', JSON.stringify(sortableState || {name: null, ascending: 0}));
+        window.localStorage.setItem('SORTABLE_STATE', JSON.stringify(sortableState));
     } catch (exception) {
         console.error(exception);
         BACKUP_SORTABLE_STORAGE = sortableState;
@@ -567,13 +567,14 @@ function onClickSortableColumn(event, colName, colIndex, table) {
     // Default direction is descending for number, ascending for other types.
     const defaultSortDirection = Sortable.getColumnType(table, colIndex).defaultSortDirection;
     console.log(colName, defaultSortDirection);
+    sortableState.defaultAscending = defaultSortDirection === 'descending' ? -1 : 1;
     if (sortableState.name === colName) {
         // If we are on same column, new direction is reverse from previous.
         sortableState.ascending = -sortableState.ascending;
     } else {
         // Otherwise, we got full new sortable settings.
         sortableState.name = colName;
-        sortableState.ascending = defaultSortDirection === 'descending' ? -1 : 1;
+        sortableState.ascending = sortableState.defaultAscending;
     }
     // Store inferred settings.
     setSortableState(sortableState);
@@ -615,7 +616,7 @@ function populate_table(response_contents) {
     // We will find the column to sort using current sortable state.
     let thToSort;
     const currentSortableState = getSortableState();
-    setSortableState({name: null, ascending: 0});
+    setSortableState({name: null, ascending: 0, defaultAscending: 0});
     // Clusters header
     if (check_web_settings_column_display(page_name, "clusters")) {
         th = document.createElement('th');
@@ -781,7 +782,7 @@ function populate_table(response_contents) {
         if (check_web_settings_column_display(page_name, "links")) {
             const td = document.createElement('td');
             td.className = "links";
-            
+
             let link0_innerHTML;
             // This link works only for Narval and Beluga. See CW-141.
             if ((D_job_slurm["cluster_name"] == "narval") || (D_job_slurm["cluster_name"] == "beluga")) {
@@ -818,11 +819,13 @@ function populate_table(response_contents) {
     console.log(`Init sorting for ${id_of_table_to_populate}`);
     Sortable.initTable(table);
     // Sort newly populated table using current sortable state.
-    // To do sorting, we click on column once for ascending direction, twice for descending.
+    // To do sorting, we click on column.
+    // If default sorting is ascending, we click once for ascending direction, twice for descending.
+    // If default sorting is descending, we click once for descending direction, twice for ascending.
     if (thToSort) {
         console.log('click once');
         thToSort.click();
-        if (currentSortableState.ascending === -1) {
+        if (currentSortableState.ascending !== currentSortableState.defaultAscending) {
             console.log('click twice');
             thToSort.click();
         }
