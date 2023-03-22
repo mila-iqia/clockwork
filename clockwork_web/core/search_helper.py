@@ -45,7 +45,6 @@ def parse_search_request(user, args, force_pagination=True):
     job_states = get_inferred_job_states(aggregated_job_states)
     job_states += get_custom_array_from_request_args(args.get("job_state"))
 
-
     # Set default value of sort_asc
     sort_by = args.get("sort_by", default="submit_time", type=str)
     sort_asc = args.get("sort_asc", default=0, type=int)

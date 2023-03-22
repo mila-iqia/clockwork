@@ -4,8 +4,14 @@
         {# If field does not change, just reverse sorting #}
         {% set sort_asc = -previous_request_args["sort_asc"] %}
     {% else %}
-        {# By default, sort ascending #}
-        {% set sort_asc = 1 %}
+        {# By default, sort ascending if the field to sort is cluster_name,
+            user, name or job_state #}
+        {% if field in ["cluster_name", "user", "name", "job_state"] %}
+            {% set sort_asc = 1 %}
+        {% else %}
+            {# Otherwise, the default order is descending #}
+            {% set sort_asc = -1 %}
+        {% endif %}
     {% endif %}
     {{ modify_query(sort_by=field, sort_asc=sort_asc) }}
 {% endmacro %}
