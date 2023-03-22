@@ -13,7 +13,7 @@
 			<link rel="preconnect" href="https://fonts.googleapis.com">
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 			<link href="https://fonts.googleapis.com/css2?family=Asap+Condensed:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-			
+
 			<link rel="apple-touch-icon" sizes="120x120" href="{{ url_for('static', filename='favicons/apple-touch-icon.png') }}">
 			<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicons/favicon-32x32.png') }}">
 			<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicons/favicon-16x16.png') }}">
@@ -75,7 +75,7 @@
 						{% endif %}
 					</a>
 				</div>
-				
+
 				<div class="col">
 					<nav class="navbar-expand-lg">
 						<div class="container-fluid">
@@ -86,10 +86,10 @@
 								<ul class="navbar-nav mb-2 mb-lg-0">
 									<li class="nav-item"><a class="nav-link" href="{{url_for('index')}}"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
 									<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_search')}}"><i class="fa-solid fa-list-check"></i> Jobs</a></li>
-									<!-- Temporarily hidden 
+									<!-- Temporarily hidden
 										<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_index')}}"><i class="fa-solid fa-circle-nodes"></i> Clusters</a></li>-->
 									<li class="nav-item"><a class="nav-link" href="{{url_for('settings.route_index')}}"><i class="fa-solid fa-gears"></i> Settings</a></li>
-									
+
 									 <li class="nav-item dropdown">
 							        	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-arrow-up-right-from-square"></i> External</a>
 						        		<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -102,7 +102,7 @@
 											<li><a class="dropdown-item" href="#" target="_blank">Github</a></li>
 											{% if current_user["admin_access"] == true %}
 												<li><a class="dropdown-item" href="{{url_for('admin.panel')}}" target="_blank"><i class="fa-solid fa-gears"></i> Admin</a></li>
-											{% endif %}		
+											{% endif %}
 						        		</ul>
 							        </li>
 								</ul>
@@ -159,7 +159,7 @@
 
 											{# Define which radio button check for the username #}
 											{% set username_checked = false %}
-											
+
 											<!-- All users option -->
 				                            <div class="cc_toggle_zone_row form-radio">
 												{% if "username" not in previous_request_args or previous_request_args["username"] is none %}
@@ -243,7 +243,7 @@
 														{% else %}
 															<input class="form-check-input float-end" type="checkbox" id="cluster_toggle_lever_{{cluster_name}}" name="cluster_name" value="{{cluster_name}}" data-no-submit>
 														{% endif %}
-													</div>													
+													</div>
 												</div>
 											{% endfor %}
 				                        </div>
@@ -294,11 +294,14 @@
 															<input class="form-check-input float-end" type="checkbox" name="aggregated_job_state" id="{{state['input_id']}}" value="{{state['value']}}" data-no-submit>
 														{% endif %}
 													</div>
-												</div>	
+												</div>
 											{% endfor %}
 				                        </div>
-				                    </div> 
+				                    </div>
 				                </div> <!-- end search form row-->
+
+                                <input type="hidden" name="sort_by" value="{{ previous_request_args['sort_by'] }}"/>
+                                <input type="hidden" name="sort_asc" value="{{ previous_request_args['sort_asc'] }}"/>
 
 				                 <div class="row">
 				                    <!-- button -->
@@ -314,10 +317,10 @@
 			</div>
 		{% endif %}
 		{% endblock %}
-			
-		
+
+
 		{% block content %}{% endblock %}
-		
+
 		{% block footer %}
 			<div id="footer">
 				<div class="container">
