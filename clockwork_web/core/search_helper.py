@@ -61,13 +61,12 @@ def parse_search_request(user, args, force_pagination=True):
     # Define the pagination #
     #########################
 
-    if (
-        not force_pagination
-        and not query.pagination_page_num
-        and not query.pagination_nbr_items_per_page
-    ):
-        # In this particular case, we set the default pagination arguments to be `None`,
+    if not query.pagination_page_num and not query.pagination_nbr_items_per_page:
+        # It no pagination parameter is provided, we set the default pagination arguments to be `None`,
         # which will effectively disable pagination.
+        # NB: We don't need to check `force_pagination` for this case, because
+        # `force_pagination` was already used to set `default_page_number`
+        # then `query.pagination_page_num` above.
         query.nbr_skipped_items = None
         query.nbr_items_to_display = None
     else:
