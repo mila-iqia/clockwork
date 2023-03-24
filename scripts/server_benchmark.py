@@ -44,7 +44,7 @@ def main():
 
     if args.time < 1:
         logger.error(f"No positive time specified for benchmarking, exit.")
-        sys.exit(0)
+        sys.exit(1)
 
     client = ClockworkToolsClient(host=args.address, port=args.port)
 
@@ -53,6 +53,9 @@ def main():
     # Get and sort users. Remove `None`, because a job may have no user.
     users = sorted({job["cw"]["mila_email_username"] for job in jobs} - {None})
     logger.info(f"Number of users: {len(users)}")
+    if not users:
+        logger.error('No user found, cannot do benchmarking.')
+        sys.exit(1)
 
     if args.requests is None or args.requests == len(users):
         requested_users = users
