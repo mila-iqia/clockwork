@@ -54,8 +54,12 @@ def main():
     users = sorted({job["cw"]["mila_email_username"] for job in jobs} - {None})
     logger.info(f"Number of users: {len(users)}")
     if not users:
-        logger.error('No user found, cannot do benchmarking.')
-        sys.exit(1)
+        # Use user "None" if no user available.
+        # With None user, request `jobs/list` will list all available jobs.
+        users = [None]
+        logger.warning(
+            "No user found, each request `jobs/list` will list all available jobs."
+        )
 
     if args.requests is None or args.requests == len(users):
         requested_users = users
@@ -77,8 +81,12 @@ def main():
     while True:
         prev_time = time.perf_counter_ns()
         with multiprocessing.Pool(processes=nb_processes) as p:
-            list(p.imap_unordered(client.jobs_list, requested_users))
+            results = list(p.imap_unordered(client.jobs_list, requested_users))
         current_time = time.perf_counter_ns()
+
+        # Just check we really get some jobs
+        assert sum(len(result) for result in results)
+
         logger.info(
             f"Sent {len(requested_users)} requests in {(current_time - prev_time) / 1e9} seconds."
         )
