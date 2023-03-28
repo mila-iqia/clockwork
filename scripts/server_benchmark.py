@@ -39,6 +39,13 @@ def main():
         type=int,
         help="Number of requests to send each 30 seconds. Default is number of available users.",
     )
+    parser.add_argument(
+        "-c",
+        "--threads",
+        type=int,
+        default=os.cpu_count(),
+        help="Number of parallel processes to use to send requests",
+    )
     args = parser.parse_args(argv[1:])
     print("Arguments:", args)
 
@@ -75,7 +82,7 @@ def main():
             f"Will send requests for {len(requested_users)} users (repeated from {len(users)} available users)."
         )
 
-    nb_processes = os.cpu_count()
+    nb_processes = args.threads or os.cpu_count()
     logger.info(f"Benchmark starting, using {nb_processes} processes.")
     start_time = time.perf_counter_ns()
     while True:
