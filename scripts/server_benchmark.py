@@ -65,7 +65,7 @@ def main():
         # With None user, request `jobs/list` will list all available jobs.
         users = [None]
         logger.warning(
-            "No user found, each request `jobs/list` will list all available jobs."
+            "No user found, each request `jobs/list` will list all available jobs (using user `None`)."
         )
 
     if args.requests is None or args.requests == len(users):
