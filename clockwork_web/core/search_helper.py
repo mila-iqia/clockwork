@@ -93,9 +93,8 @@ def search_request(user, args, force_pagination=True):
         job_states=query.job_state,
         nbr_skipped_items=query.nbr_skipped_items,
         nbr_items_to_display=query.nbr_items_to_display,
-        want_count=query.want_count,
+        want_count=force_pagination, # The count is needed if there is pagination
         sort_by=query.sort_by,
         sort_asc=query.sort_asc,
     )
-
     return (query, jobs, nbr_total_jobs)
