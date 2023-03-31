@@ -4,7 +4,7 @@ import argparse
 import sys
 import logging
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import List
 import multiprocessing
 from collections import namedtuple
@@ -56,28 +56,88 @@ class BenchmarkClient(ClockworkToolsClient):
         return CallStat(nb_jobs=len(jobs), nanoseconds=post_time - prev_time)
 
 
-def make_stats(stats: List[GroupStat], working_directory="."):
-    """Function to generate stats from benchmark output."""
-    # Currently just display a plot with
-    # request time relative to number of jobs returned by request.
-    # Plot is saved in given working directory.
-    nb_jobs = []
-    nanoseconds = []
-    for group_stat in stats:
-        for cs in group_stat.calls:
-            nb_jobs.append(cs.nb_jobs)
-            nanoseconds.append(cs.nanoseconds / 1e9)
-    fig, ax = plt.subplots()
-    ax.scatter(nb_jobs, nanoseconds)
-    plt.xlabel("Number of jobs returned by request")
-    plt.ylabel("Request time in seconds")
-    plot_file_path = os.path.join(working_directory, "nb_jobs_to_request_time.jpg")
-    plt.savefig(plot_file_path, bbox_inches="tight")
-    logger.info(f"Saved plot image at: {plot_file_path}")
-    # If both saving and showing, save before, show after, otherwise saved image will be blank.
-    # ref (2023/03/30): https://stackoverflow.com/a/9890599
-    # plt.show()
-    plt.close(fig)
+class Stats:
+    """Helper class to make stats."""
+
+    @staticmethod
+    def benchmark_stats(stats: List[GroupStat], working_directory="."):
+        """Function to generate stats from benchmark output.
+
+        Currently:
+        - just display a plot for request time relative to number of jobs returned per request.
+        - Compute linear regression for this plot, to estimate request time wr/t number of jobs returned per request.
+        """
+        # Currently just display a plot with
+        # request time relative to number of jobs returned by request.
+        # Plot is saved in given working directory.
+        nb_jobs = []
+        nanoseconds = []
+        for group_stat in stats:
+            for cs in group_stat.calls:
+                nb_jobs.append(cs.nb_jobs)
+                nanoseconds.append(cs.nanoseconds / 1e9)
+
+        logger.info(
+            f"Request time from {min(nanoseconds)} to {max(nanoseconds)} seconds, "
+            f"average {Stats._average(nanoseconds)} seconds."
+        )
+        logger.info(
+            f"Nb. of jobs returned per request from {min(nb_jobs)} to {max(nb_jobs)}, "
+            f"average {Stats._average(nb_jobs)}."
+        )
+        a, b, r = Stats.linear_regression(nb_jobs, nanoseconds)
+        logger.info(
+            f"Linear regression: request time = {a} * nb_jobs + {b}, with correlation r = {r}"
+        )
+        logger.info(f"Estimated request time for 1 returned jobs is {a + b} seconds.")
+
+        # Plot request time per number of jobs
+        fig, ax = plt.subplots()
+        ax.plot(
+            [min(nb_jobs), max(nb_jobs)], [a * min(nb_jobs) + b, a * max(nb_jobs) + b]
+        )
+        ax.scatter(nb_jobs, nanoseconds)
+        plt.xlabel("Number of jobs returned by request")
+        plt.ylabel("Request time in seconds")
+        plot_file_path = os.path.join(
+            working_directory, f"nb_jobs_to_request_time-{datetime.now()}.jpg"
+        )
+        plt.savefig(plot_file_path, bbox_inches="tight")
+        logger.info(f"Saved plot image at: {plot_file_path}")
+        # If both saving and showing, save before, show after, otherwise saved image will be blank.
+        # ref (2023/03/30): https://stackoverflow.com/a/9890599
+        # plt.show()
+        plt.close(fig)
+
+    @staticmethod
+    def linear_regression(x, y):
+        avg_x = Stats._average(x)
+        avg_y = Stats._average(y)
+        cov_xy = Stats._covariance(x, y)
+        v_x = Stats._variance(x)
+        v_y = Stats._variance(y)
+        a = cov_xy / v_x
+        b = avg_y - a * avg_x
+        r = cov_xy / ((v_x * v_y) ** 0.5)
+        return a, b, r
+
+    @staticmethod
+    def _covariance(values_x: List, values_y: List):
+        assert len(values_x) == len(values_y)
+        avg_x = Stats._average(values_x)
+        avg_y = Stats._average(values_y)
+        return sum((x - avg_x) * (y - avg_y) for x, y in zip(values_x, values_y)) / len(
+            values_x
+        )
+
+    @staticmethod
+    def _variance(values: List):
+        avg_x = Stats._average(values)
+        return sum(x**2 for x in values) / len(values) - avg_x**2
+
+    @staticmethod
+    def _average(values: List):
+        return sum(values) / len(values)
 
 
 def main():
@@ -86,7 +146,7 @@ def main():
         prog=argv[0],
         description="Test server load capacity and make a benchmark for server response.",
     )
-    parser.add_argument("-a", "--address", required=True, help="Server host.")
+    parser.add_argument("-a", "--address", help="Server host.")
     parser.add_argument("-p", "--port", type=int, default=443, help="Server port.")
     parser.add_argument(
         "--config",
@@ -102,20 +162,27 @@ def main():
         ),
     )
     parser.add_argument(
+        "-s",
+        "--sleep",
+        type=int,
+        default=SLEEP_SECONDS,
+        help=f"Interval (in seconds) to wait for between two batches of requests. Default is {SLEEP_SECONDS} seconds.",
+    )
+    parser.add_argument(
         "-t",
         "--time",
         type=int,
         default=300,
         help=(
             f"total benchmarking time (in seconds). "
-            f"Script will send requests every {SLEEP_SECONDS} seconds within this time."
+            f"Script will send requests every `--sleep` seconds within this time."
         ),
     )
     parser.add_argument(
         "-n",
         "--requests",
         type=int,
-        help=f"Number of requests to send each {SLEEP_SECONDS} seconds. Default is number of available users.",
+        help=f"Number of requests to send each `--sleep` seconds. Default is number of available users.",
     )
     parser.add_argument(
         "-c",
@@ -156,6 +223,11 @@ def main():
         api_key = None
         email = None
         users = []
+        if not address:
+            logger.error(
+                "Either --address <port> or --config <file.json> (with existing file) is required."
+            )
+            sys.exit(1)
 
     client = BenchmarkClient(
         host=address, port=port, clockwork_api_key=api_key, email=email
@@ -229,14 +301,14 @@ def main():
             f"Sent {len(requested_users)} requests in {group_stat.nanoseconds / 1e9} seconds."
         )
         total_duration = (current_time - start_time) / 1e9
-        if args.time < SLEEP_SECONDS or total_duration >= args.time:
+        if args.time < args.sleep or total_duration >= args.time:
             break
-        time.sleep(SLEEP_SECONDS)
+        time.sleep(args.sleep)
 
     logger.info(
         f"Terminated, elapsed {timedelta(seconds=total_duration)} ({total_duration} seconds)"
     )
-    make_stats(global_stats, working_directory=working_directory)
+    Stats.benchmark_stats(global_stats, working_directory=working_directory)
 
 
 if __name__ == "__main__":
