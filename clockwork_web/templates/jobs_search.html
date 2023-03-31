@@ -255,7 +255,8 @@
                 {% endif %}
 
                 {% if nbr_items_per_page > 0 %}
-                    {% set total_pages = total_items // nbr_items_per_page | int %}
+                    {# Get the number of pages by rounding up the number of items divided by the number of items per pages #}
+                    {% set total_pages = ((total_items / nbr_items_per_page) | round(0, 'ceil') | int) %}
                 {% else %}
                     {% set total_pages = 1 %}
                 {% endif %}
@@ -293,7 +294,6 @@
                             {% if (page_num < total_pages - 3): %}
                                 <li><span class="ellipses">...</span></li>
                             {% endif %}
-
                             {% if page_num == total_pages %}
                                 <li class="page-item last"><span><i class="fa-solid fa-caret-right"></i></span></li>
                             {% else %}

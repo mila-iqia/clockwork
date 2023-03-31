@@ -62,7 +62,7 @@ def parse_search_request(user, args, force_pagination=True):
     #########################
 
     if (
-        force_pagination
+        not force_pagination
         and not query.pagination_page_num
         and not query.pagination_nbr_items_per_page
     ):
@@ -93,7 +93,8 @@ def search_request(user, args, force_pagination=True):
         job_states=query.job_state,
         nbr_skipped_items=query.nbr_skipped_items,
         nbr_items_to_display=query.nbr_items_to_display,
-        want_count=force_pagination,  # The count is needed if there is pagination
+        want_count=force_pagination
+        or query.want_count,  # The count is needed if there is pagination or if it is requested
         sort_by=query.sort_by,
         sort_asc=query.sort_asc,
     )
