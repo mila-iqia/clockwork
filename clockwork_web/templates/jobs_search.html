@@ -220,7 +220,7 @@
                             <!-- Links -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "links")) %}
                                 <td class="links">
-                                    {% if (D_job['slurm']['cluster_name'] == 'beluga') or (D_job['slurm']['cluster_name'] == 'narval') %}
+                                    {% if ((D_job['slurm']['cluster_name'] == 'beluga') or (D_job['slurm']['cluster_name'] == 'narval')) and (have_same_users(mila_email_username, D_job['cw']['mila_email_username'])) %}
                                         <!-- https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid> -->
                                         <a  href='https://portail.{{D_job["slurm"]["cluster_name"]}}.calculquebec.ca/secure/jobstats/{{D_job["slurm"]["username"]}}/{{D_job["slurm"]["job_id"]}}'
                                             data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'>

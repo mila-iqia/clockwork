@@ -127,6 +127,20 @@ def create_app(extra_config: dict):
 
         return "{}?{}".format(request.path, url_encode(args))
 
+    # Adding a function to help comparing two usernames
+    @app.template_global()
+    def have_same_users(user1: str, user2: str):
+        pieces1 = user1.split("@")
+        pieces2 = user2.split("@")
+        username1 = pieces1[0]
+        address1 = pieces1[1] if len(pieces1) == 2 else ""
+        username2 = pieces2[0]
+        address2 = pieces2[1] if len(pieces2) == 2 else ""
+        # Compare user names (before @), and addresses if both available (after @).
+        return username1 == username2 and (
+            not address1 or not address2 or address1 == address2
+        )
+
     # Initialize Babel
     babel = Babel(app)
 
