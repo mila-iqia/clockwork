@@ -21,25 +21,20 @@
                 <div class="col-8">
                     <div class="title float-start">
                         <i class="fa-solid fa-warning"></i>
-                        <h1>Oh no! Something’s gone terribly wrong.</h1>
+                        <h1>&nbsp;</h1>
                     </div>
                 </div>
             </div>
 
             <div class="row error">
-                <div class="col-5">
+                <div class="col-4 position-relative">
                     <!-- image -->
-                    <img src="{{url_for('static', filename='images/error_image.png')}}" />
+                    <img src="{{url_for('static', filename='images/error_image.png')}}" class="w-100"/>
                 </div>
-                <div class="col-7">
+                <div class="col-8">
                     <!-- Account(s) -->
-                    <h3><em>It looks like you’ve stumbled on a bug!</em></h3>
-                    <p>If you have time, please fill out the form in the <a href="#">feedback page</a> to help us make the service better.</p>
-
-                    <h3>Full error message:</h3>
-
-                    <h4><pre>{{error_msg}}</pre></h4>
-
+                    <h2 style="color: #55abb4"><strong>An error occurred!</strong></h2>
+                    <h3><pre>{{error_msg}}</pre></h3>
                 </div>
             </div>
         </div>
