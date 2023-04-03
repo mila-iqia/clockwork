@@ -1,30 +1,37 @@
 import json
 
-def ignore(k,v, res):
+
+def ignore(k, v, res):
     pass
 
-def copy(k,v,res):
-    res[k]=v 
+
+def copy(k, v, res):
+    res[k] = v
+
 
 def rename(name):
-    def renamer(k,v, res):
+    def renamer(k, v, res):
         res[name] = v
+
     return renamer
+
 
 def rename_subitems(subitem_dict):
-    def renamer(k,v,res):
-        for subitem,name in subitem_dict.items():
+    def renamer(k, v, res):
+        for subitem, name in subitem_dict.items():
             res[name] = v[subitem]
+
     return renamer
 
-def join_subitems(separator,name):
-    def joiner(k,v,res):
-        values=[]
-        for _,value in v.items():
+
+def join_subitems(separator, name):
+    def joiner(k, v, res):
+        values = []
+        for _, value in v.items():
             values.append(str(value))
         res[name] = separator.join(values)
-    return joiner
 
+    return joiner
 
 
 # # This map should contain all the fields that come from parsing a job entry
@@ -40,13 +47,15 @@ JOB_FIELD_MAP = {
     "cluster": ignore,
     "constraints": ignore,
     "derived_exit_code": ignore,
-    "time": rename_subitems({
-        "limit":"time_limit", 
-        "submission":"submit_time", 
-        "start":"start_time", 
-        "end":"end_time", 
-        }),
-    "exit_code": join_subitems(":","exit_code"),
+    "time": rename_subitems(
+        {
+            "limit": "time_limit",
+            "submission": "submit_time",
+            "start": "start_time",
+            "end": "end_time",
+        }
+    ),
+    "exit_code": join_subitems(":", "exit_code"),
     "flags": ignore,
     "group": ignore,
     "het": ignore,
@@ -60,14 +69,14 @@ JOB_FIELD_MAP = {
     "required": ignore,
     "kill_request_user": ignore,
     "reservation": ignore,
-    "state": rename_subitems({"current":"job_state"}),
+    "state": rename_subitems({"current": "job_state"}),
     "steps": ignore,
     "tres": ignore,
     "user": rename("username"),
     "wckey": ignore,
     "working_directory": ignore,
-
 }
+
 
 def job_parser(f):
     """
@@ -80,8 +89,8 @@ def job_parser(f):
     sacct_data = json.load(f)
     # at this point, sacct_data is a hierarchical structure of dictionaries and lists
 
-    src_jobs = sacct_data['jobs'] # jobs is a list 
-    
+    src_jobs = sacct_data["jobs"]  # jobs is a list
+
     # example fields of a job:
 
     # account = rrg-cerise-ad_gpu
@@ -116,7 +125,7 @@ def job_parser(f):
 
     # wanted output format:
 
-   # job_id "1234"
+    # job_id "1234"
     # name "interactive"
     # username "nobody"
     # account "mila"
@@ -140,18 +149,18 @@ def job_parser(f):
 
     # We will use a handler mapping to translate this
 
-    res_jobs=[]
+    res_jobs = []
 
     for src_job in src_jobs:
         res_job = dict()
 
-        for k,v in src_job.items():
+        for k, v in src_job.items():
             translator = JOB_FIELD_MAP.get(k, None)
             if translator is None:
                 raise ValueError(f"Unknown field in sacct job output: {k}")
-            
+
             # translate
-            translator(k,v, res_job)
+            translator(k, v, res_job)
 
         res_jobs.append(res_job)
         # yield res_job
