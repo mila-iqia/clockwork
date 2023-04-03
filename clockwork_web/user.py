@@ -86,6 +86,13 @@ class User(UserMixin):
             ):
                 del web_settings[k]
         self.web_settings = get_default_web_settings_values() | web_settings
+        # Force column "actions" to not be displayed in job tables.
+        self.web_settings.setdefault("column_display", {}).setdefault("dashboard", {})[
+            "actions"
+        ] = False
+        self.web_settings.setdefault("column_display", {}).setdefault("jobs_list", {})[
+            "actions"
+        ] = False
 
     # If we don't set those two values ourselves, we are going
     # to have users being asked to login every time they click
