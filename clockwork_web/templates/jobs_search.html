@@ -220,15 +220,21 @@
                             <!-- Links -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "links")) %}
                                 <td class="links">
-                                    {% if ((D_job['slurm']['cluster_name'] == 'beluga') or (D_job['slurm']['cluster_name'] == 'narval')) and (have_same_users(mila_email_username, D_job['cw']['mila_email_username'])) %}
-                                        <!-- https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid> -->
-                                        <a  href='https://portail.{{D_job["slurm"]["cluster_name"]}}.calculquebec.ca/secure/jobstats/{{D_job["slurm"]["username"]}}/{{D_job["slurm"]["job_id"]}}'
-                                            data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'>
-                                            <i class='fa-solid fa-file'></i>
-                                        </a>
+                                    {# The links are not visible is the current user does not own this job #}
+                                    {% if have_same_users(mila_email_username, D_job['cw']['mila_email_username']) %}
+                                        {# DRAC link if appliable #}
+                                        {% if (D_job['slurm']['cluster_name'] == 'beluga') or (D_job['slurm']['cluster_name'] == 'narval') %}
+                                            <!-- https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid> -->
+                                            <a  href='https://portail.{{D_job["slurm"]["cluster_name"]}}.calculquebec.ca/secure/jobstats/{{D_job["slurm"]["username"]}}/{{D_job["slurm"]["job_id"]}}'
+                                                data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'>
+                                                <i class='fa-solid fa-file'></i>
+                                            </a>
+                                        {% endif %}
+
+                                        {# Other link (here, it is a placeholder with no condition) #}
+                                        <!-- this is a placeholder -->
+                                        <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
                                     {% endif %}
-                                    <!-- this is a placeholder -->
-                                    <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
                                 </td>
                             {% endif %}
 

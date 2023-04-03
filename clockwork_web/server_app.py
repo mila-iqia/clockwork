@@ -130,8 +130,9 @@ def create_app(extra_config: dict):
     # Adding a function to help comparing two usernames
     @app.template_global()
     def have_same_users(user1: str, user2: str):
-        pieces1 = user1.split("@")
-        pieces2 = user2.split("@")
+        # NB: given users may be None
+        pieces1 = user1.split("@") if user1 else [""]
+        pieces2 = user2.split("@") if user2 else [""]
         username1 = pieces1[0]
         address1 = pieces1[1] if len(pieces1) == 2 else ""
         username2 = pieces2[0]
