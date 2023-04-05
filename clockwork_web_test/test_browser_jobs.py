@@ -563,7 +563,11 @@ def test_cc_portal(client, fake_data):
         if 50 <= i:
             break
         # don't try that with other clusters than beluga or narval because CC doesn't support it
-        if D_job_slurm["cluster_name"] not in ["beluga", "narval"]:
+        # the link is not displayed for a job owned by a user other than the authenticated user
+        if (
+            D_job_slurm["cluster_name"] not in ["beluga", "narval"]
+            or D_job["cw"]["mila_email_username"] != user_dict["mila_email_username"]
+        ):
             continue
         else:
             i += 1
@@ -574,6 +578,9 @@ def test_cc_portal(client, fake_data):
         # https://portail.beluga.calculquebec.ca/secure/jobstats/<username>/<jobid>
         url = f'https://portail.{D_job_slurm["cluster_name"]}.calculquebec.ca/secure/jobstats/{D_job_slurm["username"]}/{D_job_slurm["job_id"]}'
         assert url in body_text
+
+    # Verify that we check at least one URL
+    assert i
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
