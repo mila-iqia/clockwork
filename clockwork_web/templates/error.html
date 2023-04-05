@@ -33,9 +33,15 @@
                 </div>
                 <div class="col-8">
                     <!-- Account(s) -->
-                    <h1 style="color: #85c3cb"><strong>An error occurred!</strong></h1>
+                    <h1 style="color: #85c3cb"><strong>
+                        {% if error_code %}
+                        HTTP response code {{ error_code }}
+                        {% else %}
+                        An error occurred!
+                        {% endif %}
+                    </strong></h1>
                     <p>&nbsp;</p>
-                    <h3><pre>{{error_msg}}</pre></h3>
+                    <h3><code style="color: inherit; display: block">{{error_msg}}</code></h3>
                 </div>
             </div>
         </div>
