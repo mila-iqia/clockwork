@@ -220,6 +220,7 @@ def route_one():
                 "error.html",
                 error_msg=gettext("Missing argument job_id."),
                 previous_request_args=previous_request_args,
+                error_code=400,
             ),
             400,
         )  # bad request

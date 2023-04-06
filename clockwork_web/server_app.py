@@ -18,6 +18,7 @@ import datetime
 from flask import Flask, redirect, url_for, session, request
 from flask_login import current_user, LoginManager
 from flask_babel import Babel
+from werkzeug.exceptions import HTTPException
 from .browser_routes.nodes import flask_api as nodes_routes_flask_api
 from .browser_routes.jobs import flask_api as jobs_routes_flask_api
 from .browser_routes.gpu import flask_api as gpu_routes_flask_api
@@ -255,5 +256,17 @@ def create_app(extra_config: dict):
                 "in route for '/'; render_template_with_user_settings('index_outside.html')"
             )
             return render_template_with_user_settings("index_outside.html")
+
+    @app.errorhandler(HTTPException)
+    def generic_error_handler(error):
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=str(error),
+                error_code=error.code,
+                previous_request_args={},
+            ),
+            error.code,
+        )
 
     return app
