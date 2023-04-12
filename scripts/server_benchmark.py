@@ -34,9 +34,6 @@ logging.basicConfig(
 logger = logging.getLogger("server_benchmark")
 
 
-# Time to wait for between two batches of requests sent to server.
-SLEEP_SECONDS = 30
-
 # Class to collect stats and time for 1 request.
 CallStat = namedtuple("CallStat", ("nb_jobs", "nanoseconds"))
 
@@ -64,11 +61,11 @@ class Stats:
         """Function to generate stats from benchmark output.
 
         Currently:
-        - just display a plot for request time relative to number of jobs returned per request.
-        - Compute linear regression for this plot, to estimate request time wr/t number of jobs returned per request.
+        - just display a plot for request duration relative to number of jobs returned per request.
+        - Compute linear regression, to estimate request duration wr/t number of jobs returned per request.
         """
         # Currently just display a plot with
-        # request time relative to number of jobs returned by request.
+        # request duration relative to number of jobs returned by request.
         # Plot is saved in given working directory.
         nb_jobs = []
         nanoseconds = []
@@ -78,7 +75,7 @@ class Stats:
                 nanoseconds.append(cs.nanoseconds / 1e9)
 
         logger.info(
-            f"Request time from {min(nanoseconds)} to {max(nanoseconds)} seconds, "
+            f"Request duration from {min(nanoseconds)} to {max(nanoseconds)} seconds, "
             f"average {Stats._average(nanoseconds)} seconds."
         )
         logger.info(
@@ -87,20 +84,25 @@ class Stats:
         )
         a, b, r = Stats.linear_regression(nb_jobs, nanoseconds)
         logger.info(
-            f"Linear regression: request time = {a} * nb_jobs + {b}, with correlation r = {r}"
+            f"Linear regression: request duration = {a} * nb_jobs + {b}, with correlation r = {r}"
         )
-        logger.info(f"Estimated request time for 1 returned jobs is {a + b} seconds.")
+        logger.info(
+            f"Estimated request duration for 1 returned job is {a + b} seconds."
+        )
 
-        # Plot request time per number of jobs
+        # Plot request duration per number of jobs
         fig, ax = plt.subplots()
         ax.plot(
             [min(nb_jobs), max(nb_jobs)], [a * min(nb_jobs) + b, a * max(nb_jobs) + b]
         )
         ax.scatter(nb_jobs, nanoseconds)
+
+        date = datetime.now()
+        plt.title(f"{len(nanoseconds)} total requests, {date}")
         plt.xlabel("Number of jobs returned by request")
-        plt.ylabel("Request time in seconds")
+        plt.ylabel("Request duration in seconds")
         plot_file_path = os.path.join(
-            working_directory, f"nb_jobs_to_request_time-{datetime.now()}.jpg"
+            working_directory, f"nb_jobs_to_request_time-{date}.jpg"
         )
         plt.savefig(plot_file_path, bbox_inches="tight")
         logger.info(f"Saved plot image at: {plot_file_path}")
@@ -144,7 +146,20 @@ def main():
     argv = sys.argv
     parser = argparse.ArgumentParser(
         prog=argv[0],
-        description="Test server load capacity and make a benchmark for server response.",
+        formatter_class=argparse.RawTextHelpFormatter,
+        description="""
+Benchmark for server.
+
+Send one request `jobs/list` for each user in each step. Pseudocode:
+
+    for _ in range(steps):
+        for i in range(nb_users):  # parallelized using CPU processes
+            send request `jobs/list?username=<user-i>
+
+Specify number of steps with --steps (default to 1 step).
+Specify number of users with --nb-users (default to all users we can get from server).
+Specify number of process with --processes (default to available CPU processes).
+        """,
     )
     parser.add_argument("-a", "--address", help="Server host.")
     parser.add_argument("-p", "--port", type=int, default=443, help="Server port.")
@@ -154,8 +169,8 @@ def main():
         help=(
             "Optional JSON configuration file to use for benchmarking. "
             "If not specified, use --address, --port, and OS environment variables for clockwork api key and email. "
-            "Else if file exists, ignore --address, --port and OS variables, and read config from file. "
-            "Else If file does not exist, create file with config values from --address, --port and OS variables. "
+            "If file exists, ignore --address, --port and OS variables, and read config from file. "
+            "If file does not exist, create file with config values from --address, --port and OS variables. "
             "Configuration file must contain a dictionary with keys "
             "'address' (str), 'port` (int), 'api_key` (str), 'email' (str), "
             "and optional 'users' (list of str)."
@@ -163,39 +178,33 @@ def main():
     )
     parser.add_argument(
         "-s",
-        "--sleep",
+        "--steps",
         type=int,
-        default=SLEEP_SECONDS,
-        help=f"Interval (in seconds) to wait for between two batches of requests. Default is {SLEEP_SECONDS} seconds.",
-    )
-    parser.add_argument(
-        "-t",
-        "--time",
-        type=int,
-        default=300,
+        default=1,
         help=(
-            f"total benchmarking time (in seconds). "
-            f"Script will send requests every `--sleep` seconds within this time."
+            f"Number of steps in which we send requests (default 1 step). "
+            f"We send one request per user at each step."
         ),
     )
     parser.add_argument(
         "-n",
-        "--requests",
+        "--nb-users",
         type=int,
-        help=f"Number of requests to send each `--sleep` seconds. Default is number of available users.",
+        help="Number of users for which we send requests. Default is number of available users. "
+        "We send one request per user at each step.",
     )
     parser.add_argument(
         "-c",
-        "--threads",
+        "--processes",
         type=int,
         default=os.cpu_count(),
-        help="Number of parallel processes to use to send requests",
+        help="Number of parallel processes to use to send requests (default to number of CPU cores)",
     )
     args = parser.parse_args(argv[1:])
     print("Arguments:", args)
 
-    if args.time < 1:
-        logger.error(f"No positive time specified for benchmarking, exit.")
+    if args.steps < 1:
+        logger.error(f"No positive number of steps specified for benchmarking, exit.")
         sys.exit(1)
 
     config_path = None
@@ -266,25 +275,25 @@ def main():
             json.dump(config, file)
         logger.info(f"Saved config file at: {config_path}")
 
-    if args.requests is None or args.requests == len(users):
+    if args.nb_users is None or args.nb_users == len(users):
         requested_users = users
         logger.info(f"Will send requests for available {len(requested_users)} users.")
-    elif args.requests < len(users):
-        requested_users = users[: args.requests]
+    elif args.nb_users < len(users):
+        requested_users = users[: args.nb_users]
         logger.info(f"Will send requests for only {len(requested_users)} users.")
     else:
-        nb_repeats = args.requests // len(users)
-        nb_supplementary = args.requests % len(users)
+        nb_repeats = args.nb_users // len(users)
+        nb_supplementary = args.nb_users % len(users)
         requested_users = (users * nb_repeats) + users[:nb_supplementary]
         logger.info(
             f"Will send requests for {len(requested_users)} users (repeated from {len(users)} available users)."
         )
 
     global_stats: List[GroupStat] = []
-    nb_processes = args.threads or os.cpu_count()
+    nb_processes = args.processes or os.cpu_count()
     logger.info(f"Benchmark starting, using {nb_processes} processes.")
     start_time = time.perf_counter_ns()
-    while True:
+    for i in range(args.steps):
         prev_time = time.perf_counter_ns()
         with multiprocessing.Pool(processes=nb_processes) as p:
             local_stats = list(
@@ -297,13 +306,14 @@ def main():
         # Just check we really get some jobs
         assert sum(cs.nb_jobs for cs in group_stat.calls)
 
+        local_seconds = group_stat.nanoseconds / 1e9
+        local_nb_req_per_sec = len(requested_users) / local_seconds
         logger.info(
-            f"Sent {len(requested_users)} requests in {group_stat.nanoseconds / 1e9} seconds."
+            f"[{i + 1}] Sent {len(requested_users)} requests "
+            f"in {local_seconds} seconds ({timedelta(seconds=local_seconds)}), "
+            f"average {local_nb_req_per_sec} requests per second."
         )
         total_duration = (current_time - start_time) / 1e9
-        if args.time < args.sleep or total_duration >= args.time:
-            break
-        time.sleep(args.sleep)
 
     logger.info(
         f"Terminated, elapsed {timedelta(seconds=total_duration)} ({total_duration} seconds)"
