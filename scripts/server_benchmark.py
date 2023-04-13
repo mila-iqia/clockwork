@@ -249,6 +249,14 @@ Send one request `jobs/list` for each user in <--processes> parallel processes u
         ),
     )
     parser.add_argument(
+        "-u",
+        "--username",
+        type=str,
+        help="Unique username to test. "
+        "If provided, --processes is ignored, "
+        "and a request will be sent for given user --time times.",
+    )
+    parser.add_argument(
         "-t",
         "--time",
         type=int,
@@ -311,6 +319,16 @@ Send one request `jobs/list` for each user in <--processes> parallel processes u
     client = BenchmarkClient(
         host=address, port=port, clockwork_api_key=api_key, email=email
     )
+
+    if args.username:
+        for i in range(args.time):
+            cs = client.profile_getting_user_jobs(args.username)
+            logger.info(
+                f"[{i + 1}] Sent request for username in {cs.pc_nanoseconds / 1e9} seconds, "
+                f"received {cs.nb_jobs} jobs."
+            )
+        logger.info('End.')
+        sys.exit(0)
 
     to_save_users = False
     if not users:
