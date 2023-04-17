@@ -86,7 +86,7 @@ def main(argv):
             args.cluster_name,
             args.jobs_file,
             want_commit_to_db=want_commit_to_db,
-            want_sacct=False, # as we already have an input file
+            want_sacct=False,  # as we already have an input file
             dump_file=args.dump_file,
         )
 

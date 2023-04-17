@@ -198,7 +198,7 @@ def main_read_jobs_and_update_collection(
             ),
         )
     )
-    
+
     DD_jobs_scontrol = dict(
         (D_job["slurm"]["job_id"], D_job) for D_job in LD_jobs_scontrol
     )

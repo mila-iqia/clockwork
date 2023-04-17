@@ -8,8 +8,10 @@ def ignore(k, v, res):
 def copy(k, v, res):
     res[k] = v
 
+
 def copy_and_stringify(k, v, res):
     res[k] = str(v)
+
 
 def rename(name):
     def renamer(k, v, res):
@@ -24,6 +26,7 @@ def rename_subitems(subitem_dict):
             res[name] = v[subitem]
 
     return renamer
+
 
 def rename_and_stringify_subitems(subitem_dict):
     def renamer(k, v, res):
@@ -87,9 +90,7 @@ def extract_tres_data(k, v, res):
         for tres_subdict in v[tres_subdict_name["sacct_name"]]:
             tres_key = get_tres_key(tres_subdict["type"], tres_subdict["name"])
             if tres_key:
-                res[tres_subdict_name["cw_name"]][
-                    tres_key
-                ] = tres_subdict["count"]
+                res[tres_subdict_name["cw_name"]][tres_key] = tres_subdict["count"]
 
 
 # # This map should contain all the fields that come from parsing a job entry
@@ -101,7 +102,9 @@ JOB_FIELD_MAP = {
     "comment": ignore,
     "container": ignore,
     "allocation_nodes": ignore,
-    "array": rename_and_stringify_subitems({"job_id": "array_job_id", "task_id": "array_task_id"}),
+    "array": rename_and_stringify_subitems(
+        {"job_id": "array_job_id", "task_id": "array_task_id"}
+    ),
     "association": ignore,
     "cluster": rename("cluster_name"),
     "constraints": ignore,
