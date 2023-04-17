@@ -34,6 +34,55 @@ def join_subitems(separator, name):
     return joiner
 
 
+def extract_tres_data(k, v, res):
+    def get_tres_key(tres_type, tres_name):
+        if tres_type == "mem" or tres_type == "billing":
+            return tres_type
+        elif tres_type == "cpu":
+            return "num_cpus"
+        elif tres_type == "gres":
+            if tres_name == "gpu":
+                return "num_gpus"
+            else:
+                return "gres"
+        elif tres_type == "node":
+            return "num_nodes"
+        else:
+            return None
+
+        """
+        # Python 3.10
+        match tres_type:
+            case "mem" | "billing":
+                return tres_type
+            case "cpu":
+                return "num_cpus"
+            case "gres":
+                if tres_name == "gpu":
+                    return "num_gpus"
+                else:
+                    return "gres"
+            case "node":
+                return "num_nodes"
+            case _:
+                return None
+        """
+
+    res["tres_allocated"] = {}
+    tres_subdict_names = [
+        {"sacct_name": "allocated", "cw_name": "tres_allocated"},
+        {"sacct_name": "requested", "cw_name": "tres_requested"},
+    ]
+    for tres_subdict_name in tres_subdict_names:
+        res[tres_subdict_name["cw_name"]] = {}
+        for tres_subdict in v[tres_subdict_name["sacct_name"]]:
+            tres_key = get_tres_key(tres_subdict["type"], tres_subdict["name"])
+            if tres_key:
+                res[tres_subdict_name["cw_name"]][
+                    tres_key
+                ] = tres_subdict["count"]
+
+
 # # This map should contain all the fields that come from parsing a job entry
 # # Each field should be mapped to a handler that will process the string data
 # # and set the result in the output dictionary.  You can ignore fields, by
@@ -41,10 +90,11 @@ def join_subitems(separator, name):
 JOB_FIELD_MAP = {
     "account": copy,
     "comment": ignore,
-    "allocation_nodes": rename("num_nodes"),
-    "array": ignore,
+    "container": ignore,
+    "allocation_nodes": ignore,
+    "array": rename_subitems({"job_id": "array_job_id", "task_id": "array_task_id"}),
     "association": ignore,
-    "cluster": ignore,
+    "cluster": rename("cluster_name"),
     "constraints": ignore,
     "derived_exit_code": ignore,
     "time": rename_subitems(
@@ -71,14 +121,14 @@ JOB_FIELD_MAP = {
     "reservation": ignore,
     "state": rename_subitems({"current": "job_state"}),
     "steps": ignore,
-    "tres": ignore,
+    "tres": extract_tres_data,
     "user": rename("username"),
     "wckey": ignore,
-    "working_directory": ignore,
+    "working_directory": copy,
 }
 
 
-def job_parser(f):
+def job_parser(f, ctx):
     """
     This function parses a report of a sacct command (json format)
     that we can get with this kind of commands:
@@ -153,7 +203,6 @@ def job_parser(f):
 
     for src_job in src_jobs:
         res_job = dict()
-
         for k, v in src_job.items():
             translator = JOB_FIELD_MAP.get(k, None)
             if translator is None:
@@ -162,6 +211,6 @@ def job_parser(f):
             # translate
             translator(k, v, res_job)
 
-        res_jobs.append(res_job)
-        # yield res_job
-    return res_jobs
+        # res_jobs.append(res_job)
+        yield res_job
+    # return res_jobs

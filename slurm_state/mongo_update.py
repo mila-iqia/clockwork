@@ -14,7 +14,8 @@ from slurm_state.extra_filters import (
 from slurm_state.helpers.gpu_helper import get_cw_gres_description
 from slurm_state.config import get_config, timezone, string, optional_string, boolean
 
-from slurm_state.scontrol_parser import job_parser, node_parser
+from slurm_state.scontrol_parser import node_parser
+from slurm_state.sacct_parser import job_parser
 from slurm_state.sacct_access import fetch_data_with_sacct_on_remote_clusters
 
 
@@ -197,6 +198,7 @@ def main_read_jobs_and_update_collection(
             ),
         )
     )
+    
     DD_jobs_scontrol = dict(
         (D_job["slurm"]["job_id"], D_job) for D_job in LD_jobs_scontrol
     )
