@@ -8,6 +8,8 @@ def ignore(k, v, res):
 def copy(k, v, res):
     res[k] = v
 
+def copy_and_stringify(k, v, res):
+    res[k] = str(v)
 
 def rename(name):
     def renamer(k, v, res):
@@ -20,6 +22,13 @@ def rename_subitems(subitem_dict):
     def renamer(k, v, res):
         for subitem, name in subitem_dict.items():
             res[name] = v[subitem]
+
+    return renamer
+
+def rename_and_stringify_subitems(subitem_dict):
+    def renamer(k, v, res):
+        for subitem, name in subitem_dict.items():
+            res[name] = str(v[subitem])
 
     return renamer
 
@@ -92,7 +101,7 @@ JOB_FIELD_MAP = {
     "comment": ignore,
     "container": ignore,
     "allocation_nodes": ignore,
-    "array": rename_subitems({"job_id": "array_job_id", "task_id": "array_task_id"}),
+    "array": rename_and_stringify_subitems({"job_id": "array_job_id", "task_id": "array_task_id"}),
     "association": ignore,
     "cluster": rename("cluster_name"),
     "constraints": ignore,
@@ -109,7 +118,7 @@ JOB_FIELD_MAP = {
     "flags": ignore,
     "group": ignore,
     "het": ignore,
-    "job_id": copy,
+    "job_id": copy_and_stringify,
     "name": copy,
     "mcs": ignore,
     "nodes": copy,
