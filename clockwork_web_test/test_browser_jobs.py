@@ -504,6 +504,8 @@ def test_route_search(
     # Define the filters to sort the jobs
     if sort_by == "user":
         sorting_key = lambda d: (
+            # d["cw"]["mila_email_username"] or "" returns "" if the value of d["cw"]["mila_email_username"] is None
+            # This is done because None is not comparable to the strings
             d["cw"]["mila_email_username"] or "",
             sort_asc * int(d["slurm"]["job_id"]),
         )
@@ -511,11 +513,16 @@ def test_route_search(
         sorting_key = lambda d: (d["slurm"]["job_id"])
     elif sort_by in ["submit_time", "start_time", "end_time"]:
         sorting_key = lambda d: (
+            # d["slurm"][sort_by] or 0 returns 0 if the value of d["slurm"][sort_by] is None
+            # This is done because None is not comparable to timestamps
             d["slurm"][sort_by] or 0,  # time.time(),
             sort_asc * int(d["slurm"]["job_id"]),
         )
     else:
         sorting_key = lambda d: (
+            # d["slurm"][sort_by] or "" returns "" if the value of d["slurm"][sort_by] is None
+            # This is done because in order to make this default value comparable to the other
+            # fields (which should be strings in this else condition)
             d["slurm"][sort_by] or "",
             sort_asc * int(d["slurm"]["job_id"]),
         )
