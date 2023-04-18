@@ -221,7 +221,7 @@ def get_jobs(
     nbr_items_to_display=None,
     want_count=False,
     sort_by="submit_time",
-    sort_asc=1,
+    sort_asc=-1,
 ):
     """
     Set up the filters according to the parameters and retrieve the requested jobs from the database.

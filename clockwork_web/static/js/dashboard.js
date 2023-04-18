@@ -661,6 +661,7 @@ function populate_table(response_contents) {
     if (check_web_settings_column_display(page_name, "submit_time")) {
         th = document.createElement('th');
         th.innerHTML = "Submit time";
+        th.setAttribute("data-sortable-type", "numeric");
         th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'submit_time', 4, table));
         if (currentSortableState.name === 'submit_time') {
             thToSort = th;
@@ -671,6 +672,7 @@ function populate_table(response_contents) {
     if (check_web_settings_column_display(page_name, "start_time")) {
         th = document.createElement('th');
         th.innerHTML = "Start time";
+        th.setAttribute("data-sortable-type", "numeric");
         th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'start_time', 5, table));
         if (currentSortableState.name === 'start_time') {
             thToSort = th;
@@ -681,6 +683,7 @@ function populate_table(response_contents) {
     if (check_web_settings_column_display(page_name, "end_time")) {
         th = document.createElement('th');
         th.innerHTML = "End time";
+        th.setAttribute("data-sortable-type", "numeric");
         th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'end_time', 6, table));
         if (currentSortableState.name === 'end_time') {
             thToSort = th;
