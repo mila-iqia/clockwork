@@ -327,7 +327,7 @@ Send one request `jobs/list` for each user in <--processes> parallel processes u
                 f"[{i + 1}] Sent request for username in {cs.pc_nanoseconds / 1e9} seconds, "
                 f"received {cs.nb_jobs} jobs."
             )
-        logger.info('End.')
+        logger.info("End.")
         sys.exit(0)
 
     to_save_users = False

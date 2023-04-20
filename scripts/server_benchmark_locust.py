@@ -1,0 +1,108 @@
+import json
+
+import base64
+import urllib.parse
+import os
+
+try:
+    from locust import FastHttpUser, task, events
+except Exception:
+    print(
+        "locust needed. You can install it with `pip install locust`."
+        "More info: https://docs.locust.io/en/stable/index.html"
+    )
+    raise
+try:
+    from clockwork_tools.client import ClockworkToolsClient
+except Exception:
+    print(
+        "Clockwork tools needed. You can install it with `cd clockwork_tools` then `pip install -e .`"
+    )
+    raise
+
+LOCUST_CONFIG_FILE = os.path.abspath("tmp/locust.config.json")
+
+USERNAMES = []
+NEXT_USER_ID = 0
+EMAIL = None
+API_KEY = None
+
+
+@events.test_start.add_listener
+def _(environment, **kwargs):
+    global USERNAMES
+    global NEXT_USER_ID
+    global EMAIL
+    global API_KEY
+
+    locust_config = {}
+    host_config = {}
+    if os.path.isfile(LOCUST_CONFIG_FILE):
+        with open(LOCUST_CONFIG_FILE) as file:
+            locust_config = json.load(file)
+        if environment.host in locust_config:
+            host_config = locust_config[environment.host]
+            print(
+                f"Loaded config for url {environment.host} from locust config file {LOCUST_CONFIG_FILE}"
+            )
+
+    if not host_config:
+        print("Get available users")
+        url_info = urllib.parse.urlsplit(environment.host)
+        print(
+            "Server:",
+            environment.host,
+            "url:",
+            url_info.hostname,
+            "port:",
+            url_info.port,
+        )
+        client = ClockworkToolsClient(host=url_info.hostname, port=url_info.port or 80)
+        jobs = client.jobs_list()
+        print(f"Initial number of jobs: {len(jobs)}")
+        # Get and sort users. Remove `None`, because a job may have no user.
+        users = sorted({job["cw"]["mila_email_username"] for job in jobs} - {None})
+        host_config = {
+            "email": client.email,
+            "api_key": client.clockwork_api_key,
+            "usernames": users,
+        }
+        locust_config[environment.host] = host_config
+
+        locust_dir = os.path.dirname(LOCUST_CONFIG_FILE)
+        if not os.path.isdir(locust_dir):
+            os.makedirs(locust_dir)
+        with open(LOCUST_CONFIG_FILE, "w") as file:
+            json.dump(locust_config, file)
+        print(f"Saved locust config in {LOCUST_CONFIG_FILE}")
+
+    EMAIL = host_config["email"]
+    API_KEY = host_config["api_key"]
+    USERNAMES = host_config["usernames"]
+    NEXT_USER_ID = 0
+    print(f"Available users: {len(USERNAMES)}")
+
+
+class ClockworkUser(FastHttpUser):
+    def __init__(self, *args, **kwargs):
+        # Get username to use for this user
+        global NEXT_USER_ID
+        super().__init__(*args, **kwargs)
+        self.username = USERNAMES[NEXT_USER_ID % len(USERNAMES)]
+        # Move to next username for next user
+        NEXT_USER_ID += 1
+        print("Username:", NEXT_USER_ID, self.username)
+
+    def _get_headers(self):
+        # Get authentication headers
+        encoded_bytes = base64.b64encode(f"{EMAIL}:{API_KEY}".encode("utf-8"))
+        encoded_s = str(encoded_bytes, "utf-8")
+        return {"Authorization": f"Basic {encoded_s}"}
+
+    @task
+    def get_jobs(self):
+        self.client.get(
+            "/api/v1/clusters/jobs/list",
+            params={"username": self.username},
+            headers=self._get_headers(),
+        )
