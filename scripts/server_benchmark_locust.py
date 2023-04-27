@@ -20,6 +20,9 @@ except Exception:
     )
     raise
 
+
+# Path used to store a dictionary mapping a server URL to server config
+# (server credentials and usernames).
 LOCUST_CONFIG_FILE = os.path.abspath("tmp/locust.config.json")
 
 USERNAMES = []
@@ -30,6 +33,10 @@ API_KEY = None
 
 @events.test_start.add_listener
 def _(environment, **kwargs):
+    """Initialize locust.
+
+    Get server config and save it in locust config file if necessary."""
+
     global USERNAMES
     global NEXT_USER_ID
     global EMAIL
@@ -69,9 +76,7 @@ def _(environment, **kwargs):
         }
         locust_config[environment.host] = host_config
 
-        locust_dir = os.path.dirname(LOCUST_CONFIG_FILE)
-        if not os.path.isdir(locust_dir):
-            os.makedirs(locust_dir)
+        os.makedirs(os.path.dirname(LOCUST_CONFIG_FILE), exist_ok=True)
         with open(LOCUST_CONFIG_FILE, "w") as file:
             json.dump(locust_config, file)
         print(f"Saved locust config in {LOCUST_CONFIG_FILE}")
@@ -85,19 +90,16 @@ def _(environment, **kwargs):
 
 class ClockworkUser(FastHttpUser):
     def __init__(self, *args, **kwargs):
-        # Get username to use for this user
+        """Initialize user.
+
+        Get username to use for this user
+        """
         global NEXT_USER_ID
         super().__init__(*args, **kwargs)
         self.username = USERNAMES[NEXT_USER_ID % len(USERNAMES)]
         # Move to next username for next user
         NEXT_USER_ID += 1
         print("Username:", NEXT_USER_ID, self.username)
-
-    def _get_headers(self):
-        # Get authentication headers
-        encoded_bytes = base64.b64encode(f"{EMAIL}:{API_KEY}".encode("utf-8"))
-        encoded_s = str(encoded_bytes, "utf-8")
-        return {"Authorization": f"Basic {encoded_s}"}
 
     @task
     def get_jobs(self):
@@ -106,3 +108,10 @@ class ClockworkUser(FastHttpUser):
             params={"username": self.username},
             headers=self._get_headers(),
         )
+
+    @staticmethod
+    def _get_headers():
+        """Get authentication headers"""
+        encoded_bytes = base64.b64encode(f"{EMAIL}:{API_KEY}".encode("utf-8"))
+        encoded_s = str(encoded_bytes, "utf-8")
+        return {"Authorization": f"Basic {encoded_s}"}
