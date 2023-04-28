@@ -103,11 +103,15 @@ class ClockworkUser(FastHttpUser):
 
     @task
     def get_jobs(self):
-        self.client.get(
+        resp = self.client.get(
             "/api/v1/clusters/jobs/list",
             params={"username": self.username},
             headers=self._get_headers(),
         )
+        jobs = resp.json()
+        assert isinstance(jobs, list)
+        assert jobs
+        assert jobs[0]['cw']['mila_email_username'] == self.username
 
     @staticmethod
     def _get_headers():
