@@ -1,3 +1,8 @@
+"""
+Old script used to benchmark a clockwork user.
+
+Instead, consider using `server_benchmark_locust.py`.
+"""
 import os
 
 import argparse

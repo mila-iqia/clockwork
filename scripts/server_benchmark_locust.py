@@ -1,3 +1,13 @@
+"""
+Script using locust framework to benchmark a clockwork server.
+
+Usage:
+```
+CLOCKWORK_EMAIL='<your-email>' CLOCKWORK_API_KEY='<your-api-key>' locust -f scripts/server_benchmark_locust.py
+```
+
+Locust documentation: https://docs.locust.io/en/stable/index.html
+"""
 import json
 
 import base64
@@ -111,11 +121,16 @@ class ClockworkUser(FastHttpUser):
         jobs = resp.json()
         assert isinstance(jobs, list)
         assert jobs
-        assert jobs[0]['cw']['mila_email_username'] == self.username
+        assert jobs[0]["cw"]["mila_email_username"] == self.username
 
     @staticmethod
     def _get_headers():
-        """Get authentication headers"""
+        """Get authentication headers.
+
+        NB: A user authenticated using CLOCKWORK_EMAIL and CLOCKWORK_API_KEY can list jobs
+        from other users. So, user associated to a ClockworkUser instance (defined in `self.username`)
+        does not need to be the user who is currently authenticated.
+        """
         encoded_bytes = base64.b64encode(f"{EMAIL}:{API_KEY}".encode("utf-8"))
         encoded_s = str(encoded_bytes, "utf-8")
         return {"Authorization": f"Basic {encoded_s}"}
