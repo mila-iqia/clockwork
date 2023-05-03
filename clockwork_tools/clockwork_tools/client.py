@@ -294,8 +294,8 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
                 raise Exception(f"Invalid email argument or missing from environment.")
 
         super().__init__(
-            email=self.email,
-            clockwork_api_key=self.clockwork_api_key,
+            email=email,
+            clockwork_api_key=clockwork_api_key,
             host=host,
             port=port,
         )
