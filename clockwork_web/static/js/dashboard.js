@@ -320,13 +320,6 @@ function refresh_display(display_filter) {
 
     vacate_table(); // idempotent if not table is present
     populate_table(latest_filtered_response_contents);
-    //kaweb - for some reason, the sortable init only works on reload/first load, not after changing filters
-    //Sortable.init();
-    //kaweb - tooltips work though
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
 
     //kaweb - attempt to count results
     count_jobs(alljobs_filtered);
