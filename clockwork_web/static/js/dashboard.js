@@ -140,89 +140,6 @@ function changeValue(newval) {
     launch_refresh_all_data(query_filter, display_filter);
 }
 
-function make_pagination(page_num, nbr_items_per_page, total_items) {
-    var TotalPages = Math.ceil(total_items / nbr_items_per_page);
-
-    let pagingDiv = document.getElementById("pagingDiv");
-    removeAllChildNodes(pagingDiv);
-    if (TotalPages > 1) {
-        if (+page_num > 1) {
-            // if has more than one page, add a PREVIOUS link
-            const prevLI = document.createElement('li')
-            const prevLink = document.createElement('a')
-            const prevI = document.createElement('i');
-            prevI.className = "fa-solid fa-caret-left";
-
-            pagingDiv.appendChild(prevLI);
-            prevLI.appendChild(prevLink);
-            prevLink.appendChild(prevI);
-
-            prevLink.addEventListener('click', decrementValue)
-
-        } else {
-            // otherwise, add a PREVIOUS span
-            const prevLI = document.createElement('li');
-            const prevSpan = document.createElement('span');
-            const prevI = document.createElement('i');
-            prevI.className = "fa-solid fa-caret-left";
-
-            pagingDiv.appendChild(prevLI);
-            prevLI.appendChild(prevSpan);
-            prevSpan.appendChild(prevI);
-        }
-
-        for (var i = 1; i <= TotalPages; i++) {
-            if (i >= 1) {
-                if (+page_num != i) {
-                    const prevLI = document.createElement('li')
-                    const pageLink = document.createElement('a')
-                    pageLink.textContent=i;
-
-                    pagingDiv.appendChild(prevLI);
-                    prevLI.appendChild(pageLink);
-
-                    pageLink.addEventListener('click', changeValue.bind(null, i))
-
-                } else {
-                    const prevLI = document.createElement('li')
-                    const pageSpan = document.createElement('span')
-                    pageSpan.textContent=i;
-                    prevLI.className = "current";
-
-                    pagingDiv.appendChild(prevLI);
-                    prevLI.appendChild(pageSpan);
-                }
-            }
-        }
-
-        if (+page_num < TotalPages) {
-            // if not on the last page, add a NEXT link
-            const nextLI = document.createElement('li')
-            const nextLink = document.createElement('a')
-            const nextI = document.createElement('i');
-            nextI.className = "fa-solid fa-caret-right";
-
-            pagingDiv.appendChild(nextLI);
-            nextLI.appendChild(nextLink);
-            nextLink.appendChild(nextI);
-
-            nextLink.addEventListener('click', incrementValue)
-
-        } else {
-            // if on the last page, add a NEXT span
-            const prevLI = document.createElement('li')
-            const nextSpan = document.createElement('span')
-            const nextI = document.createElement('i');
-            nextI.className = "fa-solid fa-caret-right";
-
-            pagingDiv.appendChild(prevLI);
-            prevLI.appendChild(nextSpan);
-            nextSpan.appendChild(nextI);
-
-        }
-    }
-}
-
 function count_jobs(response_contents) {
     const categories = [
         ["COMPLETED", "completed"],
@@ -387,11 +304,6 @@ function launch_refresh_all_data(query_filter, display_filter) {
       url = url + "&username=" + query_filter["username"];
     };
 
-    // The following lines are commented alongside the call to make_pagination
-    // below because we do not want to add pagination on the dashboard for now.
-    //page_num = document.getElementById('page_num').value;
-    //url = url + "&page_num=" + page_num;
-
     // Send the request, and retrieve the response
     const request = new Request(url,
         {   method: 'GET',
@@ -447,11 +359,6 @@ function refresh_display(display_filter) {
 
     //kaweb - attempt to count results
     count_jobs(alljobs_filtered);
-
-    //kaweb - build pagination here
-    // The following line is commented because we do not want to add pagination
-    // on the dashboard for now.
-    //make_pagination(page_num, nbr_items_per_page, total_jobs)
 }
 
 /*
