@@ -111,8 +111,6 @@ const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html al
 
 var latest_response_contents; // Stores the content of the latest response received
 
-var page_num;
-
 function incrementValue()
 {
     var value = parseInt(document.getElementById('page_num').value, 10);
