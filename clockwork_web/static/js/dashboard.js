@@ -110,7 +110,6 @@ const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html al
 */
 
 var latest_response_contents; // Stores the content of the latest response received
-var latest_filtered_response_contents; // Results in applying filters on the latest response contents
 
 var page_num;
 
