@@ -111,35 +111,6 @@ const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html al
 
 var latest_response_contents; // Stores the content of the latest response received
 
-function incrementValue()
-{
-    var value = parseInt(document.getElementById('page_num').value, 10);
-    value = isNaN(value) ? 0 : value;
-    if(value<10){
-        value++;
-            document.getElementById('page_num').value = value;
-    }
-    //console.log(value);
-    launch_refresh_all_data(query_filter, display_filter);
-}
-function decrementValue()
-{
-    var value = parseInt(document.getElementById('page_num').value, 10);
-    value = isNaN(value) ? 0 : value;
-    if(value>1){
-        value--;
-            document.getElementById('page_num').value = value;
-    }
-    //console.log(value);
-    launch_refresh_all_data(query_filter, display_filter);
-}
-
-function changeValue(newval) {
-    const value = newval;
-    document.getElementById('page_num').value = value;
-    launch_refresh_all_data(query_filter, display_filter);
-}
-
 function count_jobs(response_contents) {
     const categories = [
         ["COMPLETED", "completed"],
@@ -364,18 +335,10 @@ function refresh_display(display_filter) {
 /*
     Helpers:
         retrieve_username_from_email(email)
-        removeAllChildNodes(parent)
         vacate_table()
         populate_table(response_contents)
         apply_filter(response_contents, display_filter)
 */
-
-// https://www.javascripttutorial.net/dom/manipulating/remove-all-child-nodes/
-function removeAllChildNodes(parent) {
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
-}
 
 
 function vacate_table() {
@@ -394,7 +357,6 @@ function vacate_table() {
         We might need to do some profiling later, and revisit this.
     */
     table.innerHTML = "";
-    //removeAllChildNodes(table);
     /*
     [].forEach.call(table.children, function(child) {
         table.removeChild(child);
