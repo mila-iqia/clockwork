@@ -273,7 +273,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
     // If a user is specified, add its username to the request
     if (query_filter["username"].localeCompare("all") != 0) {
       url = url + "&username=" + query_filter["username"];
-    };
+    }
 
     // Send the request, and retrieve the response
     const request = new Request(url,
@@ -297,7 +297,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
     }).catch(error => {
         console.error(error);
     });
-};
+}
 
 function refresh_display(display_filter) {
     /*
@@ -635,7 +635,7 @@ function populate_table(response_contents) {
                 }
                 tr.appendChild(td);
             }
-        };
+        }
 
         // Links
         if (check_web_settings_column_display(page_name, "links")) {
