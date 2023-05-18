@@ -572,8 +572,6 @@ function populate_table(response_contents) {
         //kaweb - displaying the job state in lowercase to manipulate it in CSS
         const job_state = D_job_slurm["job_state"].toLowerCase();
         let tr = document.createElement('tr');
-        let td;
-        let a;
 
         // Clusters
         if (check_web_settings_column_display(page_name, "clusters")) {
