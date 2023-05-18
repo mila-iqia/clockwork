@@ -427,13 +427,13 @@ function refresh_display(display_filter) {
     const latest_filtered_response_contents = apply_filter(latest_response_contents["jobs"], display_filter);
     const alljobs_filtered = apply_filter(latest_response_contents["jobs"], display_filter);
 
-    const total_jobs = latest_response_contents["nbr_total_jobs"];
 
     //for testing only - use a smaller number
     //nbr_items_per_page = 3;
 
     // The following lines are commented because we do not want to add pagination
     // on the dashboard for now.
+    // const total_jobs = latest_response_contents["nbr_total_jobs"];
     //page_num = document.getElementById('page_num').value;
     //nbr_items_per_page = display_filter['num_per_page'];
     //nbr_pages = Math.ceil(total_jobs / nbr_items_per_page);
