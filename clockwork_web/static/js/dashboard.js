@@ -135,8 +135,7 @@ function decrementValue()
 }
 
 function changeValue(newval) {
-    var value = parseInt(document.getElementById('page_num').value, 10);
-    value = newval;
+    const value = newval;
     document.getElementById('page_num').value = value;
     launch_refresh_all_data(query_filter, display_filter);
 }
