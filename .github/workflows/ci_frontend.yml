@@ -1,0 +1,20 @@
+name: Clockwork frontend tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  clockwork-frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Launch docker
+      run: docker build -t clockwork_dev -f clockwork_dev.Dockerfile .
+    - name: Launch frontend tests
+      run: |
+        . ./env.sh
+        docker-compose run clockwork_dev scripts/launch_frontend_tests_in_clockwork_dev.sh
