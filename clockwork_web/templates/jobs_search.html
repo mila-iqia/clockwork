@@ -277,8 +277,12 @@
                     <nav class="table_nav" aria-label="table_nav">
                         <ul class="pagination">
                             {% if page_num == 1 %}
-                                <li class="page-item first"><span><i class="fa-solid fa-caret-left"></i></span></li>
+                                <li class="page-item first">
+                                    <span><i class="fa-solid fa-caret-left"></i><i class="fa-solid fa-caret-left"></i></span>
+                                    <span><i class="fa-solid fa-caret-left"></i></span>
+                                </li>
                             {% else %}
+                                <li class="page-item first"><a class="page-link" href="{{ modify_query(page_num=1) }}"><i class="fa-solid fa-caret-left"></i><i class="fa-solid fa-caret-left"></i></a></li>
                                 <li class="page-item first"><a class="page-link" href="{{ modify_query(page_num=page_num - 1) }}"><i class="fa-solid fa-caret-left"></i></a></li>
                             {% endif %}
 
@@ -307,9 +311,13 @@
                                 <li><span class="ellipses">...</span></li>
                             {% endif %}
                             {% if page_num == total_pages %}
-                                <li class="page-item last"><span><i class="fa-solid fa-caret-right"></i></span></li>
+                                <li class="page-item last">
+                                    <span><i class="fa-solid fa-caret-right"></i></span>
+                                    <span><i class="fa-solid fa-caret-right"></i><i class="fa-solid fa-caret-right"></i></span>
+                                </li>
                             {% else %}
                                 <li class="page-item last"><a class="page-link" href="{{ modify_query(page_num=page_num + 1) }}"><i class="fa-solid fa-caret-right"></i></a></li>
+                                <li class="page-item last"><a class="page-link" href="{{ modify_query(page_num=total_pages) }}"><i class="fa-solid fa-caret-right"></i><i class="fa-solid fa-caret-right"></i></a></li>
                             {% endif %}
                         </ul>
                     </nav>
