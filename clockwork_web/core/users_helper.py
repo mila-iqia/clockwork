@@ -567,5 +567,7 @@ def render_template_with_user_settings(template_name_or_list, **context):
 
     # Send the clusters infos to the template
     context["clusters"] = get_all_clusters()
+    # List clusters available for connected user.
+    context["user_clusters"] = current_user.get_available_clusters()
 
     return render_template(template_name_or_list, **context)
