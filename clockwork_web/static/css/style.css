@@ -4451,7 +4451,7 @@ textarea.form-control-lg, .input-group-lg > textarea.form-control,
 
 .pagination a, .pagination span {
   position: relative;
-  display: block;
+  display: inline-block;
   padding: var(--bs-pagination-padding-y) var(--bs-pagination-padding-x);
   font-size: var(--bs-pagination-font-size);
   color: var(--bs-pagination-color);
@@ -4494,11 +4494,11 @@ textarea.form-control-lg, .input-group-lg > textarea.form-control,
 .pagination li:not(:first-child) a, .pagination li span {
   margin-left: -1px;
 }
-.pagination li:first-child a, .pagination li:first-child span {
+.pagination li:first-child a:first-child, .pagination li:first-child span:first-child {
   border-top-left-radius: var(--bs-pagination-border-radius);
   border-bottom-left-radius: var(--bs-pagination-border-radius);
 }
-.pagination li:last-child a, .pagination li:last-child span {
+.pagination li:last-child a:last-child, .pagination li:last-child span:last-child {
   border-top-right-radius: var(--bs-pagination-border-radius);
   border-bottom-right-radius: var(--bs-pagination-border-radius);
 }
