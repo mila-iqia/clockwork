@@ -104,7 +104,6 @@ def test_single_job_no_id(client):
     response_logout = client.get("/login/logout")
     assert response_logout.status_code == 302  # Redirect
 
-
 #######################
 #   Jobs search route #
 #######################
@@ -678,6 +677,33 @@ def test_cc_portal(client, fake_data):
 
     # Verify that we check at least one URL
     assert i
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
+
+#######################
+#   Jobs with JobIDS  #
+#######################
+
+def test_jobs_oneid(client, fake_data):
+    """
+    Obviously, we need to compare the hardcoded fields with the values
+    found in "fake_data.json" if we want to compare the results that
+    we get when requesting "/jobs/search/<job_id>".
+    """
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
+    D_job = random.choice(fake_data["jobs"])
+    job_id = D_job["slurm"]["job_id"]
+
+    response = client.get(f"/jobs/search?job_id={job_id}")
+
+    assert "text/html" in response.content_type
+    body_text = response.get_data(as_text=True)
+    assert job_id in body_text
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
