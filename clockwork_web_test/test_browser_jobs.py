@@ -104,6 +104,7 @@ def test_single_job_no_id(client):
     response_logout = client.get("/login/logout")
     assert response_logout.status_code == 302  # Redirect
 
+
 #######################
 #   Jobs search route #
 #######################
@@ -682,6 +683,7 @@ def test_cc_portal(client, fake_data):
     response_logout = client.get("/login/logout")
     assert response_logout.status_code == 302  # Redirect
 
+
 def test_search_jobid(client, fake_data):
     """
     Obviously, we need to compare the hardcoded fields with the values
@@ -705,6 +707,7 @@ def test_search_jobid(client, fake_data):
     response_logout = client.get("/login/logout")
     assert response_logout.status_code == 302  # Redirect
 
+
 def test_search_multiple_jobids(client, fake_data):
     """
     Obviously, we need to compare the hardcoded fields with the values
@@ -716,7 +719,7 @@ def test_search_multiple_jobids(client, fake_data):
     assert login_response.status_code == 302  # Redirect
 
     job_id = random.choice(fake_data["jobs"])["slurm"]["job_id"]
-    job_id_2 = random.choice(fake_data["jobs"])["slurm"]["job_id"] 
+    job_id_2 = random.choice(fake_data["jobs"])["slurm"]["job_id"]
 
     response = client.get(f"/jobs/search?job_id={job_id},{job_id_2}")
 
