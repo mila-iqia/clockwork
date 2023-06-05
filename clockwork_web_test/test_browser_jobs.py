@@ -682,3 +682,52 @@ def test_cc_portal(client, fake_data):
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
     assert response_logout.status_code == 302  # Redirect
+
+
+def test_search_jobid(client, fake_data):
+    """
+    Obviously, we need to compare the hardcoded fields with the values
+    found in "fake_data.json" if we want to compare the results that
+    we get when requesting "/jobs/search/<job_id>".
+    """
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
+    D_job = random.choice(fake_data["jobs"])
+    job_id = D_job["slurm"]["job_id"]
+
+    response = client.get(f"/jobs/search?job_id={job_id}")
+
+    assert "text/html" in response.content_type
+    body_text = response.get_data(as_text=True)
+    assert job_id in body_text
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
+
+
+def test_search_multiple_jobids(client, fake_data):
+    """
+    Obviously, we need to compare the hardcoded fields with the values
+    found in "fake_data.json" if we want to compare the results that
+    we get when requesting "/jobs/search/<job_id>".
+    """
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
+    job_id = random.choice(fake_data["jobs"])["slurm"]["job_id"]
+    job_id_2 = random.choice(fake_data["jobs"])["slurm"]["job_id"]
+
+    response = client.get(f"/jobs/search?job_id={job_id},{job_id_2}")
+
+    assert "text/html" in response.content_type
+    body_text = response.get_data(as_text=True)
+    assert job_id in body_text
+    assert job_id_2 in body_text
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect

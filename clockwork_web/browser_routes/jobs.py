@@ -250,7 +250,7 @@ def route_one():
             "error.html",
             error_msg=gettext(
                 "Found %(len_LD_jobs) jobs with job_id %(job_id)."
-            ).format(len_LD_jobs=len(LD_jobs), job_id=job_id),
+            ).format(len_LD_jobs=len(LD_jobs), job_id=job_ids[0]),
             previous_request_args=previous_request_args,
         )  # Not sure what to do about these cases.
 
