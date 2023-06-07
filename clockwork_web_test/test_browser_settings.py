@@ -7,19 +7,19 @@ from clockwork_web.db import get_db
 from clockwork_web.user import User
 
 
-def test_settings_index(client_student00):
-    response = client_student00.get("/settings/")
+def test_settings_index(client):
+    response = client.get("/settings/")
 
     assert current_user.clockwork_api_key in response.get_data(as_text=True)
 
 
-def test_settings_new_key(client_student00):
+def test_settings_new_key(client):
     # This is to establish a 'current_user'
-    client_student00.get("/settings/")
+    client.get("/settings/")
 
     api_key = current_user.clockwork_api_key
 
-    response = client_student00.get("/settings/new_key")
+    response = client.get("/settings/new_key")
 
     assert current_user.clockwork_api_key != api_key
 
@@ -27,7 +27,7 @@ def test_settings_new_key(client_student00):
     assert response.headers["Location"] == "/settings/"
 
 
-def test_settings_set_nbr_items_per_page_missing_argument(client_student00):
+def test_settings_set_nbr_items_per_page_missing_argument(client):
     """
     Test the function route_set_nbr_items_per_page without sending a
     nbr_items_per_page as argument.
@@ -36,19 +36,17 @@ def test_settings_set_nbr_items_per_page_missing_argument(client_student00):
     - client    The web client used to send the request
     """
     # This is to establish a 'current_user'
-    client_student00.get("/settings/")
+    client.get("/settings/")
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get("/settings/web/nbr_items_per_page/set")
+    response = client.get("/settings/web/nbr_items_per_page/set")
 
     # Check if the response is the expected one
     assert response.status_code == 400
 
 
 @pytest.mark.parametrize("nbr_items_per_page", ["test", 1.3, True])
-def test_settings_set_nbr_items_per_page_wrong_type(
-    client_student00, nbr_items_per_page
-):
+def test_settings_set_nbr_items_per_page_wrong_type(client, nbr_items_per_page):
     """
     Test the function route_set_nbr_items_per_page when sending the wrong type
     for nbr_items_per_page.
@@ -59,7 +57,7 @@ def test_settings_set_nbr_items_per_page_wrong_type(
                             items to display per page for the current user
     """
     # This is to establish a 'current_user'
-    client_student00.get("/settings/")
+    client.get("/settings/")
 
     # Define the request to test
     test_request = (
@@ -67,7 +65,7 @@ def test_settings_set_nbr_items_per_page_wrong_type(
     )
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get(test_request)
+    response = client.get(test_request)
 
     # Check if the response is the expected one
     assert response.status_code == 400
@@ -75,7 +73,7 @@ def test_settings_set_nbr_items_per_page_wrong_type(
 
 @pytest.mark.parametrize("nbr_items_per_page", [-20, -5, 0])
 def test_settings_set_nbr_items_per_page_zero_or_negative_value(
-    client_student00, nbr_items_per_page
+    client, nbr_items_per_page
 ):
     """
     Test the function route_set_nbr_items_per_page when sending a zero or
@@ -87,7 +85,7 @@ def test_settings_set_nbr_items_per_page_zero_or_negative_value(
                             items to display per page for the current user
     """
     # This is to establish a 'current_user'
-    client_student00.get("/settings/")
+    client.get("/settings/")
 
     # Define the request to test
     test_request = (
@@ -95,13 +93,13 @@ def test_settings_set_nbr_items_per_page_zero_or_negative_value(
     )
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get(test_request)
+    response = client.get(test_request)
 
     # Check if the response is the expected one
     assert response.status_code == 400  # Bad Request
 
 
-def test_settings_set_date_format_missing_argument(client_student00):
+def test_settings_set_date_format_missing_argument(client):
     """
     Test the function route_set_date_format without sending a
     date_format as argument.
@@ -110,17 +108,17 @@ def test_settings_set_date_format_missing_argument(client_student00):
     - client    The web client used to send the request
     """
     # This is to establish a 'current_user'
-    client_student00.get("/settings/")
+    client.get("/settings/")
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get("/settings/web/date_format/set")
+    response = client.get("/settings/web/date_format/set")
 
     # Check if the response is the expected one
     assert response.status_code == 400  # Bad Request
 
 
 @pytest.mark.parametrize("date_format", ["test", 1.3, True])
-def test_settings_set_date_format_wrong_type(client_student00, date_format):
+def test_settings_set_date_format_wrong_type(client, date_format):
     """
     Test the function route_set_date_format when sending the wrong type
     for date_format.
@@ -132,13 +130,13 @@ def test_settings_set_date_format_wrong_type(client_student00, date_format):
                             timestamps for the current user
     """
     # This is to establish a 'current_user'
-    client_student00.get("/settings/")
+    client.get("/settings/")
 
     # Define the request to test
     test_request = "/settings/web/date_format/set?date_format={}".format(date_format)
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get(test_request)
+    response = client.get(test_request)
 
     # Check if the response is the expected one
     assert response.status_code == 400  # Bad Request
@@ -178,7 +176,7 @@ def test_settings_set_date_format_success(client, known_user, date_format):
     assert response_logout.status_code == 302  # Redirect
 
 
-def test_settings_set_time_format_missing_argument(client_student00):
+def test_settings_set_time_format_missing_argument(client):
     """
     Test the function route_set_time_format without sending a
     time_format as argument.
@@ -187,17 +185,17 @@ def test_settings_set_time_format_missing_argument(client_student00):
     - client    The web client used to send the request
     """
     # This is to establish a 'current_user'
-    client_student00.get("/settings/")
+    client.get("/settings/")
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get("/settings/web/time_format/set")
+    response = client.get("/settings/web/time_format/set")
 
     # Check if the response is the expected one
     assert response.status_code == 400  # Bad Request
 
 
 @pytest.mark.parametrize("time_format", ["notanexpectedtimeformat", 34.789, False])
-def test_settings_set_time_format_wrong_type(client_student00, time_format):
+def test_settings_set_time_format_wrong_type(client, time_format):
     """
     Test the function route_set_time_format when sending the wrong type
     for time_format.
@@ -209,13 +207,13 @@ def test_settings_set_time_format_wrong_type(client_student00, time_format):
                             timestamps for the current user
     """
     # This is to establish a 'current_user'
-    client_student00.get("/settings/")
+    client.get("/settings/")
 
     # Define the request to test
     test_request = "/settings/web/time_format/set?time_format={}".format(time_format)
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get(test_request)
+    response = client.get(test_request)
 
     # Check if the response is the expected one
     assert response.status_code == 400  # Bad Request
@@ -274,7 +272,7 @@ def test_settings_set_time_format_success(client, known_user, time_format):
     ],
 )
 def test_settings_set_column_display_bad_request(
-    client_student00, fake_data, page_name, column_name
+    client, fake_data, page_name, column_name
 ):
     """
     Test the function route_set_column_display when sending incomplete or unexpected arguments
@@ -287,7 +285,7 @@ def test_settings_set_column_display_bad_request(
     - column_name   The job property we try to change whether or not it is displayed
     """
     # This is to establish a 'current_user'
-    client_student00.get("/settings/")
+    client.get("/settings/")
 
     # Define the request to test
     if page_name == None and column_name == None:
@@ -300,7 +298,7 @@ def test_settings_set_column_display_bad_request(
         test_request = f"/settings/web/column/set?page={page_name}&column={column_name}"
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get(test_request)
+    response = client.get(test_request)
 
     # Check if the response is the expected one
     assert response.status_code == 400  # Bad Request
@@ -323,7 +321,7 @@ def test_settings_set_column_display_bad_request(
     ],
 )
 def test_settings_unset_column_display_bad_request(
-    client_student00, fake_data, page_name, column_name
+    client, fake_data, page_name, column_name
 ):
     """
     Test the function route_unset_column_display when sending incomplete or unexpected arguments
@@ -336,7 +334,7 @@ def test_settings_unset_column_display_bad_request(
     - column_name   The job property we try to change whether or not it is displayed
     """
     # This is to establish a 'current_user'
-    client_student00.get("/settings/")
+    client.get("/settings/")
 
     # Define the request to test
     if page_name == None and column_name == None:
@@ -351,7 +349,7 @@ def test_settings_unset_column_display_bad_request(
         )
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get(test_request)
+    response = client.get(test_request)
 
     # Check if the response is the expected one
     assert response.status_code == 400  # Bad Request

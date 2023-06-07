@@ -4,7 +4,7 @@ Tests fort the clockwork_web.browser_routes.users functions.
 import pytest
 
 
-def test_users_one_success(client_student00, fake_data):
+def test_users_one_success(client, fake_data):
     """
     Test the function route_one when retrieving an existing user.
 
@@ -21,7 +21,7 @@ def test_users_one_success(client_student00, fake_data):
     username = user["mila_email_username"]
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get("/users/one?username={}".format(username))
+    response = client.get("/users/one?username={}".format(username))
 
     # Check if the response is the expected one
     assert response.status_code == 200  # Success
@@ -35,7 +35,7 @@ def test_users_one_success(client_student00, fake_data):
         )
 
 
-def test_users_one_username_not_found(client_student00):
+def test_users_one_username_not_found(client):
     """
     Test the function route_one when trying to retrieve an inexisting user.
 
@@ -46,14 +46,14 @@ def test_users_one_username_not_found(client_student00):
     username = "thisisnottheuseryourelookingfor"
 
     # Retrieve the response to the call we are testing
-    response = client_student00.get("/users/one?username={}".format(username))
+    response = client.get("/users/one?username={}".format(username))
 
     # Check if the response is the expected one
     assert response.status_code == 404  # Not Found
     assert "The requested user has not been found." in response.get_data(as_text=True)
 
 
-def test_users_one_missing_username(client_student00):
+def test_users_one_missing_username(client):
     """
     Test the function route_one when we do not provide the username argument.
 
@@ -61,7 +61,7 @@ def test_users_one_missing_username(client_student00):
     - client    The web client used to send the request
     """
     # Retrieve the response to the call we are testing
-    response = client_student00.get("/users/one?")
+    response = client.get("/users/one?")
 
     # Check if the response is the expected one
     assert response.status_code == 400  # Bad Request
