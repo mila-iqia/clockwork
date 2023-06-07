@@ -252,7 +252,7 @@ def get_jobs_updates_and_insertions(
               done into the database for the users
             - A list of the elements to store in the dump file
     """
-    
+
     L_updates_to_do = []  # Initialize the list of elements to update
     L_data_for_dump_file = (
         []
@@ -272,7 +272,7 @@ def get_jobs_updates_and_insertions(
     )
 
     ## Retrieve sacct entities ##
-    
+
     # Filter the previous iterator to keep only the jobs having accounts related to Mila
     # and apply the function lookup_user_account to each element,
     # which are then gathered in a list
@@ -484,6 +484,7 @@ def associate_account(LD_sacct_jobs):
                 )
 
     return L_user_updates
+
 
 def main_read_users_and_update_collection(
     users_collection,

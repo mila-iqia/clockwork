@@ -60,7 +60,8 @@ def get_random_path():
         np.random.randint(low=0, high=1000),
     )
 
-def anonymize_node(D_raw_node: dict, D_cluster_account:dict):
+
+def anonymize_node(D_raw_node: dict, D_cluster_account: dict):
     """
     Anonymize a node
 
@@ -91,18 +92,24 @@ def anonymize_node(D_raw_node: dict, D_cluster_account:dict):
     D_anonymized_node = {}
 
     # For each element of the raw node, anonymize, don't modify or ignore the information
-    for (k,v) in D_raw_node.items():
+    for (k, v) in D_raw_node.items():
         if k == "name":
             # A new name is created from the actual name and the cluster on which the node is
-            D_anonymized_node[k] = get_machine_name(D_cluster_account["cluster_name"], D_raw_node["name"])
+            D_anonymized_node[k] = get_machine_name(
+                D_cluster_account["cluster_name"], D_raw_node["name"]
+            )
 
         elif k == "address":
             # A new address is created from the actual name and the cluster on which the node is
-            D_anonymized_node[k] = get_machine_name(D_cluster_account["cluster_name"], D_raw_node["address"])
+            D_anonymized_node[k] = get_machine_name(
+                D_cluster_account["cluster_name"], D_raw_node["address"]
+            )
 
         elif k == "hostname":
             # A new hostname is created from the actual name and the cluster on which the node is
-            D_anonymized_node[k] = get_machine_name(D_cluster_account["cluster_name"], D_raw_node["hostname"])
+            D_anonymized_node[k] = get_machine_name(
+                D_cluster_account["cluster_name"], D_raw_node["hostname"]
+            )
 
         elif k == "operating_system":
             # The operating system is always the same
@@ -128,7 +135,7 @@ def anonymize_node(D_raw_node: dict, D_cluster_account:dict):
     return D_anonymized_node
 
 
-def anonymize_job(D_raw_job: dict, D_cluster_account:dict):
+def anonymize_job(D_raw_job: dict, D_cluster_account: dict):
     """
     Anonymize a job
 
@@ -165,7 +172,7 @@ def anonymize_job(D_raw_job: dict, D_cluster_account:dict):
     D_anonymized_job = {}
 
     # For each element of the raw job, anonymize, don't modify or ignore the information
-    for (k,v) in D_raw_job.items():
+    for (k, v) in D_raw_job.items():
         if k == "job_id":
             # The job ID and the JobArray ID have a precedence relation, thus both are set here
 
@@ -175,20 +182,14 @@ def anonymize_job(D_raw_job: dict, D_cluster_account:dict):
                 # The default values for an empty array are set for the "array" element
                 D_anonymized_job["array"] = {
                     "job_id": 0,
-                    "limits": {
-                        "max": {
-                            "running": {
-                            "tasks": 0
-                            }
-                        }
-                    },
+                    "limits": {"max": {"running": {"tasks": 0}}},
                     "task": None,
-                    "task_id": None
+                    "task_id": None,
                 }
 
                 # A random job ID is generated, as an integer whose value lays within the range [0,1e6]
                 D_anonymized_job["job_id"] = np.random.randint(low=0, high=1e6)
- 
+
             else:
                 # The job is part of a job array. We store the ID of this job array
                 # in a variable
@@ -213,24 +214,21 @@ def anonymize_job(D_raw_job: dict, D_cluster_account:dict):
                     # the IDs
                     delta = D_job_arrays_delta[previous_job_array_id]
 
-
                 # Store the new job array data
                 D_anonymized_job["array"] = {
                     "job_id": previous_job_array_id + delta,
                     "limits": D_raw_job["array"]["limits"],
                     "task": None,
-                    "task_id": D_raw_job["array"]["task_id"]
+                    "task_id": D_raw_job["array"]["task_id"],
                 }
 
                 # Compute the new job ID from the delta
                 D_anonymized_job["job_id"] = D_raw_job["job_id"] + delta
 
-            
-
         elif k == "name":
             # A new job name is generated
             D_anonymized_job[k] = get_random_job_name()
-        
+
         elif k == "user" or k == "group":
             # Use the cluster account information passed as argument to define the username or group
             D_anonymized_job[k] = D_cluster_account["username"]
@@ -253,7 +251,7 @@ def anonymize_job(D_raw_job: dict, D_cluster_account:dict):
                 "account": D_cluster_account["account"],
                 "cluster": D_cluster_account["cluster_name"],
                 "partition": None,
-                "user": D_cluster_account["username"]
+                "user": D_cluster_account["username"],
             }
 
         elif k == "cluster":
@@ -266,8 +264,10 @@ def anonymize_job(D_raw_job: dict, D_cluster_account:dict):
 
         elif k == "partition":
             # The partition is always "fun_partition" or "other_fun_partition"
-            D_anonymized_job[k] = np.random.choice(["fun_partition", "other_fun_partition"])
-        
+            D_anonymized_job[k] = np.random.choice(
+                ["fun_partition", "other_fun_partition"]
+            )
+
         elif k == "nodes":
             # The value of the "nodes" element could take similar formats:
             # - "None assigned" if no node has been yet assigned to the job
@@ -278,7 +278,15 @@ def anonymize_job(D_raw_job: dict, D_cluster_account:dict):
             # We then use the same function as the one used for the nodes: it combines a cluster identifier and the node(s) name(s)
             D_anonymized_job[k] = get_machine_name(D_cluster_account["cluster_name"], v)
 
-        elif k in ["allocation_nodes", "exit_code", "derived_exit_code", "time", "flags", "tres", "state"]:
+        elif k in [
+            "allocation_nodes",
+            "exit_code",
+            "derived_exit_code",
+            "time",
+            "flags",
+            "tres",
+            "state",
+        ]:
             # Don't modify the value
             D_anonymized_job[k] = v
 
@@ -334,7 +342,7 @@ def main(argv):
             output_data = {}
             # Load the sacct or sinfo data
             input_data = json.load(f_in)
-            for (k,v) in input_data.items():
+            for (k, v) in input_data.items():
                 if k == "nodes" or k == "jobs":
                     # Initialize an empty jobs or nodes list. The jobs and nodes
                     # will then be anonymized before be added to that list.
@@ -345,15 +353,16 @@ def main(argv):
                         # Pick a random new user to associate to the job or node
                         D_user = np.random.choice(LD_users_on_that_cluster)
                         D_cluster_account = D_user["_extra"][args.cluster_name]
-                        
+
                         # Anonymize the job or node
                         if k == "nodes":
-                            anonymized_entity = anonymize_node(entity, D_cluster_account)
+                            anonymized_entity = anonymize_node(
+                                entity, D_cluster_account
+                            )
                         else:
                             anonymized_entity = anonymize_job(entity, D_cluster_account)
                         # Append the anonymized job or node to the output
                         output_data[k].append(anonymized_entity)
-
 
                         # If the requested number of entities in the output file
                         # is reached, stop the loop
