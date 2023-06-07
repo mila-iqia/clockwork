@@ -1,4 +1,6 @@
 from client import *
+from job import *
+
 
 client = ClockworkToolsClient(email= "student00@mila.quebec",
         clockwork_api_key = "000aaa00",
@@ -6,5 +8,8 @@ client = ClockworkToolsClient(email= "student00@mila.quebec",
         port = 15000)
 
 
-print(client.nodes_list(cluster_name='graham'))#[1]["cw"]['job_state'])
+tabJob = []
+for i in client.jobs_list():
+    tabJob.append(Job(i))
 print("Welcome to Clockwork Tools!")
+print(str(tabJob[4]))
