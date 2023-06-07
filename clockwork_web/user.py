@@ -350,11 +350,3 @@ class AnonUser(AnonymousUserMixin):
             A dictionary presenting the default web settings.
         """
         return self.web_settings
-
-    def get_available_clusters(self):
-        """
-        Get a list of the names of the clusters to which the user have access.
-
-        We assume anon user does not have access to any cluster.
-        """
-        return []
