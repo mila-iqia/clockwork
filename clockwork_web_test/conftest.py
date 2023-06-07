@@ -61,6 +61,22 @@ def client(app):
 
 
 @pytest.fixture
+def client_student00(client):
+    """A test client connected as student00."""
+
+    # Log in to Clockwork as student00 (who can access all clusters)
+    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    assert login_response.status_code == 302  # Redirect
+
+    yield client
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
+    print("logged out")
+
+
+@pytest.fixture
 def app_with_login():
     """Create and configure a new app instance with local login enabled."""
     app = create_app(
