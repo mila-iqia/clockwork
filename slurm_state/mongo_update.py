@@ -10,8 +10,9 @@ from slurm_state.extra_filters import (
     is_allocation_related_to_mila,
     clusters_valid,
 )
+from slurm_state.helpers.gpu_helper import get_cw_gres_description
 
-from slurm_state.sacct_parser import node_parser
+from slurm_state.sinfo_parser import node_parser
 from slurm_state.sacct_parser import job_parser
 
 
@@ -117,12 +118,12 @@ def lookup_user_account(users_collection):
     return _lookup_user_account
 
 
-def main_read_sacct_and_update_collection(
-    entity,  # Define the entity we are handling here. Could be "jobs" or "nodes"
+def main_read_report_and_update_collection(
+    entity,
     collection,
     users_collection,
     cluster_name,
-    sacct_file_path,
+    report_file_path,
     want_commit_to_db=True,
     dump_file="",
 ):
@@ -131,11 +132,12 @@ def main_read_sacct_and_update_collection(
     the database and/or a dump file, according to what is requested by the parameters.
 
     Parameters:
-        entity              String which could be "jobs" or "nodes: define which entity we are handling
+        entity              String which could be "jobs" or "nodes": define which entity we are handling
         collection          Collection of the jobs or nodes in the database
-        users_collection    Collection of the users in the database
+        users_collection    Collection of the users in the database, required when jobs are retrieved. Could be None for nodes
         cluster_name        Name of the cluster we are working on
-        sacct_file_path     Path to the sacct report from which the jobs or nodes information is extracted
+        report_file_path    Path to the report from which the jobs or nodes information is extracted. This report is generated through
+                            the command sacct for the jobs, or sinfo for the nodes
         want_commit_to_db   Boolean indicating whether or not the jobs or nodes are stored in the database. Default is True
         dump_file           String containing the path to the file in which we want to dump the data. Default is "", which means nothing is stored in an output file
     """
@@ -167,29 +169,30 @@ def main_read_sacct_and_update_collection(
     clusters = get_config("clusters")
     assert cluster_name in clusters
 
-    ## Retrieve sacct entities ##
+    ## Retrieve entities ##
 
-    # Construct an iterator over the list of entities in the sacct file,
-    # each one of them turned into a clockwork job or node, according to applicability
-    I_clockwork_entities_from_sacct = map(
+    # Construct an iterator over the list of entities in the report file,
+    # each one of them is turned into a clockwork job or node, according to applicability
+    I_clockwork_entities_from_report = map(
         from_slurm_to_clockwork,
-        fetch_slurm_report(parser, cluster_name, sacct_file_path),
+        fetch_slurm_report(parser, cluster_name, report_file_path),
     )
 
     L_updates_to_do = []  # Entity updates to store in the database if requested
     L_users_updates = []  # Users updates to store in the database if requested
     L_data_for_dump_file = []  # Data to store in the dump file if requested
+
     if entity == "jobs":
         (
             L_updates_to_do,
             L_users_updates,
             L_data_for_dump_file,
         ) = get_jobs_updates_and_insertions(
-            I_clockwork_entities_from_sacct, cluster_name, collection, users_collection
+            I_clockwork_entities_from_report, cluster_name, collection, users_collection
         )
     elif entity == "nodes":
         (L_updates_to_do, L_data_for_dump_file) = get_nodes_updates(
-            I_clockwork_entities_from_sacct
+            I_clockwork_entities_from_report
         )
 
     # Commit new elements and changes to the database, if requested
@@ -249,7 +252,7 @@ def get_jobs_updates_and_insertions(
               done into the database for the users
             - A list of the elements to store in the dump file
     """
-
+    
     L_updates_to_do = []  # Initialize the list of elements to update
     L_data_for_dump_file = (
         []
@@ -269,8 +272,8 @@ def get_jobs_updates_and_insertions(
     )
 
     ## Retrieve sacct entities ##
-
-    # Filter the previous iterator to keep only TODO
+    
+    # Filter the previous iterator to keep only the jobs having accounts related to Mila
     # and apply the function lookup_user_account to each element,
     # which are then gathered in a list
     LD_sacct = list(
@@ -309,8 +312,9 @@ def get_jobs_updates_and_insertions(
         # we want to do with sacct. Might as well keep it clean here.
         D_job_new = copy.copy(D_job_sc)
         # add this field all the time, whenever you touch an entry
+        now = time.time()
         D_job_new["cw"]["last_slurm_update"] = now
-        D_job_new["cw"]["last_slurm_update_by_scontrol"] = now
+        D_job_new["cw"]["last_slurm_update_by_sacct"] = now
         # No need to the empty user dict because it's done earlier
         # by `slurm_job_to_clockwork_job`.
 
@@ -385,7 +389,7 @@ def get_nodes_updates(I_clockwork_nodes):
         # Add these field each time an entry is updated
         now = time.time()
         D_node["cw"]["last_slurm_update"] = now
-        D_node["cw"]["last_slurm_update_by_scontrol"] = now
+        D_node["cw"]["last_slurm_update_by_sacct"] = now
 
         L_data_for_dump_file.append(D_node)
 
@@ -480,3 +484,37 @@ def associate_account(LD_sacct_jobs):
                 )
 
     return L_user_updates
+
+def main_read_users_and_update_collection(
+    users_collection,
+    users_json_file,
+):
+
+    timestamp_start = time.time()
+    L_updates_to_do = []
+
+    with open(users_json_file, "r") as f:
+        users_to_store = json.load(f)
+
+    for user_to_store in users_to_store:
+
+        # Add the user to the queue of updates to do
+        L_updates_to_do.append(
+            UpdateOne(
+                # rule to match if already present in collection
+                {"mila_email_username": user_to_store["mila_email_username"]},
+                # the data that we write in the collection
+                {"$set": user_to_store},
+                # create if missing, update if present
+                upsert=True,
+            )
+        )
+
+    if L_updates_to_do:
+        print("result = users_collection.bulk_write(L_updates_to_do)")
+        result = users_collection.bulk_write(L_updates_to_do)
+        pprint_bulk_result(result)
+    mongo_update_duration = time.time() - timestamp_start
+    print(
+        f"Bulk write for {len(L_updates_to_do)} user entries in mongodb took {mongo_update_duration} seconds."
+    )

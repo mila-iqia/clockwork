@@ -257,6 +257,13 @@ def job_parser(f, ctx):
 
     Unknown fields will raise an error.
     """
+    """
+    Notes Soline
+    Dans argument command
+    La string command contient "champ=valeur"
+    hack qui a été fait : si on est à la string "command", on parse des commandes
+    et à partir du moment où on atteint un champ connu, on sort
+    """
     for d in gen_dicts(f):
         res = dict()
         command_hack = False

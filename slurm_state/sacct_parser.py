@@ -2,7 +2,6 @@
 The sacct parser is used to convert jobs retrieved through a sacct command on a cluster
 to jobs in the format used by Clockwork.
 """
-
 import json
 from slurm_state.helpers.parser_helper import copy, ignore, rename
 
@@ -14,6 +13,7 @@ from slurm_state.helpers.parser_helper import copy, ignore, rename
 # The following functions are only used by the job parser. Translator
 # functions shared with the node parser are store retrieved from
 # slurm_state.helpers.parser_helper.
+
 
 def copy_and_stringify(k, v, res):
     res[k] = str(v)
@@ -278,7 +278,9 @@ def job_parser(f):
     src_jobs = sacct_data["jobs"]  # jobs is a list
 
     for src_job in src_jobs:
-        res_job = dict() # Initialize the dictionary which will store the newly formatted job data
+        res_job = (
+            dict()
+        )  # Initialize the dictionary which will store the newly formatted job data
 
         for k, v in src_job.items():
             # We will use a handler mapping to translate this

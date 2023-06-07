@@ -3,7 +3,7 @@ This script is to be called from cron on `blink`, or wherever the "slurm reports
 are found on the local filesystem.
 
 It serves as the entry point to the code in "mongo_update.py" that
-does the actual work, and calls "scontrol_parser.py" internally.
+does the actual work, and calls "sacct_parser.py" and "sinfo_parser.py" internally.
 
 The parameters of this function are exposed through command-line arguments
 because of the particular setup in which this script is going to be used.
@@ -16,10 +16,7 @@ connect to it through a simple connection string given as command-line argument.
 import os
 import argparse
 from slurm_state.mongo_client import get_mongo_client
-from slurm_state.mongo_update import (
-    main_read_nodes_and_update_collection,
-    main_read_jobs_and_update_collection,
-)
+from slurm_state.mongo_update import main_read_report_and_update_collection
 
 
 def main(argv):
@@ -80,13 +77,14 @@ def main(argv):
                 name="job_id_and_cluster_name",
             )
 
-        main_read_jobs_and_update_collection(
+        main_read_report_and_update_collection(
+            "jobs",
             jobs_collection,
             client[collection_name]["users"],
             args.cluster_name,
             args.jobs_file,
             want_commit_to_db=want_commit_to_db,
-            want_sacct=False,  # as we already have an input file
+            #want_sacct=False,  # as we already have an input file
             dump_file=args.dump_file,
         )
 
@@ -99,8 +97,10 @@ def main(argv):
                 [("slurm.name", 1), ("slurm.cluster_name", 1)],
                 name="name_and_cluster_name",
             )
-        main_read_nodes_and_update_collection(
+        main_read_report_and_update_collection(
+            "nodes",
             nodes_collection,
+            None,
             args.cluster_name,
             args.nodes_file,
             want_commit_to_db=want_commit_to_db,
@@ -122,20 +122,20 @@ export slurm_state_ALLOCATIONS_RELATED_TO_MILA="./allocations_related_to_mila.js
 
 python3 read_report_commit_to_db.py \
     --cluster_name beluga \
-    --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job \
+    --jobs_file ../tmp/slurm_report/beluga/sacct_job \
     --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \
     --mongodb_collection ${MONGODB_DATABASE_NAME}
 
 python3 read_report_commit_to_db.py \
     --cluster_name beluga \
-    --nodes_file ../tmp/slurm_report/beluga/scontrol_show_node \
+    --nodes_file ../tmp/slurm_report/beluga/sacct_node \
     --mongodb_connection_string ${MONGODB_CONNECTION_STRING} \
     --mongodb_collection ${MONGODB_DATABASE_NAME}
 
 # dump file only
 python3 read_report_commit_to_db.py \
     --cluster_name beluga \
-    --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job \
+    --jobs_file ../tmp/slurm_report/beluga/sacct_job \
     --dump_file ../tmp/slurm_report/beluga/job_dump_file.json
 
 # This would out empty due to fake allocations if you don't
@@ -143,12 +143,12 @@ python3 read_report_commit_to_db.py \
 export slurm_state_ALLOCATIONS_RELATED_TO_MILA="../slurm_state_test/fake_allocations_related_to_mila.json"
 python3 read_report_commit_to_db.py \
     --cluster_name beluga \
-    --jobs_file ../tmp/slurm_report/beluga/scontrol_show_job_anonymized \
+    --jobs_file ../tmp/slurm_report/beluga/sacct_job_anonymized \
     --dump_file ../tmp/slurm_report/beluga/job_dump_file_anonymized.json
 
 python3 read_report_commit_to_db.py \
     --cluster_name mila \
-    --jobs_file ../tmp/slurm_report/mila/scontrol_show_job \
+    --jobs_file ../tmp/slurm_report/mila/sacctjob \
     --dump_file dump_file_mila.json
 
 """

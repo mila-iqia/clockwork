@@ -17,7 +17,7 @@
    ],
    "jobs": [
      {
-       "account": "rrg-cerise-ad_gpu",
+       "account": "def-cerise-rrg",
        "comment": {
          "administrator": null,
          "job": null,
@@ -25,7 +25,7 @@
        },
        "allocation_nodes": 1,
        "array": {
-         "job_id": 63752790,
+         "job_id": 1,
          "limits": {
            "max": {
              "running": {
@@ -37,7 +37,7 @@
          "task_id": 7
        },
        "association": {
-         "account": "rrg-cerise-ad_gpu",
+         "account": "def-cerise-rrg",
          "cluster": "cedar",
          "partition": null,
          "user": "nobody"
@@ -82,13 +82,13 @@
          "job_id": 0,
          "job_offset": null
        },
-       "job_id": 63768795,
-       "name": "submitit",
+       "job_id": 10,
+       "name": "test-job-1",
        "mcs": {
          "label": ""
        },
-       "nodes": "cdr247",
-       "partition": "gpubase_bygpu_b3",
+       "nodes": "cdr1",
+       "partition": "partition1",
        "priority": 1328907,
        "qos": "normal",
        "required": {
@@ -181,7 +181,7 @@
        "working_directory": "\/scratch\/nobody"
      },
      {
-       "account": "rrg-cerise-ad_gpu",
+       "account": "def-cerise-rrg",
        "comment": {
          "administrator": null,
          "job": null,
@@ -189,7 +189,7 @@
        },
        "allocation_nodes": 1,
        "array": {
-         "job_id": 63692861,
+         "job_id": 2,
          "limits": {
            "max": {
              "running": {
@@ -201,7 +201,7 @@
          "task_id": 0
        },
        "association": {
-         "account": "rrg-cerise-ad_gpu",
+         "account": "def-cerise-rrg",
          "cluster": "cedar",
          "partition": null,
          "user": "nobody2"
@@ -246,13 +246,13 @@
          "job_id": 0,
          "job_offset": null
        },
-       "job_id": 63694682,
-       "name": "submitit",
+       "job_id": 20,
+       "name": "test-job-2",
        "mcs": {
          "label": ""
        },
-       "nodes": "cdr2529",
-       "partition": "gpubase_bygpu_b3",
+       "nodes": "cdr2",
+       "partition": "partition2",
        "priority": 1347301,
        "qos": "normal",
        "required": {
@@ -338,7 +338,7 @@
        },
        "user": "nobody2",
        "wckey": {
-         "wckey": "submitit",
+         "wckey": "test-job-2",
          "flags": [
          ]
        },

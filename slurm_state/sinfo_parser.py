@@ -61,7 +61,7 @@ NODE_FIELD_MAP = {
     "alloc_cpus": ignore,
     "idle_cpus": ignore,
     "tres_used": copy,
-    "tres_weighted": ignore
+    "tres_weighted": ignore,
 }
 
 
@@ -129,7 +129,7 @@ def node_parser(f):
             "tres_used": "cpu=26,mem=249G,gres\/gpu=8",
             "tres_weighted": 0
         },
-    
+
     The expected output would then be these associations of keys and values:
         {
             "arch": "x86_64",
@@ -156,20 +156,22 @@ def node_parser(f):
     sinfo_data = json.load(f)
     # at this point, sinfo_data is a hierarchical structure of dictionaries and lists
 
-    src_nodes = sinfo_data["nodes"] # nodes is a list
+    src_nodes = sinfo_data["nodes"]  # nodes is a list
 
     for src_node in src_nodes:
-        res_node = dict() # Initialize the dictionary which will store the newly formatted node data
+        res_node = (
+            dict()
+        )  # Initialize the dictionary which will store the newly formatted node data
 
         for k, v in src_node.items():
             # We will use a handler mapping to translate this
             translator = NODE_FIELD_MAP.get(k, None)
 
-        if translator is None:
-            # Raise an error if the node to parse contains a field we do not handle
-            raise ValueError(f"Unknown field in sinfo node output: {k}")
+            if translator is None:
+                # Raise an error if the node to parse contains a field we do not handle
+                raise ValueError(f"Unknown field in sinfo node output: {k}")
 
-        # Translate using the translator retrieved from NODE_FIELD_MAP
-        translator(k, v, res_node)
+            # Translate using the translator retrieved from NODE_FIELD_MAP
+            translator(k, v, res_node)
 
-    yield res_node
+        yield res_node
