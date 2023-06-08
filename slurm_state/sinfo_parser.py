@@ -8,7 +8,12 @@ import json
 # These functions are translators used in order to handle the values
 # we could encounter while parsing a node dictionary retrieved from a
 # sinfo command. They are shared with the job (sacct) parser
-from slurm_state.helpers.parser_helper import copy, ignore, rename
+from slurm_state.helpers.parser_helper import (
+    copy,
+    copy_with_none_as_empty_string,
+    ignore,
+    rename,
+)
 
 
 # This map should contain all the fields that come from parsing a node entry
@@ -31,16 +36,16 @@ NODE_FIELD_MAP = {
     "last_busy": copy,
     "features": copy,
     "active_features": ignore,
-    "gres": copy,
+    "gres": copy_with_none_as_empty_string,
     "gres_drained": ignore,
-    "gres_used": ignore,
+    "gres_used": copy,
     "mcs_label": ignore,
     "name": copy,
     "next_state_after_reboot": ignore,
     "address": rename("addr"),
     "hostname": ignore,
     "state": copy,
-    "state_flags": ignore,
+    "state_flags": copy,
     "next_state_after_reboot_flags": ignore,
     "operating_system": ignore,
     "owner": ignore,

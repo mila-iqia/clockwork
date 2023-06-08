@@ -41,13 +41,17 @@ def get_machine_name(cluster_name, node_name):
     A node called "ab-a001" on the cluster Mila is then called: milab-a001
     for instance.
     """
-    return {
-        "mila": "mil",
-        "beluga": "blg",
-        "graham": "grh",
-        "cedar": "ced",
-        "narval": "nar",
-    }[cluster_name] + node_name
+
+    if node_name == "None assigned":
+        return node_name
+    else:
+        return {
+            "mila": "mil",
+            "beluga": "blg",
+            "graham": "grh",
+            "cedar": "ced",
+            "narval": "nar",
+        }[cluster_name] + node_name
 
 
 def get_random_path():
@@ -72,7 +76,7 @@ def anonymize_node(D_raw_node: dict, D_cluster_account: dict):
     - the operating system is always set to "Linux 17.10.x86_64"
     - the partitions are always "fun_partition" and "other_fun_partition"
     - the reason is always "partying"
-    - the "architecture", "last_busy" and "gres" parts remain unchanged
+    - the "architecture", "features", "last_busy", "gres", "gres_used", "memory", "states", "tres" and "tres_used" parts remain unchanged
     - the other fields are ignored.
     
     Parameters:
@@ -123,7 +127,17 @@ def anonymize_node(D_raw_node: dict, D_cluster_account: dict):
             # The reason is always "partying"
             D_anonymized_node[k] = "partying"
 
-        elif k in ["architecture", "last_busy", "gres"]:
+        elif k in [
+            "architecture",
+            "features",
+            "last_busy",
+            "gres",
+            "gres_used",
+            "memory",
+            "states",
+            "tres",
+            "tres_used",
+        ]:
             # Don't modify the value
             D_anonymized_node[k] = v
 

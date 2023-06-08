@@ -104,9 +104,13 @@ def test_fetch_slurm_report_nodes():
             "last_busy": 1681387881,
             "features": "test_features",
             "gres": "gpu:1",
+            "gres_used": "gpu:0,tpu:0",
             "name": "test-node-1",
             "addr": "test-node-1",
             "state": "down",
+            "state_flags": [
+                "NOT_RESPONDING"
+            ],
             "memory": 1800,
             "reason": "Not responding",
             "reason_changed_at": 1667084449,
@@ -121,10 +125,14 @@ def test_fetch_slurm_report_nodes():
             "cpus": 2,
             "last_busy": 1681387881,
             "features": "other_test_features",
-            "gres": "",
+            "gres": None,
+            "gres_used": "gpu:0,tpu:0",
             "name": "test-node-2",
             "addr": "test-node-2",
             "state": "down",
+            "state_flags": [
+                "DRAIN"
+            ],
             "memory": 1800,
             "reason": "Sanity Check Failed",
             "reason_changed_at": 1679695882,
