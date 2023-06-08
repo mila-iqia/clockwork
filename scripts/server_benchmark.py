@@ -215,7 +215,7 @@ class Stats:
     @staticmethod
     def _variance(values: List):
         avg_x = Stats._average(values)
-        return sum(x ** 2 for x in values) / len(values) - avg_x ** 2
+        return sum(x**2 for x in values) / len(values) - avg_x**2
 
     @staticmethod
     def _average(values: List):
