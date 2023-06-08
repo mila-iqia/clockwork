@@ -22,7 +22,7 @@
                 <div class="col-8">
                     <div class="title float-start">
                         <i class="fa-solid fa-list"></i>
-						<h1>{{ gettext("Clusters status") }}</h1>
+						<h1>{{ gettext("Status") }}</h1>
 					</div>
 				</div>
 			</div>
@@ -30,70 +30,13 @@
 
 		<div class="row single_cluster">
 			<div class="col">
-				{% for cluster_name in all_clusters %}
-					{% set cluster = all_clusters[cluster_name] %}
-					<table class="table table-striped table-hover table-responsive" id="search_table">
-						<thead>
-							<tr>
-								<th colspan="2">{{ gettext("%s cluster" % (cluster_name,)) }}</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% if cluster['job_dates'] %}
-								<tr>
-									<td>{{ gettext("Oldest job edition") }}</td>
-									<td>
-										{# Date formatted as in jobs/search page #}
-										{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
-											<span data-livestamp="{{cluster['job_dates']['min']|float}}"></span>
-										{% else %}
-											{{ cluster['job_dates']['min']|format_date(web_settings["date_format"], web_settings["time_format"]) }}
-										{% endif %}
-									</td>
-								</tr>
-								<tr>
-									<td>{{ gettext("Latest job edition") }}</td>
-									<td>
-										{# Date formatted as in jobs/search page #}
-										{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
-											<span data-livestamp="{{cluster['job_dates']['max']|float}}"></span>
-										{% else %}
-											{{ cluster['job_dates']['max']|format_date(web_settings["date_format"], web_settings["time_format"]) }}
-										{% endif %}
-									</td>
-								</tr>
-							{% endif %}
-							{% if cluster['node_dates'] %}
-								<tr>
-									<td>{{ gettext("Oldest node edition") }}</td>
-									<td>
-										{# Date formatted as in jobs/search page #}
-										{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
-											<span data-livestamp="{{cluster['node_dates']['min']|float}}"></span>
-										{% else %}
-											{{ cluster['node_dates']['min']|format_date(web_settings["date_format"], web_settings["time_format"]) }}
-										{% endif %}
-									</td>
-								</tr>
-								<tr>
-									<td>{{ gettext("Latest node edition") }}</td>
-									<td>
-										{# Date formatted as in jobs/search page #}
-										{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
-											<span data-livestamp="{{cluster['node_dates']['max']|float}}"></span>
-										{% else %}
-											{{ cluster['node_dates']['max']|format_date(web_settings["date_format"], web_settings["time_format"]) }}
-										{% endif %}
-									</td>
-								</tr>
-							{% endif %}
-							<tr>
-								<td>Latest error</td>
-								<td>&nbsp;</td>
-							</tr>
-						</tbody>
-					</table>
-				{% endfor %}
+				<table class="table table-striped table-hover table-responsive" id="search_table">
+					<tbody>
+						<tr><td>{{ gettext("Number of enabled users in database") }}</td><td>N</td></tr>
+						<tr><td>{{ gettext("Number of users that have accounts matched to a DRAC account") }}</td><td>N</td></tr>
+						<tr><td>{{ gettext("Total number of jobs in database (per cluster)") }}</td><td>N</td></tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
