@@ -108,9 +108,7 @@ def test_fetch_slurm_report_nodes():
             "name": "test-node-1",
             "addr": "test-node-1",
             "state": "down",
-            "state_flags": [
-                "NOT_RESPONDING"
-            ],
+            "state_flags": ["NOT_RESPONDING"],
             "memory": 1800,
             "reason": "Not responding",
             "reason_changed_at": 1667084449,
@@ -130,9 +128,7 @@ def test_fetch_slurm_report_nodes():
             "name": "test-node-2",
             "addr": "test-node-2",
             "state": "down",
-            "state_flags": [
-                "DRAIN"
-            ],
+            "state_flags": ["DRAIN"],
             "memory": 1800,
             "reason": "Sanity Check Failed",
             "reason_changed_at": 1679695882,
