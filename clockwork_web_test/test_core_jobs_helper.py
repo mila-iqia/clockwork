@@ -47,7 +47,6 @@ def test_get_jobs_with_pagination(app, fake_data, page_num, nbr_items_per_page):
             reverse=True,
         )  # This is the default sorting
 
-
         # Assert that they correspond to the jobs we expect
         assert (
             LD_retrieved_jobs
