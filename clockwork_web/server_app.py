@@ -18,6 +18,7 @@ import datetime
 from flask import Flask, redirect, url_for, session, request
 from flask_login import current_user, LoginManager
 from flask_babel import Babel
+from werkzeug.exceptions import HTTPException
 from .browser_routes.nodes import flask_api as nodes_routes_flask_api
 from .browser_routes.jobs import flask_api as jobs_routes_flask_api
 from .browser_routes.gpu import flask_api as gpu_routes_flask_api
@@ -126,6 +127,21 @@ def create_app(extra_config: dict):
             args[key] = value
 
         return "{}?{}".format(request.path, url_encode(args))
+
+    # Adding a function to help comparing two usernames
+    @app.template_global()
+    def have_same_users(user1: str, user2: str):
+        # NB: given users may be None
+        pieces1 = user1.split("@") if user1 else [""]
+        pieces2 = user2.split("@") if user2 else [""]
+        username1 = pieces1[0]
+        address1 = pieces1[1] if len(pieces1) == 2 else ""
+        username2 = pieces2[0]
+        address2 = pieces2[1] if len(pieces2) == 2 else ""
+        # Compare user names (before @), and addresses if both available (after @).
+        return username1 == username2 and (
+            not address1 or not address2 or address1 == address2
+        )
 
     # Initialize Babel
     babel = Babel(app)
@@ -240,5 +256,17 @@ def create_app(extra_config: dict):
                 "in route for '/'; render_template_with_user_settings('index_outside.html')"
             )
             return render_template_with_user_settings("index_outside.html")
+
+    @app.errorhandler(HTTPException)
+    def generic_error_handler(error):
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=str(error),
+                error_code=error.code,
+                previous_request_args={},
+            ),
+            error.code,
+        )
 
     return app
