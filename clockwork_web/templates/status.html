@@ -31,14 +31,51 @@
 		<div class="row single_cluster">
 			<div class="col">
 				<table class="table table-striped table-hover table-responsive" id="search_table">
+					<thead>
+						<tr>
+							<th colspan="2">{{ gettext("Global status") }}</th>
+						</tr>
+					</thead>
 					<tbody>
-						<tr><td>{{ gettext("Number of enabled users in database") }}</td><td>N</td></tr>
-						<tr><td>{{ gettext("Number of users that have accounts matched to a DRAC account") }}</td><td>N</td></tr>
-						<tr><td>{{ gettext("Total number of jobs in database (per cluster)") }}</td><td>N</td></tr>
+						<tr>
+							<td>{{ gettext("Number of users in database") }}</td>
+							<td>{{ server_status['nb_users'] }}</td>
+						</tr>
+						<tr>
+							<td>{{ gettext("Number of enabled users") }}</td>
+							<td>{{ server_status['nb_enabled_users'] }}</td>
+						</tr>
+						<tr>
+							<td>{{ gettext("Number of users that have accounts matched to a DRAC account") }}</td>
+							<td>{{ server_status['nb_drac_users'] }}</td>
+						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
+
+		{% if server_status['clusters'] %}
+		<div class="row">
+			<div class="col">
+				<table class="table table-striped table-hover table-responsive">
+					<thead>
+						<tr>
+							<th colspan="2">{{ gettext("Number of jobs per cluster") }}</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for cluster_name in server_status['clusters'] %}
+						{% set cluster = server_status['clusters'][cluster_name] %}
+						<tr>
+							<td>{{ gettext(cluster_name) }}</td>
+							<td>{{ cluster['nb_jobs'] }}</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		{% endif %}
 	</div>
 </div>
 {% endblock %}
