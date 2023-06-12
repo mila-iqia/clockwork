@@ -11826,4 +11826,9 @@ ul.pagination li:first-child span, ul.pagination li:last-child span {
   color: #6f0070;
 }
 
+.cc_cluster_toggle_name.disabled {
+  font-style: italic;
+  color: lightgray;
+}
+
 /*# sourceMappingURL=style.css.map */
