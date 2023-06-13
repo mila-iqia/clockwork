@@ -41,12 +41,24 @@ def route_status():
         (1 for user in users if user.get("cc_account_username", None)), start=0
     )
 
-    # Count number of jobs per cluster.
+    # Collect clusters status:
+    # - Count number of jobs per cluster.
+    # - Get oldest and latest job modification dates in each cluster.
     D_all_clusters = get_all_clusters()
     clusters = {}
     for current_cluster_name in sorted(D_all_clusters):
         jobs, _ = get_jobs(cluster_names=[current_cluster_name])
+        job_dates = [
+            job["cw"]["last_slurm_update"]
+            for job in jobs
+            if "last_slurm_update" in job["cw"]
+        ]
         clusters[current_cluster_name] = {"nb_jobs": len(jobs)}
+        if job_dates:
+            clusters[current_cluster_name]["job_dates"] = {
+                "min": min(job_dates),
+                "max": max(job_dates),
+            }
 
     server_status = {
         "nb_users": nb_users,
