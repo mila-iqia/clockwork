@@ -67,13 +67,16 @@
 					{% for cluster_name in server_status['clusters'] %}
 						{% set cluster = server_status['clusters'][cluster_name] %}
 						<tr>
+							{% if cluster['job_dates'] %}
+							<td rowspan="3">{{ gettext(cluster_name) }}</td>
+							{% else %}
 							<td>{{ gettext(cluster_name) }}</td>
+							{% endif %}
 							<td>{{ gettext("Number of jobs") }}</td>
 							<td>{{ cluster['nb_jobs'] }}</td>
 						</tr>
 						{% if cluster['job_dates'] %}
 						<tr>
-							<td>&nbsp;</td>
 							<td>Date of oldest job modification</td>
 							<td>
 								{# Date formatted as in jobs/search page #}
@@ -85,7 +88,6 @@
 							</td>
 						</tr>
 						<tr>
-							<td>&nbsp;</td>
 							<td>Date of latest job modification</td>
 							<td>
 								{# Date formatted as in jobs/search page #}
