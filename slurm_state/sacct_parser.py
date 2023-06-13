@@ -286,11 +286,10 @@ def job_parser(f):
             # We will use a handler mapping to translate this
             translator = JOB_FIELD_MAP.get(k, None)
 
-            if translator is None:
-                # Raise an error if the job to parse contains a field we do not handle
-                raise ValueError(f"Unknown field in sacct job output: {k}")
+            if translator is not None:
+                # Translate using the translator retrieved from JOB_FIELD_MAP
+                translator(k, v, res_job)
 
-            # Translate using the translator retrieved from JOB_FIELD_MAP
-            translator(k, v, res_job)
+            # If no translator has been provided: ignore the field
 
         yield res_job
