@@ -8,8 +8,9 @@ client = ClockworkToolsClient(email= "student00@mila.quebec",
         port = 15000)
 
 
-tabJob = []
-for i in client.jobs_list():
-    tabJob.append(Job(i))
-print("Welcome to Clockwork Tools!")
-print(str(tabJob[4]))
+print(client.search_jobs(job_id=190581))
+#tabJob = []
+#for i in client.jobs_list():
+#    tabJob.append(Job(i))
+#print("Welcome to Clockwork Tools!")
+#print(str(tabJob[4]))
