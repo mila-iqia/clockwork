@@ -64,8 +64,7 @@
 						</tr>
 					</thead>
 					<tbody>
-					{% for cluster_name in server_status['clusters'] %}
-						{% set cluster = server_status['clusters'][cluster_name] %}
+					{% for cluster_name,cluster in server_status['clusters'].items()|sort(attribute='1.display_order',reverse=False) %}
 						<tr>
 							<td>{{ gettext(cluster_name) }}</td>
 							<td>

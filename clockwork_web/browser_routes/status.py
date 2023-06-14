@@ -46,14 +46,17 @@ def route_status():
     # - Get oldest and latest job modification dates in each cluster.
     D_all_clusters = get_all_clusters()
     clusters = {}
-    for current_cluster_name in sorted(D_all_clusters):
+    for current_cluster_name in D_all_clusters:
         jobs, _ = get_jobs(cluster_names=[current_cluster_name])
         job_dates = [
             job["cw"]["last_slurm_update"]
             for job in jobs
             if "last_slurm_update" in job["cw"]
         ]
-        clusters[current_cluster_name] = {"nb_jobs": len(jobs)}
+        clusters[current_cluster_name] = {
+            "display_order": D_all_clusters[current_cluster_name]["display_order"],
+            "nb_jobs": len(jobs),
+        }
         if job_dates:
             clusters[current_cluster_name]["job_dates"] = {
                 "min": min(job_dates),
