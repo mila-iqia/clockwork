@@ -222,98 +222,26 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
                 params[k] = self.this_specific_slurm_job_params[k]
         return params
 
-    def jobs_one(
-        self, job_id: str = None, cluster_name: str = None, target_self: bool = True
+    def search_jobs(
+        self, job_id: str = None, cluster_name: str = None, relative_time=None, target_self: bool = True
     ) -> dict[str, any]:
-        """REST call to api/v1/clusters/jobs/one.
+        
+        if target_self:
+            job_id = self.this_specific_slurm_job_params["job_id"]
+            cluster_name = self.this_specific_slurm_job_params["cluster_name"]
 
-        Gets the detailed description of a single job
-        on the cluster specified. If there is no ambiguity
-        with the job_id, the cluster_name argument
-        is not required.
+        return super().search_jobs(job_id=job_id, cluster_name=cluster_name, relative_time=relative_time)
 
-        Args:
-            job_id (str): job_id to be described (in terms of Slurm terminology)
-            cluster_name (str): Name of cluster where that job is running.
-            target_self (bool): Inside a Slurm job, automatically infer arguments
-                                to target this specific Slurm job.
-
-        Returns:
-            dict[str,any]: Properties of the job, when valid.
-            Otherwise returns an empty dict.
-        """
-        params = self._create_params_for_request(
-            target_self=target_self, job_id=job_id, cluster_name=cluster_name
-        )
-        return super().jobs_one(**params)
-
-    def jobs_user_dict_update(
-        self,
-        job_id: str = None,
-        cluster_name: str = None,
-        update_pairs: dict = {},
-        target_self: bool = True,
-    ) -> dict[str, any]:
-        """REST call to api/v1/clusters/jobs/user_dict_update.
-
-        Updates the "user" component of a job that belongs to
-        the user calling this function. Allows for any number
-        of fields to be set.
-
-        If there is no ambiguity with the job_id,
-        the cluster_name argument is not required.
-
-        Fails when the job does not belong to the user,
-        or when the job is not yet in the database
-        (such as during delays between the creation of the job
-        and its presence in the database).
-
-        Args:
-            job_id (str): job_id to be described (in terms of Slurm terminology)
-            cluster_name (str): Name of cluster where that job is running.
-            update_pairs (dict): Updates to perform to the user dict.
-            target_self (bool): Inside a Slurm job, automatically infer arguments
-                                to target this specific Slurm job.
-
-        Returns:
-            dict[any,any]: Returns the updated user dict.
-        """
-        params = self._create_params_for_request(
-            target_self=target_self, job_id=job_id, cluster_name=cluster_name
-        )
-        # Due to current constraints, we have to pass "update_pairs"
-        # as a string representing a structure in json.
-        # However, since the base class does the json.dump, we don't
-        # want to do it twice. We therefore have to show some restraint.
-        # params["update_pairs"] = json.dumps(update_pairs)  # NOT THAT
-        params["update_pairs"] = update_pairs
-        return super().jobs_user_dict_update(**params)
-
-    def nodes_one(
+    def search_nodes(
         self, node_name: str = None, cluster_name: str = None, target_self: bool = True
     ) -> dict[str, any]:
-        """REST call to api/v1/clusters/nodes/one.
 
-        Gets the detailed description of a single node
-        on the cluster specified. If there is no ambiguity
-        with the node_name of the node, the cluster_name argument
-        is not required.
-
-        Args:
-            node_name (str): Name of node to be described.
-            cluster_name (str): Name of cluster where that node lives.
-            target_self (bool): Inside a Slurm job, automatically infer arguments
-                                to target this specific Slurm job.
-
-        Returns:
-            dict[str,any]: Properties of the node, when valid.
-            Otherwise returns an empty dict.
-        """
-        params = self._create_params_for_request(
-            target_self=target_self, node_name=node_name, cluster_name=cluster_name
-        )
-        return super().nodes_one(**params)
-
+        if target_self:
+            node_name = self.this_specific_slurm_job_params["node_name"]
+            cluster_name = self.this_specific_slurm_job_params["cluster_name"]
+        
+        return super().search_nodes(node_name=node_name, cluster_name=cluster_name)
+    
     def _read_slurm_values_if_applicable(self):
         """
         When using Clockwork Tools inside a Slurm job,
