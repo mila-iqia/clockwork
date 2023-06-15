@@ -271,6 +271,7 @@
 		                            <th>{{ gettext("Cluster") }}</th>
 		                            <th>{{ gettext("User (@mila.quebec)") }}</th>
 		                            <th>{{ gettext("Job ID") }}</th>
+		                            <th>{{ gettext("Job array") }}</th>
 		                            <th>{{ gettext("Job name [:20]") }}</th>
 		                            <th>{{ gettext("Job state") }}</th>
 		                            <th>{{ gettext("Submit time") }}</th>
@@ -283,7 +284,7 @@
 		                    <tbody>
 		                    	<tr>
 		                    		{% set page_name = "jobs_list" %}
-									{% for column_name in ["clusters", "user","job_id", "job_name", "job_state", "submit_time", "start_time", "end_time", "links"] %}
+									{% for column_name in ["clusters", "user","job_id", "job_array", "job_name", "job_state", "submit_time", "start_time", "end_time", "links"] %}
 		                    		<td><div class="form-check form-switch">
 										{% if (web_settings | check_web_settings_column_display(page_name, column_name)) %}
 											<input name="{{page_name}}_{{column_name}}_toggle" id="{{page_name}}_{{column_name}}_toggle" type="checkbox" class="form-check-input" onclick="switch_column_setting('{{page_name}}', '{{column_name}}')" checked />

@@ -59,6 +59,10 @@ jQuery(document).ready(function($){
             }
             params['sort_by'] = $(this).find("input[name='sort_by']").val();
             params['sort_asc'] = parseInt($(this).find("input[name='sort_asc']").val());
+            // Add job_array to URL only if present in form.
+            $(this).find("input[name='job_array']").each(function() {
+                params['job_array'] = parseInt($(this).val());
+            });
 
             var formData = $.param( params );
             var formData = decodeURIComponent(formData);
