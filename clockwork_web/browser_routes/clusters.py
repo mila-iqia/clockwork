@@ -8,6 +8,7 @@ from flask_login import current_user, login_required
 from flask_babel import gettext
 
 from clockwork_web.core.clusters_helper import get_all_clusters
+from clockwork_web.core.jobs_helper import get_jobs
 from clockwork_web.core.users_helper import render_template_with_user_settings
 
 flask_api = Blueprint("clusters", __name__)
@@ -79,6 +80,24 @@ def route_one():
             )
 
         else:
+            # Add supplementary information to the cluster to be displayed.
+            # We add it here instead of above because we don't want to spend time
+            # generating those info for all clusters, as we just want to display one.
+
+            # get job slurm updates.
+            jobs, _ = get_jobs(cluster_names=[cluster_name])
+            job_dates = [
+                job["cw"]["last_slurm_update"]
+                for job in jobs
+                if "last_slurm_update" in job["cw"]
+            ]
+            # Save min and max dates for jobs.
+            if job_dates:
+                D_clusters[cluster_name]["job_dates"] = {
+                    "min": min(job_dates),
+                    "max": max(job_dates),
+                }
+
             # Return a HTML page presenting the requested cluster's information
             return render_template_with_user_settings(
                 "cluster.html",
