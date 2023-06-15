@@ -300,6 +300,19 @@ def get_users_one(mila_email_username):
     return user
 
 
+def get_users():
+    """
+    Retrieve all users from the database.
+
+    Returns:
+        A list of dictionaries presenting users.
+    """
+    # Retrieve the users collection from the database
+    users_collection = get_db()["users"]
+    users = users_collection.find({})
+    return list(users)
+
+
 def get_available_clusters_from_user_dict(D_user):
     """
     Retrieve the clusters a user can access.
