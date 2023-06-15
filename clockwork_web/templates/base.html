@@ -307,10 +307,22 @@
 
                                 <input type="hidden" name="sort_by" value="{{ previous_request_args['sort_by'] }}"/>
                                 <input type="hidden" name="sort_asc" value="{{ previous_request_args['sort_asc'] }}"/>
+                                {% if previous_request_args['job_array'] is not none %}
+                                <input type="hidden" name="job_array" value="{{ previous_request_args['job_array'] }}"/>
+                                {% endif %}
 
-				                 <div class="row">
+				                 <div class="row align-items-center">
+									 <!-- Deselection buttons for search options that are not in search form  -->
+									 <div class="col-sm-12 col-md-8 pb-3 deactivate-search">
+										 {% if previous_request_args['job_array'] is not none %}
+										 <a href="{{ modify_query(job_array=none) }}" title="Reset filter by job array" class="px-3 py-2">
+											 Job array {{ previous_request_args['job_array'] }}&nbsp;&nbsp;&nbsp;&nbsp;
+											 <i class="fa-solid fa-circle-xmark" style="color: #888a85;"></i>
+										 </a>
+										 {% endif %}
+									 </div>
 				                    <!-- button -->
-				                    <div class="col-sm-12 col-md-4 offset-md-8">
+				                    <div class="col-sm-12 col-md-4">
 				                        <button type="submit" class="btn btn-red mb-3">Run search</button>
 				                    </div>
 				                </div>

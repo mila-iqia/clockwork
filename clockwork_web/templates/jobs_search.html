@@ -97,6 +97,10 @@
                                     <a href="{{ modify_query_sorting(sort_by) }}">Job ID{{ get_sorting_icon(sort_by) }}</a>
                                 </th>
                             {% endif %}
+                            <!-- Job array header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_array")) %}
+                                <th>Job array</th>
+                            {% endif %}
                             <!-- Job name header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_name")) %}
                                 {% set sort_by = "name" %}
@@ -174,6 +178,16 @@
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_id")) %}
                                 <td>
                                     <a href="/jobs/one?cluster_name={{D_job['slurm']['cluster_name']}}&job_id={{D_job['slurm']['job_id']}}">{{D_job['slurm']['job_id']}}</a>
+                                </td>
+                            {% endif %}
+
+                            <!-- Job array -->
+                            <!-- TODO For now, job array is just job ID. To update when real job arrays will be available -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_array")) %}
+                                <td>
+                                    <a href="{{ modify_query(job_array=D_job['slurm']['job_id']) }}" title="Filter by job array {{D_job['slurm']['job_id']}}">
+                                        <i class="fa-solid fa-table-list"></i>
+                                    </a>
                                 </td>
                             {% endif %}
 

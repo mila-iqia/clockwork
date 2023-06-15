@@ -222,6 +222,7 @@ def get_jobs(
     want_count=False,
     sort_by="submit_time",
     sort_asc=-1,
+    job_array=None,
 ):
     """
     Set up the filters according to the parameters and retrieve the requested jobs from the database.
@@ -238,6 +239,7 @@ def get_jobs(
                                 defined.
         sort_asc                Whether or not to sort in ascending order (1)
                                 or descending order (-1).
+        job_array               ID of job array in which we look for jobs.
 
     Returns:
         A tuple containing:
@@ -245,6 +247,11 @@ def get_jobs(
             - the total number of jobs corresponding of the filters in the databse, if want_count has been set to
             True, None otherwise, as second element
     """
+
+    # TODO Currently, job_array is just a job ID. To be updated when real job arrays will be available.
+    if job_array is not None and str(job_array) not in job_ids:
+        job_ids.append(str(job_array))
+
     # Set up and combine filters
     filter = get_global_filter(
         username=username,
@@ -388,6 +395,7 @@ def get_jobs_properties_list_per_page():
             "clusters",
             "user",
             "job_id",
+            "job_array",
             "job_name",
             "job_state",
             "start_time",

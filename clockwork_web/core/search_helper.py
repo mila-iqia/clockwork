@@ -20,6 +20,8 @@ def parse_search_request(user, args, force_pagination=True):
     want_count = args.get("want_count", type=str, default="False")
     want_count = to_boolean(want_count)
 
+    job_array = args.get("job_array", type=int, default=None)
+
     default_page_number = "1" if force_pagination else None
 
     # Parse the list of clusters
@@ -68,6 +70,7 @@ def parse_search_request(user, args, force_pagination=True):
         sort_by=sort_by,
         sort_asc=sort_asc,
         want_count=want_count,
+        job_array=job_array,
     )
 
     #########################
@@ -111,5 +114,6 @@ def search_request(user, args, force_pagination=True):
         or query.want_count,  # The count is needed if there is pagination or if it is requested
         sort_by=query.sort_by,
         sort_asc=query.sort_asc,
+        job_array=query.job_array,
     )
     return (query, jobs, nbr_total_jobs)
