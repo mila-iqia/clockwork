@@ -2,9 +2,20 @@
 The sacct parser is used to convert jobs retrieved through a sacct command on a cluster
 to jobs in the format used by Clockwork.
 """
-import json
+import json, os
 from slurm_state.helpers.parser_helper import copy, ignore, rename
 
+# Imports related to sacct call
+# https://docs.paramiko.org/en/stable/api/client.html
+from paramiko import SSHClient, AutoAddPolicy, ssh_exception
+
+from slurm_state.extra_filters import clusters_valid
+from slurm_state.config import get_config, string, optional_string, timezone
+clusters_valid.add_field("sacct_path", optional_string)
+clusters_valid.add_field("sacct_ssh_key_filename", string)
+clusters_valid.add_field("timezone", timezone)
+clusters_valid.add_field("remote_user", optional_string)
+clusters_valid.add_field("remote_hostname", optional_string)
 
 # These functions are translators used in order to handle the values
 # we could encounter while parsing a job dictionary retrieved from a
@@ -293,3 +304,125 @@ def job_parser(f):
             # If no translator has been provided: ignore the field
 
         yield res_job
+
+
+# The functions used to create the report file, gathering the information to parse
+
+def generate_job_report(cluster_name, file_name, username=None, hostname=None, port=None, sacct_path=None, sacct_ssh_key_filename=None):
+    """
+    Launch a sacct command in order to retrieve a JSON report containing
+    jobs information 
+
+    Parameters:
+        file_name   Path to store the generated sacct report
+    
+    """
+    # these fields are already present in the config because
+    # they are required in order to rsync the scontrol reports
+    username = get_config("clusters")[cluster_name]["remote_user"]
+    hostname = get_config("clusters")[cluster_name]["remote_hostname"]
+    sacct_path = get_config("clusters")[cluster_name]["sacct_path"]
+    sacct_ssh_key_filename = get_config("clusters")[cluster_name][
+        "sacct_ssh_key_filename"
+    ]
+    assert (
+        sacct_path
+    ), "Error. We have called the function to make updates with sacct but the sacct_path config is empty."
+    assert sacct_path.endswith(
+        "sacct"
+    ), f"Error. The sacct_path configuration needs to end with 'sacct'. It's currently {sacct_path} ."
+    assert sacct_ssh_key_filename, "Missing sacct_ssh_key_filename from config."
+    # Now this is the private ssh key that we'll be using with Paramiko.
+    sacct_ssh_key_path = os.path.join(
+        os.path.expanduser("~"), ".ssh", sacct_ssh_key_filename
+    )
+
+    # If you need to change this value in any way, then you should
+    # make it a config value for real. In the meantime, let's hardcode it.
+    port = 22
+
+    # Note : It doesn't work to simply start the command with "sacct".
+    #        For some reason due to paramiko not loading the environment variables,
+    #        sacct is not found in the PATH.
+    #        This does not work
+    #            remote_cmd = "sacct -X -j " + ",".join(L_job_ids)
+    #        but if we use
+    #            remote_cmd = "/opt/slurm/bin/sacct ..."
+    #        then it works. We have to hardcode the path in each cluster, it seems.
+
+    # Retrieve only certain fields.
+    remote_cmd = (
+        f"{sacct_path} -X --json"
+    )
+
+    print(f"remote_cmd is\n{remote_cmd}")
+    
+    # Connect through SSH
+    try:
+        ssh_client = open_connection(
+            hostname, username, ssh_key_path=sacct_ssh_key_path, port=port
+        )
+    except Exception as inst:
+        print(f"Error. Failed to connect to {hostname} to make a call to sacct.")
+        print(inst)
+        return []
+
+    if ssh_client:
+        # those three variables are file-like, not strings
+        ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(remote_cmd)
+
+        response_stderr = "\n".join(ssh_stderr.readlines())
+        if len(response_stderr):
+            print(
+                f"Stderr in sacct call on {hostname}. This doesn't mean that the call failed entirely, though.\n{response_stderr}"
+            )
+
+        print("STDOUT")
+        print(ssh_stdout)
+
+        ssh_client.close()
+    else:
+        print(
+            f"Error. Failed to connect to {hostname} to make call to sacct. Returned `None` but no exception was thrown."
+        )
+
+
+def open_connection(hostname, username, ssh_key_path, port=22):
+    """
+    If successful, this will connect to the remote server and
+    the value of self.ssh_client will be usable.
+    Otherwise, this will set self.ssh_client=None or it will quit().
+    """
+
+    ssh_client = SSHClient()
+    ssh_client.set_missing_host_key_policy(AutoAddPolicy())
+    ssh_client.load_system_host_keys()
+    assert os.path.exists(
+        ssh_key_path
+    ), f"Error. The absolute path given for ssh_key_path does not exist: {ssh_key_path} ."
+
+    # The call to .connect was seen to raise an exception now and then.
+    #     raise AuthenticationException("Authentication timeout.")
+    #     paramiko.ssh_exception.AuthenticationException: Authentication timeout.
+    # When it happens, we should simply give up on the attempt
+    # and log the error to stdout.
+    try:
+        # For some reason, we really need to specify which key_filename to use.
+        ssh_client.connect(
+            hostname, username=username, port=port, key_filename=ssh_key_path
+        )
+        print(f"Successful SSH connection to {username}@{hostname} port {port}.")
+    except ssh_exception.AuthenticationException as inst:
+        print(f"Error in SSH connection to {username}@{hostname} port {port}.")
+        print(type(inst))
+        print(inst)
+        # set the ssh_client to None as a way to communicate
+        # to the parent that we got into trouble
+        ssh_client = None
+    except Exception as inst:
+        print(f"Error in SSH connection to {username}@{hostname} port {port}.")
+        print(type(inst))
+        print(inst)
+        ssh_client = None
+
+    return ssh_client
