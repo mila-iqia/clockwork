@@ -137,7 +137,7 @@ def main_read_report_and_update_collection(
         users_collection    Collection of the users in the database, required when jobs are retrieved. Could be None for nodes
         cluster_name        Name of the cluster we are working on
         report_file_path    Path to the report from which the jobs or nodes information is extracted. This report is generated through
-                            the command sacct for the jobs, or sinfo for the nodes
+                            the command sacct for the jobs, or sinfo for the nodes. If None, a new report is generated.
         want_commit_to_db   Boolean indicating whether or not the jobs or nodes are stored in the database. Default is True
         dump_file           String containing the path to the file in which we want to dump the data. Default is "", which means nothing is stored in an output file
     """
@@ -153,14 +153,14 @@ def main_read_report_and_update_collection(
         )
         parser = job_parser  # This parser is used to retrieve and format useful information from a sacct job
         from_slurm_to_clockwork = slurm_job_to_clockwork_job  # This function is used to translate a Slurm job (created through the parser) to a Clockwork job
-        generate_report = generate_job_report # This function is used to generate the file gathering the job information which will be explained later
+        generate_report = generate_job_report  # This function is used to generate the file gathering the job information which will be explained later
     elif entity == "nodes":
         id_key = (
             "name"  # The id_key is used to determine how to retrieve the ID of a node
         )
         parser = node_parser  # This parser is used to retrieve and format useful information from a sacct node
         from_slurm_to_clockwork = slurm_node_to_clockwork_node  # This function is used to translate a Slurm node (created through the parser) to a Clockwork node
-        generate_report = generate_node_report # This function is used to generate the file gathering the node information which will be explained later
+        generate_report = generate_node_report  # This function is used to generate the file gathering the node information which will be explained later
     else:
         # Raise an error because it should not happen
         raise ValueError(
@@ -174,8 +174,12 @@ def main_read_report_and_update_collection(
     ## Retrieve entities ##
 
     # Generate a report file if the provided one does not exist
-    if not os.path.exists(report_file_path):
-        print(f"Generate report file for the {cluster_name} cluster.")
+    if not report_file_path or not os.path.exists(report_file_path):
+        if not report_file_path:
+            report_file_path = f"{entity}_report"  # Set a default value
+        print(
+            f"Generate report file for the {cluster_name} cluster at location {report_file_path}."
+        )
         generate_report(cluster_name, report_file_path)
 
     # Construct an iterator over the list of entities in the report file,

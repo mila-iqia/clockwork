@@ -25,8 +25,18 @@ def main(argv):
         description="Parse slurm report files and load them to a database.",
     )
 
-    parser.add_argument("-j", "--jobs_file", help="The jobs file.")
-    parser.add_argument("-n", "--nodes_file", help="The nodes file.")
+    parser.add_argument(
+        "-j",
+        "--jobs",
+        action=argparse.BooleanOptionalAction,
+        help="Whether or not we want the jobs to be parsed.",
+    )
+    parser.add_argument(
+        "-n",
+        "--nodes",
+        action=argparse.BooleanOptionalAction,
+        help="Whether or not we want the nodes to be parsed.",
+    )
     parser.add_argument(
         "-c",
         "--cluster_name",
@@ -65,8 +75,7 @@ def main(argv):
         # database
         want_commit_to_db = True
 
-    if args.jobs_file:
-        assert os.path.exists(args.jobs_file)
+    if args.jobs:
         jobs_collection = client[collection_name]["jobs"]
 
         # https://stackoverflow.com/questions/33541290/how-can-i-create-an-index-with-pymongo

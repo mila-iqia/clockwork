@@ -11,6 +11,7 @@ from paramiko import SSHClient, AutoAddPolicy, ssh_exception
 
 from slurm_state.extra_filters import clusters_valid
 from slurm_state.config import get_config, string, optional_string, timezone
+
 clusters_valid.add_field("sacct_path", optional_string)
 clusters_valid.add_field("sacct_ssh_key_filename", string)
 clusters_valid.add_field("timezone", timezone)
@@ -308,14 +309,23 @@ def job_parser(f):
 
 # The functions used to create the report file, gathering the information to parse
 
-def generate_job_report(cluster_name, file_name, username=None, hostname=None, port=None, sacct_path=None, sacct_ssh_key_filename=None):
+
+def generate_job_report(
+    cluster_name,
+    file_name,
+    username=None,
+    hostname=None,
+    port=None,
+    sacct_path=None,
+    sacct_ssh_key_filename=None,
+):
     """
     Launch a sacct command in order to retrieve a JSON report containing
-    jobs information 
+    jobs information
 
     Parameters:
         file_name   Path to store the generated sacct report
-    
+
     """
     # these fields are already present in the config because
     # they are required in order to rsync the scontrol reports
@@ -351,12 +361,10 @@ def generate_job_report(cluster_name, file_name, username=None, hostname=None, p
     #        then it works. We have to hardcode the path in each cluster, it seems.
 
     # Retrieve only certain fields.
-    remote_cmd = (
-        f"{sacct_path} -X --json"
-    )
+    remote_cmd = f"{sacct_path} -X --json"
 
     print(f"remote_cmd is\n{remote_cmd}")
-    
+
     # Connect through SSH
     try:
         ssh_client = open_connection(
