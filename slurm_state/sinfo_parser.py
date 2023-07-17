@@ -180,3 +180,19 @@ def node_parser(f):
             translator(k, v, res_node)
 
         yield res_node
+
+
+def generate_node_report(
+        cluster_name,
+        file_name,
+        username=None,
+        hostname=None,
+        port=None,
+        sinfo_path=None,
+        sinfo_ssh_key_filename=None,
+):
+    """
+    
+    """
+    # This is a temporary placeholder
+    pass
