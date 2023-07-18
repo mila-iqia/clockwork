@@ -123,7 +123,8 @@ def main_read_report_and_update_collection(
     collection,
     users_collection,
     cluster_name,
-    report_file_path=None,
+    report_file_path,
+    from_file=False,
     want_commit_to_db=True,
     dump_file="",
 ):
@@ -138,6 +139,8 @@ def main_read_report_and_update_collection(
         cluster_name        Name of the cluster we are working on
         report_file_path    Path to the report from which the jobs or nodes information is extracted. This report is generated through
                             the command sacct for the jobs, or sinfo for the nodes. If None, a new report is generated.
+        from_file           Boolean indicating whether or not the jobs or nodes are extracted from a Slurm file. If True, the input file
+                            is report_file_path. If False, the file is generated at the report_file_path path.
         want_commit_to_db   Boolean indicating whether or not the jobs or nodes are stored in the database. Default is True
         dump_file           String containing the path to the file in which we want to dump the data. Default is "", which means nothing is stored in an output file
     """
@@ -173,10 +176,8 @@ def main_read_report_and_update_collection(
 
     ## Retrieve entities ##
 
-    # Generate a report file if the provided one does not exist
-    if not report_file_path or not os.path.exists(report_file_path):
-        if not report_file_path:
-            report_file_path = f"{entity}_report"  # Set a default value
+    # Generate a report file if required
+    if not from_file or not os.path.exists(report_file_path):
         print(
             f"Generate report file for the {cluster_name} cluster at location {report_file_path}."
         )
@@ -239,7 +240,7 @@ def main_read_report_and_update_collection(
     if dump_file:
         with open(dump_file, "w") as f:
             json.dump(L_data_for_dump_file, f, indent=4)
-        print(f"Wrote to dump_file {dump_file}.")
+        print(f"Wrote {entity} to dump_file {dump_file}.")
 
 
 def get_jobs_updates_and_insertions(

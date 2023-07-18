@@ -26,22 +26,38 @@ def main(argv):
     )
 
     parser.add_argument(
-        "-j",
-        "--jobs",
-        action=argparse.BooleanOptionalAction,
-        help="Whether or not we want the jobs to be parsed.",
+        "--slurm_jobs_file",
+        help="The Slurm jobs file. Could be used as an input file if the option --from_existing_jobs_file is given. Otherwise, this file is generated from a sacct command.",
     )
-
-    parser.add_argument("--jobs_file", required=False, help="The jobs file.")
 
     parser.add_argument(
-        "-n",
-        "--nodes",
-        action=argparse.BooleanOptionalAction,
-        help="Whether or not we want the nodes to be parsed.",
+        "--cw_jobs_file",
+        required=False,
+        help="Path to dump the Clockwork jobs. If None, no Clockwork jobs file is written.",
     )
 
-    parser.add_argument("--nodes_file", required=False, help="The nodes file.")
+    parser.add_argument(
+        "--from_existing_jobs_file",
+        action=argparse.BooleanOptionalAction,
+        help="Whether or not the jobs are retrieved from a file instead of a sacct command.",
+    )
+
+    parser.add_argument(
+        "--slurm_nodes_file",
+        required=False,
+        help="The Slurm nodes file. Could be used as an input file if the option --from_existing_nodes_file is given. Otherwise, this file is generated from a sinfo command.",
+    )
+
+    parser.add_argument(
+        "--cw_nodes_file",
+        help="Path to dump the Clockwork nodes. If None, no Clockwork nodes file is written.",
+    )
+
+    parser.add_argument(
+        "--from_existing_nodes_file",
+        action=argparse.BooleanOptionalAction,
+        help="Whether or not the nodes are retrieved from a file instead of a sinfo command.",
+    )
 
     parser.add_argument(
         "-c",
@@ -49,6 +65,7 @@ def main(argv):
         required=True,
         help="Name of the cluster that produced the file",
     )
+
     parser.add_argument(
         "--store_in_db",
         action=argparse.BooleanOptionalAction,
@@ -59,67 +76,58 @@ def main(argv):
         "--mongodb_collection", default="clockwork", help="Collection to populate."
     )
 
-    parser.add_argument(
-        "--dump_file",
-        help="Dump the data to the specified file, used for debugging. Can work even without an instance of MongoDB running.",
-    )
-
     # Retrieve the args
     args = parser.parse_args(argv[1:])
     collection_name = args.mongodb_collection
 
     # Get the database instance
     client = get_mongo_client()
-    if not args.store_in_db:
-        # We will only write out the results to `args.dump_file` in this case.
-        assert (
-            args.dump_file
-        ), f"Error. Given that the results are not written in the database, we can still write the results to a the 'dump_file' argument. However, right now this argument is also missing, so we can't do anything."
-        want_commit_to_db = False
-    else:
-        # We will both write out the results in the `args.dump_file` and in the
-        # database
-        want_commit_to_db = True
 
-    if args.jobs:
-        jobs_collection = client[collection_name]["jobs"]
+    #
+    #   Parse the jobs
+    #
+    jobs_collection = client[collection_name]["jobs"]
 
-        # https://stackoverflow.com/questions/33541290/how-can-i-create-an-index-with-pymongo
-        # Apparently "ensure_index" is deprecated, and we should always call "create_index".
-        if want_commit_to_db:
-            jobs_collection.create_index(
-                [("slurm.job_id", 1), ("slurm.cluster_name", 1)],
-                name="job_id_and_cluster_name",
-            )
-
-        main_read_report_and_update_collection(
-            "jobs",
-            jobs_collection,
-            client[collection_name]["users"],
-            args.cluster_name,
-            args.jobs_file,
-            want_commit_to_db=want_commit_to_db,
-            # want_sacct=False,  # as we already have an input file
-            dump_file=args.dump_file,
+    # https://stackoverflow.com/questions/33541290/how-can-i-create-an-index-with-pymongo
+    # Apparently "ensure_index" is deprecated, and we should always call "create_index".
+    if args.store_in_db:
+        jobs_collection.create_index(
+            [("slurm.job_id", 1), ("slurm.cluster_name", 1)],
+            name="job_id_and_cluster_name",
         )
 
-    if args.nodes:
-        nodes_collection = client[collection_name]["nodes"]
+    main_read_report_and_update_collection(
+        "jobs",
+        jobs_collection,
+        client[collection_name]["users"],
+        args.cluster_name,
+        args.slurm_jobs_file,
+        from_file=args.from_existing_jobs_file,
+        want_commit_to_db=args.store_in_db,
+        dump_file=args.cw_jobs_file,
+    )
 
-        if want_commit_to_db:
-            nodes_collection.create_index(
-                [("slurm.name", 1), ("slurm.cluster_name", 1)],
-                name="name_and_cluster_name",
-            )
-        main_read_report_and_update_collection(
-            "nodes",
-            nodes_collection,
-            None,
-            args.cluster_name,
-            args.nodes_file,
-            want_commit_to_db=want_commit_to_db,
-            dump_file=args.dump_file,
+    #
+    #   Parse the nodes
+    #
+    nodes_collection = client[collection_name]["nodes"]
+
+    if args.store_in_db:
+        nodes_collection.create_index(
+            [("slurm.name", 1), ("slurm.cluster_name", 1)],
+            name="name_and_cluster_name",
         )
+
+    main_read_report_and_update_collection(
+        "nodes",
+        nodes_collection,
+        None,
+        args.cluster_name,
+        args.slurm_nodes_file,
+        from_file=args.from_existing_nodes_file,
+        want_commit_to_db=args.store_in_db,
+        dump_file=args.cw_nodes_file,
+    )
 
 
 if __name__ == "__main__":
