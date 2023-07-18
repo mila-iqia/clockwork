@@ -386,7 +386,8 @@ def generate_job_report(
             )
 
         with open(file_name, "w") as outfile:
-            outfile.write(ssh_stdout.readlines())
+            for line in ssh_stdout.readlines():
+                outfile.write(f"{line}\n")
 
         ssh_client.close()
     else:
