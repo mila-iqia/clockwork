@@ -385,8 +385,8 @@ def generate_job_report(
                 f"Stderr in sacct call on {hostname}. This doesn't mean that the call failed entirely, though.\n{response_stderr}"
             )
 
-        print("STDOUT")
-        print(ssh_stdout)
+        with open(file_name, "w") as outfile:
+            outfile.write(ssh_stdout)
 
         ssh_client.close()
     else:
