@@ -31,12 +31,18 @@ def main(argv):
         action=argparse.BooleanOptionalAction,
         help="Whether or not we want the jobs to be parsed.",
     )
+
+    parser.add_argument("--jobs_file", required=False, help="The jobs file.")
+
     parser.add_argument(
         "-n",
         "--nodes",
         action=argparse.BooleanOptionalAction,
         help="Whether or not we want the nodes to be parsed.",
     )
+
+    parser.add_argument("--nodes_file", required=False, help="The nodes file.")
+
     parser.add_argument(
         "-c",
         "--cluster_name",
@@ -97,8 +103,7 @@ def main(argv):
             dump_file=args.dump_file,
         )
 
-    if args.nodes_file:
-        assert os.path.exists(args.nodes_file)
+    if args.nodes:
         nodes_collection = client[collection_name]["nodes"]
 
         if want_commit_to_db:

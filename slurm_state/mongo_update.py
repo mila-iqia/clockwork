@@ -123,7 +123,7 @@ def main_read_report_and_update_collection(
     collection,
     users_collection,
     cluster_name,
-    report_file_path,
+    report_file_path=None,
     want_commit_to_db=True,
     dump_file="",
 ):
