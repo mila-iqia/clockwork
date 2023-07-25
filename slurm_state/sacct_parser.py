@@ -361,7 +361,10 @@ def generate_job_report(
     #        then it works. We have to hardcode the path in each cluster, it seems.
 
     # Retrieve only certain fields.
-    remote_cmd = f"{sacct_path} -X --json"
+    #
+    # -S is a condition on the start time, 600 being in seconds
+    # -E is a condition on the end time
+    remote_cmd = f"{sacct_path} -S now-600 -E now -X --json"
 
     print(f"remote_cmd is\n{remote_cmd}")
 
