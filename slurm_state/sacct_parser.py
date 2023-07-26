@@ -7,7 +7,7 @@ from slurm_state.helpers.parser_helper import copy, ignore, rename
 
 # Imports related to sacct call
 # https://docs.paramiko.org/en/stable/api/client.html
-from paramiko import SSHClient, AutoAddPolicy, ssh_exception
+from paramiko import SSHClient, AutoAddPolicy, ssh_exception, RSAKey
 
 from slurm_state.extra_filters import clusters_valid
 from slurm_state.config import get_config, string, optional_string, timezone
@@ -415,6 +415,7 @@ def open_connection(hostname, username, ssh_key_path, port=22):
     assert os.path.exists(
         ssh_key_path
     ), f"Error. The absolute path given for ssh_key_path does not exist: {ssh_key_path} ."
+    pkey = RSAKey.from_private_key_file(ssh_key_path)
 
     # The call to .connect was seen to raise an exception now and then.
     #     raise AuthenticationException("Authentication timeout.")
@@ -424,7 +425,7 @@ def open_connection(hostname, username, ssh_key_path, port=22):
     try:
         # For some reason, we really need to specify which key_filename to use.
         ssh_client.connect(
-            hostname, username=username, port=port, key_filename=ssh_key_path
+            hostname, username=username, port=port, pkey=pkey, look_for_keys=False
         )
         print(f"Successful SSH connection to {username}@{hostname} port {port}.")
     except ssh_exception.AuthenticationException as inst:
