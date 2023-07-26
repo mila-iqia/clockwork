@@ -333,9 +333,9 @@ def get_jobs_updates_and_insertions(
         # Save the operation to do in the database
         L_updates_to_do.append(InsertOne(D_job_new))
         # Save the data to store in the dump file (just omit the "_id" part of the job)
-        L_data_for_dump_file.append(D_job_new)
-        print(f"Insertion: {job_id}")
-        print(D_job_new)
+        L_data_for_dump_file.append(
+            {k: D_job_new[k] for k in D_job_new.keys() if k != "_id"}
+        )
 
     # -- Update --
     for job_id in S_ids_to_update:
@@ -371,8 +371,6 @@ def get_jobs_updates_and_insertions(
         L_data_for_dump_file.append(
             {k: D_job_new[k] for k in D_job_new.keys() if k != "_id"}
         )
-        print(f"Update: {job_id}")
-        print({k: D_job_new[k] for k in D_job_new.keys() if k != "_id"})
 
     # -- Account association -- #
     L_users_updates = associate_account(LD_sacct)
