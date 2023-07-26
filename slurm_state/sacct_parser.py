@@ -331,6 +331,9 @@ def generate_job_report(
     # they are required in order to rsync the scontrol reports
     username = get_config("clusters")[cluster_name]["remote_user"]
     hostname = get_config("clusters")[cluster_name]["remote_hostname"]
+    # If you need to change this value in any way, then you should
+    # make it a config value for real. In the meantime, let's hardcode it.
+    port = 22
     sacct_path = get_config("clusters")[cluster_name]["sacct_path"]
     sacct_ssh_key_filename = get_config("clusters")[cluster_name][
         "sacct_ssh_key_filename"
@@ -346,11 +349,7 @@ def generate_job_report(
     sacct_ssh_key_path = os.path.join(
         os.path.expanduser("~"), ".ssh", sacct_ssh_key_filename
     )
-
-    # If you need to change this value in any way, then you should
-    # make it a config value for real. In the meantime, let's hardcode it.
-    port = 22
-
+    
     # Note : It doesn't work to simply start the command with "sacct".
     #        For some reason due to paramiko not loading the environment variables,
     #        sacct is not found in the PATH.
@@ -382,15 +381,19 @@ def generate_job_report(
         # those three variables are file-like, not strings
         ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(remote_cmd)
 
-        response_stderr = "\n".join(ssh_stderr.readlines())
+        # We should find a better option to retrieve stderr
+        """
+        response_stderr = "".join(ssh_stderr.readlines())
         if len(response_stderr):
             print(
                 f"Stderr in sacct call on {hostname}. This doesn't mean that the call failed entirely, though.\n{response_stderr}"
             )
+        """
 
+        # Write the command output to a file
         with open(file_name, "w") as outfile:
             for line in ssh_stdout.readlines():
-                outfile.write(f"{line}\n")
+                outfile.write(line)
 
         ssh_client.close()
     else:
