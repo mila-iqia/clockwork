@@ -5,7 +5,7 @@ Insert elements extracted from the Slurm reports into the database.
 import copy, json, os, time
 from pymongo import InsertOne, ReplaceOne, UpdateOne
 
-from slurm_state.config import get_config, boolean, string, optional_string
+from slurm_state.config import get_config, boolean, integer, string, optional_string
 from slurm_state.extra_filters import (
     is_allocation_related_to_mila,
     clusters_valid,
@@ -21,6 +21,7 @@ clusters_valid.add_field("account_field", string)
 clusters_valid.add_field("update_field", optional_string)
 clusters_valid.add_field("remote_user", optional_string)
 clusters_valid.add_field("remote_hostname", optional_string)
+clusters_valid.add_field("ssh_port", integer)
 clusters_valid.add_field("sacct_enabled", boolean)
 
 
