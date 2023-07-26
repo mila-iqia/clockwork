@@ -3,11 +3,10 @@ The sacct parser is used to convert jobs retrieved through a sacct command on a 
 to jobs in the format used by Clockwork.
 """
 import json, os
-from slurm_state.helpers.parser_helper import copy, ignore, rename
-from slurm_state.helpers.ssh_helper import open_connection
 
 # Imports related to sacct call
 # https://docs.paramiko.org/en/stable/api/client.html
+from slurm_state.helpers.ssh_helper import open_connection
 
 from slurm_state.extra_filters import clusters_valid
 from slurm_state.config import get_config, string, optional_string, timezone
@@ -21,9 +20,10 @@ clusters_valid.add_field("remote_hostname", optional_string)
 # These functions are translators used in order to handle the values
 # we could encounter while parsing a job dictionary retrieved from a
 # sacct command.
-#
+from slurm_state.helpers.parser_helper import copy, ignore, rename
+
 # The following functions are only used by the job parser. Translator
-# functions shared with the node parser are store retrieved from
+# functions shared with the node parser are retrieved from
 # slurm_state.helpers.parser_helper.
 
 
@@ -183,8 +183,6 @@ JOB_FIELD_MAP = {
 
 
 # The job parser itself
-
-
 def job_parser(f):
     """
     This function parses a report retrieved from a sacct command (JSON format).
@@ -313,43 +311,48 @@ def job_parser(f):
 def generate_job_report(
     cluster_name,
     file_name,
-    username=None,
-    hostname=None,
-    port=None,
-    sacct_path=None,
-    sacct_ssh_key_filename=None,
 ):
     """
     Launch a sacct command in order to retrieve a JSON report containing
     jobs information
 
     Parameters:
-        file_name   Path to store the generated sacct report
+        cluster_name    The name of the cluster on which the sinfo command will be launched
+        file_name       Path to store the generated sacct report
 
     """
-    # these fields are already present in the config because
-    # they are required in order to rsync the scontrol reports
-    username = get_config("clusters")[cluster_name]["remote_user"]
-    hostname = get_config("clusters")[cluster_name]["remote_hostname"]
-    # If you need to change this value in any way, then you should
-    # make it a config value for real. In the meantime, let's hardcode it.
-    port = 22
-    sacct_path = get_config("clusters")[cluster_name]["sacct_path"]
-    sacct_ssh_key_filename = get_config("clusters")[cluster_name][
-        "sacct_ssh_key_filename"
-    ]
+    # Retrieve from the configuration file the elements used to establish a SSH connection
+    # to a remote cluster and launch the sacct command on it
+    username = get_config("clusters")[cluster_name][
+        "remote_user"
+    ]  # The username used for the SSH connection to launch the sacct command
+    hostname = get_config("clusters")[cluster_name][
+        "remote_hostname"
+    ]  # The hostname used for the SSH connection to launch the sacct command
+    port = get_config("clusters")[cluster_name][
+        "ssh_port"
+    ]  # The port used for the SSH connection to launch the sacct command
+    sacct_path = get_config("clusters")[cluster_name][
+        "sacct_path"
+    ]  # The path of the sacct executable on the cluster side
+    ssh_key_filename = get_config("clusters")[cluster_name][
+        "ssh_key_filename"
+    ]  # The name of the private key in .ssh folder used for the SSH connection to launch the sacct command
+
+    # sacct path checks
     assert (
         sacct_path
     ), "Error. We have called the function to make updates with sacct but the sacct_path config is empty."
     assert sacct_path.endswith(
         "sacct"
     ), f"Error. The sacct_path configuration needs to end with 'sacct'. It's currently {sacct_path} ."
-    assert sacct_ssh_key_filename, "Missing sacct_ssh_key_filename from config."
+
+    # SSH key check
+    assert ssh_key_filename, "Missing ssh_key_filename from config."
+
     # Now this is the private ssh key that we'll be using with Paramiko.
-    sacct_ssh_key_path = os.path.join(
-        os.path.expanduser("~"), ".ssh", sacct_ssh_key_filename
-    )
-    
+    ssh_key_path = os.path.join(os.path.expanduser("~"), ".ssh", ssh_key_filename)
+
     # Note : It doesn't work to simply start the command with "sacct".
     #        For some reason due to paramiko not loading the environment variables,
     #        sacct is not found in the PATH.
@@ -359,18 +362,16 @@ def generate_job_report(
     #            remote_cmd = "/opt/slurm/bin/sacct ..."
     #        then it works. We have to hardcode the path in each cluster, it seems.
 
-    # Retrieve only certain fields.
-    #
+    # Set the sacct command
     # -S is a condition on the start time, 600 being in seconds
     # -E is a condition on the end time
     remote_cmd = f"{sacct_path} -S now-600 -E now -X --json"
-
     print(f"remote_cmd is\n{remote_cmd}")
 
     # Connect through SSH
     try:
         ssh_client = open_connection(
-            hostname, username, ssh_key_path=sacct_ssh_key_path, port=port
+            hostname, username, ssh_key_path=ssh_key_path, port=port
         )
     except Exception as inst:
         print(f"Error. Failed to connect to {hostname} to make a call to sacct.")

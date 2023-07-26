@@ -2,6 +2,7 @@ import os
 
 from paramiko import SSHClient, AutoAddPolicy, ssh_exception, RSAKey
 
+
 def open_connection(hostname, username, ssh_key_path, port=22):
     """
     If successful, this will connect to the remote server and

@@ -3,18 +3,29 @@ The sinfo parser is used to convert nodes retrieved through a sinfo command on a
 to nodes in the format used by Clockwork.
 """
 
-import json
+import json, os
+
+# Imports to retrieve the values related to sinfo call
+from slurm_state.helpers.ssh_helper import open_connection
+
+from slurm_state.extra_filters import clusters_valid
+from slurm_state.config import get_config, string, optional_string, timezone
+
+# clusters_valid.add_field("sinfo_path", optional_string)
+clusters_valid.add_field("sinfo_ssh_key_filename", string)
+clusters_valid.add_field("timezone", timezone)
+clusters_valid.add_field("remote_user", optional_string)
+clusters_valid.add_field("remote_hostname", optional_string)
 
 # These functions are translators used in order to handle the values
 # we could encounter while parsing a node dictionary retrieved from a
-# sinfo command. They are shared with the job (sacct) parser
+# sinfo command.
 from slurm_state.helpers.parser_helper import (
     copy,
     copy_with_none_as_empty_string,
     ignore,
     rename,
 )
-
 
 # This map should contain all the fields that come from parsing a node entry
 # Each field should be mapped to a handler that will process the string data
@@ -172,25 +183,97 @@ def node_parser(f):
             # We will use a handler mapping to translate this
             translator = NODE_FIELD_MAP.get(k, None)
 
-            if translator is None:
-                # Raise an error if the node to parse contains a field we do not handle
-                raise ValueError(f"Unknown field in sinfo node output: {k}")
+            if translator is not None:
+                # Translate using the translator retrieved from JOB_FIELD_MAP
+                translator(k, v, res_node)
 
-            # Translate using the translator retrieved from NODE_FIELD_MAP
-            translator(k, v, res_node)
+            # If no translator has been provided: ignore the field
 
         yield res_node
+
+
+# The functions used to create the report file, gathering the information to parse
 
 
 def generate_node_report(
     cluster_name,
     file_name,
-    username=None,
-    hostname=None,
-    port=None,
-    sinfo_path=None,
-    sinfo_ssh_key_filename=None,
 ):
-    """ """
-    # This is a temporary placeholder
-    pass
+    """
+    Launch a sinfo command in order to retrieve JSON report containing
+    nodes information
+
+    Parameters:
+        cluster_name        The name of the cluster on which the sinfo command will be launched
+        file_name           The path of the report file to write
+
+    """
+    # Retrieve from the configuration file the elements used to establish a SSH connection
+    # to a remote cluster and launch the sinfo command on it
+    username = get_config("clusters")[cluster_name][
+        "remote_user"
+    ]  # The username used for the SSH connection to launch the sinfo command
+    hostname = get_config("clusters")[cluster_name][
+        "remote_hostname"
+    ]  # The hostname used for the SSH connection to launch the sinfo command
+    port = get_config("clusters")[cluster_name][
+        "ssh_port"
+    ]  # The port used for the SSH connection to launch the sinfo command
+    sinfo_path = get_config("clusters")[cluster_name][
+        "sinfo_path"
+    ]  # The path of the sinfo executable on the cluster side
+    ssh_key_filename = get_config("clusters")[cluster_name][
+        "ssh_key_filename"
+    ]  # The name of the private key in .ssh folder used for the SSH connection to launch the sinfo command
+
+    # sinfo path checks
+    assert (
+        sinfo_path
+    ), "Error. We have called the function to make updates with sinfo but the sinfo_path config is empty."
+    assert sinfo_path.endswith(
+        "sinfo"
+    ), f"Error. The sinfo_path configuration needs to end with 'sinfo'. It's currently {sinfo_path} ."
+
+    # SSH key check
+    assert ssh_key_filename, "Missing ssh_key_filename from config."
+
+    # Now this is the private ssh key that we'll be using with Paramiko.
+    ssh_key_path = os.path.join(os.path.expanduser("~"), ".ssh", ssh_key_filename)
+
+    # Set the sinfo command
+    remote_cmd = f"{sinfo_path} --json"
+    print(f"remote_cmd is\n{remote_cmd}")
+
+    # Connect through SSH
+    try:
+        ssh_client = open_connection(
+            hostname, username, ssh_key_path=ssh_key_path, port=port
+        )
+    except Exception as inst:
+        print(f"Error. Failed to connect to {hostname} to make a call to sinfo.")
+        print(inst)
+        return []
+
+    if ssh_client:
+        # those three variables are file-like, not strings
+        ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(remote_cmd)
+
+        # We should find a better option to retrieve stderr
+        """
+        response_stderr = "".join(ssh_stderr.readlines())
+        if len(response_stderr):
+            print(
+                f"Stderr in sinfo call on {hostname}. This doesn't mean that the call failed entirely, though.\n{response_stderr}"
+            )
+        """
+
+        # Write the command output to a file
+        with open(file_name, "w") as outfile:
+            for line in ssh_stdout.readlines():
+                outfile.write(line)
+
+        ssh_client.close()
+    else:
+        print(
+            f"Error. Failed to connect to {hostname} to make call to sinfo. Returned `None` but no exception was thrown."
+        )

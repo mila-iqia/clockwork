@@ -110,9 +110,6 @@ def main(argv):
     #
     #   Parse the nodes
     #
-    """
-    # Ignore the "nodes" part for now
-
     nodes_collection = client[collection_name]["nodes"]
 
     if args.store_in_db:
@@ -131,7 +128,6 @@ def main(argv):
         want_commit_to_db=args.store_in_db,
         dump_file=args.cw_nodes_file,
     )
-    """
 
 
 if __name__ == "__main__":
