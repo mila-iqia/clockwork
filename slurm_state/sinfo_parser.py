@@ -12,7 +12,7 @@ from slurm_state.extra_filters import clusters_valid
 from slurm_state.config import get_config, string, optional_string, timezone
 
 # clusters_valid.add_field("sinfo_path", optional_string)
-clusters_valid.add_field("sinfo_ssh_key_filename", string)
+clusters_valid.add_field("ssh_key_filename", string)
 clusters_valid.add_field("timezone", timezone)
 clusters_valid.add_field("remote_user", optional_string)
 clusters_valid.add_field("remote_hostname", optional_string)
