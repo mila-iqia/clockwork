@@ -447,10 +447,6 @@ def generate_job_report(
 
         ssh_client.close()
 
-        # Write the JSON report in the output file
-        with open(file_name, "w") as outfile:
-            for stdout_line in response_stdout:
-                outfile.write(stdout_line)
     else:
         print(
             f"Error. Failed to connect to {hostname} to make call to sacct. Returned `None` but no exception was thrown."
