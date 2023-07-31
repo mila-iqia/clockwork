@@ -39,6 +39,53 @@ def rename_subitems(subitem_dict):
     return renamer
 
 
+def translate_with_value_modification(v_modification, translator, **args):
+    """
+    This function returns a translator that includes a modification
+    on the value which will be transmitted to it
+
+    Parameters:
+        v_modification  The function modifying the value before it
+                        is transmitted to the translator
+        translator      The translator called
+
+    Returns:
+        A translator function including the expected value modification
+    """
+    # Some translator can depend on specific arguments. Thus, we call
+    # them before to apply it and get the translator which has to be
+    # used
+    final_translator = translator(**args)
+
+    # This helper is used to update the value v before applying the
+    # translator on the triplet (k, v, res)
+    def combiner(k, v, res):
+        final_translator(k, v_modification(v), res)
+
+    return combiner
+
+
+def zero_to_null(v):
+    """
+    Convert the value from 0 to null
+
+    Parameter:
+        v   The values to be converted if appliable
+
+    Return:
+        The converted values
+    """
+    # If a value of v equals 0, transform it to None
+    print("-- v --")
+    print(v)
+    for (v_k, v_v) in v.items():
+        if v_v == 0:
+            v[v_k] = None
+    # Return v
+    print(v)
+    return v
+
+
 def rename_and_stringify_subitems(subitem_dict):
     def renamer(k, v, res):
         for subitem, name in subitem_dict.items():
@@ -167,13 +214,15 @@ JOB_FIELD_MAP = {
     "reservation": ignore,
     "state": rename_subitems({"current": "job_state"}),
     "steps": ignore,
-    "time": rename_subitems(
-        {
+    "time": translate_with_value_modification(
+        zero_to_null,
+        rename_subitems,
+        subitem_dict={
             "limit": "time_limit",
             "submission": "submit_time",
             "start": "start_time",
             "end": "end_time",
-        }
+        },
     ),
     "tres": extract_tres_data,
     "user": rename("username"),
@@ -397,6 +446,11 @@ def generate_job_report(
                 outfile.write(line)
 
         ssh_client.close()
+
+        # Write the JSON report in the output file
+        with open(file_name, "w") as outfile:
+            for stdout_line in response_stdout:
+                outfile.write(stdout_line)
     else:
         print(
             f"Error. Failed to connect to {hostname} to make call to sacct. Returned `None` but no exception was thrown."
