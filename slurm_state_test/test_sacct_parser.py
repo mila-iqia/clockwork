@@ -25,7 +25,7 @@ def test_job_parser():
         "time_limit": 1440,
         "submit_time": 1680193479,
         "start_time": 1680193504,
-        "end_time": 1680244103,
+        "end_time": None,
         "partition": "partition1",
         "nodes": "cdr1",
         "tres_allocated": {
