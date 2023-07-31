@@ -247,6 +247,6 @@ def set_up_cluster_names_and_node_name_filters(cluster_names=[], node_name=None)
         # for the user
         cluster_names = user_clusters
 
-    f1 = {"slurm.cluster_name": {"$in": user_clusters}}
+    f1 = {"slurm.cluster_name": {"$in": cluster_names}}
 
     return [f0, f1]
