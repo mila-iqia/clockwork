@@ -23,61 +23,32 @@ clusters_valid.add_field("remote_hostname", optional_string)
 from slurm_state.helpers.parser_helper import (
     copy,
     copy_with_none_as_empty_string,
-    ignore,
     rename,
 )
 
 # This map should contain all the fields that come from parsing a node entry
 # Each field should be mapped to a handler that will process the string data
-# and set the result in the output dictionary. You can ignore fields, by
-# assigning them to 'ignore'
+# and set the result in the output dictionary. Fields not associated to any
+# parsing function are ignored.
 
 NODE_FIELD_MAP = {
     "architecture": rename("arch"),
-    "burstbuffer_network_address": ignore,
-    "boards": ignore,
-    "boot_time": ignore,
     "comment": copy,
     "cores": copy,
-    "cpu_binding": ignore,
-    "cpu_load": ignore,
     "cpus": copy,
-    "extra": ignore,
-    "free_memory": ignore,
     "last_busy": copy,
     "features": copy,
-    "active_features": ignore,
     "gres": copy_with_none_as_empty_string,
-    "gres_drained": ignore,
     "gres_used": copy,
-    "mcs_label": ignore,
     "name": copy,
-    "next_state_after_reboot": ignore,
     "address": rename("addr"),
-    "hostname": ignore,
     "state": copy,
     "state_flags": copy,
-    "next_state_after_reboot_flags": ignore,
-    "operating_system": ignore,
-    "owner": ignore,
-    "partitions": ignore,
-    "port": ignore,
     "real_memory": rename("memory"),
     "reason": copy,
     "reason_changed_at": copy,
-    "reason_set_by_user": ignore,
-    "slurmd_start_time": ignore,
-    "sockets": ignore,
-    "threads": ignore,
-    "temporary_disk": ignore,
-    "weight": ignore,
     "tres": copy,
-    "slurmd_version": ignore,
-    "alloc_memory": ignore,
-    "alloc_cpus": ignore,
-    "idle_cpus": ignore,
     "tres_used": copy,
-    "tres_weighted": ignore,
 }
 
 

@@ -20,7 +20,7 @@ clusters_valid.add_field("remote_hostname", optional_string)
 # These functions are translators used in order to handle the values
 # we could encounter while parsing a job dictionary retrieved from a
 # sacct command.
-from slurm_state.helpers.parser_helper import copy, ignore, rename
+from slurm_state.helpers.parser_helper import copy, rename
 
 # The following functions are only used by the job parser. Translator
 # functions shared with the node parser are retrieved from
@@ -180,37 +180,21 @@ def extract_tres_data(k, v, res):
 
 # This map should contain all the fields that come from parsing a job entry
 # Each field should be mapped to a handler that will process the string data
-# and set the result in the output dictionary. You can ignore fields, by
-# assigning them to 'ignore'
+# and set the result in the output dictionary. Fields not associated to any
+# parsing function are ignored.
 
 JOB_FIELD_MAP = {
     "account": copy,
-    "allocation_nodes": ignore,
     "array": rename_and_stringify_subitems(
         {"job_id": "array_job_id", "task_id": "array_task_id"}
     ),
-    "association": ignore,
     "cluster": rename("cluster_name"),
-    "comment": ignore,
-    "container": ignore,
-    "constraints": ignore,
-    "derived_exit_code": ignore,
     "exit_code": join_subitems(":", "exit_code"),
-    "flags": ignore,
-    "group": ignore,
-    "het": ignore,
     "job_id": copy_and_stringify,
-    "kill_request_user": ignore,
-    "mcs": ignore,
     "name": copy,
     "nodes": copy,
     "partition": copy,
-    "priority": ignore,
-    "qos": ignore,
-    "required": ignore,
-    "reservation": ignore,
     "state": rename_subitems({"current": "job_state"}),
-    "steps": ignore,
     "time": translate_with_value_modification(
         zero_to_null,
         rename_subitems,
@@ -223,7 +207,6 @@ JOB_FIELD_MAP = {
     ),
     "tres": extract_tres_data,
     "user": rename("username"),
-    "wckey": ignore,
     "working_directory": copy,
 }
 
