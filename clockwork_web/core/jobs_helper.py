@@ -78,7 +78,7 @@ def get_filtered_and_paginated_jobs(
     nbr_items_to_display=None,
     want_count=False,
     sort_by="submit_time",
-    sort_asc=1,
+    sort_asc=-1,
 ):
     """
     Talk to the database and get the information.

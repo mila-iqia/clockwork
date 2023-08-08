@@ -464,14 +464,17 @@ def test_single_node(client, fake_data):
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
     assert login_response.status_code == 302  # Redirect
 
-    node = fake_data["nodes"][0]["slurm"]
+    node = fake_data["nodes"][1]["slurm"]
     response = client.get(
         f"/nodes/one?node_name={node['name']}&cluster_name={node['cluster_name']}"
     )
 
     # Check the response
     assert response.status_code == 200
-    assert node["alloc_tres"] in response.get_data(as_text=True)
+    assert (
+        node["tres_used"] is not None
+    )  # tres_used could be None for a node, we just don't want this case for the current test
+    assert node["tres_used"] in response.get_data(as_text=True)
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")

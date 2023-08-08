@@ -50,7 +50,9 @@ remote_user="mila-automation"
 remote_hostname="clockwork-stats"
 sacct_enabled=true
 sacct_path="/opt/slurm/bin/sacct"
-sacct_ssh_key_filename="id_clockwork"
+sinfo_path="/opt/slurm/bin/sinfo"
+ssh_key_filename="id_clockwork"
+ssh_port=22
 
 [clusters.beluga]
 account_field="cc_account_username"
@@ -67,7 +69,9 @@ remote_user="mila-automation"
 remote_hostname="beluga.computecanada.ca"
 sacct_enabled=false
 sacct_path="/opt/software/slurm/bin/sacct"
-sacct_ssh_key_filename="id_clockwork"
+sinfo_path="/opt/software/slurm/bin/sinfo"
+ssh_key_filename="id_clockwork"
+ssh_port=22
 
 [clusters.graham]
 account_field="cc_account_username"
@@ -84,7 +88,9 @@ remote_user="mila-automation"
 remote_hostname="graham.computecanada.ca"
 sacct_enabled=false
 sacct_path="/opt/software/slurm/bin/sacct"
-sacct_ssh_key_filename="id_clockwork"
+sinfo_path="/opt/software/slurm/bin/sinfo"
+ssh_key_filename="id_clockwork"
+ssh_port=22
 
 [clusters.cedar]
 account_field="cc_account_username"
@@ -101,7 +107,9 @@ remote_user="mila-automation"
 remote_hostname="cedar.computecanada.ca"
 sacct_enabled=false
 sacct_path="/opt/software/slurm/bin/sacct"
-sacct_ssh_key_filename="id_clockwork"
+sinfo_path="/opt/software/slurm/bin/sinfo"
+ssh_key_filename="id_clockwork"
+ssh_port=22
 
 [clusters.narval]
 account_field="cc_account_username"
@@ -117,7 +125,9 @@ remote_user="mila-automation"
 remote_hostname="narval.computecanada.ca"
 sacct_enabled=false
 sacct_path="/opt/software/slurm/bin/sacct"
-sacct_ssh_key_filename="id_clockwork"
+sinfo_path="/opt/software/slurm/bin/sinfo"
+ssh_key_filename="id_clockwork"
+ssh_port=22
 
 [clockwork.test]
 email="student01@mila.quebec"

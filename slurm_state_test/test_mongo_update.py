@@ -3,66 +3,139 @@ from slurm_state.mongo_client import get_mongo_client
 from slurm_state.config import get_config
 
 from datetime import datetime
+from slurm_state.sinfo_parser import node_parser
+from slurm_state.sacct_parser import job_parser
 
 import pytest
+import pprint
 
 
-def test_fetch_slurm_report():
+def test_fetch_slurm_report_jobs():
     res = list(
-        fetch_slurm_report_nodes(
-            "beluga",
-            "slurm_state_test/files/small_scontrol_node",
+        fetch_slurm_report(
+            job_parser,
+            "cedar",
+            "slurm_state_test/files/sacct_1",
         )
     )
 
     assert res == [
         {
-            "name": "test-node",
-            "arch": "x86_64",
-            "features": "x86_64,turing,48gb",
-            "gres": "gpu:rtx8000:8(S:0-1)",
-            "addr": "test-node",
-            "memory": 386619,
-            "state": "MIXED",
-            "cfg_tres": "cpu=80,mem=386619M,billing=136,gres/gpu=8",
-            "alloc_tres": "cpu=28,mem=192G,gres/gpu=8",
-            "comment": None,
-            "cluster_name": "beluga",
-        }
-    ]
-    res = list(
-        fetch_slurm_report_jobs(
-            "beluga",
-            "slurm_state_test/files/small_scontrol_job",
-        )
-    )
-    assert res == [
-        {
-            "job_id": "1",
-            "name": "sh",
+            "job_id": "10",
+            "array_job_id": "1",
+            "array_task_id": "7",
+            "name": "test-job-1",
             "username": "nobody",
-            "uid": 65535,
             "account": "def-cerise-rrg",
-            "job_state": "PENDING",
-            "exit_code": "0:0",
-            "time_limit": 604800,
-            "submit_time": datetime.fromisoformat(
-                "2020-12-15T16:44:08-05:00"
-            ).timestamp(),
-            "start_time": None,
+            "job_state": "NODE_FAIL",
+            "exit_code": "SUCCESS:0",
+            "time_limit": 1440,
+            "submit_time": 1680193479,
+            "start_time": 1680193504,
             "end_time": None,
-            "partition": "long",
-            "nodes": None,
-            "num_nodes": "1",
-            "num_cpus": "1",
-            "num_tasks": "1",
-            "cpus_per_task": "1",
-            "TRES": "cpu=1,mem=2G,node=1,gres/gpu=1",
-            "tres_per_node": "gpu:titanxp:1",
-            "command": None,
-            "work_dir": "/home/user",
-            "cluster_name": "beluga",
-        }
+            "partition": "partition1",
+            "nodes": "cdr1",
+            "tres_allocated": {
+                "mem": 40960,
+                "billing": 1,
+                "num_cpus": 4,
+                "num_gpus": 1,
+                "num_nodes": 1,
+            },
+            "tres_requested": {
+                "mem": 40960,
+                "billing": 1,
+                "num_cpus": 4,
+                "num_gpus": 1,
+                "num_nodes": 1,
+            },
+            "working_directory": "/scratch/nobody",
+            "cluster_name": "cedar",
+        },
+        {
+            "job_id": "20",
+            "array_job_id": "2",
+            "array_task_id": "0",
+            "name": "test-job-2",
+            "username": "nobody2",
+            "account": "def-cerise-rrg",
+            "job_state": "REQUEUED",
+            "exit_code": "SUCCESS:0",
+            "time_limit": 1440,
+            "submit_time": 1680127990,
+            "start_time": 1680127992,
+            "end_time": 1680215981,
+            "partition": "partition2",
+            "nodes": "cdr2",
+            "tres_allocated": {
+                "mem": 40960,
+                "billing": 1,
+                "num_cpus": 4,
+                "num_gpus": 1,
+                "num_nodes": 1,
+            },
+            "tres_requested": {
+                "mem": 40960,
+                "billing": 1,
+                "num_cpus": 4,
+                "num_gpus": 1,
+                "num_nodes": 1,
+            },
+            "working_directory": "/scratch/nobody2",
+            "cluster_name": "cedar",
+        },
+    ]
+
+
+def test_fetch_slurm_report_nodes():
+    res = list(
+        fetch_slurm_report(
+            node_parser,
+            "mila",
+            "slurm_state_test/files/sinfo_1",
+        )
+    )
+    assert res == [
+        {
+            "arch": "x86_64",
+            "comment": "This is a comment",
+            "cores": 2,
+            "cpus": 2,
+            "last_busy": 1681387881,
+            "features": "test_features",
+            "gres": "gpu:1",
+            "gres_used": "gpu:0,tpu:0",
+            "name": "test-node-1",
+            "addr": "test-node-1",
+            "state": "down",
+            "state_flags": ["NOT_RESPONDING"],
+            "memory": 1800,
+            "reason": "Not responding",
+            "reason_changed_at": 1667084449,
+            "tres": "cpu=2,mem=1800M,billing=2",
+            "tres_used": None,
+            "cluster_name": "mila",
+        },
+        {
+            "arch": "",
+            "comment": "",
+            "cores": 2,
+            "cpus": 2,
+            "last_busy": 1681387881,
+            "features": "other_test_features",
+            "gres": None,
+            "gres_used": "gpu:0,tpu:0",
+            "name": "test-node-2",
+            "addr": "test-node-2",
+            "state": "down",
+            "state_flags": ["DRAIN"],
+            "memory": 1800,
+            "reason": "Sanity Check Failed",
+            "reason_changed_at": 1679695882,
+            "tres": "cpu=2,mem=1800M,billing=2",
+            "tres_used": "cpu=1",
+            "cluster_name": "mila",
+        },
     ]
 
 
@@ -155,25 +228,17 @@ def test_main_read_jobs_and_update_collection():
 
     db.drop_collection("test_jobs")
 
-    main_read_jobs_and_update_collection(
-        db.test_jobs,
-        db.test_users,
-        "beluga",
-        "slurm_state_test/files/small_scontrol_job",
-        want_sacct=False,
-    )
-
-    assert db.test_jobs.count_documents({}) == 1
-
-    main_read_jobs_and_update_collection(
-        db.test_jobs,
-        db.test_users,
-        "beluga",
-        "slurm_state_test/files/scontrol_job_2",
-        want_sacct=False,
+    main_read_report_and_update_collection(
+        "jobs", db.test_jobs, db.test_users, "cedar", "slurm_state_test/files/sacct_1"
     )
 
     assert db.test_jobs.count_documents({}) == 2
+
+    main_read_report_and_update_collection(
+        "jobs", db.test_jobs, db.test_users, "cedar", "slurm_state_test/files/sacct_2"
+    )
+
+    assert db.test_jobs.count_documents({}) == 3
 
     db.drop_collection("test_jobs")
 
@@ -184,32 +249,24 @@ def test_main_read_nodes_and_update_collection():
 
     db.drop_collection("test_nodes")
 
-    main_read_nodes_and_update_collection(
+    main_read_report_and_update_collection(
+        "nodes",
         db.test_nodes,
-        "beluga",
-        "slurm_state_test/files/small_scontrol_node",
-    )
-
-    assert db.test_nodes.count_documents({}) == 1
-
-    main_read_nodes_and_update_collection(
-        db.test_nodes,
-        "beluga",
-        "slurm_state_test/files/scontrol_node_2",
+        None,
+        "mila",
+        "slurm_state_test/files/sinfo_1",
     )
 
     assert db.test_nodes.count_documents({}) == 2
 
-    db.drop_collection("test_nodes")
-
-    # Check for a list of different cases regarding the 'Gres' and
-    # 'AvailableFeatures' elements
-    main_read_nodes_and_update_collection(
+    main_read_report_and_update_collection(
+        "nodes",
         db.test_nodes,
-        "beluga",
-        "slurm_state_test/files/scontrol_node_3",
+        None,
+        "mila",
+        "slurm_state_test/files/sinfo_2",
     )
 
-    assert db.test_nodes.count_documents({}) == 5
+    assert db.test_nodes.count_documents({}) == 3
 
     db.drop_collection("test_nodes")
