@@ -101,7 +101,7 @@ class ClockworkToolsBaseClient:
                 f"Server rejected call with code {response.status_code}. {response.json()}"
             )
 
-    def initialize(self):
+    def get_all(self):
         """REST call to api/v1/clusters/jobs/list and api/v1/clusters/nodes/list.
         
         Gets all the Jobs and Nodes from any cluster, and create a Job or Node object for each one.
@@ -120,30 +120,46 @@ class ClockworkToolsBaseClient:
     def search_jobs(
         self, username: str = None, job_id: str = None, relative_time=None, cluster_name: str = None
     ) -> list[Job]:
+        
+        endpoint = "api/v1/clusters/jobs/list"
+        params = {}
+        for (k, a) in [
+            ("username", username),
+            ("relative_time", relative_time),
+            ("cluster_name", cluster_name),
+            ("job_id", job_id),
+        ]:
+            if a is not None:
+                params[k] = a
         found_jobs = []
-        for job in self.jobs:
-            if job_id is not None and job.job_id != str(job_id):
-                continue
-            if username is not None and job.username != str(username):
-                continue        
-            if relative_time is not None and job.cw_last_update < relative_time:
-                continue
-            if cluster_name is not None and job.cluster_name != str(cluster_name):
-                continue
-            found_jobs.append(job)
+        jobs = self._request(endpoint, params)
+
+        for job_data in jobs:
+            found_jobs.append(Job(job_data))
+        
         return found_jobs
     
     def search_nodes(
         self, node_name: str = None, cluster_name: str = None
     ) -> list[Node]:
+        endpoint = "api/v1/clusters/nodes/list"
+        params = {}
+        for (k, a) in [
+            ("node_name", node_name),
+            ("cluster_name", cluster_name),
+        ]:
+            if a is not None:
+                params[k] = a
+        
         found_nodes = []
-        for node in self.nodes:
-            if node_name is not None and node.name != str(node_name):
-                continue
-            if cluster_name is not None and node.cluster_name != str(cluster_name):
-                continue
-            found_nodes.append(node)
+        nodes = self._request(endpoint, params)
+
+        for node_data in nodes:
+            found_nodes.append(Node(node_data))
+
         return found_nodes
+    
+    
 
 class ClockworkToolsClient(ClockworkToolsBaseClient):
     """
