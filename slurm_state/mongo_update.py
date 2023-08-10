@@ -7,7 +7,6 @@ from pymongo import InsertOne, ReplaceOne, UpdateOne
 
 from slurm_state.config import get_config, boolean, integer, string, optional_string
 from slurm_state.extra_filters import (
-    is_allocation_related_to_mila,
     clusters_valid,
 )
 from slurm_state.helpers.gpu_helper import get_cw_gres_description
@@ -286,13 +285,13 @@ def get_jobs_updates_and_insertions(
 
     ## Retrieve sacct entities ##
 
-    # Filter the previous iterator to keep only the jobs having accounts related to Mila
-    # and apply the function lookup_user_account to each element,
-    # which are then gathered in a list
+    # Apply the function lookup_user_account to each element, which are then gathered in a list
+    # (We previously added a filter in order to keep only the Mila related jobs, but this is now
+    # done while retrieving these jobs)
     LD_sacct = list(
         map(
             lookup_user_account(users_collection),
-            filter(is_allocation_related_to_mila, I_clockwork_jobs),
+            I_clockwork_jobs,
         )
     )
 

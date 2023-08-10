@@ -27,26 +27,9 @@ clusters_valid.add_field("allocations", alloc_valid)
 register_config("clusters", validator=clusters_valid)
 
 
-def is_allocation_related_to_mila(D_job: dict[dict]):
-    """
-    Usually used with a `filter` operation in order to let only
-    the jobs that pertain to Mila, either because they are on our own
-    Slurm cluster or because they are on allocations associated with us.
-
-    Returns True when we want to keep the entry.
-    """
-    cluster_name = D_job["slurm"]["cluster_name"]
-    cluster_info = get_config("clusters").get(cluster_name, None)
-    if cluster_info is None:
-        return False
-    allocations = cluster_info["allocations"]
-    if allocations == "*":
-        return True
-    return D_job["slurm"].get("account", "") in allocations
-
 def get_allocations(cluster_name):
     """
-    Retrieve the allocations associated to a cluster from the 
+    Retrieve the allocations associated to a cluster from the
     configuration file
 
     Parameter:
@@ -59,5 +42,5 @@ def get_allocations(cluster_name):
     """
     cluster_info = get_config("clusters").get(cluster_name, None)
     if cluster_info is None:
-        return [] # We retrieve nothing
+        return []  # We retrieve nothing
     return cluster_info["allocations"]

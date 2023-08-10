@@ -391,13 +391,14 @@ def generate_job_report(
     #            remote_cmd = "/opt/slurm/bin/sacct ..."
     #        then it works. We have to hardcode the path in each cluster, it seems.
 
-
     # Retrieve the allocations associated to the cluster
     allocations = get_allocations(cluster_name)
 
     if allocations == []:
         # If the cluster has no associated allocation, nothing is requested
-        print(f"The cluster {cluster_name} has no allocation related to it. Thus, no job has been retrieved. Associated allocations can be provided in the Clockwork configuration file.")
+        print(
+            f"The cluster {cluster_name} has no allocation related to it. Thus, no job has been retrieved. Associated allocations can be provided in the Clockwork configuration file."
+        )
         return []
     else:
         # Set the sacct command
@@ -409,7 +410,7 @@ def generate_job_report(
         if allocations == "*":
             # We do not provide --associations information because the default for this parameter
             # is "all associations"
-            remote_cmd = f"{sacct_path} -S now-600 -E now -X --allusers --json"    
+            remote_cmd = f"{sacct_path} -S now-600 -E now -X --allusers --json"
         else:
             accounts_list = ",".join(allocations)
             remote_cmd = f"{sacct_path} -S now-600 -E now -X --accounts={accounts_list} --allusers --json"
