@@ -43,3 +43,21 @@ def is_allocation_related_to_mila(D_job: dict[dict]):
     if allocations == "*":
         return True
     return D_job["slurm"].get("account", "") in allocations
+
+def get_allocations(cluster_name):
+    """
+    Retrieve the allocations associated to a cluster from the 
+    configuration file
+
+    Parameter:
+        cluster_name    The name of the cluster we want the allocations
+                        associated to
+
+    Returns:
+        A list of strings (the names of the allocations), or "*" if set
+        in the configuration file (it means "all the allocations of the cluster")
+    """
+    cluster_info = get_config("clusters").get(cluster_name, None)
+    if cluster_info is None:
+        return [] # We retrieve nothing
+    return cluster_info["allocations"]
