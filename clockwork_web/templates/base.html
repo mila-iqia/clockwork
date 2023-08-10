@@ -235,6 +235,24 @@
 													<a href="https://dashboard.server.mila.quebec/" target="_blank">
 														<i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
 													</a>
+													{% if D_cluster['status']['jobs_are_old'] %}
+														<span class="cluster-info cluster-warning">
+															<i class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="right" title="Latest job edition is too old (more than 30 days ago)"></i>
+														</span>
+													{% else %}
+														<span class="cluster-info cluster-good">
+															<i class="fa-solid fa-ballot-check" data-bs-toggle="tooltip" data-bs-placement="right" title="Latest job edition is recent enough (at most 30 days ago)"></i>
+														</span>
+													{% endif %}
+													{% if D_cluster['status']['cluster_has_error'] %}
+														<span class="cluster-info cluster-error">
+															<i class="fa-solid fa-octagon-exclamation" data-bs-toggle="tooltip" data-bs-placement="right" title="A cluster error occurred recently"></i>
+														</span>
+													{% else %}
+														<span class="cluster-info cluster-good">
+															<i class="fa-solid fa-octagon-check" data-bs-toggle="tooltip" data-bs-placement="right" title="No recent cluster error"></i>
+														</span>
+													{% endif %}
 													<!-- cluster toggle -->
 													<div class="cc_cluster_toggle_subzone form-check form-switch">
 														{% if cluster_name in user_clusters %}
