@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+
+        document.addEventListener("DOMContentLoaded", (event) => {
+            server_refresh();
+        });
+
+        var query_filter = {};
+        var display_filter = {};
+
+        function read_query_filter() {
+            query_filter["username"] = "{{ mila_email_username }}";
+        }
+
+        function read_display_filter() {
+            // sets value of `display_filter`
+
+            // Set the clusters names
+            display_filter["cluster_name"] = {}
+
+            {% for D_cluster in clusters %}
+                display_filter["cluster_name"]["{{D_cluster}}"] = true;
+            {% endfor %}
+
+            // We display all possible states (see dashboard.js for list)
+            display_filter["job_state"] = Object.fromEntries(
+                Object.keys(job_state_to_aggregated).map(k => [k, true])
+            );
+            display_filter["num_per_page"] = web_settings["nbr_items_per_page"];
+
+        }
+
+        var readableusername = retrieve_username_from_email("{{ mila_email_username }}");
+
+        function server_refresh() {
+            /* This fetches from the server.
+                - read the values of the toggle switches
+                - set the value for query_filter
+                - animate the icon
+             */
+
+            read_query_filter();
+            read_display_filter();
+
+            var rotate_icons = document.querySelectorAll("i.fa-arrows-rotate");
+            rotate_icons.forEach((rotate_icon) => {
+                rotate_icon.classList.add("fa-spin");
+                // .5 seconds later, hide the splash
+                setTimeout(function() {
+                  rotate_icon.classList.remove("fa-spin");
+                }, 2000);
+            });
+
+            var nums = document.querySelectorAll("span.num");
+            nums.forEach((num) => {
+                num.classList.add("hidden");
+                // .5 seconds later, hide the splash
+                setTimeout(function() {
+                  num.classList.remove("hidden");
+                }, 2000);
+            });
+
+            // note that `launch_refresh_all_data` comes from "jobs.js"
+            launch_refresh_all_data(query_filter, display_filter);
+
+            //console.log("server_refresh() called");
+
+            setTimeout(server_refresh, 30000);
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <div id="formBlock" class="dashboard_bg searchform">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="title float-start">
+                        <i class="fa-solid fa-user"></i>
+                        <h1>{{ gettext("Welcome back") }} <script>document.writeln(readableusername);</script>!<span class="message"><i class="fa-solid fa-list-check"></i>You currently have: </span></h1>
+                    </div>
+                    <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
+                </div>
+            </div> <!-- end header row -->
+
+            <div class="row dashboard_job">
+                <div class="col-md-3 col-xs-12">
+                    <div class="wrapper completed">
+                        <i class="fa-solid fa-badge-check"></i>
+                        <span id="dashboard_completed" class="num"></span>
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <p>{{ gettext("Completed jobs") }}</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-xs-12">
+                    <div class="wrapper running">
+                        <i class="fa-solid fa-timer"></i>
+                        <span id="dashboard_running" class="num"></span>
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <p>{{ gettext("Running jobs") }}</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-xs-12">
+                    <div class="wrapper pending">
+                        <i class="fa-solid fa-circle-pause"></i>
+                        <span id="dashboard_pending" class="num"></span>
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <p>{{ gettext("Pending jobs") }}</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-xs-12">
+                    <div class="wrapper stalled">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="dashboard_stalled" class="num"></span>
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <p>{{ gettext("Stalled jobs") }}</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3 offset-md-9 col-xs-12">
+                    <a class="btn btn-red mb-3" href="/jobs/search">{{ gettext("See all jobs") }}</a>
+                </div>
+            </div>
+
+        </div> <!-- end header container -->
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="title float-start">
+                    <i class="fa-solid fa-list-check"></i>
+                    <h1>{{ gettext("YOUR JOBS") }}<span class="message"><i id="spinner" class="fa-solid fa-arrows-rotate"></i>{{ gettext("This list will auto-refresh!") }}</span></h1>
+                </div>
+                <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
+            </div>
+
+
+            <div class="col-12" id="changeme">
+
+                <!-- <h1>{{channel_title}}</h1> -->
+
+                <table class="table table-striped table-hover table-responsive" data-sortable id="dashboard_table">
+                    <!-- This table starts empty and is populated automatically when the DOM is ready. -->
+                </table>
+
+               <nav class="table_nav" aria-label="table_nav">
+                    <ul id="pagingDiv" class="pagination">
+                    </ul>
+                </nav>
+
+                <input type='hidden' name='page_num' value='1' maxlength='1' max='10' size='1' id='page_num' />
+
+            </div>
+        </div>
+    </div><!-- end table container -->
+{% endblock %}
