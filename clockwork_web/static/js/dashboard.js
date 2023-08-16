@@ -662,7 +662,7 @@ function populate_table(response_contents) {
             const td = document.createElement('td');
             td.className = "actions";
             td.innerHTML = (
-                "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>"
+                "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-octagon-minus' style='color:#dba46a;'></i></a>"
             );
             tr.appendChild(td);
         }
