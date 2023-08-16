@@ -55,6 +55,14 @@
 			}
 		}
 
+		function select_language(language_dropdown) {
+			// Retrieve the selected value
+			var selected_language = language_dropdown.options[language_dropdown.selectedIndex].value;
+
+			// Update it in the user's web settings
+			set_language(selected_language);
+		}
+
 		function select_nbr_items_per_page(nbr_items_per_page_dropdown) {
 			// Retrieve the selected value
 		  	var selected_nbr = nbr_items_per_page_dropdown.options[nbr_items_per_page_dropdown.selectedIndex].value;
@@ -124,14 +132,6 @@
 						<!--{% endif %} -->
 					</dd>
 
-					<!-- Items per page -->
-					<dt class="col-6">{{ gettext("Number of items displayed per page") }}</dt>
-		  			<dd class="col-6">
-						<select class="form-select" name="nbr_items_per_page_selection" id="nbr_items_per_page_selection" onchange="select_nbr_items_per_page(this)">
-							<!-- This is filled through the javascript -->
-						</select>
-					</dd>
-
 					<!-- Dark mode -->
 			  		<dt class="col-6"><label for="dark_mode_toggle">{{ gettext("Dark mode") }}</label></dt>
 		 			<dd class="col-6">
@@ -142,6 +142,28 @@
 								<input name="dark_mode_toggle" id="dark_mode_toggle" type="checkbox" class="form-check-input" onclick="switch_dark_mode()" />
 							{% endif %}
 						</div>
+					</dd>
+
+					<!-- Language -->
+					<dt class="col-6">{{ gettext("Language") }}</dt>
+					<dd class="col-6">
+						<select class="form-select" name="language_selection" id="language_selection" onchange="select_language(this)">
+							{% for language in available_languages %}
+								{% if language == web_settings["language"] %}
+									<option value="{{language}}" selected>{{language}}</option>
+								{% else %}
+									<option value="{{language}}">{{language}}</option>
+								{% endif %}
+							{% endfor %}
+						</select>
+					</dd>
+
+					<!-- Items per page -->
+					<dt class="col-6">{{ gettext("Number of items displayed per page") }}</dt>
+		  			<dd class="col-6">
+						<select class="form-select" name="nbr_items_per_page_selection" id="nbr_items_per_page_selection" onchange="select_nbr_items_per_page(this)">
+							<!-- This is filled through the javascript -->
+						</select>
 					</dd>
 
 					<!-- Timestamps -->
