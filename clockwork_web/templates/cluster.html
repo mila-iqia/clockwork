@@ -28,7 +28,7 @@
 			</div>
 		</div>
 		<div class="row single_cluster">
-			
+
 			<div class="col">
 				<table class="table table-striped table-hover table-responsive" id="search_table">
 					<tbody>
@@ -105,6 +105,45 @@
 					</table>
 				</div>
 			</div>
+		{% endif %}
+
+		<!-- CLuster jobs status -->
+		{% if cluster['job_dates'] %}
+		<div class="row">
+			<div class="col">
+				<table class="table table-striped table-hover table-responsive">
+					<thead>
+						<tr>
+							<th colspan="2">{{ gettext("Jobs status") }}</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{{ gettext("Oldest job edition") }}</td>
+							<td>
+								{# Date formatted as in jobs/search page #}
+								{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
+									<span data-livestamp="{{cluster['job_dates']['min']|float}}"></span>
+								{% else %}
+									{{ cluster['job_dates']['min']|format_date(web_settings["date_format"], web_settings["time_format"]) }}
+								{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<td>{{ gettext("Latest job edition") }}</td>
+							<td>
+								{# Date formatted as in jobs/search page #}
+								{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
+									<span data-livestamp="{{cluster['job_dates']['max']|float}}"></span>
+								{% else %}
+									{{ cluster['job_dates']['max']|format_date(web_settings["date_format"], web_settings["time_format"]) }}
+								{% endif %}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
 		{% endif %}
 	</div>
 </div>

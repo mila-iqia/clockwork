@@ -89,7 +89,7 @@ class ClockworkToolsBaseClient:
             response = requests.put(
                 complete_address, data=params, headers=self._get_headers()
             )
-        print(response)
+
         # Check code instead and raise exception if it's the wrong one.
         if response.status_code == 200:
             return response.json()
@@ -279,24 +279,25 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
         # Otherwise, try to read them from the environment. Nothing in Clockwork
         # can work without some form of authentication, so we insist on finding
         # those values somewhere.
-        if clockwork_api_key:
-            self.clockwork_api_key = clockwork_api_key
-        elif "CLOCKWORK_API_KEY" in os.environ and os.environ["CLOCKWORK_API_KEY"]:
-            self.clockwork_api_key = os.environ["CLOCKWORK_API_KEY"]
-        else:
-            raise Exception(
-                f"Invalid clockwork_api_key argument or missing from environment."
-            )
+        if not clockwork_api_key:
+            if "CLOCKWORK_API_KEY" in os.environ and os.environ["CLOCKWORK_API_KEY"]:
+                clockwork_api_key = os.environ["CLOCKWORK_API_KEY"]
+            else:
+                raise Exception(
+                    f"Invalid clockwork_api_key argument or missing from environment."
+                )
 
-        if email:
-            self.email = email
-        elif "CLOCKWORK_EMAIL" in os.environ and os.environ["CLOCKWORK_EMAIL"]:
-            self.email = os.environ["CLOCKWORK_EMAIL"]
-        else:
-            raise Exception(f"Invalid email argument or missing from environment.")
+        if not email:
+            if "CLOCKWORK_EMAIL" in os.environ and os.environ["CLOCKWORK_EMAIL"]:
+                email = os.environ["CLOCKWORK_EMAIL"]
+            else:
+                raise Exception(f"Invalid email argument or missing from environment.")
 
         super().__init__(
-            email=email, clockwork_api_key=clockwork_api_key, host=host, port=port
+            email=email,
+            clockwork_api_key=clockwork_api_key,
+            host=host,
+            port=port,
         )
 
         # Additional feature on top of the parent class.

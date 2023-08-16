@@ -1,0 +1,124 @@
+{
+   "meta": {
+     "plugin": {
+       "type": "openapi\/v0.0.37",
+       "name": "Slurm OpenAPI v0.0.37"
+     },
+     "Slurm": {
+       "version": {
+         "major": 21,
+         "micro": 8,
+         "minor": 8
+       },
+       "release": "21.08.8-2"
+     }
+   },
+   "errors": [
+   ],
+   "nodes": [
+    {
+        "architecture": "x86_64",
+        "burstbuffer_network_address": "",
+        "boards": 1,
+        "boot_time": 0,
+        "comment": "This is a comment",
+        "cores": 2,
+        "cpu_binding": 0,
+        "cpu_load": 4294967294,
+        "extra": "",
+        "free_memory": -2,
+        "cpus": 2,
+        "last_busy": 1681387881,
+        "features": "test_features",
+        "active_features": "",
+        "gres": "gpu:1",
+        "gres_drained": "N\/A",
+        "gres_used": "gpu:0,tpu:0",
+        "mcs_label": "",
+        "name": "test-node-1",
+        "next_state_after_reboot": "invalid",
+        "address": "test-node-1",
+        "hostname": "test-node-1",
+        "state": "down",
+        "state_flags": [
+            "NOT_RESPONDING"
+        ],
+        "next_state_after_reboot_flags": [
+        ],
+        "operating_system": "",
+        "owner": null,
+        "partitions": [
+            "debug"
+        ],
+        "port": 6818,
+        "real_memory": 1800,
+        "reason": "Not responding",
+        "reason_changed_at": 1667084449,
+        "reason_set_by_user": "root",
+        "slurmd_start_time": 0,
+        "sockets": 1,
+        "threads": 1,
+        "temporary_disk": 0,
+        "weight": 1,
+        "tres": "cpu=2,mem=1800M,billing=2",
+        "slurmd_version": "",
+        "alloc_memory": 0,
+        "alloc_cpus": 0,
+        "idle_cpus": 2,
+        "tres_used": null,
+        "tres_weighted": 0
+    },
+    {
+        "architecture": "",
+        "burstbuffer_network_address": "",
+        "boards": 1,
+        "boot_time": 1679345346,
+        "comment": "",
+        "cores": 2,
+        "cpu_binding": 0,
+        "cpu_load": 3,
+        "extra": "",
+        "free_memory": 246,
+        "cpus": 2,
+        "last_busy": 1681387881,
+        "features": "other_test_features",
+        "active_features": "test_features2",
+        "gres": "",
+        "gres_drained": "N\/A",
+        "gres_used": "gpu:0,tpu:0",
+        "mcs_label": "",
+        "name": "test-node-2",
+        "next_state_after_reboot": "invalid",
+        "address": "test-node-2",
+        "hostname": "test-node-2",
+        "state": "down",
+        "state_flags": [
+        "DRAIN"
+        ],
+        "next_state_after_reboot_flags": [
+        ],
+        "operating_system": "Linux",
+        "owner": null,
+        "partitions": [
+        "debug"
+        ],
+        "port": 6818,
+        "real_memory": 1800,
+        "reason": "Sanity Check Failed",
+        "reason_changed_at": 1679695882,
+        "reason_set_by_user": "root",
+        "slurmd_start_time": 1679345382,
+        "sockets": 1,
+        "threads": 1,
+        "temporary_disk": 0,
+        "weight": 1,
+        "tres": "cpu=2,mem=1800M,billing=2",
+        "slurmd_version": "1.11.01",
+        "alloc_memory": 0,
+        "alloc_cpus": 0,
+        "idle_cpus": 2,
+        "tres_used": "cpu=1",
+        "tres_weighted": 0
+    }
+    ]
+}

@@ -110,122 +110,6 @@ const id_of_table_to_populate = "dashboard_table" // hardcoded into jobs.html al
 */
 
 var latest_response_contents; // Stores the content of the latest response received
-var latest_filtered_response_contents; // Results in applying filters on the latest response contents
-
-var page_num;
-
-function incrementValue()
-{
-    var value = parseInt(document.getElementById('page_num').value, 10);
-    value = isNaN(value) ? 0 : value;
-    if(value<10){
-        value++;
-            document.getElementById('page_num').value = value;
-    }
-    //console.log(value);
-    launch_refresh_all_data(query_filter, display_filter);
-}
-function decrementValue()
-{
-    var value = parseInt(document.getElementById('page_num').value, 10);
-    value = isNaN(value) ? 0 : value;
-    if(value>1){
-        value--;
-            document.getElementById('page_num').value = value;
-    }
-    //console.log(value);
-    launch_refresh_all_data(query_filter, display_filter);
-}
-
-function changeValue(newval) {
-    var value = parseInt(document.getElementById('page_num').value, 10);
-    value = newval;
-    document.getElementById('page_num').value = value;
-    launch_refresh_all_data(query_filter, display_filter);
-}
-
-function make_pagination(page_num, nbr_items_per_page, total_items) {
-    var TotalPages = Math.ceil(total_items / nbr_items_per_page);
-
-    let pagingDiv = document.getElementById("pagingDiv");
-    removeAllChildNodes(pagingDiv);
-    if (TotalPages > 1) {
-        if (+page_num > 1) {
-            // if has more than one page, add a PREVIOUS link
-            const prevLI = document.createElement('li')
-            const prevLink = document.createElement('a')
-            const prevI = document.createElement('i');
-            prevI.className = "fa-solid fa-caret-left";
-
-            pagingDiv.appendChild(prevLI);
-            prevLI.appendChild(prevLink);
-            prevLink.appendChild(prevI);
-
-            prevLink.addEventListener('click', decrementValue)
-
-        } else {
-            // otherwise, add a PREVIOUS span
-            const prevLI = document.createElement('li');
-            const prevSpan = document.createElement('span');
-            const prevI = document.createElement('i');
-            prevI.className = "fa-solid fa-caret-left";
-
-            pagingDiv.appendChild(prevLI);
-            prevLI.appendChild(prevSpan);
-            prevSpan.appendChild(prevI);
-        }
-
-        for (var i = 1; i <= TotalPages; i++) {
-            if (i >= 1) {
-                if (+page_num != i) {
-                    const prevLI = document.createElement('li')
-                    const pageLink = document.createElement('a')
-                    pageLink.textContent=i;
-
-                    pagingDiv.appendChild(prevLI);
-                    prevLI.appendChild(pageLink);
-
-                    pageLink.addEventListener('click', changeValue.bind(null, i))
-
-                } else {
-                    const prevLI = document.createElement('li')
-                    const pageSpan = document.createElement('span')
-                    pageSpan.textContent=i;
-                    prevLI.className = "current";
-
-                    pagingDiv.appendChild(prevLI);
-                    prevLI.appendChild(pageSpan);
-                }
-            }
-        }
-
-        if (+page_num < TotalPages) {
-            // if not on the last page, add a NEXT link
-            const nextLI = document.createElement('li')
-            const nextLink = document.createElement('a')
-            const nextI = document.createElement('i');
-            nextI.className = "fa-solid fa-caret-right";
-
-            pagingDiv.appendChild(nextLI);
-            nextLI.appendChild(nextLink);
-            nextLink.appendChild(nextI);
-
-            nextLink.addEventListener('click', incrementValue)
-
-        } else {
-            // if on the last page, add a NEXT span
-            const prevLI = document.createElement('li')
-            const nextSpan = document.createElement('span')
-            const nextI = document.createElement('i');
-            nextI.className = "fa-solid fa-caret-right";
-
-            pagingDiv.appendChild(prevLI);
-            prevLI.appendChild(nextSpan);
-            nextSpan.appendChild(nextI);
-
-        }
-    }
-}
 
 function count_jobs(response_contents) {
     const categories = [
@@ -389,12 +273,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
     // If a user is specified, add its username to the request
     if (query_filter["username"].localeCompare("all") != 0) {
       url = url + "&username=" + query_filter["username"];
-    };
-
-    // The following lines are commented alongside the call to make_pagination
-    // below because we do not want to add pagination on the dashboard for now.
-    //page_num = document.getElementById('page_num').value;
-    //url = url + "&page_num=" + page_num;
+    }
 
     // Send the request, and retrieve the response
     const request = new Request(url,
@@ -418,7 +297,7 @@ function launch_refresh_all_data(query_filter, display_filter) {
     }).catch(error => {
         console.error(error);
     });
-};
+}
 
 function refresh_display(display_filter) {
     /*
@@ -428,51 +307,31 @@ function refresh_display(display_filter) {
     const latest_filtered_response_contents = apply_filter(latest_response_contents["jobs"], display_filter);
     const alljobs_filtered = apply_filter(latest_response_contents["jobs"], display_filter);
 
-    const total_jobs = latest_response_contents["nbr_total_jobs"];
 
     //for testing only - use a smaller number
     //nbr_items_per_page = 3;
 
     // The following lines are commented because we do not want to add pagination
     // on the dashboard for now.
+    // const total_jobs = latest_response_contents["nbr_total_jobs"];
     //page_num = document.getElementById('page_num').value;
     //nbr_items_per_page = display_filter['num_per_page'];
     //nbr_pages = Math.ceil(total_jobs / nbr_items_per_page);
 
     vacate_table(); // idempotent if not table is present
     populate_table(latest_filtered_response_contents);
-    //kaweb - for some reason, the sortable init only works on reload/first load, not after changing filters
-    //Sortable.init();
-    //kaweb - tooltips work though
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
 
     //kaweb - attempt to count results
     count_jobs(alljobs_filtered);
-
-    //kaweb - build pagination here
-    // The following line is commented because we do not want to add pagination
-    // on the dashboard for now.
-    //make_pagination(page_num, nbr_items_per_page, total_jobs)
 }
 
 /*
     Helpers:
         retrieve_username_from_email(email)
-        removeAllChildNodes(parent)
         vacate_table()
         populate_table(response_contents)
         apply_filter(response_contents, display_filter)
 */
-
-// https://www.javascripttutorial.net/dom/manipulating/remove-all-child-nodes/
-function removeAllChildNodes(parent) {
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
-}
 
 
 function vacate_table() {
@@ -491,7 +350,6 @@ function vacate_table() {
         We might need to do some profiling later, and revisit this.
     */
     table.innerHTML = "";
-    //removeAllChildNodes(table);
     /*
     [].forEach.call(table.children, function(child) {
         table.removeChild(child);
@@ -661,6 +519,7 @@ function populate_table(response_contents) {
     if (check_web_settings_column_display(page_name, "submit_time")) {
         th = document.createElement('th');
         th.innerHTML = "Submit time";
+        th.setAttribute("data-sortable-type", "numeric");
         th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'submit_time', 4, table));
         if (currentSortableState.name === 'submit_time') {
             thToSort = th;
@@ -671,6 +530,7 @@ function populate_table(response_contents) {
     if (check_web_settings_column_display(page_name, "start_time")) {
         th = document.createElement('th');
         th.innerHTML = "Start time";
+        th.setAttribute("data-sortable-type", "numeric");
         th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'start_time', 5, table));
         if (currentSortableState.name === 'start_time') {
             thToSort = th;
@@ -681,6 +541,7 @@ function populate_table(response_contents) {
     if (check_web_settings_column_display(page_name, "end_time")) {
         th = document.createElement('th');
         th.innerHTML = "End time";
+        th.setAttribute("data-sortable-type", "numeric");
         th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'end_time', 6, table));
         if (currentSortableState.name === 'end_time') {
             thToSort = th;
@@ -711,8 +572,6 @@ function populate_table(response_contents) {
         //kaweb - displaying the job state in lowercase to manipulate it in CSS
         const job_state = D_job_slurm["job_state"].toLowerCase();
         let tr = document.createElement('tr');
-        let td;
-        let a;
 
         // Clusters
         if (check_web_settings_column_display(page_name, "clusters")) {
@@ -776,7 +635,7 @@ function populate_table(response_contents) {
                 }
                 tr.appendChild(td);
             }
-        };
+        }
 
         // Links
         if (check_web_settings_column_display(page_name, "links")) {

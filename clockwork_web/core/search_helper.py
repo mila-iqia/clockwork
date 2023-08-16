@@ -45,15 +45,28 @@ def parse_search_request(user, args, force_pagination=True):
     job_states = get_inferred_job_states(aggregated_job_states)
     job_states += get_custom_array_from_request_args(args.get("job_state"))
 
+    job_ids = get_custom_array_from_request_args(args.get("job_id"))
+    # Set default value of sort_asc
+    sort_by = args.get("sort_by", default="submit_time", type=str)
+    sort_asc = args.get("sort_asc", default=0, type=int)
+    if sort_asc not in (-1, 1):
+        if sort_by in ["cluster_name", "user", "name", "job_state"]:
+            # Default value of sort_asc is ascending in these cases
+            sort_asc = 1
+        else:
+            # Default value of sort_asc is descending otherwise
+            sort_asc = -1
+
     query = SimpleNamespace(
         username=args.get("username"),
         cluster_name=cluster_names,
         aggregated_job_state=aggregated_job_states,
         job_state=job_states,
+        job_ids=job_ids,
         pagination_page_num=args.get("page_num", type=int, default=default_page_number),
         pagination_nbr_items_per_page=args.get("nbr_items_per_page", type=int),
-        sort_by=args.get("sort_by", default="submit_time", type=str),
-        sort_asc=args.get("sort_asc", default=1, type=int),
+        sort_by=sort_by,
+        sort_asc=sort_asc,
         want_count=want_count,
     )
 
@@ -91,6 +104,7 @@ def search_request(user, args, force_pagination=True):
         username=query.username,
         cluster_names=query.cluster_name,
         job_states=query.job_state,
+        job_ids=query.job_ids,
         nbr_skipped_items=query.nbr_skipped_items,
         nbr_items_to_display=query.nbr_items_to_display,
         want_count=force_pagination

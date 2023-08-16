@@ -58,7 +58,7 @@
 		function select_nbr_items_per_page(nbr_items_per_page_dropdown) {
 			// Retrieve the selected value
 		  	var selected_nbr = nbr_items_per_page_dropdown.options[nbr_items_per_page_dropdown.selectedIndex].value;
-		  
+
 			// Update it in the user's web settings
 			set_nbr_items_per_page(selected_nbr);
 		};
@@ -93,9 +93,9 @@
 		</div>
 		<div class="row settings_list">
 			<div class="col-12">
-				
+
 				<dl class="row">
-					<dt class="col-6"> 
+					<dt class="col-6">
 
 						<form>
 							<div class="form-group">
@@ -131,7 +131,7 @@
 							<!-- This is filled through the javascript -->
 						</select>
 					</dd>
-		 
+
 					<!-- Dark mode -->
 			  		<dt class="col-6"><label for="dark_mode_toggle">{{ gettext("Dark mode") }}</label></dt>
 		 			<dd class="col-6">
@@ -141,7 +141,7 @@
 							{% else %}
 								<input name="dark_mode_toggle" id="dark_mode_toggle" type="checkbox" class="form-check-input" onclick="switch_dark_mode()" />
 							{% endif %}
-						</div>	
+						</div>
 					</dd>
 
 					<!-- Timestamps -->
@@ -180,7 +180,7 @@
 									<option value="MM/DD/YYYY">MM/DD/YYYY</option>
 								{% endif %}
 							</select>
-						</div>	
+						</div>
 					</dd>
 					<dd class="col-3">
 						<div>
@@ -198,7 +198,7 @@
 									<option value="24h">24h</option>
 								{% endif %}
 							</select>
-						</div>	
+						</div>
 					</dd>
 
 					<!-- Tables -->
@@ -215,13 +215,13 @@
 		                            <th>Start time</th>
 		                            <th>End time</th>
 		                            <th>Links</th>
-		                            <th>Actions</th>
+		                            <!--<th>Actions</th>-->
 		                        </tr>
 		                    </thead>
 		                    <tbody>
 		                    	<tr>
 									{% set page_name = "dashboard" %}
-									{% for column_name in ["clusters", "job_id", "job_name", "job_state", "submit_time", "start_time", "end_time", "links", "actions"] %}
+									{% for column_name in ["clusters", "job_id", "job_name", "job_state", "submit_time", "start_time", "end_time", "links"] %}
 		                    		<td><div class="form-check form-switch">
 										{% if (web_settings | check_web_settings_column_display(page_name, column_name)) %}
 											<input name="{{page_name}}_{{column_name}}_toggle" id="{{page_name}}_{{column_name}}_toggle" type="checkbox" class="form-check-input" onclick="switch_column_setting('{{page_name}}', '{{column_name}}')" checked />
@@ -250,13 +250,13 @@
 		                            <th>Start time</th>
 		                            <th>End time</th>
 		                            <th>Links</th>
-		                            <th>Actions</th>
+		                            <!--<th>Actions</th>-->
 		                        </tr>
 		                    </thead>
 		                    <tbody>
 		                    	<tr>
 		                    		{% set page_name = "jobs_list" %}
-									{% for column_name in ["clusters", "user","job_id", "job_name", "job_state", "submit_time", "start_time", "end_time", "links", "actions"] %}
+									{% for column_name in ["clusters", "user","job_id", "job_name", "job_state", "submit_time", "start_time", "end_time", "links"] %}
 		                    		<td><div class="form-check form-switch">
 										{% if (web_settings | check_web_settings_column_display(page_name, column_name)) %}
 											<input name="{{page_name}}_{{column_name}}_toggle" id="{{page_name}}_{{column_name}}_toggle" type="checkbox" class="form-check-input" onclick="switch_column_setting('{{page_name}}', '{{column_name}}')" checked />

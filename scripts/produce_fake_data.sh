@@ -36,25 +36,25 @@ for SUBFOLDER in ${CLOCKWORK_ROOT}/tmp/slurm_report/*; do
     # If its name is contained in the clusters list
     if [[ "$CLUSTER_NAME" =~ ^(beluga|graham|cedar|narval|mila)$ ]]; then
       # "node"  to  "node anonymized"
-      python3 -m slurm_state.anonymize_scontrol_report \
+      python3 -m slurm_state.anonymize_report \
           --keep 100 \
           --cluster_name ${CLUSTER_NAME} \
           --users_file ${FAKE_USERS_FILE} \
-          --input_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_node \
-          --output_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_node_anonymized
+          --input_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sinfo \
+          --output_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sinfo_anonymized
       # "job"  to  "job anonymized"
-      python3 -m slurm_state.anonymize_scontrol_report \
+      python3 -m slurm_state.anonymize_report \
           --keep 100 \
           --cluster_name ${CLUSTER_NAME} \
           --users_file ${FAKE_USERS_FILE} \
-          --input_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job \
-          --output_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job_anonymized
+          --input_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sacct \
+          --output_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sacct_anonymized
 
       # "job anonymized"  to  "jobs anonymized dump file"
       ANONYMIZED_JOBS_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/job_anonymized_dump_file.json
       python3 -m slurm_state.read_report_commit_to_db \
           --cluster_name ${CLUSTER_NAME} \
-          --jobs_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_job_anonymized \
+          --jobs_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sacct_anonymized \
           --dump_file $ANONYMIZED_JOBS_FILE
       ANONYMIZED_JOBS_FILES+=(${ANONYMIZED_JOBS_FILE})
 
@@ -62,7 +62,7 @@ for SUBFOLDER in ${CLOCKWORK_ROOT}/tmp/slurm_report/*; do
       ANONYMIZED_NODES_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/node_anonymized_dump_file.json
       python3 -m slurm_state.read_report_commit_to_db \
           --cluster_name ${CLUSTER_NAME} \
-          --nodes_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/scontrol_show_node_anonymized \
+          --nodes_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sinfo_anonymized \
           --dump_file $ANONYMIZED_NODES_FILE
       ANONYMIZED_NODES_FILES+=($ANONYMIZED_NODES_FILE)
     fi

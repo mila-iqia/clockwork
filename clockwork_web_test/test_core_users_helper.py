@@ -5,7 +5,7 @@ Tests for the clockwork_web.core.users_helper functions.
 import pytest
 
 from clockwork_web.core.users_helper import *
-from clockwork_web.core.users_helper import _set_web_setting
+from clockwork_web.core.users_helper import _set_web_setting, get_users
 from clockwork_web.db import get_db
 
 
@@ -1255,6 +1255,21 @@ def test_get_available_clusters_from_db(app, user_id, expected_clusters):
 
         # Check if the retrieved clusters are the expected ones
         assert set(expected_clusters) == set(retrieved_clusters)
+
+
+def test_get_users(app, fake_data):
+    """
+    Test the function get_users() used to retrieve all users in database.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context
+                    (to access MongoDB)
+    - fake_data     The data on which our tests are based
+    """
+    assert len(fake_data["users"]) == 20
+    with app.app_context():
+        users = get_users()
+    assert len(users) == len(fake_data["users"])
 
 
 # Helpers

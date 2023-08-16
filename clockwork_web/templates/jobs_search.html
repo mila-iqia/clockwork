@@ -4,8 +4,14 @@
         {# If field does not change, just reverse sorting #}
         {% set sort_asc = -previous_request_args["sort_asc"] %}
     {% else %}
-        {# By default, sort ascending #}
-        {% set sort_asc = 1 %}
+        {# By default, sort ascending if the field to sort is cluster_name,
+            user, name or job_state #}
+        {% if field in ["cluster_name", "user", "name", "job_state"] %}
+            {% set sort_asc = 1 %}
+        {% else %}
+            {# Otherwise, the default order is descending #}
+            {% set sort_asc = -1 %}
+        {% endif %}
     {% endif %}
     {{ modify_query(sort_by=field, sort_asc=sort_asc) }}
 {% endmacro %}
@@ -220,15 +226,21 @@
                             <!-- Links -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "links")) %}
                                 <td class="links">
-                                    {% if (D_job['slurm']['cluster_name'] == 'beluga') or (D_job['slurm']['cluster_name'] == 'narval') %}
-                                        <!-- https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid> -->
-                                        <a  href='https://portail.{{D_job["slurm"]["cluster_name"]}}.calculquebec.ca/secure/jobstats/{{D_job["slurm"]["username"]}}/{{D_job["slurm"]["job_id"]}}'
-                                            data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'>
-                                            <i class='fa-solid fa-file'></i>
-                                        </a>
+                                    {# The links are not visible is the current user does not own this job #}
+                                    {% if have_same_users(mila_email_username, D_job['cw']['mila_email_username']) %}
+                                        {# DRAC link if appliable #}
+                                        {% if (D_job['slurm']['cluster_name'] == 'beluga') or (D_job['slurm']['cluster_name'] == 'narval') %}
+                                            <!-- https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid> -->
+                                            <a  href='https://portail.{{D_job["slurm"]["cluster_name"]}}.calculquebec.ca/secure/jobstats/{{D_job["slurm"]["username"]}}/{{D_job["slurm"]["job_id"]}}'
+                                                data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'>
+                                                <i class='fa-solid fa-file'></i>
+                                            </a>
+                                        {% endif %}
+
+                                        {# Other link (here, it is a placeholder with no condition) #}
+                                        <!-- this is a placeholder -->
+                                        <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
                                     {% endif %}
-                                    <!-- this is a placeholder -->
-                                    <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
                                 </td>
                             {% endif %}
 
@@ -265,8 +277,12 @@
                     <nav class="table_nav" aria-label="table_nav">
                         <ul class="pagination">
                             {% if page_num == 1 %}
-                                <li class="page-item first"><span><i class="fa-solid fa-caret-left"></i></span></li>
+                                <li class="page-item first">
+                                    <span><i class="fa-solid fa-caret-left"></i><i class="fa-solid fa-caret-left"></i></span>
+                                    <span><i class="fa-solid fa-caret-left"></i></span>
+                                </li>
                             {% else %}
+                                <li class="page-item first"><a class="page-link" href="{{ modify_query(page_num=1) }}"><i class="fa-solid fa-caret-left"></i><i class="fa-solid fa-caret-left"></i></a></li>
                                 <li class="page-item first"><a class="page-link" href="{{ modify_query(page_num=page_num - 1) }}"><i class="fa-solid fa-caret-left"></i></a></li>
                             {% endif %}
 
@@ -295,9 +311,13 @@
                                 <li><span class="ellipses">...</span></li>
                             {% endif %}
                             {% if page_num == total_pages %}
-                                <li class="page-item last"><span><i class="fa-solid fa-caret-right"></i></span></li>
+                                <li class="page-item last">
+                                    <span><i class="fa-solid fa-caret-right"></i></span>
+                                    <span><i class="fa-solid fa-caret-right"></i><i class="fa-solid fa-caret-right"></i></span>
+                                </li>
                             {% else %}
                                 <li class="page-item last"><a class="page-link" href="{{ modify_query(page_num=page_num + 1) }}"><i class="fa-solid fa-caret-right"></i></a></li>
+                                <li class="page-item last"><a class="page-link" href="{{ modify_query(page_num=total_pages) }}"><i class="fa-solid fa-caret-right"></i><i class="fa-solid fa-caret-right"></i></a></li>
                             {% endif %}
                         </ul>
                     </nav>
