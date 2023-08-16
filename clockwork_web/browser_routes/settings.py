@@ -55,6 +55,7 @@ def route_index():
         "settings.html",
         mila_email_username=current_user.mila_email_username,
         clockwork_api_key=current_user.clockwork_api_key,
+        cc_account_username=current_user.cc_account_username,
         cc_account_update_key=current_user.cc_account_update_key,
         previous_request_args=previous_request_args,
     )
