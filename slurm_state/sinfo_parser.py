@@ -7,15 +7,7 @@ import json, os
 
 # Imports to retrieve the values related to sinfo call
 from slurm_state.helpers.ssh_helper import open_connection
-
-from slurm_state.extra_filters import clusters_valid
-from slurm_state.config import get_config, string, optional_string, timezone
-
-clusters_valid.add_field("sinfo_path", optional_string)
-clusters_valid.add_field("ssh_key_filename", string)
-clusters_valid.add_field("timezone", timezone)
-clusters_valid.add_field("remote_user", optional_string)
-clusters_valid.add_field("remote_hostname", optional_string)
+from slurm_state.helpers.clusters_helper import get_all_clusters
 
 # These functions are translators used in order to handle the values
 # we could encounter while parsing a node dictionary retrieved from a
@@ -179,21 +171,24 @@ def generate_node_report(
         file_name           The path of the report file to write
 
     """
+    # Retrieve the cluster's information from the configuration file
+    cluster = get_all_clusters()[cluster_name]
+
     # Retrieve from the configuration file the elements used to establish a SSH connection
     # to a remote cluster and launch the sinfo command on it
-    username = get_config("clusters")[cluster_name][
+    username = cluster[
         "remote_user"
     ]  # The username used for the SSH connection to launch the sinfo command
-    hostname = get_config("clusters")[cluster_name][
+    hostname = cluster[
         "remote_hostname"
     ]  # The hostname used for the SSH connection to launch the sinfo command
-    port = get_config("clusters")[cluster_name][
+    port = cluster[
         "ssh_port"
     ]  # The port used for the SSH connection to launch the sinfo command
-    sinfo_path = get_config("clusters")[cluster_name][
+    sinfo_path = cluster[
         "sinfo_path"
     ]  # The path of the sinfo executable on the cluster side
-    ssh_key_filename = get_config("clusters")[cluster_name][
+    ssh_key_filename = cluster[
         "ssh_key_filename"
     ]  # The name of the private key in .ssh folder used for the SSH connection to launch the sinfo command
 

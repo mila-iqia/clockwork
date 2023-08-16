@@ -7,15 +7,7 @@ import json, os
 # Imports related to sacct call
 # https://docs.paramiko.org/en/stable/api/client.html
 from slurm_state.helpers.ssh_helper import open_connection
-
-from slurm_state.extra_filters import clusters_valid, get_allocations
-from slurm_state.config import get_config, string, optional_string, timezone
-
-clusters_valid.add_field("sacct_path", optional_string)
-clusters_valid.add_field("ssh_key_filename", string)
-clusters_valid.add_field("timezone", timezone)
-clusters_valid.add_field("remote_user", optional_string)
-clusters_valid.add_field("remote_hostname", optional_string)
+from slurm_state.helpers.clusters_helper import get_all_clusters
 
 # These functions are translators used in order to handle the values
 # we could encounter while parsing a job dictionary retrieved from a
@@ -350,21 +342,24 @@ def generate_job_report(
         file_name       Path to store the generated sacct report
 
     """
+    # Retrieve the cluster's information from the configuration file
+    cluster = get_all_clusters()[cluster_name]
+
     # Retrieve from the configuration file the elements used to establish a SSH connection
     # to a remote cluster and launch the sacct command on it
-    username = get_config("clusters")[cluster_name][
+    username = cluster[
         "remote_user"
     ]  # The username used for the SSH connection to launch the sacct command
-    hostname = get_config("clusters")[cluster_name][
+    hostname = cluster[
         "remote_hostname"
     ]  # The hostname used for the SSH connection to launch the sacct command
-    port = get_config("clusters")[cluster_name][
+    port = cluster[
         "ssh_port"
     ]  # The port used for the SSH connection to launch the sacct command
-    sacct_path = get_config("clusters")[cluster_name][
+    sacct_path = cluster[
         "sacct_path"
     ]  # The path of the sacct executable on the cluster side
-    ssh_key_filename = get_config("clusters")[cluster_name][
+    ssh_key_filename = cluster[
         "ssh_key_filename"
     ]  # The name of the private key in .ssh folder used for the SSH connection to launch the sacct command
 
@@ -392,7 +387,7 @@ def generate_job_report(
     #        then it works. We have to hardcode the path in each cluster, it seems.
 
     # Retrieve the allocations associated to the cluster
-    allocations = get_allocations(cluster_name)
+    allocations = cluster["allocations"]
 
     if allocations == []:
         # If the cluster has no associated allocation, nothing is requested

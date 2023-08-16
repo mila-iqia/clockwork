@@ -90,6 +90,12 @@ def string_choices(*choices):
     return _valid
 
 
+def alloc_valid(value):
+    if value == "*":
+        return value
+    return string_list(value)
+
+
 def timezone(value):
     try:
         return zoneinfo.ZoneInfo(value)
