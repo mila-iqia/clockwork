@@ -449,7 +449,6 @@ def test_nodes_with_filter(
 
 
 def test_single_node(client, fake_data):
-
     """
     Check the function route_one when success (ie an authenticated user
     request an existing node to which he/she has access).
@@ -570,7 +569,6 @@ def test_single_node_not_found(client, fake_data):
 
 
 def test_single_node_cluster_only(client):
-
     """
     Check the function route_one when only the cluster is provided.
 
@@ -596,7 +594,10 @@ def test_single_node_cluster_only(client):
 
     # Might as well check that the error message is the one we expect.
     # 'The parameter &#34;node_name&#34; has not been provided.'
-    assert 'The parameter &#34;node_name&#34; has not been provided.' in response.get_data(as_text=True)
+    assert (
+        "The parameter &#34;node_name&#34; has not been provided."
+        in response.get_data(as_text=True)
+    )
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
