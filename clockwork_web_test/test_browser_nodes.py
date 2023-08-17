@@ -594,6 +594,10 @@ def test_single_node_cluster_only(client):
     # Assert that a 400 Error is returned
     assert response.status_code == 400
 
+    # Might as well check that the error message is the one we expect.
+    # 'The parameter &#34;node_name&#34; has not been provided.'
+    assert 'The parameter &#34;node_name&#34; has not been provided.' in response.get_data(as_text=True)
+
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
     assert response_logout.status_code == 302  # Redirect
