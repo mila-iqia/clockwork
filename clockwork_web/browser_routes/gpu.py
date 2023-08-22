@@ -2,6 +2,7 @@ import logging
 from flask import Blueprint, Markup, request
 from flask.json import jsonify
 from flask_login import current_user, login_required
+from flask_babel import gettext
 from clockwork_web.core.gpu_helper import get_gpu_info, get_gpu_list
 from clockwork_web.core.users_helper import render_template_with_user_settings
 
@@ -70,7 +71,7 @@ def route_one():
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=f"Missing argument gpu_name.",
+                error_msg=gettext("Missing argument gpu_name."),
                 previous_request_args=previous_request_args,
             ),
             400,  # Bad Request

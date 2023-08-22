@@ -180,7 +180,7 @@ def route_one():
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=f"Node not found",
+                error_msg=gettext("Node not found"),
                 previous_request_args=previous_request_args,
             ),
             404,  # Not Found
@@ -189,7 +189,7 @@ def route_one():
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=f"Found more than one matching node",
+                error_msg=gettext("Found more than one matching node"),
                 previous_request_args=previous_request_args,
             ),
             400,  # Bad Request

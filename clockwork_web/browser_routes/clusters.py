@@ -59,7 +59,7 @@ def route_one():
             return (
                 render_template_with_user_settings(
                     "error.html",
-                    error_msg=gettext(f"This cluster is not known."),
+                    error_msg=gettext("This cluster is not known."),
                     previous_request_args=previous_request_args,
                 ),
                 404,  # Not Found
@@ -72,7 +72,7 @@ def route_one():
                 render_template_with_user_settings(
                     "error.html",
                     error_msg=gettext(
-                        f"You don't have access to the requested cluster."
+                        "You don't have access to the requested cluster."
                     ),
                     previous_request_args=previous_request_args,
                 ),
@@ -112,7 +112,7 @@ def route_one():
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=f"The argument cluster_name is missing.",
+                error_msg=gettext("The argument cluster_name is missing."),
                 previous_request_args=previous_request_args,
             ),
             400,  # Bad Request

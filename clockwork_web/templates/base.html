@@ -84,24 +84,24 @@
 						    </button>
 							<div class="collapse navbar-collapse" id="navbarSupportedContent">
 								<ul class="navbar-nav mb-2 mb-lg-0">
-									<li class="nav-item"><a class="nav-link" href="{{url_for('index')}}"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
-									<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_search')}}"><i class="fa-solid fa-list-check"></i> Jobs</a></li>
+									<li class="nav-item"><a class="nav-link" href="{{url_for('index')}}"><i class="fa-solid fa-gauge"></i>{{ gettext("Dashboard") }}</a></li>
+									<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_search')}}"><i class="fa-solid fa-list-check"></i>{{ gettext("Jobs") }}</a></li>
 									<!-- Temporarily hidden
-										<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_index')}}"><i class="fa-solid fa-circle-nodes"></i> Clusters</a></li>-->
-									<li class="nav-item"><a class="nav-link" href="{{url_for('settings.route_index')}}"><i class="fa-solid fa-gears"></i> Settings</a></li>
+										<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_index')}}"><i class="fa-solid fa-circle-nodes"></i>{{ gettext("Clusters") }}</a></li>-->
+									<li class="nav-item"><a class="nav-link" href="{{url_for('settings.route_index')}}"><i class="fa-solid fa-gears"></i>{{ gettext("Settings") }}</a></li>
 
 									 <li class="nav-item dropdown">
-							        	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-arrow-up-right-from-square"></i> External</a>
+							        	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-arrow-up-right-from-square"></i>{{ gettext("External") }}</a>
 						        		<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 								            <li><h3>Mila</h3></li>
-											<li><a class="dropdown-item" href="https://dashboard.server.mila.quebec" target="_blank">Dashboard</a></li>
-											<li><a class="dropdown-item" href="https://docs.mila.quebec" target="_blank">Documentation</a></li>
+											<li><a class="dropdown-item" href="https://dashboard.server.mila.quebec" target="_blank">{{ gettext("Dashboard") }}</a></li>
+											<li><a class="dropdown-item" href="https://docs.mila.quebec" target="_blank">{{ gettext("Documentation") }}</a></li>
 											<li><hr class="dropdown-divider"></li>
 											<li><h3>Clockwork</h3></li>
-											<li><a class="dropdown-item" href="#" target="_blank">Documentation</a></li>
+											<li><a class="dropdown-item" href="#" target="_blank">{{ gettext("Documentation") }}</a></li>
 											<li><a class="dropdown-item" href="#" target="_blank">Github</a></li>
 											{% if current_user["admin_access"] == true %}
-												<li><a class="dropdown-item" href="{{url_for('admin.panel')}}" target="_blank"><i class="fa-solid fa-gears"></i> Admin</a></li>
+												<li><a class="dropdown-item" href="{{url_for('admin.panel')}}" target="_blank"><i class="fa-solid fa-gears"></i>{{ gettext("Admin") }}</a></li>
 											{% endif %}
 						        		</ul>
 							        </li>
@@ -117,8 +117,8 @@
 							<a class="user_loggedin" data-bs-toggle="dropdown" data-bs-offset="-34,20" aria-expanded="false" href="#"><i class="fa-solid fa-user-check"></i></a>
 							<div class="dropdown-menu">
 								<div class="triangle-right"></div>
-								<p>Logged in as <strong>{{mila_email_username}}</strong></p>
-								<a class="btn" href="{{url_for('login.route_logout')}}">Logout? <i class="fa-solid fa-person-to-portal"></i></a>
+								<p>{{ gettext("Logged in as") }} <strong>{{mila_email_username}}</strong></p>
+								<a class="btn" href="{{url_for('login.route_logout')}}">{{ gettext("Logout?") }}<i class="fa-solid fa-person-to-portal"></i></a>
 							</div>
 						</div>
 					{% else %}
@@ -139,7 +139,7 @@
 			                <div class="col-12">
 			                    <div class="title float-end">
 			                        <i class="fa-solid fa-magnifying-glass"></i>
-			                        <h1><a data-bs-toggle="collapse" data-bs-target=".formCollapse" aria-expanded="false" href="#mainCollapse #collapseForm" aria-controls="mainCollapse collapseForm"><i class="fa-solid fa-circle-plus"></i>SEARCH</a></h1>
+			                        <h1><a data-bs-toggle="collapse" data-bs-target=".formCollapse" aria-expanded="false" href="#mainCollapse #collapseForm" aria-controls="mainCollapse collapseForm"><i class="fa-solid fa-circle-plus"></i>{{ gettext("SEARCH") }}</a></h1>
 			                    </div>
 			                    <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
 			                </div>
@@ -154,7 +154,7 @@
 				                    <div class="col-sm-12 col-md-4">
 				                        <div class="cc_toggle_zone_column user_group">
 				                            <div class="cc_toggle_zone_row row_title">
-				                                <span>Filter by user</span>
+				                                <span>{{ gettext("Filter by user") }}</span>
 				                            </div>
 
 											{# Define which radio button check for the username #}
@@ -172,7 +172,7 @@
 													<input class="form-check-input" id="user_option_all" name="username" type="radio" data-no-submit />
 												{% endif %}
 				                                <label for="user_option_all" class="form-label">
-				                                    <span>All users</span>
+				                                    <span>{{ gettext("All users") }}</span>
 				                                </label>
 				                            </div>
 
@@ -188,7 +188,7 @@
 													<input class="form-check-input" id="user_option_only_me" name="username" value="{{mila_email_username}}" type="radio" data-no-submit />
 												{% endif %}
 				                                <label for="user_option_only_me" class="form-label">
-				                                    <span>Only me</span>
+				                                    <span>{{ gettext("Only me") }}</span>
 				                                </label>
 				                            </div>
 
@@ -198,13 +198,13 @@
 													{# Create the radio box as checked #}
 													<input class="form-check-input" id="user_option_other" name="username" type="radio" checked />
 													<label for="user_option_other" class="form-label">
-				                                    	<input type="text" class="form-control" id="user_option_other_textarea" name="username" placeholder="Other user..." value="{{previous_request_args['username']}}" data-no-submit>
+				                                    	<input type="text" class="form-control" id="user_option_other_textarea" name="username" placeholder="{{ gettext('Other user...') }}" value="{{previous_request_args['username']}}" data-no-submit>
 													</label>
 												{% else %}
 													{# Create the radio box as unchecked #}
 													<input class="form-check-input" id="user_option_other" name="username" type="radio" />
 													<label for="user_option_other" class="form-label">
-														<input type="text" class="form-control" id="user_option_other_textarea" name="username" placeholder="Other user..." disabled="disabled" data-no-submit>
+														<input type="text" class="form-control" id="user_option_other_textarea" name="username" placeholder="{{ gettext('Other user...') }}" disabled="disabled" data-no-submit>
 													</label>
 												{% endif %}
 											</div>
@@ -215,7 +215,7 @@
 				                    <div class="col-sm-12 col-md-4">
 				                        <div class="cc_toggle_zone_column">
 				                            <div class="cc_toggle_zone_row row_title">
-				                                <span>Filter by cluster</span>
+				                                <span>{{ gettext("Filter by cluster") }}</span>
 				                            </div>
 
 											{% for cluster_name,D_cluster in clusters.items()|sort(attribute='1.display_order', reverse=False) %}
@@ -224,33 +224,33 @@
 													<!-- official documentation-->
 													{% if D_cluster['official_documentation'] %}
 														<a href="{{D_cluster['official_documentation']}}" target="_blank">
-															<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="Cluster documentation"></i>
+															<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Cluster documentation') }}"></i>
 														</a>
 													{% else %}
 														<a class="disabled">
-															<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="No documentation available"></i>
+															<i class="fa-solid fa-layer-group" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('No documentation available') }}"></i>
 														</a>
 													{% endif %}
 													<!-- Grafana -->
 													<a href="https://dashboard.server.mila.quebec/" target="_blank">
-														<i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="Grafana cluster link"></i>
+														<i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Grafana cluster link') }}"></i>
 													</a>
 													{% if D_cluster['status']['jobs_are_old'] %}
 														<span class="cluster-info cluster-warning">
-															<i class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="right" title="Latest job edition is too old (more than 30 days ago)"></i>
+															<i class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Latest job edition is too old (more than 30 days ago)') }}"></i>
 														</span>
 													{% else %}
 														<span class="cluster-info cluster-good">
-															<i class="fa-solid fa-ballot-check" data-bs-toggle="tooltip" data-bs-placement="right" title="Latest job edition is recent enough (at most 30 days ago)"></i>
+															<i class="fa-solid fa-ballot-check" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Latest job edition is recent enough (at most 30 days ago)') }}"></i>
 														</span>
 													{% endif %}
 													{% if D_cluster['status']['cluster_has_error'] %}
 														<span class="cluster-info cluster-error">
-															<i class="fa-solid fa-octagon-exclamation" data-bs-toggle="tooltip" data-bs-placement="right" title="A cluster error occurred recently"></i>
+															<i class="fa-solid fa-octagon-exclamation" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('A cluster error occurred recently') }}"></i>
 														</span>
 													{% else %}
 														<span class="cluster-info cluster-good">
-															<i class="fa-solid fa-octagon-check" data-bs-toggle="tooltip" data-bs-placement="right" title="No recent cluster error"></i>
+															<i class="fa-solid fa-octagon-check" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('No recent cluster error') }}"></i>
 														</span>
 													{% endif %}
 													<!-- cluster toggle -->
@@ -276,7 +276,7 @@
 				                    <div class="col-sm-12 col-md-4">
 				                        <div class="cc_toggle_zone_column">
 				                            <div class="cc_toggle_zone_row row_title">
-				                                <span>Filter by status</span>
+				                                <span>{{ gettext("Filter by status") }}</span>
 				                            </div>
 
 											{% for state in [
@@ -329,7 +329,7 @@
 				                 <div class="row">
 				                    <!-- button -->
 				                    <div class="col-sm-12 col-md-4 offset-md-8">
-				                        <button type="submit" class="btn btn-red mb-3">Run search</button>
+				                        <button type="submit" class="btn btn-red mb-3">{{ gettext("Run search") }}</button>
 				                    </div>
 				                </div>
 				            </form>
@@ -352,7 +352,7 @@
 							&copy; 2022 MILA. All rights reserved.
 						</div>
 						<div class="col-6">
-							<a href="">Feedback and bug reports</a> | <a href="">Privacy policy <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+							<a href="">{{ gettext("Feedback and bug reports") }}</a> | <a href="">{{ gettext("Privacy policy") }}<i class="fa-solid fa-arrow-up-right-from-square"></i></a>
 						</div>
 					</div>
 				</div>

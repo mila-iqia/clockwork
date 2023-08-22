@@ -241,7 +241,8 @@ def route_one():
     if len(LD_jobs) == 0:
         return render_template_with_user_settings(
             "error.html",
-            error_msg=f"Found no job with job_id {job_ids[0]}.",
+            error_msg=gettext("Found no job with job_id %(expected_job_id)s.")
+            % {"expected_job_id": job_ids[0]},
             previous_request_args=previous_request_args,
         )
 

@@ -35,9 +35,9 @@
                     <!-- Account(s) -->
                     <h1 style="color: #85c3cb"><strong>
                         {% if error_code %}
-                        HTTP response code {{ error_code }}
+                        {{ gettext("HTTP response code") }} {{ error_code }}
                         {% else %}
-                        An error occurred!
+                        {{ gettext("An error occurred!") }}
                         {% endif %}
                     </strong></h1>
                     <p>&nbsp;</p>
