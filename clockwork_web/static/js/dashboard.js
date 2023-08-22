@@ -231,7 +231,7 @@ async function fetchWithTimeout(resource, options = {}) {
     return response;
 }
 
-function launch_refresh_all_data(query_filter, display_filter) {
+function launch_refresh_all_data(query_filter, display_filter, columns_dict) {
     /*
         We just clicked on "refresh", or maybe we have freshly loaded
         the page and need to create the table for the first time.
@@ -292,14 +292,14 @@ function launch_refresh_all_data(query_filter, display_filter) {
     })
     .then(response_contents => {
         latest_response_contents = response_contents;
-        refresh_display(display_filter);
+        refresh_display(display_filter, columns_dict);
 
     }).catch(error => {
         console.error(error);
     });
 }
 
-function refresh_display(display_filter) {
+function refresh_display(display_filter, columns_dict) {
     /*
         Clear and populate the jobs table with the latest response content,
         filtered by the "display filters" given as parameters.
@@ -319,7 +319,7 @@ function refresh_display(display_filter) {
     //nbr_pages = Math.ceil(total_jobs / nbr_items_per_page);
 
     vacate_table(); // idempotent if not table is present
-    populate_table(latest_filtered_response_contents);
+    populate_table(latest_filtered_response_contents, columns_dict);
 
     //kaweb - attempt to count results
     count_jobs(alljobs_filtered);
@@ -439,8 +439,118 @@ function onClickSortableColumn(event, colName, colIndex, table) {
     console.log(`Current sorting: ${colName}/${sortableState.ascending === 1 ? 'ascending' : 'descending'}`);
 }
 
+function generate_cell_time_content(td, D_job_slurm, column_key, job_time_type){
+    /*
+        Generate the content of a cell presenting a timestamp
 
-function populate_table(response_contents) {
+        Parameters:
+        - td                The HTML entity to fill with job data
+        - D_job             The dictionary describing the job to describe in the row
+        - column_key        The key identifying the column of the array
+        - job_time_type     Multiple timestamps could be encountered in job data. This parameter specifies which
+                            one we are handling (for now, we use it for the submit_time, the start_time and the end_time
+                            of the job)
+    */
+    if (D_job_slurm[job_time_type] == null) {
+        td.innerHTML = "";
+    } else {
+        // If you want to display the time as "2021-07-06 22:19:46" for readability
+        // you need to set it up because this is going to be written as a unix timestamp.
+        // This might include injecting another field with a name
+        // such as "start_time_human_readable" or something like that, and using it here.
+
+        if ("date_format" in web_settings && web_settings["date_format"] == "words") {
+            td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm[job_time_type]); // For a relative time
+        }
+        else {
+            td.innerHTML = format_date(D_job_slurm[job_time_type]); // For a human readable time or a timestamp
+        }
+    }
+}
+
+function generate_cell_content(td, D_job, column_key) {
+    /*
+        Generate the content of a cell in the array presenting the jobs
+
+        Parameters:
+        - td            The HTML entity to fill with job data
+        - D_job         The dictionary describing the job to describe in the row
+        - column_key    The key identifying the column of the array
+    */
+    const D_job_slurm = D_job["slurm"];
+    switch(column_key) {
+        case "clusters":
+            if (D_job_slurm["cluster_name"]) {
+                const a = document.createElement("a");
+                a.setAttribute("href", "/clusters/one?cluster_name=" + D_job_slurm["cluster_name"]);
+                a.innerHTML = D_job_slurm["cluster_name"];
+                td.appendChild(a);
+            }
+            else {
+                td.innerHTML = D_job_slurm["cluster_name"];
+            }
+            return td;
+
+        case "job_id":
+            td.innerHTML = ("<a href=\"" + "/jobs/one?job_id=" + D_job_slurm["job_id"] + "\">" + D_job_slurm["job_id"] + "</a>");
+            return td;
+
+        case "job_name":
+            td.innerHTML = (D_job_slurm["name"] ? D_job_slurm["name"] : "").substring(0, 20); // truncated after 20 characters (you can change this magic number if you want)
+            return td;
+            
+        case "job_state":
+            //kaweb - displaying the job state in lowercase to manipulate it in CSS
+            const job_state = D_job_slurm["job_state"].toLowerCase();
+            //kaweb - using the job state as a shorthand to insert icons through CSS
+            td.className = "job_state";
+            const formatted_job_state = job_state.replace(/_/g, " ");
+            const aggregated_job_state = (job_state_to_aggregated[job_state.toUpperCase()] || "NONE").toLowerCase();
+            td.innerHTML = ("<span class=\"status " + aggregated_job_state + "\">" + formatted_job_state + "</span>");
+            return td;
+            
+        case "submit_time":
+            generate_cell_time_content(td, D_job_slurm, column_key, "submit_time");
+            return td;
+            
+        case "start_time":
+            generate_cell_time_content(td, D_job_slurm, column_key, "start_time");
+            return td;
+            
+        case "end_time":
+            generate_cell_time_content(td, D_job_slurm, column_key, "end_time");
+            return td;
+            
+        case "links":
+            td.className = "links";
+            let link0_innerHTML;
+            // This link works only for Narval and Beluga. See CW-141.
+            if ((D_job_slurm["cluster_name"] == "narval") || (D_job_slurm["cluster_name"] == "beluga")) {
+                // https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid>
+                let target_url = `https://portail.${D_job_slurm["cluster_name"]}.calculquebec.ca/secure/jobstats/${D_job_slurm["username"]}/${D_job_slurm["job_id"]}`
+                link0_innerHTML = `<a href='${target_url}' data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'><i class='fa-solid fa-file'></i></a>`
+            } else {
+                link0_innerHTML = ""
+            }
+            // This is just a placeholder for now.
+            const link1_innerHTML = "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>"
+            td.innerHTML = link0_innerHTML + link1_innerHTML;
+            return td;
+            
+        case "actions":
+            td.className = "actions";
+            td.innerHTML = (
+                "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>"
+            );
+            return td;
+            
+        default:
+            // We do nothing if we do not know the requested column
+            return td;
+    }
+}
+
+function populate_table(response_contents, columns_dict) {
     /*
         `response_contents` here is a list of dict with fields
             'slurm': {
@@ -475,198 +585,51 @@ function populate_table(response_contents) {
     let thToSort;
     const currentSortableState = getSortableState();
     setSortableState({name: null, ascending: 0, defaultAscending: 0});
-    // Clusters header
-    if (check_web_settings_column_display(page_name, "clusters")) {
-        th = document.createElement('th');
-        th.innerHTML = "Cluster";
-        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'clusters', 0, table));
-        if (currentSortableState.name === 'clusters') {
-            thToSort = th;
+    
+    // Generate headers from column_dict
+    let cnt = 1;
+    for (var column_key in columns_dict){
+        if (check_web_settings_column_display(page_name, column_key)) {
+            th = document.createElement('th');
+            th.innerHTML = columns_dict[column_key]["label"];
+
+            if (columns_dict[column_key]["sortable"] != "") {
+                // If the column is sortable, listen to clicks on the headers
+                th.addEventListener('click', (evt) => onClickSortableColumn(evt, column_key, cnt, table));
+                if (currentSortableState.name === column_key) {
+                    thToSort = th;
+                }
+                // Specify if the sorting is done numerically
+                if (columns_dict[column_key]["sortable"] === "numeric") {
+                    th.setAttribute("data-sortable-type", "numeric");
+                }
+            }
+            else {
+                // If the column is not sortable, specify it
+                th.setAttribute("data-sortable", "false");
+            }
+            tr.appendChild(th);
         }
-        tr.appendChild(th);
-    }
-    // Job ID header
-    if (check_web_settings_column_display(page_name, "job_id")) {
-        th = document.createElement('th');
-        th.innerHTML = "Job ID";
-        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'job_id', 1, table));
-        if (currentSortableState.name === 'job_id') {
-            thToSort = th;
-        }
-        tr.appendChild(th);
-    }
-    // Job name header
-    if (check_web_settings_column_display(page_name, "job_name")) {
-        th = document.createElement('th');
-        th.innerHTML = "Job name [:20]";
-        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'job_name', 2, table));
-        if (currentSortableState.name === 'job_name') {
-            thToSort = th;
-        }
-        tr.appendChild(th);
-    }
-    // Job state header
-    if (check_web_settings_column_display(page_name, "job_state")) {
-        th = document.createElement('th');
-        th.innerHTML = "Job state";
-        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'job_state', 3, table));
-        if (currentSortableState.name === 'job_state') {
-            thToSort = th;
-        }
-        tr.appendChild(th);
-    }
-    // Submit time header
-    if (check_web_settings_column_display(page_name, "submit_time")) {
-        th = document.createElement('th');
-        th.innerHTML = "Submit time";
-        th.setAttribute("data-sortable-type", "numeric");
-        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'submit_time', 4, table));
-        if (currentSortableState.name === 'submit_time') {
-            thToSort = th;
-        }
-        tr.appendChild(th);
-    }
-    // Start time header
-    if (check_web_settings_column_display(page_name, "start_time")) {
-        th = document.createElement('th');
-        th.innerHTML = "Start time";
-        th.setAttribute("data-sortable-type", "numeric");
-        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'start_time', 5, table));
-        if (currentSortableState.name === 'start_time') {
-            thToSort = th;
-        }
-        tr.appendChild(th);
-    }
-    // End time header
-    if (check_web_settings_column_display(page_name, "end_time")) {
-        th = document.createElement('th');
-        th.innerHTML = "End time";
-        th.setAttribute("data-sortable-type", "numeric");
-        th.addEventListener('click', (evt) => onClickSortableColumn(evt, 'end_time', 6, table));
-        if (currentSortableState.name === 'end_time') {
-            thToSort = th;
-        }
-        tr.appendChild(th);
-    }
-    // Links header
-    if (check_web_settings_column_display(page_name, "links")) {
-        th = document.createElement('th');
-        th.innerHTML = "Links";
-        th.setAttribute("data-sortable", "false");
-        tr.appendChild(th);
-    }
-    // Actions header
-    if (check_web_settings_column_display(page_name, "actions")) {
-        th = document.createElement('th');
-        th.innerHTML = "Actions";
-        th.setAttribute("data-sortable", "false");
-        tr.appendChild(th);
+        cnt++;
     }
     thead.appendChild(tr);
     table.appendChild(thead);
 
     let tbody = document.createElement('tbody');
+    
     /* then add the information for all the jobs */
     [].forEach.call(response_contents, function(D_job) {
-        const D_job_slurm = D_job["slurm"];
-        //kaweb - displaying the job state in lowercase to manipulate it in CSS
-        const job_state = D_job_slurm["job_state"].toLowerCase();
         let tr = document.createElement('tr');
-
-        // Clusters
-        if (check_web_settings_column_display(page_name, "clusters")) {
-            const td = document.createElement('td');
-            if (D_job_slurm["cluster_name"]) {
-                const a = document.createElement("a");
-                a.setAttribute("href", "/clusters/one?cluster_name=" + D_job_slurm["cluster_name"]);
-                a.innerHTML = D_job_slurm["cluster_name"];
-                td.appendChild(a);
-            }
-            else {
-                td.innerHTML = D_job_slurm["cluster_name"];
-            }
-            tr.appendChild(td);
-        }
-        // Job ID
-        if (check_web_settings_column_display(page_name, "job_id")) {
-            const td = document.createElement('td');
-            td.innerHTML = ("<a href=\"" + "/jobs/one?job_id=" + D_job_slurm["job_id"] + "\">" + D_job_slurm["job_id"] + "</a>");
-            tr.appendChild(td);
-        }
-        // Job name
-        if (check_web_settings_column_display(page_name, "job_name")) {
-            const td = document.createElement('td');
-            td.innerHTML = (D_job_slurm["name"] ? D_job_slurm["name"] : "").substring(0, 20);
-            tr.appendChild(td);  // truncated after 20 characters (you can change this magic number if you want)
-        }
-        // Job state
-        if (check_web_settings_column_display(page_name, "job_state")) {
-            //td = document.createElement('td'); td.innerHTML = D_job_slurm["job_state"]; tr.appendChild(td);
-            //kaweb - using the job state as a shorthand to insert icons through CSS
-            const td = document.createElement('td');
-            td.className = "job_state";
-
-            const formatted_job_state = job_state.replace(/_/g, " ");
-            const aggregated_job_state = (job_state_to_aggregated[job_state.toUpperCase()] || "NONE").toLowerCase();
-
-            td.innerHTML = ("<span class=\"status " + aggregated_job_state + "\">" + formatted_job_state + "</span>");
-            tr.appendChild(td);
-        }
-        // Submit_time, start time and end_time of the jobs
-        let job_times = ["submit_time", "start_time", "end_time"];
-        for (var i=0; i<job_times.length; i++) {
-            let job_time = job_times[i];
-            if (check_web_settings_column_display(page_name, job_time)) {
-                const td = document.createElement('td');
-                if (D_job_slurm[job_time] == null) {
-                    td.innerHTML = "";
-                } else {
-                    // If you want to display the time as "2021-07-06 22:19:46" for readability
-                    // you need to set it up because this is going to be written as a unix timestamp.
-                    // This might include injecting another field with a name
-                    // such as "start_time_human_readable" or something like that, and using it here.
-
-                    if ("date_format" in web_settings && web_settings["date_format"] == "words") {
-                        td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm[job_time]); // For a relative time
-                    }
-                    else {
-                        td.innerHTML = format_date(D_job_slurm[job_time]); // For a human readable time or a timestamp
-                    }
-                }
-                tr.appendChild(td);
+        
+        // Generate content corresponding to headers for the current line
+        for (var column_key in columns_dict){
+            if (check_web_settings_column_display(page_name, column_key)) {
+                let td = document.createElement('td');
+                let filled_td = generate_cell_content(td.cloneNode(true), D_job, column_key);
+                tr.appendChild(filled_td);
             }
         }
-
-        // Links
-        if (check_web_settings_column_display(page_name, "links")) {
-            const td = document.createElement('td');
-            td.className = "links";
-
-            let link0_innerHTML;
-            // This link works only for Narval and Beluga. See CW-141.
-            if ((D_job_slurm["cluster_name"] == "narval") || (D_job_slurm["cluster_name"] == "beluga")) {
-                // https://portail.narval.calculquebec.ca/secure/jobstats/<username>/<jobid>
-                let target_url = `https://portail.${D_job_slurm["cluster_name"]}.calculquebec.ca/secure/jobstats/${D_job_slurm["username"]}/${D_job_slurm["job_id"]}`
-                link0_innerHTML = `<a href='${target_url}' data-bs-toggle='tooltip' data-bs-placement='right' title='this job on DRAC portal'><i class='fa-solid fa-file'></i></a>`
-            } else {
-                link0_innerHTML = ""
-            }
-            // This is just a placeholder for now.
-            const link1_innerHTML = "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>"
-            td.innerHTML = link0_innerHTML + link1_innerHTML
-            tr.appendChild(td);
-        }
-
-        // Actions
-        if (check_web_settings_column_display(page_name, "actions")) {
-            const td = document.createElement('td');
-            td.className = "actions";
-            td.innerHTML = (
-                "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>"
-            );
-            tr.appendChild(td);
-        }
-
+        
         tbody.appendChild(tr);
 
     });

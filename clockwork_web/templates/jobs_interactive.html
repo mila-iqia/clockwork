@@ -70,8 +70,48 @@
                 }, 2000);
             });
 
-            // note that `launch_refresh_all_data` comes from "jobs.js"
-            launch_refresh_all_data(query_filter, display_filter);
+            // note that `launch_refresh_all_data` comes from "dashboard.js"
+            var columns_dict = {
+                "clusters": {
+                    "label": "{{ gettext('Cluster') }}",
+                    "sortable": "alphabetically"
+                },
+                "job_id": {
+                    "label": "{{ gettext('Job ID') }}",
+                    "sortable": "alphabetically"
+                },
+                "job_name": {
+                    "label": "{{ gettext('Job name [:20]') }}",
+                    "sortable": "alphabetically"
+                },
+                "job_state": {
+                    "label": "{{ gettext('Job state') }}",
+                    "sortable": "alphabetically"
+                },
+                "submit_time": {
+                    "label": "{{ gettext('Submit time') }}",
+                    "sortable": "numeric"
+                },
+                "start_time": {
+                    "label": "{{ gettext('Start time') }}",
+                    "sortable": "numeric"
+                },
+                "end_time": {
+                    "label": "{{ gettext('End time') }}",
+                    "sortable": "numeric"
+                },
+                "links": {
+                    "label": "{{ gettext('Links') }}",
+                    "sortable": ""
+                },
+                "actions": {
+                    "label": "{{ gettext('Actions') }}",
+                    "sortable": ""
+                }
+
+            };
+
+            launch_refresh_all_data(query_filter, display_filter, columns_dict);
 
             //console.log("server_refresh() called");
 
@@ -86,7 +126,7 @@
                 <div class="col-12">
                     <div class="title float-start">
                         <i class="fa-solid fa-user"></i>
-                        <h1>{{ gettext("Welcome back") }} <script>document.writeln(readableusername);</script>!<span class="message"><i class="fa-solid fa-list-check"></i>You currently have: </span></h1>
+                        <h1>{{ gettext("Welcome back") }} <script>document.writeln(readableusername);</script>!<span class="message"><i class="fa-solid fa-list-check"></i>{{ gettext("You currently have:") }}</span></h1>
                     </div>
                     <!-- <a class="btn" onclick="server_refresh()">refresh</a> -->
                 </div>
