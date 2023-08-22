@@ -57,6 +57,7 @@ def route_index():
         clockwork_api_key=current_user.clockwork_api_key,
         cc_account_username=current_user.cc_account_username,
         cc_account_update_key=current_user.cc_account_update_key,
+        available_languages=get_config("translation.available_languages"),
         previous_request_args=previous_request_args,
     )
 
