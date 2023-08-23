@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from flask_login import current_user, login_required
+from flask_babel import gettext
 import logging
 
 flask_api = Blueprint("users", __name__)
@@ -40,7 +41,7 @@ def route_one():
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=f"Missing argument username.",
+                error_msg=gettext("Missing argument username."),
                 previous_request_args=previous_request_args,
             ),
             400,  # Bad Request
@@ -71,7 +72,7 @@ def route_one():
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=f"The requested user has not been found.",
+                error_msg=gettext("The requested user has not been found."),
                 previous_request_args=previous_request_args,
             ),
             404,  # Not Found

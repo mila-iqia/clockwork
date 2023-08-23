@@ -80,65 +80,65 @@
                             {% if (web_settings | check_web_settings_column_display(page_name, "clusters")) %}
                                 {% set sort_by = "cluster_name" %}
                                 <th>
-                                    <a href="{{ modify_query_sorting(sort_by) }}">Cluster{{ get_sorting_icon(sort_by) }}</a>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">{{ gettext("Cluster") }}{{ get_sorting_icon(sort_by) }}</a>
                                 </th>
                             {% endif %}
                             <!-- User header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "user")) %}
                                 {% set sort_by = "user" %}
                                 <th>
-                                    <a href="{{ modify_query_sorting(sort_by) }}">User (@mila.quebec){{ get_sorting_icon(sort_by) }}</a>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">{{ gettext("User (@mila.quebec)") }}{{ get_sorting_icon(sort_by) }}</a>
                                 </th>
                             {% endif %}
                             <!-- Job ID header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_id")) %}
                                 {% set sort_by = "job_id" %}
                                 <th>
-                                    <a href="{{ modify_query_sorting(sort_by) }}">Job ID{{ get_sorting_icon(sort_by) }}</a>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">{{ gettext("Job ID") }}{{ get_sorting_icon(sort_by) }}</a>
                                 </th>
                             {% endif %}
                             <!-- Job name header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_name")) %}
                                 {% set sort_by = "name" %}
                                 <th>
-                                    <a href="{{ modify_query_sorting(sort_by) }}">Job name [:20]{{ get_sorting_icon(sort_by) }}</a>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">{{ gettext("Job name [:20]") }}{{ get_sorting_icon(sort_by) }}</a>
                                 </th>
                             {% endif %}
                             <!-- Job state header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_state")) %}
                                 {% set sort_by = "job_state" %}
                                 <th>
-                                    <a href="{{ modify_query_sorting(sort_by) }}">Job state{{ get_sorting_icon(sort_by) }}</a>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">{{ gettext("Job state") }}{{ get_sorting_icon(sort_by) }}</a>
                                 </th>
                             {% endif %}
                             <!-- Submit time header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "submit_time")) %}
                                 {% set sort_by = "submit_time" %}
                                 <th>
-                                    <a href="{{ modify_query_sorting(sort_by) }}">Submit time{{ get_sorting_icon(sort_by) }}</a>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">{{ gettext("Submit time") }}{{ get_sorting_icon(sort_by) }}</a>
                                 </th>
                             {% endif %}
                             <!-- Start time header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "start_time")) %}
                                 {% set sort_by = "start_time" %}
                                 <th>
-                                    <a href="{{ modify_query_sorting(sort_by) }}">Start time{{ get_sorting_icon(sort_by) }}</a>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">{{ gettext("Start time") }}{{ get_sorting_icon(sort_by) }}</a>
                                 </th>
                             {% endif %}
                             <!-- End time header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "end_time")) %}
                                 {% set sort_by = "end_time" %}
                                 <th>
-                                    <a href="{{ modify_query_sorting(sort_by) }}">End time{{ get_sorting_icon(sort_by) }}</a>
+                                    <a href="{{ modify_query_sorting(sort_by) }}">{{ gettext("End time") }}{{ get_sorting_icon(sort_by) }}</a>
                                 </th>
                             {% endif %}
                             <!-- Links header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "links")) %}
-                                <th>Links</th>
+                                <th>{{ gettext("Links") }}</th>
                             {% endif %}
                             <!-- Actions header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "actions")) %}
-                                <th>Actions</th>
+                                <th>{{ gettext("Actions") }}</th>
                             {% endif %}
                         </tr>
                     </thead>

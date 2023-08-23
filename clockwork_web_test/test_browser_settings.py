@@ -99,6 +99,32 @@ def test_settings_set_nbr_items_per_page_zero_or_negative_value(
     assert response.status_code == 400  # Bad Request
 
 
+@pytest.mark.parametrize(
+    "nbr_items_per_page",
+    [13, 2],
+)
+def test_settings_set_nbr_items_per_page_unknown_user(client, nbr_items_per_page):
+    """
+    Test the function route_set_nbr_items_per_page when sending a zero or
+    negative integer as nbr_items_per_page.
+
+    Parameters:
+    - client                The web client used to send the request
+    - nbr_items_per_page    The value to try to set as the preferred number of
+                            items to display per page for the current user
+    """
+    # Define the request to test
+    test_request = (
+        f"/settings/web/nbr_items_per_page/set?nbr_items_per_page={nbr_items_per_page}"
+    )
+
+    # Retrieve the response to the call we are testing
+    response = client.get(test_request)
+
+    # Check if the response is the expected one
+    assert response.status_code == 403  # Forbidden
+
+
 def test_settings_set_date_format_missing_argument(client):
     """
     Test the function route_set_date_format without sending a
@@ -271,16 +297,13 @@ def test_settings_set_time_format_success(client, known_user, time_format):
         (None, None),  # No page and no column
     ],
 )
-def test_settings_set_column_display_bad_request(
-    client, fake_data, page_name, column_name
-):
+def test_settings_set_column_display_bad_request(client, page_name, column_name):
     """
     Test the function route_set_column_display when sending incomplete or unexpected arguments
     and assert the result is 400 (Bad Request).
 
     Parameters:
     - client        The web client used to send the request
-    - fake_data     The data on which our tests are based
     - page_name     The page name on which the provided job property should appear or not regarding the web setting value
     - column_name   The job property we try to change whether or not it is displayed
     """
@@ -320,16 +343,13 @@ def test_settings_set_column_display_bad_request(
         (None, None),  # No page and no column
     ],
 )
-def test_settings_unset_column_display_bad_request(
-    client, fake_data, page_name, column_name
-):
+def test_settings_unset_column_display_bad_request(client, page_name, column_name):
     """
     Test the function route_unset_column_display when sending incomplete or unexpected arguments
     and assert the result is 400 (Bad Request).
 
     Parameters:
     - client        The web client used to send the request
-    - fake_data     The data on which our tests are based
     - page_name     The page name on which the provided job property should appear or not regarding the web setting value
     - column_name   The job property we try to change whether or not it is displayed
     """
@@ -414,3 +434,85 @@ def test_settings_set_and_unset_column_display_good_request(
     # Log out from Clockwork
     response_logout = client.get("/login/logout")
     assert response_logout.status_code == 302  # Redirect
+
+
+def test_settings_enable_dark_mode_with_no_user(app, client):
+    """
+    Test enabling the dark mode with an unknown user.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context (to access MongoDB)
+    - client        The web client to request. Note that this fixture depends on other
+                    fixtures that are going to put the fake data in the database for us
+    """
+    # Use the app context
+    with app.app_context():
+        # Set the dark mode for a user who does not exist to True and get the status code
+        # of the operation (in this case, we have valid setting_key and setting_value)
+        response = client.get(f"/settings/web/dark_mode/set")
+
+        # Check the status code
+        assert response.status_code == 403
+
+
+def test_settings_disable_dark_mode_with_no_user(app, client):
+    """
+    Test disabling the dark mode with an unknown user.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context (to access MongoDB)
+    - client        The web client to request. Note that this fixture depends on other
+                    fixtures that are going to put the fake data in the database for us
+    """
+    # Use the app context
+    with app.app_context():
+        # Set the dark mode for a user who does not exist to False and get the status code
+        # of the operation (in this case, we have valid setting_key and setting_value)
+        response = client.get(f"/settings/web/dark_mode/unset")
+
+        # Check the status code
+        assert response.status_code == 403
+
+
+def test_settings_set_date_format_with_no_user(app, client):
+    """
+    Test updating the date format with an unknown user.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context (to access MongoDB)
+    - client        The web client to request. Note that this fixture depends on other
+                    fixtures that are going to put the fake data in the database for us
+    """
+    # Use the app context
+    with app.app_context():
+        # Set the dark mode for a user who does not exist to True and get the status code
+        # of the operation (in this case, we have valid setting_key and setting_value)
+        date_format = "unix_timestamp"  # Valid date format
+        response = client.get(
+            f"/settings/web/date_format/set?date_format={date_format}"
+        )
+
+        # Check the status code
+        assert response.status_code == 403
+
+
+def test_settings_set_time_format_with_no_user(app, client):
+    """
+    Test updating the time format with an unknown user.
+
+    Parameters:
+    - app           The scope of our tests, used to set the context (to access MongoDB)
+    - client        The web client to request. Note that this fixture depends on other
+                    fixtures that are going to put the fake data in the database for us
+    """
+    # Use the app context
+    with app.app_context():
+        # Set the dark mode for a user who does not exist to True and get the status code
+        # of the operation (in this case, we have valid setting_key and setting_value)
+        time_format = "24h"  # Valid time format
+        response = client.get(
+            f"/settings/web/time_format/set?time_format={time_format}"
+        )
+
+        # Check the status code
+        assert response.status_code == 403  # Forbidden

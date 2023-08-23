@@ -4,6 +4,7 @@ Helper functions related to the User entity and the users entries from the datab
 
 from datetime import datetime, timedelta
 from flask_login import current_user
+from flask_babel import gettext
 from flask import render_template
 import json
 import re
@@ -107,6 +108,7 @@ def _set_web_setting(mila_email_username, setting_key, setting_value):
         #    }
         # This is what the variable "web_settings_key" is about.)
         web_settings_key = f"web_settings.{setting_key}"
+
         update_result = users_collection.update_one(
             {
                 "mila_email_username": mila_email_username
@@ -121,14 +123,14 @@ def _set_web_setting(mila_email_username, setting_key, setting_value):
             # been modified (because there should be only one user corresponding
             # to mila_email_username, and only one web setting corresponding to
             # the setting key for this user)
-            return (200, "The setting has been updated.")
+            return (200, gettext("The setting has been updated."))
         else:
             # Otherwise, return error 500 (Internal Server Error): we do not
             # really know what happened
-            return (500, "An error occurred.")
+            return (500, gettext("An error occurred."))
     else:
         # Return 400 (Bad Request) and an error message
-        return (400, "The provided value is not expected for this setting.")
+        return (400, gettext("The provided value is not expected for this setting."))
 
 
 def is_correct_type_for_web_setting(setting_key, setting_value):
@@ -210,9 +212,8 @@ def set_items_per_page(mila_email_username, nbr_items_per_page):
             return _set_web_setting(
                 mila_email_username, "nbr_items_per_page", nbr_items_per_page
             )
-
     # Return 400 (Bad Request) and an error message
-    return (400, "The provided value is not expected for this setting")
+    return (400, gettext("The provided value is not expected for this setting"))
 
 
 def reset_items_per_page(mila_email_username):
@@ -241,7 +242,7 @@ def reset_items_per_page(mila_email_username):
     if status_code == 200:
         # If the status code is 200 (Success), return it and indicates in the message
         # that the setting's value has been set to default
-        return (200, "The setting has been reset to its default value.")
+        return (200, gettext("The setting has been reset to its default value."))
     else:
         # Otherwise, returns what the function _set_web_setting has returned
         return (status_code, status_message)

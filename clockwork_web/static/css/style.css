@@ -10979,9 +10979,9 @@ div.ribbon.alpha {
 div.ribbon.alpha:after {
   border-right: 400px solid #dba46a;
 }
-div.ribbon.alpha h4 span:after, div.ribbon.alpha .h4 span:after {
+/*div.ribbon.alpha h4 span:after, div.ribbon.alpha .h4 span:after {
   content: "alpha version!";
-}
+}*/
 div.ribbon.beta {
   background: #50968e;
   background: -webkit-radial-gradient(top right, #50968e, #55b496);

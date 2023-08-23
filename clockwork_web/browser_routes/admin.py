@@ -46,7 +46,7 @@ def admin_access_required(f):
             return (
                 render_template_with_user_settings(
                     "error.html",
-                    error_msg=f"Authorization error.",
+                    error_msg=gettext("Authorization error."),
                     previous_request_args={},
                 ),
                 403,  # access rights error

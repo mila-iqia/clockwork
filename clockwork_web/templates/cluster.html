@@ -22,7 +22,7 @@
                 <div class="col-8">
                     <div class="title float-start">
                         <i class="fa-solid fa-list"></i>
-						<h1>{{ gettext("%s cluster" % (cluster_name,)) }}</h1>
+						<h1>{{ gettext("%(cluster_name)s cluster", cluster_name=cluster_name ) }}
 					</div>
 				</div>
 			</div>
@@ -119,7 +119,7 @@
 					</thead>
 					<tbody>
 						<tr>
-							<td>{{ gettext("Oldest job edition") }}</td>
+							<td>{{ gettext("Oldest job update") }}</td>
 							<td>
 								{# Date formatted as in jobs/search page #}
 								{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
@@ -130,7 +130,7 @@
 							</td>
 						</tr>
 						<tr>
-							<td>{{ gettext("Latest job edition") }}</td>
+							<td>{{ gettext("Latest job update") }}</td>
 							<td>
 								{# Date formatted as in jobs/search page #}
 								{% if "date_format" in web_settings and web_settings["date_format"] == "words" %}
