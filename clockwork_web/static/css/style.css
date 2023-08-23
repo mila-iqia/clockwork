@@ -11304,10 +11304,20 @@ i.fa-arrows-rotate .rotate-360 {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.searchform .cc_toggle_zone_row a {
+.searchform .cc_toggle_zone_row a,
+.searchform .cc_toggle_zone_row span.cluster-info {
   display: block;
   float: left;
   padding: 0 5px;
+}
+.searchform .cc_toggle_zone_row span.cluster-info.cluster-good {
+  color: #54abb4;
+}
+.searchform .cc_toggle_zone_row span.cluster-info.cluster-warning {
+  color: gold;
+}
+.searchform .cc_toggle_zone_row span.cluster-info.cluster-error {
+  color: red;
 }
 .searchform .cc_toggle_zone_row a i[title="Cluster documentation"] {
   color: #505050;

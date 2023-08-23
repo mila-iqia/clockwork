@@ -40,7 +40,7 @@ from clockwork_web.core.users_helper import (
 def test_redirect_index(client):
     response = client.get("/jobs/")
     assert response.status_code == 302
-    assert response.headers["Location"] == "interactive"
+    assert response.headers["Location"] == "dashboard"
 
 
 ####################

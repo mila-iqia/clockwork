@@ -2,6 +2,7 @@
 Helper functions related to the User entity and the users entries from the databas.
 """
 
+from datetime import datetime, timedelta
 from flask_login import current_user
 from flask import render_template
 import json
@@ -17,7 +18,7 @@ from clockwork_web.config import (
     string as valid_string,
 )
 from clockwork_web.core.clusters_helper import get_all_clusters, get_account_fields
-from clockwork_web.core.jobs_helper import get_jobs_properties_list_per_page
+from clockwork_web.core.jobs_helper import get_jobs_properties_list_per_page, get_jobs
 
 from clockwork_web.core.utils import (
     get_available_date_formats,
@@ -587,5 +588,36 @@ def render_template_with_user_settings(template_name_or_list, **context):
         if current_user.mila_email_username == "anonymous@mila.quebec"
         else current_user.get_available_clusters()
     )
+
+    # Get cluster status (if jobs are old and cluster has error).
+    for cluster_name in context["clusters"]:
+        # Default status values.
+        jobs_are_old = False
+        cluster_has_error = False
+
+        # Check if jobs are old.
+        jobs, _ = get_jobs(cluster_names=[cluster_name])
+        job_dates = [
+            job["cw"]["last_slurm_update"]
+            for job in jobs
+            if "last_slurm_update" in job["cw"]
+        ]
+        if job_dates:
+            most_recent_job_edition = max(job_dates)
+            current_timestamp = datetime.now().timestamp()
+            elapsed_time = timedelta(
+                seconds=current_timestamp - most_recent_job_edition
+            )
+            # Let's say the latest jobs edition must not be older than 30 days ago.
+            max_delay = timedelta(days=30)
+            jobs_are_old = elapsed_time > max_delay
+
+        # Cluster error cannot yet be checked, so
+        # cluster_has_error is always False for now.
+
+        context["clusters"][cluster_name]["status"] = {
+            "jobs_are_old": jobs_are_old,
+            "cluster_has_error": cluster_has_error,
+        }
 
     return render_template(template_name_or_list, **context)

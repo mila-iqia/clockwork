@@ -412,24 +412,30 @@ def test_nodes_with_filter(
         f"/nodes/list?cluster_name={cluster_name}&nbr_items_per_page=1000000"
     )
 
-    expected_nodes = _get_associated_nodes_from_fake_data_in_order(
-        current_user_id, fake_data
-    )
+    # Retrieve all the nodes from the fake data
+    all_nodes = fake_data["nodes"]
 
-    for D_node in expected_nodes:
-        if D_node["slurm"]["cluster_name"] == cluster_name and D_node["slurm"][
-            "cluster_name"
-        ] in get_available_clusters_from_db(current_user_id):
+    if cluster_name not in get_available_clusters_from_db(current_user_id):
+        # If the cluster name is not in the clusters available for the user,
+        # all the available nodes from all the clusters are returned
+        expected_nodes = _get_associated_nodes_from_fake_data_in_order(  # These are all the nodes available for the user
+            current_user_id, fake_data
+        )
+    else:
+        # If the cluster name is in the clusters available for the user,
+        # only the nodes related to this cluster should be displayed
+        expected_nodes = [
+            D_node
+            for D_node in all_nodes
+            if D_node["slurm"]["cluster_name"] == cluster_name
+        ]
+
+    for D_node in all_nodes:
+        if D_node in expected_nodes:
             assert D_node["slurm"]["name"] in response.get_data(as_text=True)
         else:
-            # We're being a little demanding here by asking that the name of the
-            # host should never occur in the document. The host names are unique,
-            # but there's no reason or guarantee that a string like "cn-a003" should NEVER
-            # show up elsewhere in the page for some other reason.
-            # This causes issues when the fake data had node names that were all "machine"
-            # with some integer.
             assert (
-                f"/nodes/one?node_name={D_node['slurm']['name']}&cluster_name={cluster_name}"
+                f"&cluster_name={D_node['slurm']['cluster_name']}"
                 not in response.get_data(as_text=True)
             )
 
@@ -443,7 +449,6 @@ def test_nodes_with_filter(
 
 
 def test_single_node(client, fake_data):
-
     """
     Check the function route_one when success (ie an authenticated user
     request an existing node to which he/she has access).
@@ -564,7 +569,6 @@ def test_single_node_not_found(client, fake_data):
 
 
 def test_single_node_cluster_only(client):
-
     """
     Check the function route_one when only the cluster is provided.
 
@@ -587,6 +591,13 @@ def test_single_node_cluster_only(client):
 
     # Assert that a 400 Error is returned
     assert response.status_code == 400
+
+    # Might as well check that the error message is the one we expect.
+    # 'The parameter &#34;node_name&#34; has not been provided.'
+    assert (
+        "The parameter &#34;node_name&#34; has not been provided."
+        in response.get_data(as_text=True)
+    )
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")

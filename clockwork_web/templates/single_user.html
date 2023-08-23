@@ -53,23 +53,6 @@
                         {% endfor %}
                     </dl>
 
-                    <!-- Account(s) -->
-                    <h2>Director</h2>
-                    <dl>
-                        {% for account_field in account_fields %}
-                            {% if account_field in user and user[account_field] is not none %}
-                            
-                            <dt><b>{{user[account_field]}}</b></dt>
-                            
-                            <dd>Used on clusters: 
-                                {% for cluster_name in account_fields[account_field] %}
-                                  <a href="/clusters/one?cluster_name={{cluster_name}}">{{cluster_name}} </a>
-                                {% endfor %}
-                            </dd>
-                          {% endif %}
-                        {% endfor %}
-                    </dl>
-
                     <a class="btn btn-turquoise" href="/jobs/search?username={{user['mila_email_username']}}">See this user's jobs</a>
                 </div>
             </div>

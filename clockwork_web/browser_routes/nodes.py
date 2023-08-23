@@ -160,6 +160,15 @@ def route_one():
     node_name = request.args.get("node_name", None)
     if node_name:
         previous_request_args["node_name"] = node_name
+    else:
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=f'The parameter "node_name" has not been provided.',
+                previous_request_args=previous_request_args,
+            ),
+            400,  # Bad Request
+        )
 
     cluster_name = request.args.get("cluster_name", None)
     if cluster_name:
@@ -247,6 +256,6 @@ def set_up_cluster_names_and_node_name_filters(cluster_names=[], node_name=None)
         # for the user
         cluster_names = user_clusters
 
-    f1 = {"slurm.cluster_name": {"$in": user_clusters}}
+    f1 = {"slurm.cluster_name": {"$in": cluster_names}}
 
     return [f0, f1]
