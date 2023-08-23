@@ -5,24 +5,12 @@ Insert elements extracted from the Slurm reports into the database.
 import copy, json, os, time
 from pymongo import InsertOne, ReplaceOne, UpdateOne
 
-from slurm_state.config import get_config, boolean, integer, string, optional_string
-from slurm_state.extra_filters import (
-    is_allocation_related_to_mila,
-    clusters_valid,
-)
+
 from slurm_state.helpers.gpu_helper import get_cw_gres_description
+from slurm_state.helpers.clusters_helper import get_all_clusters
 
 from slurm_state.sinfo_parser import node_parser, generate_node_report
 from slurm_state.sacct_parser import job_parser, generate_job_report
-
-
-# Used to retrieve clusters data from configuration file
-clusters_valid.add_field("account_field", string)
-clusters_valid.add_field("update_field", optional_string)
-clusters_valid.add_field("remote_user", optional_string)
-clusters_valid.add_field("remote_hostname", optional_string)
-clusters_valid.add_field("ssh_port", integer)
-clusters_valid.add_field("sacct_enabled", boolean)
 
 
 def pprint_bulk_result(result):
@@ -40,7 +28,7 @@ def fetch_slurm_report(parser, cluster_name, report_path):
 
     assert os.path.exists(report_path), f"The report path {report_path} is missing."
 
-    ctx = get_config("clusters").get(cluster_name, None)
+    ctx = get_all_clusters().get(cluster_name, None)
     assert ctx is not None, f"{cluster_name} not configured"
 
     with open(report_path, "r") as f:
@@ -109,7 +97,7 @@ def lookup_user_account(users_collection):
         cluster_name = clockwork_job["slurm"]["cluster_name"]
         cluster_username = clockwork_job["slurm"]["username"]
 
-        account_field = get_config("clusters")[cluster_name]["account_field"]
+        account_field = get_all_clusters()[cluster_name]["account_field"]
         result = users_collection.find_one({account_field: cluster_username})
         if result is not None:
             clockwork_job["cw"]["mila_email_username"] = result["mila_email_username"]
@@ -172,7 +160,7 @@ def main_read_report_and_update_collection(
         )
 
     # Retrieve clusters data from the configuration file
-    clusters = get_config("clusters")
+    clusters = get_all_clusters()
     assert cluster_name in clusters
 
     ## Retrieve entities ##
@@ -286,13 +274,13 @@ def get_jobs_updates_and_insertions(
 
     ## Retrieve sacct entities ##
 
-    # Filter the previous iterator to keep only the jobs having accounts related to Mila
-    # and apply the function lookup_user_account to each element,
-    # which are then gathered in a list
+    # Apply the function lookup_user_account to each element, which are then gathered in a list
+    # (We previously added a filter in order to keep only the Mila related jobs, but this is now
+    # done while retrieving these jobs)
     LD_sacct = list(
         map(
             lookup_user_account(users_collection),
-            filter(is_allocation_related_to_mila, I_clockwork_jobs),
+            I_clockwork_jobs,
         )
     )
 
@@ -374,9 +362,10 @@ def get_jobs_updates_and_insertions(
         )
 
     # -- Account association -- #
-    L_users_updates = associate_account(LD_sacct)
+    # L_users_updates = associate_account(LD_sacct)
 
-    return (L_updates_to_do, L_users_updates, L_data_for_dump_file)
+    # return (L_updates_to_do, L_users_updates, L_data_for_dump_file)
+    return (L_updates_to_do, [], L_data_for_dump_file)
 
 
 def get_nodes_updates(I_clockwork_nodes):
@@ -428,6 +417,7 @@ def get_nodes_updates(I_clockwork_nodes):
     return (L_updates_to_do, L_data_for_dump_file)
 
 
+"""
 def associate_account(LD_sacct_jobs):
     L_user_updates = []
     for D_job in LD_sacct_jobs:
@@ -453,7 +443,7 @@ def associate_account(LD_sacct_jobs):
         marker = "clockwork_register_account:"
         if comment is not None and comment.startswith(marker):
             secret_key = comment[len(marker) :]
-            clusters = get_config("clusters")
+            clusters = get_all_clusters()
             cluster_info = clusters[D_job["slurm"]["cluster_name"]]
             # To help follow along, here's an example of the values
             # taken by those variables in the test_config.toml file.
@@ -499,6 +489,7 @@ def associate_account(LD_sacct_jobs):
                 )
 
     return L_user_updates
+"""
 
 
 def main_read_users_and_update_collection(

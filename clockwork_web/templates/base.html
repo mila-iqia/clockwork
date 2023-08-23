@@ -75,7 +75,7 @@
 						{% endif %}
 					</a>
 				</div>
-
+				{% if current_user.is_authenticated() %}
 				<div class="col">
 					<nav class="navbar-expand-lg">
 						<div class="container-fluid">
@@ -110,6 +110,7 @@
 						</div>
 					</nav>
 				</div>
+				{% endif %}
 				<div class="col login">
 					<!-- TODO : add a conditional here in the template -->
 					{% if mila_email_username: %}
@@ -130,7 +131,7 @@
 		</div>
 
 		{% block form %}
-		{% if request.path != '/jobs/dashboard' and current_user.is_authenticated %}
+		{% if request.path != '/jobs/dashboard' and current_user.is_authenticated() %}
 			<!-- Search jobs form -->
 			<div id="formBlock">
 				<div class="search_button formCollapse {{ 'collapse' if request.path != '/jobs/search' }} {{ 'show' if request.path == '/jobs/search' }}" id="mainCollapse">
