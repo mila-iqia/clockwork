@@ -108,6 +108,7 @@ def _set_web_setting(mila_email_username, setting_key, setting_value):
         #    }
         # This is what the variable "web_settings_key" is about.)
         web_settings_key = f"web_settings.{setting_key}"
+
         update_result = users_collection.update_one(
             {
                 "mila_email_username": mila_email_username
@@ -211,7 +212,6 @@ def set_items_per_page(mila_email_username, nbr_items_per_page):
             return _set_web_setting(
                 mila_email_username, "nbr_items_per_page", nbr_items_per_page
             )
-
     # Return 400 (Bad Request) and an error message
     return (400, gettext("The provided value is not expected for this setting"))
 

@@ -117,13 +117,25 @@ def route_set_nbr_items_per_page():
     if nbr_items_per_page:
         # Check if nbr_items_per_page is a positive integer
         if type(nbr_items_per_page) == int and nbr_items_per_page > 0:
-            # If it is, update this number in the current user's settings and
-            # retrieve the status code and status message associated to this
-            # operation
-            (
-                status_code,
-                status_message,
-            ) = current_user.settings_nbr_items_per_page_set(nbr_items_per_page)
+
+            if current_user.is_authenticated:
+                # If it is, update this number in the current user's settings and
+                # retrieve the status code and status message associated to this
+                # operation
+                (
+                    status_code,
+                    status_message,
+                ) = current_user.settings_nbr_items_per_page_set(nbr_items_per_page)
+            else:
+                # Otherwise, return an error
+                return (
+                    render_template_with_user_settings(
+                        "error.html",
+                        error_msg=gettext("The user is not authenticated."),
+                        previous_request_args=previous_request_args,
+                    ),
+                    403,  # Forbidden
+                )
 
             if status_code == 200:
                 # If a success has been return, redirect to the settings page
@@ -181,7 +193,18 @@ def route_set_dark_mode():
 
     # Set the dark mode value to True in the current user's web settings and
     # retrieve the status code and status message associated to the operation
-    (status_code, status_message) = current_user.settings_dark_mode_enable()
+    if current_user.is_authenticated:
+        (status_code, status_message) = current_user.settings_dark_mode_enable()
+    else:
+        # Otherwise, return an error
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("The user is not authenticated."),
+                previous_request_args=previous_request_args,
+            ),
+            403,  # Forbidden
+        )
 
     if status_code == 200:
         # If a success has been returned
@@ -212,10 +235,20 @@ def route_unset_dark_mode():
 
     # Initialize the request arguments (it is further transferred to the HTML)
     previous_request_args = {}
-
-    # Set the dark mode value to False in the current user's web settings and
-    # retrieve the status code and status message associated to the operation
-    (status_code, status_message) = current_user.settings_dark_mode_disable()
+    if current_user.is_authenticated:
+        # Set the dark mode value to False in the current user's web settings and
+        # retrieve the status code and status message associated to the operation
+        (status_code, status_message) = current_user.settings_dark_mode_disable()
+    else:
+        # Otherwise, return an error
+        return (
+            render_template_with_user_settings(
+                "error.html",
+                error_msg=gettext("The user is not authenticated."),
+                previous_request_args=previous_request_args,
+            ),
+            403,  # Forbidden
+        )
 
     if status_code == 200:
         # If a success has been returned
@@ -461,13 +494,25 @@ def route_set_date_format():
     if date_format:
         # Check if the date format is supported
         if date_format in get_available_date_formats():
-            # If the requested date format is expected, update the preferred
-            # date format of the current user and retrieve the status code
-            # and status message associated to this operation
-            (
-                status_code,
-                status_message,
-            ) = current_user.settings_date_format_set(date_format)
+            if current_user.is_authenticated:
+                # If the requested date format is expected, update the preferred
+                # date format of the current user and retrieve the status code
+                # and status message associated to this operation
+                (
+                    status_code,
+                    status_message,
+                ) = current_user.settings_date_format_set(date_format)
+
+            else:
+                # Otherwise, return an error
+                return (
+                    render_template_with_user_settings(
+                        "error.html",
+                        error_msg=gettext("The user is not authenticated."),
+                        previous_request_args=previous_request_args,
+                    ),
+                    403,  # Forbidden
+                )
 
             if status_code == 200:
                 # If a success has been return, redirect to the home page
@@ -531,13 +576,24 @@ def route_set_time_format():
     if time_format:
         # Check if the date format is supported
         if time_format in get_available_time_formats():
-            # If the requested time format is expected, update the preferred
-            # time format of the current user and retrieve the status code
-            # and status message associated to this operation
-            (
-                status_code,
-                status_message,
-            ) = current_user.settings_time_format_set(time_format)
+            if current_user.is_authenticated:
+                # If the requested time format is expected, update the preferred
+                # time format of the current user and retrieve the status code
+                # and status message associated to this operation
+                (
+                    status_code,
+                    status_message,
+                ) = current_user.settings_time_format_set(time_format)
+            else:
+                # Otherwise, return an error
+                return (
+                    render_template_with_user_settings(
+                        "error.html",
+                        error_msg=gettext("The user is not authenticated."),
+                        previous_request_args=previous_request_args,
+                    ),
+                    403,  # Forbidden
+                )
 
             if status_code == 200:
                 # If a success has been return, redirect to the home page
