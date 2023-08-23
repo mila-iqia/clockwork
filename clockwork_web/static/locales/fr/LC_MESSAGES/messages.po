@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-23 09:35-0400\n"
+"POT-Creation-Date: 2023-08-23 10:21-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -154,6 +154,16 @@ msgstr "La valeur fournie ne correspond pas au paramètre à modifier"
 #: clockwork_web/core/users_helper.py:245
 msgid "The setting has been reset to its default value."
 msgstr "Le paramètre a été réinitialisé."
+
+#: clockwork_web/templates/base.html:62
+msgid "Alpha version!"
+msgstr "Version alpha"
+
+#: clockwork_web/templates/base.html:63
+msgid ""
+"Clockwork is currently in active development. Feel free to report bugs "
+"using the <a href='#'>feedback form</a>."
+msgstr "Clockwork est en cours de développement. N'hésitez pas à faire vos retours via le <a href='#'>formulaire de feedback</a> !"
 
 #: clockwork_web/templates/base.html:87 clockwork_web/templates/base.html:97
 msgid "Dashboard"
@@ -633,5 +643,4 @@ msgstr "État des grappes de calcul"
 #: clockwork_web/templates/status.html:74
 msgid "Number of jobs"
 msgstr "Nombre de jobs"
-
 
