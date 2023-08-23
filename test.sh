@@ -10,9 +10,9 @@ docker build -t scripts_test -f scripts_test/Dockerfile .
 . ./env.sh
 
 # This is to ensure that there aren't lingering containers after the test script exits.
-trap "docker compose down && docker compose rm -fv" EXIT
+trap "docker-compose down && docker-compose rm -fv" EXIT
 
-docker compose run clockwork_web_test
-docker compose run clockwork_tools_test
-docker compose run slurm_state_test
-docker compose run scripts_test
+docker-compose run clockwork_web_test
+docker-compose run clockwork_tools_test
+docker-compose run slurm_state_test
+docker-compose run scripts_test
