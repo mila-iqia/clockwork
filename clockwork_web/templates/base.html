@@ -237,11 +237,11 @@
 													</a>
 													{% if D_cluster['status']['jobs_are_old'] %}
 														<span class="cluster-info cluster-warning">
-															<i class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Latest job edition is too old (more than 30 days ago)') }}"></i>
+															<i class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Possible stale jobs. Most recent update was more than 30 days ago') }}"></i>
 														</span>
 													{% else %}
 														<span class="cluster-info cluster-good">
-															<i class="fa-solid fa-ballot-check" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Latest job edition is recent enough (at most 30 days ago)') }}"></i>
+															<i class="fa-solid fa-ballot-check" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Latest update to jobs is relatively recent (at most 30 days ago)') }}"></i>
 														</span>
 													{% endif %}
 													{% if D_cluster['status']['cluster_has_error'] %}

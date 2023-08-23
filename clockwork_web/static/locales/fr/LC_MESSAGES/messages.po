@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-22 07:32-0400\n"
+"POT-Creation-Date: 2023-08-23 09:35-0400\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -32,11 +32,11 @@ msgstr "Problème d'autorisation"
 
 #: clockwork_web/browser_routes/clusters.py:62
 msgid "This cluster is not known."
-msgstr "La grappe de calcul (/le cluster) demandée n'a pas été trouvée."
+msgstr "La grappe de calcul demandée n'a pas été trouvée."
 
 #: clockwork_web/browser_routes/clusters.py:74
 msgid "You don't have access to the requested cluster."
-msgstr "Vous n'avez pas accès à la grappe de calcul (/le cluster) demandée."
+msgstr "Vous n'avez pas accès à la grappe de calcul demandée."
 
 #: clockwork_web/browser_routes/clusters.py:115
 msgid "The argument cluster_name is missing."
@@ -59,7 +59,7 @@ msgstr "Trop de 'job_ids' ont été demandés."
 msgid "Found no job with job_id %(expected_job_id)s."
 msgstr "Aucune job ne semble correspondre à l'ID %(expected_job_id)s"
 
-#: clockwork_web/browser_routes/jobs.py:251
+#: clockwork_web/browser_routes/jobs.py:252
 msgid "Found %(len_LD_jobs) jobs with job_id %(job_id)."
 msgstr ""
 "%(len_LD_jobs) ont été trouvés lors de la recherche à partir du job_id "
@@ -77,45 +77,53 @@ msgstr "Il existe plus d'un noeud correspondant aux critères fournis."
 msgid "(missing node name)"
 msgstr "(nom du noeud manquant)"
 
-#: clockwork_web/browser_routes/settings.py:146
+#: clockwork_web/browser_routes/settings.py:134
+#: clockwork_web/browser_routes/settings.py:203
+#: clockwork_web/browser_routes/settings.py:247
+#: clockwork_web/browser_routes/settings.py:511
+#: clockwork_web/browser_routes/settings.py:592
+msgid "The user is not authenticated."
+msgstr "L'utilisateur n'est pas authentifié."
+
+#: clockwork_web/browser_routes/settings.py:158
 msgid "Invalid choice for number of items to display per page."
 msgstr "Choix invalide pour le nombre d'éléments à afficher par page."
 
-#: clockwork_web/browser_routes/settings.py:158
+#: clockwork_web/browser_routes/settings.py:170
 msgid "Missing argument, or wrong format: nbr_items_per_page."
 msgstr "Argument manquant, ou présentant un format incorrect: nbr_items_per_page"
 
-#: clockwork_web/browser_routes/settings.py:265
-#: clockwork_web/browser_routes/settings.py:334
+#: clockwork_web/browser_routes/settings.py:298
+#: clockwork_web/browser_routes/settings.py:367
 msgid "The provided page name is unexpected."
 msgstr "Aucune page ne correspond au nom de page transmis."
 
-#: clockwork_web/browser_routes/settings.py:275
-#: clockwork_web/browser_routes/settings.py:344
+#: clockwork_web/browser_routes/settings.py:308
+#: clockwork_web/browser_routes/settings.py:377
 msgid "The provided column name is unexpected for this page."
 msgstr "Cette page ne contient pas de colonne correspondant au nom transmis"
 
-#: clockwork_web/browser_routes/settings.py:423
+#: clockwork_web/browser_routes/settings.py:456
 msgid "The requested language is unknown."
 msgstr "La langue demandée est inconnue."
 
-#: clockwork_web/browser_routes/settings.py:434
+#: clockwork_web/browser_routes/settings.py:467
 msgid "Missing argument, or wrong format: language."
 msgstr "Argument manquant, ou présentant un format incorrect: language"
 
-#: clockwork_web/browser_routes/settings.py:492
+#: clockwork_web/browser_routes/settings.py:537
 msgid "The requested date_format is unknown."
 msgstr "Le format de date demandé est inconnu."
 
-#: clockwork_web/browser_routes/settings.py:503
+#: clockwork_web/browser_routes/settings.py:548
 msgid "Missing argument, or wrong format: date_format."
 msgstr "Argument manquant, ou présentant un format incorrect: date_format"
 
-#: clockwork_web/browser_routes/settings.py:562
+#: clockwork_web/browser_routes/settings.py:618
 msgid "The requested time_format is unknown."
 msgstr "Le format de date est inconnu."
 
-#: clockwork_web/browser_routes/settings.py:573
+#: clockwork_web/browser_routes/settings.py:629
 msgid "Missing argument, or wrong format: time_format."
 msgstr "Argument manquant, ou présentant un format incorrect: time_format"
 
@@ -127,15 +135,15 @@ msgstr "Le paramètre 'username' est manquant."
 msgid "The requested user has not been found."
 msgstr "L'utilisateur demandé n'a pas pu être trouvé."
 
-#: clockwork_web/core/users_helper.py:125
+#: clockwork_web/core/users_helper.py:126
 msgid "The setting has been updated."
 msgstr "Les paramètres ont été sauvegardés."
 
-#: clockwork_web/core/users_helper.py:129
+#: clockwork_web/core/users_helper.py:130
 msgid "An error occurred."
 msgstr "Une erreur est survenue."
 
-#: clockwork_web/core/users_helper.py:132
+#: clockwork_web/core/users_helper.py:133
 msgid "The provided value is not expected for this setting."
 msgstr "La valeur fournie ne correspond pas au paramètre à modifier."
 
@@ -205,11 +213,11 @@ msgstr "Autre utilisateur..."
 
 #: clockwork_web/templates/base.html:218
 msgid "Filter by cluster"
-msgstr "Filtrer par grappe de calcul (/cluster)"
+msgstr "Filtrer par grappe de calcul"
 
 #: clockwork_web/templates/base.html:227
 msgid "Cluster documentation"
-msgstr "Documentation de la grappe de calcul (/du cluster)"
+msgstr "Documentation de la grappe de calcul"
 
 #: clockwork_web/templates/base.html:231
 msgid "No documentation available"
@@ -220,24 +228,22 @@ msgid "Grafana cluster link"
 msgstr "Lien vers Grafana"
 
 #: clockwork_web/templates/base.html:240
-msgid "Latest job edition is too old (more than 30 days ago)"
+msgid "Possible stale jobs. Most recent update was more than 30 days ago"
 msgstr ""
-"La dernière modification des jobs de ce cluster date d'il y a plus de 30 "
-"jours"
+"Les jobs peuvent être obsolètes : leur dernière mise à jour date d'il y a"
+" plus de 30 jours"
 
 #: clockwork_web/templates/base.html:244
-msgid "Latest job edition is recent enough (at most 30 days ago)"
-msgstr ""
-"La dernière modification des jobs de ce cluster date d'il y a moins de 30"
-" jours"
+msgid "Latest update to jobs is relatively recent (at most 30 days ago)"
+msgstr "Les jobs ont été mises à jour dans les 30 derniers jours"
 
 #: clockwork_web/templates/base.html:249
 msgid "A cluster error occurred recently"
-msgstr "Une erreur est récemment survenue sur la grappe de calcul (/le cluster)"
+msgstr "Une erreur est récemment survenue sur la grappe de calcul"
 
 #: clockwork_web/templates/base.html:253
 msgid "No recent cluster error"
-msgstr "Pas d'erreur survenue récemment sur le cluster"
+msgstr "Pas d'erreur survenue récemment sur la grappe de calcul"
 
 #: clockwork_web/templates/base.html:279
 msgid "Filter by status"
@@ -258,7 +264,7 @@ msgstr "Politique de confidentialité"
 #: clockwork_web/templates/cluster.html:25
 #, python-format
 msgid "%(cluster_name)s cluster"
-msgstr "Cluster %(cluster_name)s"
+msgstr "Grappe %(cluster_name)s"
 
 #: clockwork_web/templates/cluster.html:37
 msgid "Global information"
@@ -286,13 +292,11 @@ msgstr "Lien vers la documentation fournie par Mila"
 
 #: clockwork_web/templates/cluster.html:73
 msgid "Display all the jobs on this cluster"
-msgstr ""
-"Afficher toutes les jobs présentes sur cette grappe de calcul (/ce "
-"cluster)"
+msgstr "Afficher toutes les jobs présentes sur cette grappe de calcul"
 
 #: clockwork_web/templates/cluster.html:74
 msgid "Display all the nodes of this cluster"
-msgstr "Afficher tous les noeuds présents sur cette grappe de calcul (/ce cluster)"
+msgstr "Afficher tous les noeuds présents sur cette grappe de calcul"
 
 #: clockwork_web/templates/cluster.html:89
 msgid "Annual allocation"
@@ -303,12 +307,12 @@ msgid "Jobs status"
 msgstr "États des jobs"
 
 #: clockwork_web/templates/cluster.html:122
-msgid "Oldest job edition"
-msgstr "Plus vieille modification de job"
+msgid "Oldest job update"
+msgstr "Plus vieille mise à jour de job"
 
 #: clockwork_web/templates/cluster.html:133
-msgid "Latest job edition"
-msgstr "Plus récente modification de job"
+msgid "Latest job update"
+msgstr "Plus récente mise à jour de job"
 
 #: clockwork_web/templates/error.html:38
 msgid "HTTP response code"
@@ -340,7 +344,7 @@ msgstr "jobs"
 
 #: clockwork_web/templates/jobs.html:36
 msgid "cluster"
-msgstr "cluster"
+msgstr "grappe de calcul"
 
 #: clockwork_web/templates/jobs.html:37
 msgid "user"
@@ -371,7 +375,7 @@ msgstr "date de fin"
 #: clockwork_web/templates/settings.html:210
 #: clockwork_web/templates/settings.html:244
 msgid "Cluster"
-msgstr "Grappe de calcul (/Cluster)"
+msgstr "Grappe de calcul"
 
 #: clockwork_web/templates/jobs_interactive.html:80
 #: clockwork_web/templates/jobs_search.html:97
@@ -624,123 +628,10 @@ msgstr "Nombre d'utilisateurs associés à un compte DRAC"
 
 #: clockwork_web/templates/status.html:63
 msgid "Clusters status"
-msgstr "État des grappes de calcul (/clusters)"
+msgstr "État des grappes de calcul"
 
 #: clockwork_web/templates/status.html:74
 msgid "Number of jobs"
 msgstr "Nombre de jobs"
 
-#~ msgid "Wrong number of items to display per page provided to be set."
-#~ msgstr "Le nombre d'éléments à afficher par page fourni n'est pas conforme."
-
-#~ msgid "%(cluster_name) cluster"
-#~ msgstr "Grappe %(cluster_name)"
-
-#~ msgid "%(nbr_cpus) CPUs"
-#~ msgstr "%(nbr_cpus) CPUs"
-
-#~ msgid "%(nbr_gpus) GPUs"
-#~ msgstr "%(nbr_gpus) GPUs"
-
-#~ msgid "GPU %(gpu_name) information"
-#~ msgstr "Informations sur le GPU %(gpu_name)"
-
-#~ msgid "No information has been found for GPU %(gpu_name)"
-#~ msgstr "Aucune information n'a été trouvée pour le GPU %(gpu_name)"
-
-#~ msgid "Please log in with your @mila.quebec account."
-#~ msgstr "Merci de vous connecter avec votre compte @mila.quebec."
-
-#~ msgid "This will create a key for the REST API automatically."
-#~ msgstr "Cela créera automatiquement une clef pour l'API REST"
-
-#~ msgid "The dark_mode has been enabled."
-#~ msgstr "Le mode sombre a été activé."
-
-#~ msgid "An error occurred."
-#~ msgstr "Une erreur est survenue."
-
-#~ msgid "The dark_mode has been disabled."
-#~ msgstr "Le mode sombre a été désactivé."
-
-#~ msgid "The cluster associated to 'cluster_name' is not known."
-#~ msgstr "La grappe de calcul associée à 'cluster_name' est inconnue."
-
-#~ msgid "The argument cluster_name is missing."
-#~ msgstr "L'argument cluster_name est manquant."
-
-#~ msgid "Missing argument gpu_name."
-#~ msgstr "L'argument gpu_name est manquant."
-
-#~ msgid "Missing argument job_id."
-#~ msgstr "L'argument job_id est manquant."
-
-#~ msgid "Found no job with job_id %(job_id)."
-#~ msgstr "Aucun job présentant le job_id %(job_id) n'a été trouvé."
-
-#~ msgid "Found more than one matching node"
-#~ msgstr "Plusieurs noeuds ont été trouvés alors qu'un seul était attendu."
-
-#~ msgid "Logged as :"
-#~ msgstr "Connecté en tant que :"
-
-#~ msgid "Not logged in."
-#~ msgstr "Non connecté."
-
-#~ msgid "my settings"
-#~ msgstr "Mes préférences"
-
-#~ msgid "logout"
-#~ msgstr "Déconnexion"
-
-#~ msgid "[link about ~this]"
-#~ msgstr "[Lien]"
-
-#~ msgid "[link for github code]"
-#~ msgstr "[Lien vers le Github]"
-
-#~ msgid "jobs on clusters"
-#~ msgstr "jobs sur les clusters"
-
-#~ msgid "refresh"
-#~ msgstr "rafraîchir"
-
-#~ msgid "time"
-#~ msgstr "temps"
-
-#~ msgid "1 hour"
-#~ msgstr "1 heure"
-
-#~ msgid "1 day"
-#~ msgstr "1 jour"
-
-#~ msgid "1 week"
-#~ msgstr "1 semaine"
-
-#~ msgid "users"
-#~ msgstr "utilisateurs"
-
-#~ msgid "all"
-#~ msgstr "tous"
-
-#~ msgid "only me"
-#~ msgstr "moi uniquement"
-
-#~ msgid "change key"
-#~ msgstr "modifier la clef"
-
-#~ msgid "Run this command to register your account:"
-#~ msgstr "Rouler cette commande pour enregistrer votre compte :"
-
-#~ msgid "Get update account key"
-#~ msgstr "Obtenir la clef de mise à jour du compte"
-
-#~ msgid "Display all the jobs running on this cluster"
-#~ msgstr "Afficher tous les jobs roulant sur ce cluster"
-
-#~ msgid "Field 'relative_time' cannot be cast as a valid integer: %(time1)."
-#~ msgstr ""
-#~ "Le champ 'relative_time' n'a pas pu "
-#~ "être converti en nombre entier valide:"
-#~ " %(time1)"
 
