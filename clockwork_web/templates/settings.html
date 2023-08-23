@@ -55,6 +55,14 @@
 			}
 		}
 
+		function select_language(language_dropdown) {
+			// Retrieve the selected value
+			var selected_language = language_dropdown.options[language_dropdown.selectedIndex].value;
+
+			// Update it in the user's web settings
+			set_language(selected_language);
+		}
+
 		function select_nbr_items_per_page(nbr_items_per_page_dropdown) {
 			// Retrieve the selected value
 		  	var selected_nbr = nbr_items_per_page_dropdown.options[nbr_items_per_page_dropdown.selectedIndex].value;
@@ -115,22 +123,17 @@
  						<a href="new_key">{{ gettext("change key") }}</a>
 
  					</dt>
-					<dd class="col-6">
-						<!--{% if cc_account_update_key is not none %} -->
-							<p><strong>{{ gettext("Run this command to register your account:") }}</strong></p>
-							<pre>sbatch --time=1 --wrap=true --comment=clockwork_register_accout:{{ cc_account_update_key }}</pre>
-						<!--{% else %} -->
-							<a href="new_update_key">{{ gettext("Get update account key") }}</a>
-						<!--{% endif %} -->
-					</dd>
 
-					<!-- Items per page -->
-					<dt class="col-6">{{ gettext("Number of items displayed per page") }}</dt>
-		  			<dd class="col-6">
-						<select class="form-select" name="nbr_items_per_page_selection" id="nbr_items_per_page_selection" onchange="select_nbr_items_per_page(this)">
-							<!-- This is filled through the javascript -->
-						</select>
-					</dd>
+					 <dd class="col-6">
+					{# If the user has no associated account on a cluster, propose a pairing option #}
+					{% if cc_account_username is none %}
+						{% if cc_account_update_key is not none %}
+							<p><strong>{{ gettext("Run this command to register your account:") }}</strong></p>
+							<pre>sbatch --time=1 --wrap=true --comment=clockwork_register_account:{{ cc_account_update_key }}</pre>
+						{% endif %}
+						<a href="new_update_key">Get update account key</a>
+					{% endif %}
+				</dd>
 
 					<!-- Dark mode -->
 			  		<dt class="col-6"><label for="dark_mode_toggle">{{ gettext("Dark mode") }}</label></dt>
@@ -142,6 +145,28 @@
 								<input name="dark_mode_toggle" id="dark_mode_toggle" type="checkbox" class="form-check-input" onclick="switch_dark_mode()" />
 							{% endif %}
 						</div>
+					</dd>
+
+					<!-- Language -->
+					<dt class="col-6">{{ gettext("Language") }}</dt>
+					<dd class="col-6">
+						<select class="form-select" name="language_selection" id="language_selection" onchange="select_language(this)">
+							{% for language in available_languages %}
+								{% if language == web_settings["language"] %}
+									<option value="{{language}}" selected>{{language}}</option>
+								{% else %}
+									<option value="{{language}}">{{language}}</option>
+								{% endif %}
+							{% endfor %}
+						</select>
+					</dd>
+
+					<!-- Items per page -->
+					<dt class="col-6">{{ gettext("Number of items displayed per page") }}</dt>
+		  			<dd class="col-6">
+						<select class="form-select" name="nbr_items_per_page_selection" id="nbr_items_per_page_selection" onchange="select_nbr_items_per_page(this)">
+							<!-- This is filled through the javascript -->
+						</select>
 					</dd>
 
 					<!-- Timestamps -->

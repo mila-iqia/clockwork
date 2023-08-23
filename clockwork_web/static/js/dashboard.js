@@ -533,22 +533,24 @@ function generate_cell_content(td, D_job, column_key) {
                 link0_innerHTML = ""
             }
             // This is just a placeholder for now.
-            const link1_innerHTML = "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>"
+            const link1_innerHTML = "<a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='{{ gettext('Link to another place') }}'><i class='fa-solid fa-link-horizontal'></i></a>"
             td.innerHTML = link0_innerHTML + link1_innerHTML;
             return td;
             
         case "actions":
             td.className = "actions";
             td.innerHTML = (
-                "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-xmark'></i></a>"
+                "<a href='' class='stop' data-bs-toggle='tooltip' data-bs-placement='right' title='Cancel job'><i class='fa-solid fa-octagon-minus' style='color:#dba46a;'></i></a>"
             );
             return td;
             
         default:
             // We do nothing if we do not know the requested column
             return td;
+            
     }
 }
+
 
 function populate_table(response_contents, columns_dict) {
     /*
@@ -629,7 +631,7 @@ function populate_table(response_contents, columns_dict) {
                 tr.appendChild(filled_td);
             }
         }
-        
+
         tbody.appendChild(tr);
 
     });

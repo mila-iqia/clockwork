@@ -58,7 +58,7 @@ def route_index():
     logging.info(
         f"clockwork browser route: /jobs/ - current_user={current_user.mila_email_username}"
     )
-    return redirect("interactive")
+    return redirect("dashboard")
 
 
 @flask_api.route("/search")
@@ -280,20 +280,17 @@ def route_one():
     )
 
 
-# TODO : Everything below has not yet been ported to the new system.
-
-
-@flask_api.route("/interactive")
+@flask_api.route("/dashboard")
 @login_required
-def route_interactive():
+def route_dashboard():
     """
     Displays the list of the current user's jobs.
     """
     logging.info(
-        f"clockwork browser route: /jobs/interactive - current_user={current_user.mila_email_username}"
+        f"clockwork browser route: /jobs/dashboard - current_user={current_user.mila_email_username}"
     )
 
     return render_template_with_user_settings(
-        "jobs_interactive.html",
+        "dashboard.html",
         mila_email_username=current_user.mila_email_username,
     )

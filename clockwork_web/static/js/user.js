@@ -126,6 +126,38 @@ function disable_column(page_name, column_name) {
   )
 };
 
+function set_language(language) {
+  /*
+    Contact the server in order to update the preferred language of the user,
+    set in the user's settings.
+
+    Parameter:
+    - language  The preferred language to use when displaying information to the user
+  */
+
+  // Define the URL
+  let url = "/settings/web/language/set?language="+language;
+  
+  // Send the request and retrieve the response
+  const request = new Request(url,
+    {   method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+  );
+
+  fetch(request)
+  .then(response => {
+      if (response.status === 200) {
+          // We do nothing here... for now
+      } else {
+          throw new Error('Something went wrong on API server when changing language to "'+language+'".');
+      };
+    }
+  )
+}
+
 function set_nbr_items_per_page(nbr_items_per_page) {
   /*
     Contact the server in order to modify the number of items to display per
@@ -151,7 +183,7 @@ function set_nbr_items_per_page(nbr_items_per_page) {
       if (response.status === 200) {
           // We do nothing here... for now
       } else {
-          throw new Error('Something went wrong on API server!');
+          throw new Error('Something went wrong on API server when changing number of items to display per page to "'+nbr_items_per_page+'".');
       };
     }
   )
