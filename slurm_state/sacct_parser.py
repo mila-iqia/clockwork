@@ -7,15 +7,7 @@ import json, os
 # Imports related to sacct call
 # https://docs.paramiko.org/en/stable/api/client.html
 from slurm_state.helpers.ssh_helper import open_connection
-
-from slurm_state.extra_filters import clusters_valid
-from slurm_state.config import get_config, string, optional_string, timezone
-
-clusters_valid.add_field("sacct_path", optional_string)
-clusters_valid.add_field("ssh_key_filename", string)
-clusters_valid.add_field("timezone", timezone)
-clusters_valid.add_field("remote_user", optional_string)
-clusters_valid.add_field("remote_hostname", optional_string)
+from slurm_state.helpers.clusters_helper import get_all_clusters
 
 # These functions are translators used in order to handle the values
 # we could encounter while parsing a job dictionary retrieved from a
@@ -350,21 +342,24 @@ def generate_job_report(
         file_name       Path to store the generated sacct report
 
     """
+    # Retrieve the cluster's information from the configuration file
+    cluster = get_all_clusters()[cluster_name]
+
     # Retrieve from the configuration file the elements used to establish a SSH connection
     # to a remote cluster and launch the sacct command on it
-    username = get_config("clusters")[cluster_name][
+    username = cluster[
         "remote_user"
     ]  # The username used for the SSH connection to launch the sacct command
-    hostname = get_config("clusters")[cluster_name][
+    hostname = cluster[
         "remote_hostname"
     ]  # The hostname used for the SSH connection to launch the sacct command
-    port = get_config("clusters")[cluster_name][
+    port = cluster[
         "ssh_port"
     ]  # The port used for the SSH connection to launch the sacct command
-    sacct_path = get_config("clusters")[cluster_name][
+    sacct_path = cluster[
         "sacct_path"
     ]  # The path of the sacct executable on the cluster side
-    ssh_key_filename = get_config("clusters")[cluster_name][
+    ssh_key_filename = cluster[
         "ssh_key_filename"
     ]  # The name of the private key in .ssh folder used for the SSH connection to launch the sacct command
 
@@ -391,43 +386,62 @@ def generate_job_report(
     #            remote_cmd = "/opt/slurm/bin/sacct ..."
     #        then it works. We have to hardcode the path in each cluster, it seems.
 
-    # Set the sacct command
-    # -S is a condition on the start time, 600 being in seconds
-    # -E is a condition on the end time
-    remote_cmd = f"{sacct_path} -S now-600 -E now -X --json"
-    print(f"remote_cmd is\n{remote_cmd}")
+    # Retrieve the allocations associated to the cluster
+    allocations = cluster["allocations"]
 
-    # Connect through SSH
-    try:
-        ssh_client = open_connection(
-            hostname, username, ssh_key_path=ssh_key_path, port=port
-        )
-    except Exception as inst:
-        print(f"Error. Failed to connect to {hostname} to make a call to sacct.")
-        print(inst)
-        return []
-
-    if ssh_client:
-        # those three variables are file-like, not strings
-        ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(remote_cmd)
-
-        # We should find a better option to retrieve stderr
-        """
-        response_stderr = "".join(ssh_stderr.readlines())
-        if len(response_stderr):
-            print(
-                f"Stderr in sacct call on {hostname}. This doesn't mean that the call failed entirely, though.\n{response_stderr}"
-            )
-        """
-
-        # Write the command output to a file
-        with open(file_name, "w") as outfile:
-            for line in ssh_stdout.readlines():
-                outfile.write(line)
-
-        ssh_client.close()
-
-    else:
+    if allocations == []:
+        # If the cluster has no associated allocation, nothing is requested
         print(
-            f"Error. Failed to connect to {hostname} to make call to sacct. Returned `None` but no exception was thrown."
+            f"The cluster {cluster_name} has no allocation related to it. Thus, no job has been retrieved. Associated allocations can be provided in the Clockwork configuration file."
         )
+        return []
+    else:
+        # Set the sacct command
+        # -S is a condition on the start time, 600 being in seconds
+        # -E is a condition on the end time
+        # -X means "Only show statistics relevant to the job allocation itself, not taking steps into consideration."
+        # --associations is used in order to limit the fetched jobs to the ones related to Mila and/or professors who
+        #                may use Clockwork
+        if allocations == "*":
+            # We do not provide --associations information because the default for this parameter
+            # is "all associations"
+            remote_cmd = f"{sacct_path} -S now-600 -E now -X --allusers --json"
+        else:
+            accounts_list = ",".join(allocations)
+            remote_cmd = f"{sacct_path} -S now-600 -E now -X --accounts={accounts_list} --allusers --json"
+        print(f"remote_cmd is\n{remote_cmd}")
+
+        # Connect through SSH
+        try:
+            ssh_client = open_connection(
+                hostname, username, ssh_key_path=ssh_key_path, port=port
+            )
+        except Exception as inst:
+            print(f"Error. Failed to connect to {hostname} to make a call to sacct.")
+            print(inst)
+            return []
+
+        if ssh_client:
+            # those three variables are file-like, not strings
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh_client.exec_command(remote_cmd)
+
+            # We should find a better option to retrieve stderr
+            """
+            response_stderr = "".join(ssh_stderr.readlines())
+            if len(response_stderr):
+                print(
+                    f"Stderr in sacct call on {hostname}. This doesn't mean that the call failed entirely, though.\n{response_stderr}"
+                )
+            """
+
+            # Write the command output to a file
+            with open(file_name, "w") as outfile:
+                for line in ssh_stdout.readlines():
+                    outfile.write(line)
+
+            ssh_client.close()
+
+        else:
+            print(
+                f"Error. Failed to connect to {hostname} to make call to sacct. Returned `None` but no exception was thrown."
+            )
