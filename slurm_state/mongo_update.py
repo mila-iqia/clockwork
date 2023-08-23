@@ -362,9 +362,10 @@ def get_jobs_updates_and_insertions(
         )
 
     # -- Account association -- #
-    L_users_updates = associate_account(LD_sacct)
+    # L_users_updates = associate_account(LD_sacct)
 
-    return (L_updates_to_do, L_users_updates, L_data_for_dump_file)
+    # return (L_updates_to_do, L_users_updates, L_data_for_dump_file)
+    return (L_updates_to_do, [], L_data_for_dump_file)
 
 
 def get_nodes_updates(I_clockwork_nodes):
@@ -416,6 +417,7 @@ def get_nodes_updates(I_clockwork_nodes):
     return (L_updates_to_do, L_data_for_dump_file)
 
 
+"""
 def associate_account(LD_sacct_jobs):
     L_user_updates = []
     for D_job in LD_sacct_jobs:
@@ -487,6 +489,7 @@ def associate_account(LD_sacct_jobs):
                 )
 
     return L_user_updates
+"""
 
 
 def main_read_users_and_update_collection(
