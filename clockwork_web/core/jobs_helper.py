@@ -169,7 +169,9 @@ def get_filtered_and_paginated_jobs(
     return (LD_jobs, nbr_total_jobs)
 
 
-def get_global_filter(username=None, job_ids=[], cluster_names=None, job_states=[], job_array=None):
+def get_global_filter(
+    username=None, job_ids=[], cluster_names=None, job_states=[], job_array=None
+):
     """
     Set up a filter for MongoDB in order to filter username, clusters and job states,
     regarding what has been sent as parameter to the function.
@@ -264,7 +266,7 @@ def get_jobs(
         job_ids=job_ids,
         cluster_names=cluster_names,
         job_states=job_states,
-        job_array=job_array
+        job_array=job_array,
     )
     # Retrieve the jobs from the filters and return them
     # (The return value is a tuple (LD_jobs, nbr_total_jobs))
