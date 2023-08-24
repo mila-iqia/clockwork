@@ -185,7 +185,7 @@
                             <!-- NB: If job array is unset, we use value zero (0). -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_array")) %}
                                 <td>
-                                    <a href="{{ modify_query(job_array=(D_job['slurm']['array_job_id'] or '0')) }}" title="Filter by job array {{D_job['slurm']['array_job_id'] or '0'}}">
+                                    <a href="{{ modify_query(job_array=(D_job['slurm']['array_job_id'] or '0'), page_num=1) }}" title="Filter by job array {{D_job['slurm']['array_job_id'] or '0'}}">
                                         <i class="fa-solid fa-table-list"></i>
                                     </a>
                                 </td>
