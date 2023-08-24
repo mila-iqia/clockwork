@@ -169,7 +169,7 @@ def get_filtered_and_paginated_jobs(
     return (LD_jobs, nbr_total_jobs)
 
 
-def get_global_filter(username=None, job_ids=[], cluster_names=None, job_states=[]):
+def get_global_filter(username=None, job_ids=[], cluster_names=None, job_states=[], job_array=None):
     """
     Set up a filter for MongoDB in order to filter username, clusters and job states,
     regarding what has been sent as parameter to the function.
@@ -182,6 +182,7 @@ def get_global_filter(username=None, job_ids=[], cluster_names=None, job_states=
         job_ids         List of the IDs of the jobs we are looking for
         cluster_names   List of names of the clusters on which the expected jobs run/will run or have run
         job_states      List of names of job_states the expected jobs could have
+        job_array       ID of job array in which we look for jobs
 
     Returns:
         A dictionary containing the conditions to be applied on the search.
@@ -205,6 +206,15 @@ def get_global_filter(username=None, job_ids=[], cluster_names=None, job_states=
     # Define the filter related to the jobs' states
     if len(job_states) > 0:
         filters.append({"slurm.job_state": {"$in": job_states}})
+
+    # Define the filter related to job array
+    if job_array is not None:
+        if job_array == 0:
+            # Zero is default value for jobs without job arrays.
+            # So, let's try to retrieve also jobs with job array not set (None value?)
+            filters.append({"slurm.array_job_id": {"$in": [None, "0"]}})
+        else:
+            filters.append({"slurm.array_job_id": str(job_array)})
 
     # Combine the filters
     filter = combine_all_mongodb_filters(*filters)
@@ -248,16 +258,13 @@ def get_jobs(
             True, None otherwise, as second element
     """
 
-    # TODO Currently, job_array is just a job ID. To be updated when real job arrays will be available.
-    if job_array is not None and str(job_array) not in job_ids:
-        job_ids.append(str(job_array))
-
     # Set up and combine filters
     filter = get_global_filter(
         username=username,
         job_ids=job_ids,
         cluster_names=cluster_names,
         job_states=job_states,
+        job_array=job_array
     )
     # Retrieve the jobs from the filters and return them
     # (The return value is a tuple (LD_jobs, nbr_total_jobs))

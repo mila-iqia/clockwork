@@ -134,6 +134,8 @@ def route_search():
     )
 
     LD_jobs = [strip_artificial_fields_from_job(D_job) for D_job in LD_jobs]
+    # import pprint
+    # pprint.pprint(LD_jobs[0])
 
     if want_json:
         # If requested, return the list as JSON
