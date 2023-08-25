@@ -100,6 +100,7 @@ def route_search():
       "submit_time", "start_time", "end_time"
     - "sort_asc" is an optional integer and used to specify if sorting is
       ascending (1) or descending (-1). Default is 1.
+    - "job_array" is optional and used to specify the job array in which we are looking for jobs
 
     .. :quickref: list all Slurm job as formatted html
     """
@@ -162,6 +163,7 @@ def route_search():
                 "want_count": query.want_count,
                 "sort_by": query.sort_by,
                 "sort_asc": query.sort_asc,
+                "job_array": query.job_array,
             },
         )
 

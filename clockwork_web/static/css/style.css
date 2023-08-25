@@ -11339,6 +11339,14 @@ i.fa-arrows-rotate .rotate-360 {
   width: 100%;
   margin: 30px 0;
 }
+.deactivate-search {
+    padding-top: 30px;
+}
+.deactivate-search > a {
+    color: inherit;
+    background-color: rgb(240, 240, 240);
+    border-radius: 1rem;
+}
 
 .btn-red, .btn-red:visited {
   border: 0;
