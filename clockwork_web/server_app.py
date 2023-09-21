@@ -40,8 +40,8 @@ from .config import register_config, get_config, string, string_list, timezone
 from .core.users_helper import render_template_with_user_settings
 from .core.jobs_helper import job_state_to_aggregated
 
-
-from werkzeug.urls import url_encode
+from urllib.parse import urlencode as url_encode
+# from werkzeug.urls import url_encode
 
 register_config("flask.secret_key", validator=string)
 register_config("translation.translations_folder", default="", validator=string)
