@@ -70,8 +70,9 @@ def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
         [("mila_email_username", 1)], name="users_email_index"
     )
     db_insertion_point["gpu"].create_index([("name", 1)], name="gpu_name")
+    db_insertion_point["labels"].create_index([("user_id", 1), ("job_id", 1)], name="user_id_and_job_id")
 
-    for k in ["users", "jobs", "nodes", "gpu"]:
+    for k in ["users", "jobs", "nodes", "gpu", "labels"]:
         if k in E:
             for e in E[k]:
                 db_insertion_point[k].insert_one(e)

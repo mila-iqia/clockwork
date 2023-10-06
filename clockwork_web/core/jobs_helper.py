@@ -405,6 +405,7 @@ def get_jobs_properties_list_per_page():
             "user",
             "job_id",
             "job_array",
+            "job_labels",
             "job_name",
             "job_state",
             "start_time",
