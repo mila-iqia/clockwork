@@ -115,6 +115,32 @@ def get_filtered_and_paginated_jobs(
     if not (type(nbr_items_to_display) == int and nbr_items_to_display > 0):
         nbr_items_to_display = None
 
+    aggregation = [{
+        "$match": {
+            "$expr": mongodb_filter
+        }
+    }, {
+        "$lookup": {
+            "from": "labels",
+            "localField": "slurm.job_id",
+            "foreignField": "job_id",
+            "let": {"labelJobField": "$job_id", "labelUserField": "$user_id"},
+            "pipeline": [
+                {
+                    "$match": {
+                        "$expr": {
+                            "$and": [
+                                {"$eq": ["$slurm.job_id", "$$labelJobField"]},
+                                {"$eq": ["$cw.mila_email_username", "$$labelUserField"]},
+                            ]
+                        }
+                    }
+                }
+            ],
+            "as": "job_label",
+        }
+    }]
+
     # Retrieve the database
     mc = get_db()
     # Get the jobs from it
@@ -141,7 +167,7 @@ def get_filtered_and_paginated_jobs(
             sorting.append(["slurm.job_id", 1])
         LD_jobs = list(
             mc["jobs"]
-            .find(mongodb_filter)
+            .aggregate(aggregation)
             .sort(sorting)
             .skip(nbr_skipped_items)
             .limit(nbr_items_to_display)
@@ -155,7 +181,7 @@ def get_filtered_and_paginated_jobs(
         # Moreover, in situations where a lot of data was present,
         # e.g. 1-2 months of historical data, this has caused errors
         # on the server because not enough memory was allocated to perform the sorting.
-        LD_jobs = list(mc["jobs"].find(mongodb_filter))
+        LD_jobs = list(mc["jobs"].aggregate(aggregation))
 
     # Set nbr_total_jobs
     if want_count:
