@@ -162,17 +162,25 @@ def get_filtered_and_paginated_jobs(
         label_map = {}
         # Collect all labels related to found jobs,
         # and store them in a dict with keys (user ID, job ID)
-        for label in mc["labels"].find(
-            combine_all_mongodb_filters(
-                {"job_id": {"$in": [int(job["slurm"]["job_id"]) for job in LD_jobs]}}
+        for label in list(
+            mc["labels"].find(
+                combine_all_mongodb_filters(
+                    {
+                        "job_id": {
+                            "$in": [int(job["slurm"]["job_id"]) for job in LD_jobs]
+                        }
+                    }
+                )
             )
         ):
+            # Remove MongoDB identifier, as we won't use it.
+            label.pop("_id")
             label_map.setdefault((label["user_id"], label["job_id"]), []).append(label)
         # Populate jobs with labels using job's user email and job ID to find related labels in labels dict.
         for job in LD_jobs:
-            job["job_labels"] = label_map.get(
-                (job["cw"]["mila_email_username"], int(job["slurm"]["job_id"])), []
-            )
+            key = (job["cw"]["mila_email_username"], int(job["slurm"]["job_id"]))
+            if key in label_map:
+                job["job_labels"] = label_map[key]
 
     # Set nbr_total_jobs
     if want_count:
