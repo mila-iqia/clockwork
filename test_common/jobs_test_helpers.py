@@ -34,11 +34,8 @@ def helper_single_job_at_random(fake_data, cluster_name):
 
     def validator(D_job):
         for k1 in original_D_job:
-            assert k1 in ["slurm", "cw", "user"]
-            for k2 in original_D_job[k1]:
-                assert (
-                    D_job[k1][k2] == original_D_job[k1][k2]
-                ), f"{D_job}\n{original_D_job}"
+            assert k1 in ["slurm", "cw", "user", "job_labels"]
+            assert D_job[k1] == original_D_job[k1], f"{D_job}\n{original_D_job}"
 
     return validator, job_id
 
@@ -167,8 +164,7 @@ def helper_jobs_list_with_filter(fake_data, cluster_name):
         # compare all the dicts one by one
         for (D_job, D_original_job) in zip(LD_jobs, LD_original_jobs):
             for k1 in D_original_job:
-                assert k1 in ["slurm", "cw", "user"]
-                for k2 in D_original_job[k1]:
-                    assert D_job[k1][k2] == D_original_job[k1][k2]
+                assert k1 in ["slurm", "cw", "user", "job_labels"]
+                assert D_job[k1] == D_original_job[k1]
 
     return validator
