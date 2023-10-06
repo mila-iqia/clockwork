@@ -21,6 +21,7 @@ def parse_search_request(user, args, force_pagination=True):
     want_count = to_boolean(want_count)
 
     job_array = args.get("job_array", type=int, default=None)
+    job_label = args.get("job_label", type=str, default=None)
 
     default_page_number = "1" if force_pagination else None
 
@@ -71,6 +72,7 @@ def parse_search_request(user, args, force_pagination=True):
         sort_asc=sort_asc,
         want_count=want_count,
         job_array=job_array,
+        job_label=job_label,
     )
 
     #########################
@@ -115,5 +117,6 @@ def search_request(user, args, force_pagination=True):
         sort_by=query.sort_by,
         sort_asc=query.sort_asc,
         job_array=query.job_array,
+        job_label=query.job_label,
     )
     return (query, jobs, nbr_total_jobs)

@@ -101,6 +101,10 @@
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_array")) %}
                                 <th>Job array</th>
                             {% endif %}
+                            <!-- Job labels header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_labels")) %}
+                                <th>labels</th>
+                            {% endif %}
                             <!-- Job name header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_name")) %}
                                 {% set sort_by = "name" %}
@@ -190,6 +194,19 @@
                                         <i class="fa-solid fa-table-list"></i>
                                     </a>
                                     {% endif %}
+                                </td>
+                            {% endif %}
+
+                            <!-- Job labels -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_labels")) %}
+                                <td>
+                                    {% for D_label in D_job['job_labels'] %}
+                                    <p>
+                                    <a href="{{ modify_query(job_label=D_label['name'], page_num=1) }}" title="Filter by job label &quot;{{D_label['name']}}&quot;">
+                                        {{ D_label['name'] }}
+                                    </a>
+                                    </p>
+                                    {% endfor %}
                                 </td>
                             {% endif %}
 
