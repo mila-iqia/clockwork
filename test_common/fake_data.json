@@ -5962,5 +5962,37 @@
       "tensor_cores": 576,
       "tflops_fp32": 16.31
     }
+  ],
+  "labels": [
+    {
+      "name": "je suis un label 1",
+      "user_id": "student06@mila.quebec",
+      "job_id": 795002
+    },
+    {
+      "name": "je suis un label 2",
+      "user_id": " student16@mila.quebec",
+      "job_id": 606872
+    },
+    {
+      "name": "je suis un label 3",
+      "user_id": "student15@mila.quebec",
+      "job_id": 834395
+    },
+    {
+      "name": "je suis un label 4",
+      "user_id": " student15@mila.quebec",
+      "job_id": 154325
+    },
+    {
+      "name": "je suis un label 5",
+      "user_id": " student15@mila.quebec",
+      "job_id": 154325
+    },
+    {
+      "name": "je suis un label 1",
+      "user_id": "student12@mila.quebec",
+      "job_id": 613024
+    }
   ]
 }
