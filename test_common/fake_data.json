@@ -4,7 +4,7 @@
       "mila_email_username": "student00@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa00",
-      "mila_cluster_username": "milauser00",
+      "mila_account_username": "milauser00",
       "cc_account_username": "ccuser00",
       "cc_account_update_key": null,
       "web_settings": {
@@ -17,7 +17,7 @@
       "mila_email_username": "student01@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa01",
-      "mila_cluster_username": "milauser01",
+      "mila_account_username": "milauser01",
       "cc_account_username": "ccuser01",
       "cc_account_update_key": null,
       "web_settings": {
@@ -30,7 +30,7 @@
       "mila_email_username": "student02@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa02",
-      "mila_cluster_username": "milauser02",
+      "mila_account_username": "milauser02",
       "cc_account_username": "ccuser02",
       "cc_account_update_key": null,
       "web_settings": {
@@ -43,7 +43,7 @@
       "mila_email_username": "student03@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa03",
-      "mila_cluster_username": "milauser03",
+      "mila_account_username": "milauser03",
       "cc_account_username": "ccuser03",
       "cc_account_update_key": null,
       "web_settings": {
@@ -56,7 +56,7 @@
       "mila_email_username": "student04@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa04",
-      "mila_cluster_username": "milauser04",
+      "mila_account_username": "milauser04",
       "cc_account_username": "ccuser04",
       "cc_account_update_key": null,
       "web_settings": {
@@ -69,7 +69,7 @@
       "mila_email_username": "student05@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa05",
-      "mila_cluster_username": "milauser05",
+      "mila_account_username": "milauser05",
       "cc_account_username": "ccuser05",
       "cc_account_update_key": null,
       "web_settings": {
@@ -82,7 +82,7 @@
       "mila_email_username": "student06@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa06",
-      "mila_cluster_username": "milauser06",
+      "mila_account_username": "milauser06",
       "cc_account_username": null,
       "cc_account_update_key": null,
       "web_settings": {
@@ -95,7 +95,7 @@
       "mila_email_username": "student07@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa07",
-      "mila_cluster_username": "milauser07",
+      "mila_account_username": "milauser07",
       "cc_account_username": "ccuser07",
       "cc_account_update_key": null,
       "web_settings": {
@@ -108,7 +108,7 @@
       "mila_email_username": "student08@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa08",
-      "mila_cluster_username": "milauser08",
+      "mila_account_username": "milauser08",
       "cc_account_username": "ccuser08",
       "cc_account_update_key": null,
       "web_settings": {
@@ -121,7 +121,7 @@
       "mila_email_username": "student09@mila.quebec",
       "status": "disabled",
       "clockwork_api_key": "000aaa09",
-      "mila_cluster_username": "milauser09",
+      "mila_account_username": "milauser09",
       "cc_account_username": "ccuser09",
       "cc_account_update_key": null,
       "web_settings": {
@@ -134,7 +134,7 @@
       "mila_email_username": "student10@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa10",
-      "mila_cluster_username": "milauser10",
+      "mila_account_username": "milauser10",
       "cc_account_username": "ccuser10",
       "cc_account_update_key": null,
       "web_settings": {
@@ -147,7 +147,7 @@
       "mila_email_username": "student11@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa11",
-      "mila_cluster_username": "milauser11",
+      "mila_account_username": "milauser11",
       "cc_account_username": "ccuser11",
       "cc_account_update_key": null,
       "web_settings": {
@@ -160,7 +160,7 @@
       "mila_email_username": "student12@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa12",
-      "mila_cluster_username": "milauser12",
+      "mila_account_username": "milauser12",
       "cc_account_username": "ccuser12",
       "cc_account_update_key": null,
       "web_settings": {
@@ -173,7 +173,7 @@
       "mila_email_username": "student13@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa13",
-      "mila_cluster_username": "milauser13",
+      "mila_account_username": "milauser13",
       "cc_account_username": "ccuser13",
       "cc_account_update_key": null,
       "web_settings": {
@@ -186,7 +186,7 @@
       "mila_email_username": "student14@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa14",
-      "mila_cluster_username": "milauser14",
+      "mila_account_username": "milauser14",
       "cc_account_username": "ccuser14",
       "cc_account_update_key": null,
       "web_settings": {
@@ -199,7 +199,7 @@
       "mila_email_username": "student15@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa15",
-      "mila_cluster_username": "milauser15",
+      "mila_account_username": "milauser15",
       "cc_account_username": "ccuser15",
       "cc_account_update_key": null,
       "web_settings": {
@@ -212,7 +212,7 @@
       "mila_email_username": "student16@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa16",
-      "mila_cluster_username": "milauser16",
+      "mila_account_username": "milauser16",
       "cc_account_username": "ccuser16",
       "cc_account_update_key": null,
       "web_settings": {
@@ -225,7 +225,7 @@
       "mila_email_username": "student17@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa17",
-      "mila_cluster_username": "milauser17",
+      "mila_account_username": "milauser17",
       "cc_account_username": "ccuser17",
       "cc_account_update_key": null,
       "web_settings": {
@@ -238,7 +238,7 @@
       "mila_email_username": "student18@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa18",
-      "mila_cluster_username": "milauser18",
+      "mila_account_username": "milauser18",
       "cc_account_username": "ccuser18",
       "cc_account_update_key": null,
       "web_settings": {
@@ -251,7 +251,7 @@
       "mila_email_username": "student19@mila.quebec",
       "status": "disabled",
       "clockwork_api_key": "000aaa19",
-      "mila_cluster_username": "milauser19",
+      "mila_account_username": "milauser19",
       "cc_account_username": "ccuser19",
       "cc_account_update_key": null,
       "web_settings": {

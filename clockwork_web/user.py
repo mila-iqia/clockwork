@@ -52,7 +52,7 @@ class User(UserMixin):
         status,
         admin_access=False,
         clockwork_api_key=None,
-        mila_cluster_username=None,
+        mila_account_username=None,
         cc_account_username=None,
         cc_account_update_key=None,
         web_settings={},
@@ -77,7 +77,7 @@ class User(UserMixin):
         self.status = status
         self.admin_access = boolean(admin_access)
         self.clockwork_api_key = clockwork_api_key
-        self.mila_cluster_username = mila_cluster_username
+        self.mila_account_username = mila_account_username
         self.cc_account_username = cc_account_username
         self.cc_account_update_key = cc_account_update_key
         for k in ["nbr_items_per_page", "dark_mode", "language"]:
@@ -138,7 +138,7 @@ class User(UserMixin):
                 status=e["status"],
                 admin_access=e.get("admin_access", False),
                 clockwork_api_key=e["clockwork_api_key"],
-                mila_cluster_username=e["mila_cluster_username"],
+                mila_account_username=e["mila_account_username"],
                 cc_account_username=e["cc_account_username"],
                 cc_account_update_key=e.get("cc_account_update_key", ""),
                 web_settings=e.get("web_settings", {}),
@@ -330,7 +330,7 @@ class AnonUser(AnonymousUserMixin):
         self.admin_access = False
         self.clockwork_api_key = "deadbeef"
         self.cc_account_username = None
-        self.mila_cluster_username = None
+        self.mila_account_username = None
         self.cc_account_update_key = None
         self.web_settings = get_default_web_settings_values()
         self.web_settings["language"] = None

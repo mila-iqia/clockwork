@@ -10,5 +10,5 @@
          "gcpV100x1Cloud", "gcpV100Xx1Cloud", "gcpV100x2Cloud", "gcpV100x4Cloud", "gcpK80x1Cloud",
          "gcpK80Xx1Cloud", "gcpK80x2Cloud", "gcpK80x4Cloud"],
     "timezone": "America/Montreal",
-    "local_username_referenced_by_parent_as": "mila_cluster_username"
+    "local_username_referenced_by_parent_as": "mila_account_username"
 }

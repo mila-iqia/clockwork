@@ -240,7 +240,7 @@ def process_user(user_raw: dict) -> dict:
     them to contain only one element at [0].
 
     mail[0]        -> mila_email_username  (includes the "@mila.quebec")
-    posixUid[0]    -> mila_cluster_username
+    posixUid[0]    -> mila_account_username
     uidNumber[0]   -> mila_cluster_uid
     gidNumber[0]   -> mila_cluster_gid
     displayName[0] -> display_name
@@ -253,7 +253,7 @@ def process_user(user_raw: dict) -> dict:
     user = {
         # include the suffix "@mila.quebec"
         "mila_email_username": user_raw["mail"][0],
-        "mila_cluster_username": user_raw["posixUid"][0],
+        "mila_account_username": user_raw["posixUid"][0],
         "mila_cluster_uid": user_raw["uidNumber"][0],
         "mila_cluster_gid": user_raw["gidNumber"][0],
         "display_name": user_raw["displayName"][0],
