@@ -103,28 +103,35 @@
 			<div class="col-12">
 
 				<dl class="row">
-					<!--
 					<dt class="col-6">
+						{% if current_user.clockwork_api_key %}
+							<form>
+								<div class="form-group">
+									<label>{{ gettext("CLOCKWORK_API_KEY:") }}</label>
+									<div class="input-group" id="show_hide_password">
+										<input class="form-control" id="clockwork_api_key" type="password" value="{{clockwork_api_key}}">
+										<div class="input-group-addon">
+											<a class="copy_clipboard"  data-bs-toggle='tooltip' data-bs-placement='top' title='Copy to clipboard' href=""><i class="fa fa-copy" aria-hidden="true"></i></a>
+										</div>
+										<div class="input-group-addon">
+											<a class="reveal" data-bs-toggle='tooltip' data-bs-placement='top' title='Reveal password' href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+										</div>
+									</div>
+									<a href="new_key">{{ gettext("change key") }}</a>
+								</div>
+							</form>
+						{% else %}
+							<label>{{ gettext("CLOCKWORK_API_KEY:") }}</label>
+							<div style="font-weight: normal;">
+								<br />
+								{{ gettext("No Clockwork API key has been associated to your account; to get one, click below.") }} </br>
+								<a href="new_key">{{ gettext("Get a API key") }}</a>
+							</div>
+						{% endif %}
+					</dt>
+					<dd></dd>
 
-						<form>
-							<div class="form-group">
-						    	<label>{{ gettext("CLOCKWORK_API_KEY:") }}</label>
-						    	<div class="input-group" id="show_hide_password">
-						      		<input class="form-control" id="clockwork_api_key" type="password" value="{{clockwork_api_key}}">
-						      		<div class="input-group-addon">
-						      			<a class="copy_clipboard"  data-bs-toggle='tooltip' data-bs-placement='top' title='Copy to clipboard' href=""><i class="fa fa-copy" aria-hidden="true"></i></a>
-						      		</div>
-						      		<div class="input-group-addon">
-						        		<a class="reveal" data-bs-toggle='tooltip' data-bs-placement='top' title='Reveal password' href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
-						      		</div>
-						    	</div>
-						  	</div>
-						</form>
-
- 						<a href="new_key">{{ gettext("change key") }}</a>
-
- 					</dt>
-
+					<!--
 					<dd class="col-6">
 						{# If the user has no associated account on a cluster, propose a pairing option #}
 						{% if cc_account_username is none %}
