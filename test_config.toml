@@ -37,7 +37,7 @@ language="en"
 
 
 [clusters.mila]
-account_field="mila_account_username"
+account_field="mila_cluster_username"
 update_field=false
 allocations="*"
 timezone="America/Montreal"

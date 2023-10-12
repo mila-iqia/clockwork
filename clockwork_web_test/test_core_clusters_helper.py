@@ -76,7 +76,7 @@ def test_get_all_clusters():
         "mila": {
             "organization": "Mila",
             "timezone": ZoneInfo(key="America/Montreal"),
-            "account_field": "mila_account_username",
+            "account_field": "mila_cluster_username",
             "allocations": "*",
             "nbr_cpus": 4860,  # Number of CPUs on this cluster
             "nbr_gpus": 532,  # Number of GPUs on this cluster
@@ -119,7 +119,7 @@ def test_get_account_fields():
     """
     expected_clusters_for_account_fields = {
         "cc_account_username": ["beluga", "cedar", "graham", "narval"],
-        "mila_account_username": ["mila"],
+        "mila_cluster_username": ["mila"],
     }
 
     retrieved_clusters_for_accound_fields = get_account_fields()
