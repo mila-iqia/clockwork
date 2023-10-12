@@ -53,10 +53,6 @@ def route_index():
     # Display the user's settings as HTML
     return render_template_with_user_settings(
         "settings.html",
-        mila_email_username=current_user.mila_email_username,
-        clockwork_api_key=current_user.clockwork_api_key,
-        cc_account_username=current_user.cc_account_username,
-        cc_account_update_key=current_user.cc_account_update_key,
         available_languages=get_config("translation.available_languages"),
         previous_request_args=previous_request_args,
     )

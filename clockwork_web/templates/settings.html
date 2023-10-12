@@ -95,7 +95,7 @@
 			<div class="col-12">
 				  <div class="title float-start">
 					  <i class="fa-solid fa-user"></i>
-					  <h1>{{ gettext("User settings %(mila_email_username)s", mila_email_username=mila_email_username) }}<span class="message"></h1>
+					  <h1>{{ gettext("User settings %(mila_email_username)s", mila_email_username=current_user.mila_email_username) }}<span class="message"></h1>
 				  </div>
 			  </div>
 		</div>
@@ -109,7 +109,7 @@
 								<div class="form-group">
 									<label>{{ gettext("CLOCKWORK_API_KEY:") }}</label>
 									<div class="input-group" id="show_hide_password">
-										<input class="form-control" id="clockwork_api_key" type="password" value="{{clockwork_api_key}}">
+										<input class="form-control" id="clockwork_api_key" type="password" value="{{current_user.clockwork_api_key}}">
 										<div class="input-group-addon">
 											<a class="copy_clipboard"  data-bs-toggle='tooltip' data-bs-placement='top' title='Copy to clipboard' href=""><i class="fa fa-copy" aria-hidden="true"></i></a>
 										</div>
@@ -134,10 +134,10 @@
 					<!--
 					<dd class="col-6">
 						{# If the user has no associated account on a cluster, propose a pairing option #}
-						{% if cc_account_username is none %}
-							{% if cc_account_update_key is not none %}
+						{% if current_user.cc_account_username is none %}
+							{% if current_user.cc_account_update_key is not none %}
 								<p><strong>{{ gettext("Run this command to register your account:") }}</strong></p>
-								<pre>sbatch --time=1 --wrap=true --comment=clockwork_register_account:{{ cc_account_update_key }}</pre>
+								<pre>sbatch --time=1 --wrap=true --comment=clockwork_register_account:{{ current_user.cc_account_update_key }}</pre>
 							{% endif %}
 							<a href="new_update_key">Get update account key</a>
 						{% endif %}

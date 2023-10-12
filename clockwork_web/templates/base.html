@@ -113,7 +113,7 @@
 				{% endif %}
 				<div class="col login">
 					<!-- TODO : add a conditional here in the template -->
-					{% if mila_email_username: %}
+					{% if current_user.mila_email_username not in [None, "", "anonymous@mila.quebec"]: %}
 						<div class="btn-group dropstart">
 							<a class="user_loggedin" data-bs-toggle="dropdown" data-bs-offset="-34,20" aria-expanded="false" href="#"><i class="fa-solid fa-user-check"></i></a>
 							<div class="dropdown-menu">
