@@ -233,6 +233,9 @@ def generate_node_report(
             )
         """
 
+        # Create directories if needed
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+
         # Write the command output to a file
         with open(file_name, "w") as outfile:
             for line in ssh_stdout.readlines():
