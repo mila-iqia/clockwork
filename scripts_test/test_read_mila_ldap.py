@@ -25,7 +25,7 @@ def test_database_update_users():
     LD_users = [
         {
             "mila_email_username": "johnsmith@mila.quebec",
-            "mila_cluster_username": "johnsmith",
+            "mila_account_username": "johnsmith",
             "mila_cluster_uid": "1500000001",
             "mila_cluster_gid": "1500000001",
             "display_name": "John Smith",
@@ -33,7 +33,7 @@ def test_database_update_users():
         },
         {
             "mila_email_username": "grouchomarx@mila.quebec",
-            "mila_cluster_username": "grouchomarx",
+            "mila_account_username": "grouchomarx",
             "mila_cluster_uid": "1500000002",
             "mila_cluster_gid": "1500000002",
             "display_name": "Groucho Marx",
@@ -44,7 +44,7 @@ def test_database_update_users():
     LD_users_updates = [
         {
             "mila_email_username": "johnsmith@mila.quebec",
-            "mila_cluster_username": "johnsmith",
+            "mila_account_username": "johnsmith",
             "mila_cluster_uid": "1500000001",
             "mila_cluster_gid": "1500000001",
             "display_name": "John Smith",
@@ -52,7 +52,7 @@ def test_database_update_users():
         },
         {
             "mila_email_username": "grouchomarx@mila.quebec",
-            "mila_cluster_username": "grouchomarx",
+            "mila_account_username": "grouchomarx",
             "mila_cluster_uid": "1500000002",
             "mila_cluster_gid": "1500000002",
             "display_name": "Groucho Marx",
@@ -158,7 +158,7 @@ def test_client_side_user_updates():
     LD_users_DB = [
         {
             "mila_email_username": name + "@mila.quebec",
-            "mila_cluster_username": name + "@mila.quebec",
+            "mila_account_username": name + "@mila.quebec",
             "mila_cluster_uid": "%d" % (1500000000 + i),
             "mila_cluster_gid": "%d" % (1500000000 + i),
             "display_name": name.upper(),  # whatever
@@ -237,7 +237,7 @@ def test_client_side_user_updates_web_settings_new_user():
     LD_users_to_add = [
         {
             "mila_email_username": "jamesbond@mila.quebec",
-            "mila_cluster_username": "jamesbond",
+            "mila_account_username": "jamesbond",
             "mila_cluster_uid": "1500000001",
             "mila_cluster_gid": "1500000001",
             "display_name": "James Bond",
@@ -275,7 +275,7 @@ def test_client_side_user_updates_web_settings_updated_user():
     LD_predefined_users = [
         {
             "mila_email_username": "jamesbond@mila.quebec",
-            "mila_cluster_username": "jamesbond",
+            "mila_account_username": "jamesbond",
             "mila_cluster_uid": "1500000001",
             "mila_cluster_gid": "1500000001",
             "display_name": "James Bond",
@@ -290,7 +290,7 @@ def test_client_side_user_updates_web_settings_updated_user():
     LD_users_to_update = [
         {
             "mila_email_username": "jamesbond@mila.quebec",
-            "mila_cluster_username": "agent007",  # This is to check an update different from the web settings
+            "mila_account_username": "agent007",  # This is to check an update different from the web settings
             "mila_cluster_uid": "1500000001",
             "mila_cluster_gid": "1500000001",
             "display_name": "James Bond",
@@ -349,7 +349,7 @@ def test_process_user():
 
     target = {
         "mila_email_username": "john.smith@mila.quebec",
-        "mila_cluster_username": "smithj",
+        "mila_account_username": "smithj",
         "mila_cluster_uid": "1500000001",
         "mila_cluster_gid": "1500000001",
         "display_name": "John Smith",

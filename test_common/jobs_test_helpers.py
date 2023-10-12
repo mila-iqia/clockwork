@@ -124,7 +124,7 @@ def helper_list_jobs_for_a_given_random_user(fake_data):
         # make sure that every job returned has that username somewhere
         for D_job in LD_jobs:
             assert username in [
-                D_job["cw"].get("mila_cluster_username", None),
+                D_job["cw"].get("mila_account_username", None),
                 D_job["cw"].get("mila_email_username", None),
                 D_job["cw"].get("cc_account_username", None),
             ]

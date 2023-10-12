@@ -328,7 +328,7 @@ def get_available_clusters_from_user_dict(D_user):
       "mila_email_username": "student00@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa00",
-      "mila_cluster_username": "milauser00",
+      "mila_account_username": "milauser00",
       "cc_account_username": "ccuser00",
       "cc_account_update_key": null,
       "web_settings": {
@@ -338,19 +338,19 @@ def get_available_clusters_from_user_dict(D_user):
       }
     }
 
-    In this example, the fields we are interested in are the "mila_cluster_username"
+    In this example, the fields we are interested in are the "mila_account_username"
     and the "cc_account_username". They are referred in the account fields (one
     of the two input sources mentioned previously). The latter is as follows:
     {
         "cc_account_username": ["beluga", "cedar", "graham", "narval"],
-        "mila_cluster_username": ["mila"],
+        "mila_account_username": ["mila"],
         "test_cluster_username": ["test_cluster"]
     }
     and is built from the cluster data provided by the configuration file.
 
     Considering this example, the user "student00@mila.quebec" has access to the clusters:
     "beluga", "cedar", "graham" and "narval" because of its field "cc_account_username",
-    and "mila" through the "mila_cluster_username". However, it does not have access to
+    and "mila" through the "mila_account_username". However, it does not have access to
     the cluster "test_cluster" because its user dictionary does not contain a field
     "test_cluster_username".
 
@@ -393,7 +393,7 @@ def get_available_clusters_from_db(mila_email_username):
       "mila_email_username": "student00@mila.quebec",
       "status": "enabled",
       "clockwork_api_key": "000aaa00",
-      "mila_cluster_username": "milauser00",
+      "mila_account_username": "milauser00",
       "cc_account_username": "ccuser00",
       "cc_account_update_key": null,
       "web_settings": {

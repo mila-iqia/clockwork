@@ -54,7 +54,7 @@ jobs
                     "cluster_name": "beluga"},
                 "cw": {
                     "cc_account_username": "ccuser01",
-                    "mila_cluster_username": null,
+                    "mila_account_username": null,
                     "mila_email_username": null},
                 "user": {}
             },
@@ -100,7 +100,7 @@ jobs
             "slurm": {
                 "job_id": "233874",
                 "name": "somejobname_942640",
-                "mila_cluster_username": "milauser12",
+                "mila_account_username": "milauser12",
                 "uid": "10012",
                 "account": "mila",
                 "job_state": "RUNNING",
@@ -120,7 +120,7 @@ jobs
                 "cluster_name": "mila"},
             "cw": {
                 "cc_account_username": null,
-                "mila_cluster_username": "milauser12",
+                "mila_account_username": "milauser12",
                 "mila_email_username": null},
             "user": {}
         }

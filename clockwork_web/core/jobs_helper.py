@@ -438,12 +438,12 @@ def get_jobs_properties_list_per_page():
 #     """
 #
 #     # create a table with one entry for each entry
-#     mila_cluster_usernames = set(e["cw"]["mila_cluster_username"] for e in L_entries)
+#     mila_account_usernames = set(e["cw"]["mila_account_username"] for e in L_entries)
 #     DD_counts = dict(
-#         (mila_cluster_username, {"PENDING": 0, "RUNNING": 0, "COMPLETED": 0, "ERROR": 0})
-#         for mila_cluster_username in mila_cluster_usernames
+#         (mila_account_username, {"PENDING": 0, "RUNNING": 0, "COMPLETED": 0, "ERROR": 0})
+#         for mila_account_username in mila_account_usernames
 #     )
 #     for e in L_entries:
-#         DD_counts[e["mila_cluster_username"]][mapping[e["job_state"]]] += 1
+#         DD_counts[e["mila_account_username"]][mapping[e["job_state"]]] += 1
 #
 #     return DD_counts

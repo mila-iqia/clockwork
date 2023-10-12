@@ -21,7 +21,7 @@ def process_user(D_sarc_user):
     user = {
         "mila_email_username": D_sarc_user["mila"]["email"],
         "display_name": D_sarc_user["mila_ldap"]["display_name"],
-        "mila_cluster_username": D_sarc_user["mila_ldap"]["mila_cluster_username"],
+        "mila_account_username": D_sarc_user["mila_ldap"]["mila_account_username"],
         "mila_cluster_uid": D_sarc_user["mila_ldap"]["mila_cluster_uid"],
         "mila_cluster_gid": D_sarc_user["mila_ldap"]["mila_cluster_gid"],
         "status": "enabled" if D_sarc_user["mila"]["active"] else "disabled",

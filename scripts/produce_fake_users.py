@@ -18,7 +18,7 @@ import random
             "status": "enabled",
             "clockwork_api_key": "000aaa"
             "cc_account_username": "ccuser040",
-            "mila_cluster_username": milauser040",
+            "mila_account_username": milauser040",
             "cc_account_update_key": None
         },
         { ... },
@@ -57,7 +57,7 @@ def get_predefined_fake_users(N=20):
             "mila_email_username": "student%0.2d@mila.quebec" % n,
             "status": status,
             "clockwork_api_key": "000aaa%0.2d" % n,
-            "mila_cluster_username": "milauser%0.2d" % n,
+            "mila_account_username": "milauser%0.2d" % n,
             "cc_account_username": cc_account_username,
             "_extra": {
                 "mila": {

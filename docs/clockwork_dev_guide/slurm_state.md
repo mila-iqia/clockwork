@@ -62,7 +62,7 @@ Jobs are stored in the database in the following format:
     },
     "cw": {
         "cc_account_username": "ccuser02",
-        "mila_cluster_username": null,
+        "mila_account_username": null,
         "mila_email_username": null
     },
     "user": {}

@@ -74,7 +74,7 @@ def get_account_fields():
     example of the returned dictionary:
     {
         "cc_account_username": ["beluga", "cedar", "graham", "narval"],
-        "mila_cluster_username": ["mila"],
+        "mila_account_username": ["mila"],
         "test_cluster_username": ["test_cluster"]
     }
     """
