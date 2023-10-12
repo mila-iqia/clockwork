@@ -425,14 +425,14 @@ def associate_account(LD_sacct_jobs):
         # In theory, someone could have copy/pasted the special sbatch command
         # (that we gave them on the web site) on the Mila cluster instead of CC.
         # We really want to avoid that kind of problem whereby someone's
-        # "cc_account_username" will be set to their "mila_account_username"
+        # "cc_account_username" will be set to their "mila_cluster_username"
         # due to that.
         #
         # The way that we prevent this is by setting a particular value
         # in the cluster config. Here's a snippet from test_config.toml
         # that clearly shows `update_field=false`.
         #    [clusters.mila]
-        #    account_field="mila_account_username"
+        #    account_field="mila_cluster_username"
         #    update_field=false
 
         # Register accounts for external clusters (e.g. Compute Canada)
@@ -460,7 +460,7 @@ def associate_account(LD_sacct_jobs):
             #   "mila_email_username": "student00@mila.quebec",
             #   "status": "enabled",
             #   "clockwork_api_key": "000aaa00",
-            #   "mila_account_username": "milauser00",
+            #   "mila_cluster_username": "milauser00",
             #   "cc_account_username": "ccuser00",
             #   "cc_account_update_key": null,
             #   "web_settings": {
