@@ -111,7 +111,7 @@ def test_anonymize_node():
         "features": "",
         "active_features": "",
         "gres": "",
-        "gres_drained": "N\/A",
+        "gres_drained": "N/A",
         "gres_used": "gpu:0,tpu:0",
         "mcs_label": "",
         "name": "thisisaname",

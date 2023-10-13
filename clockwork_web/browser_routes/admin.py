@@ -11,7 +11,8 @@ from functools import wraps
 # Use of "Markup" described there to avoid Flask escaping it when passing to a template.
 # https://stackoverflow.com/questions/3206344/passing-html-to-template-using-flask-jinja2
 
-from flask import Flask, Response, url_for, request, redirect, make_response, Markup
+from markupsafe import Markup
+from flask import Flask, Response, url_for, request, redirect, make_response
 from flask import request, send_file
 from flask import jsonify
 from werkzeug.utils import secure_filename

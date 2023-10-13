@@ -10,11 +10,9 @@ from collections import defaultdict
 
 # Use of "Markup" described there to avoid Flask escaping it when passing to a template.
 # https://stackoverflow.com/questions/3206344/passing-html-to-template-using-flask-jinja2
-
-from flask import Flask, Response, url_for, request, redirect, make_response, Markup
-from flask import request, send_file
-from flask import jsonify
-from werkzeug.utils import secure_filename
+from markupsafe import Markup
+from flask import Flask, Response, request
+from flask import request
 from werkzeug.wsgi import FileWrapper
 
 # https://flask.palletsprojects.com/en/1.1.x/appcontext/
@@ -36,10 +34,7 @@ flask_api = Blueprint("nodes", __name__)
 
 from clockwork_web.core.clusters_helper import get_all_clusters
 from clockwork_web.core.nodes_helper import get_nodes
-from clockwork_web.core.jobs_helper import (
-    get_filter_cluster_name,
-    combine_all_mongodb_filters,
-)
+from clockwork_web.core.jobs_helper import combine_all_mongodb_filters
 from clockwork_web.core.nodes_helper import (
     get_filter_node_name,
     strip_artificial_fields_from_node,

@@ -6,7 +6,8 @@ import time
 import secrets
 import logging
 
-from flask import Flask, Response, url_for, request, redirect, make_response, Markup
+from markupsafe import Markup
+from flask import Flask, Response, url_for, request, redirect, make_response
 from flask import request, send_file
 from flask import jsonify
 

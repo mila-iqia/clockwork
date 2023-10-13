@@ -1,5 +1,5 @@
-pytest
-coverage
-pymongo
-toml
-numpy
+pytest==7.4.2
+coverage==7.3.2
+pymongo==4.5.0
+toml==0.10.2
+numpy==1.26.0
