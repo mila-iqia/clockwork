@@ -2,8 +2,6 @@
 <html lang="en">
 	<head>
 			{% block head %}
-			<!-- <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"  media="screen,projection"/> -->
-			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/clockwork_cluster.css') }}"> -->
 			<link rel="stylesheet" href="{{ url_for('static', filename='css/pygment_trac.css') }}">
 			<link href="{{ url_for('static', filename='css/fontawesome.min.css') }}" rel="stylesheet">
 			<link href="{{ url_for('static', filename='css/solid.min.css') }}" rel="stylesheet">
@@ -22,11 +20,11 @@
 			<link rel="shortcut icon" href="{{ url_for('static', filename='favicons/favicon.ico') }}">
 
 			<script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-			<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 			<script type="text/javascript" src="{{ url_for('static', filename='js/sortable.min.js') }}"></script>
-			<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.waypoints.min.js') }}"></script>
-			<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.counterup.min.js') }}"></script>
+			
 			<script type="text/javascript" src="{{ url_for('static', filename='js/moment-with-locales.min.js') }}"></script>
 			<script type="text/javascript" src="{{ url_for('static', filename='js/livestamp.min.js') }}"></script>
 
@@ -43,9 +41,6 @@
             {% if web_settings["dark_mode"] ==  true %}
 				<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
 			{% endif %}
-
-			<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}"> -->
-
 
 			<script type="text/javascript" src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
 
