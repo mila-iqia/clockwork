@@ -1,9 +1,8 @@
 requests==2.31.0
 Flask==3.0.0
 oauthlib==3.2.2
-#Flask-Login==0.6.0
+Flask-Login @ git+https://github.com/maxcountryman/flask-login.git@2204b4eee7b215977ba5a1bf85e2061f7fa65e20
 Flask-Babel==4.0.0
 pymongo==4.5.0
 toml==0.10.2
 sentry-sdk[flask]
-
