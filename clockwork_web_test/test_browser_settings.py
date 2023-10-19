@@ -98,7 +98,6 @@ def test_settings_set_nbr_items_per_page_zero_or_negative_value(
     assert response.status_code == 400  # Bad Request
 
 
-
 def test_settings_set_date_format_missing_argument(client, fake_data):
     """
     Test the function route_set_date_format without sending a
@@ -176,7 +175,9 @@ def test_settings_set_date_format_success(client, fake_data, date_format):
     assert response.status_code == 302  # Redirect
 
     # Retrieve the user data
-    D_user = get_db()["users"].find_one({"mila_email_username": user['mila_email_username']})
+    D_user = get_db()["users"].find_one(
+        {"mila_email_username": user["mila_email_username"]}
+    )
     # Assert the date format setting has been modified
     assert D_user["web_settings"]["date_format"] == date_format
 
@@ -407,7 +408,9 @@ def test_settings_set_and_unset_column_display_good_request(
         assert response.status_code == 200  # Success
 
         # Retrieve the user data
-        D_user = get_db()["users"].find_one({"mila_email_username": user["mila_email_username"]})
+        D_user = get_db()["users"].find_one(
+            {"mila_email_username": user["mila_email_username"]}
+        )
         # Assert the column display value has been modified
         assert D_user["web_settings"]["column_display"][page_name][column_name] == (
             not previous_value
@@ -424,7 +427,9 @@ def test_settings_set_and_unset_column_display_good_request(
     "nbr_items_per_page",
     [13, 2],
 )
-def test_settings_set_nbr_items_per_page_unknown_user(client_with_login, nbr_items_per_page):
+def test_settings_set_nbr_items_per_page_unknown_user(
+    client_with_login, nbr_items_per_page
+):
     """
     Test the function route_set_nbr_items_per_page when sending a zero or
     negative integer as nbr_items_per_page.
@@ -460,7 +465,7 @@ def test_settings_enable_dark_mode_with_no_user(client_with_login):
     response = client_with_login.get(f"/settings/web/dark_mode/set")
 
     # Check the status code
-    assert response.status_code == 302 # Redirect
+    assert response.status_code == 302  # Redirect
 
 
 def test_settings_disable_dark_mode_with_no_user(client_with_login):
@@ -477,7 +482,7 @@ def test_settings_disable_dark_mode_with_no_user(client_with_login):
     response = client_with_login.get(f"/settings/web/dark_mode/unset")
 
     # Check the status code
-    assert response.status_code == 302 # Redirect
+    assert response.status_code == 302  # Redirect
 
 
 def test_settings_set_date_format_with_no_user(client_with_login):
@@ -497,7 +502,7 @@ def test_settings_set_date_format_with_no_user(client_with_login):
     )
 
     # Check the status code
-    assert response.status_code == 302 # Redirect
+    assert response.status_code == 302  # Redirect
 
 
 def test_settings_set_time_format_with_no_user(client_with_login):
