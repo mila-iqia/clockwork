@@ -1,6 +1,5 @@
 from flask import session
-from flask_login import current_user
-from flask_login import FlaskLoginClient
+from flask_login import current_user, FlaskLoginClient
 import pytest
 
 from clockwork_web.db import get_db
@@ -99,48 +98,31 @@ def test_settings_set_nbr_items_per_page_zero_or_negative_value(
     assert response.status_code == 400  # Bad Request
 
 
-@pytest.mark.parametrize(
-    "nbr_items_per_page",
-    [13, 2],
-)
-def test_settings_set_nbr_items_per_page_unknown_user(client, nbr_items_per_page):
-    """
-    Test the function route_set_nbr_items_per_page when sending a zero or
-    negative integer as nbr_items_per_page.
 
-    Parameters:
-    - client                The web client used to send the request
-    - nbr_items_per_page    The value to try to set as the preferred number of
-                            items to display per page for the current user
-    """
-    # Define the request to test
-    test_request = (
-        f"/settings/web/nbr_items_per_page/set?nbr_items_per_page={nbr_items_per_page}"
-    )
-
-    # Retrieve the response to the call we are testing
-    response = client.get(test_request)
-
-    # Check if the response is the expected one
-    assert response.status_code == 403  # Forbidden
-
-
-def test_settings_set_date_format_missing_argument(client):
+def test_settings_set_date_format_missing_argument(client, fake_data):
     """
     Test the function route_set_date_format without sending a
     date_format as argument.
 
     Parameters:
-    - client    The web client used to send the request
+    - client        The web client used to send the request
+    - fake_data     The data our tests are based on
     """
-    # This is to establish a 'current_user'
-    client.get("/settings/")
+    user_id = fake_data["users"][0]["mila_email_username"]
+
+    # Log in to Clockwork
+    login_response = client.get(f"/login/testing?user_id={user_id}")
+    assert login_response.status_code == 302  # Redirect
 
     # Retrieve the response to the call we are testing
     response = client.get("/settings/web/date_format/set")
 
     # Check if the response is the expected one
     assert response.status_code == 400  # Bad Request
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize("date_format", ["test", 1.3, True])
@@ -169,20 +151,21 @@ def test_settings_set_date_format_wrong_type(client, date_format):
 
 
 @pytest.mark.parametrize("date_format", ["words", "unix_timestamp", "MM/DD/YYYY"])
-def test_settings_set_date_format_success(client, known_user, date_format):
+def test_settings_set_date_format_success(client, fake_data, date_format):
     """
     Test the function route_set_date_format when the operation is
     done successfully.
 
     Parameters:
     - client        The web client used to send the request
-    - known_user    A known user we will check or edit
+    - fake_data     The data our tests are based on
     - date_format   The format to display the dates to store in the user's settings
     """
-    user_id = known_user["mila_email_username"]
+    # Define the current user
+    user = fake_data["users"][0]
 
     # Log in to Clockwork in order to have an active current user
-    login_response = client.get(f"/login/testing?user_id={user_id}")
+    login_response = client.get(f"/login/testing?user_id={user['mila_email_username']}")
     assert login_response.status_code == 302  # Redirect
 
     # Define the request to test
@@ -193,7 +176,7 @@ def test_settings_set_date_format_success(client, known_user, date_format):
     assert response.status_code == 302  # Redirect
 
     # Retrieve the user data
-    D_user = get_db()["users"].find_one({"mila_email_username": user_id})
+    D_user = get_db()["users"].find_one({"mila_email_username": user['mila_email_username']})
     # Assert the date format setting has been modified
     assert D_user["web_settings"]["date_format"] == date_format
 
@@ -380,7 +363,7 @@ def test_settings_unset_column_display_bad_request(client, page_name, column_nam
     [("jobs_list", "job_id")],
 )
 def test_settings_set_and_unset_column_display_good_request(
-    client, known_user, page_name, column_name
+    client, fake_data, page_name, column_name
 ):
     """
     Test the functions route_set_column_display and route_unset_column_display when the
@@ -388,20 +371,21 @@ def test_settings_set_and_unset_column_display_good_request(
 
     Parameters:
     - client        The web client used to send the requests
-    - known_user    A known user we will check or edit
+    - fake_data     The data our tests are based on
     - page_name     The page name on which the provided job property should appear or not regarding the web setting value
     - column_name   The job property we try to change whether or not it is displayed
     """
-    user_id = known_user["mila_email_username"]
+    # Define the current user
+    user = fake_data["users"][0]
 
     # Log in to Clockwork in order to have an active current user
-    login_response = client.get(f"/login/testing?user_id={user_id}")
+    login_response = client.get(f"/login/testing?user_id={user['mila_email_username']}")
     assert login_response.status_code == 302  # Redirect
 
     # Check the current value of the web setting we want to update through
     # our requests
     try:
-        previous_value = known_user["web_settings"][page_name][column_name]
+        previous_value = user["web_settings"][page_name][column_name]
     except Exception:
         previous_value = True  # Default value if the setting has not been defined. Anyway, set and unset are tested below
 
@@ -423,7 +407,7 @@ def test_settings_set_and_unset_column_display_good_request(
         assert response.status_code == 200  # Success
 
         # Retrieve the user data
-        D_user = get_db()["users"].find_one({"mila_email_username": user_id})
+        D_user = get_db()["users"].find_one({"mila_email_username": user["mila_email_username"]})
         # Assert the column display value has been modified
         assert D_user["web_settings"]["column_display"][page_name][column_name] == (
             not previous_value
@@ -436,83 +420,101 @@ def test_settings_set_and_unset_column_display_good_request(
     assert response_logout.status_code == 302  # Redirect
 
 
-def test_settings_enable_dark_mode_with_no_user(app, client):
+@pytest.mark.parametrize(
+    "nbr_items_per_page",
+    [13, 2],
+)
+def test_settings_set_nbr_items_per_page_unknown_user(client_with_login, nbr_items_per_page):
+    """
+    Test the function route_set_nbr_items_per_page when sending a zero or
+    negative integer as nbr_items_per_page.
+
+    Parameters:
+    - client                The web client used to send the request. It takes login status into account
+    - nbr_items_per_page    The value to try to set as the preferred number of
+                            items to display per page for the current user
+    """
+    # Define the request to test
+    test_request = (
+        f"/settings/web/nbr_items_per_page/set?nbr_items_per_page={nbr_items_per_page}"
+    )
+
+    # Retrieve the response to the call we are testing
+    response = client_with_login.get(test_request)
+
+    # Check if the response is the expected one
+    assert response.status_code == 302  # Redirect
+
+
+def test_settings_enable_dark_mode_with_no_user(client_with_login):
     """
     Test enabling the dark mode with an unknown user.
 
     Parameters:
-    - app           The scope of our tests, used to set the context (to access MongoDB)
-    - client        The web client to request. Note that this fixture depends on other
-                    fixtures that are going to put the fake data in the database for us
+    - client_with_login     The web client to request. It takes login status into account. Note that
+                            this fixture depends on other fixtures that are going to put the fake
+                            data in the database for us
     """
-    # Use the app context
-    with app.app_context():
-        # Set the dark mode for a user who does not exist to True and get the status code
-        # of the operation (in this case, we have valid setting_key and setting_value)
-        response = client.get(f"/settings/web/dark_mode/set")
+    # Set the dark mode for a user who does not exist to True and get the status code
+    # of the operation (in this case, we have valid setting_key and setting_value)
+    response = client_with_login.get(f"/settings/web/dark_mode/set")
 
-        # Check the status code
-        assert response.status_code == 403
+    # Check the status code
+    assert response.status_code == 302 # Redirect
 
 
-def test_settings_disable_dark_mode_with_no_user(app, client):
+def test_settings_disable_dark_mode_with_no_user(client_with_login):
     """
     Test disabling the dark mode with an unknown user.
 
     Parameters:
-    - app           The scope of our tests, used to set the context (to access MongoDB)
-    - client        The web client to request. Note that this fixture depends on other
-                    fixtures that are going to put the fake data in the database for us
+    - client_with_login     The web client to request. It takes login status into account. Note that
+                            this fixture depends on other fixtures that are going to put the fake
+                            data in the database for us
     """
-    # Use the app context
-    with app.app_context():
-        # Set the dark mode for a user who does not exist to False and get the status code
-        # of the operation (in this case, we have valid setting_key and setting_value)
-        response = client.get(f"/settings/web/dark_mode/unset")
+    # Set the dark mode for a user who does not exist to False and get the status code
+    # of the operation (in this case, we have valid setting_key and setting_value)
+    response = client_with_login.get(f"/settings/web/dark_mode/unset")
 
-        # Check the status code
-        assert response.status_code == 403
+    # Check the status code
+    assert response.status_code == 302 # Redirect
 
 
-def test_settings_set_date_format_with_no_user(app, client):
+def test_settings_set_date_format_with_no_user(client_with_login):
     """
     Test updating the date format with an unknown user.
 
     Parameters:
-    - app           The scope of our tests, used to set the context (to access MongoDB)
-    - client        The web client to request. Note that this fixture depends on other
-                    fixtures that are going to put the fake data in the database for us
+    - client_with_login     The web client to request. It takes login status into account. Note that
+                            this fixture depends on other fixtures that are going to put the fake
+                            data in the database for us
     """
-    # Use the app context
-    with app.app_context():
-        # Set the dark mode for a user who does not exist to True and get the status code
-        # of the operation (in this case, we have valid setting_key and setting_value)
-        date_format = "unix_timestamp"  # Valid date format
-        response = client.get(
-            f"/settings/web/date_format/set?date_format={date_format}"
-        )
+    # Set the dark mode for a user who does not exist to True and get the status code
+    # of the operation (in this case, we have valid setting_key and setting_value)
+    date_format = "unix_timestamp"  # Valid date format
+    response = client_with_login.get(
+        f"/settings/web/date_format/set?date_format={date_format}"
+    )
 
-        # Check the status code
-        assert response.status_code == 403
+    # Check the status code
+    assert response.status_code == 302 # Redirect
 
 
-def test_settings_set_time_format_with_no_user(app, client):
+def test_settings_set_time_format_with_no_user(client_with_login):
     """
     Test updating the time format with an unknown user.
 
     Parameters:
-    - app           The scope of our tests, used to set the context (to access MongoDB)
-    - client        The web client to request. Note that this fixture depends on other
-                    fixtures that are going to put the fake data in the database for us
+    - client_with_login     The web client to request. It takes login status into account. Note that
+                            this fixture depends on other fixtures that are going to put the fake
+                            data in the database for us
     """
-    # Use the app context
-    with app.app_context():
-        # Set the dark mode for a user who does not exist to True and get the status code
-        # of the operation (in this case, we have valid setting_key and setting_value)
-        time_format = "24h"  # Valid time format
-        response = client.get(
-            f"/settings/web/time_format/set?time_format={time_format}"
-        )
+    # Set the dark mode for a user who does not exist to True and get the status code
+    # of the operation (in this case, we have valid setting_key and setting_value)
+    time_format = "24h"  # Valid time format
+    response = client_with_login.get(
+        f"/settings/web/time_format/set?time_format={time_format}"
+    )
 
-        # Check the status code
-        assert response.status_code == 403  # Forbidden
+    # Check the status code
+    assert response.status_code == 302  # Redirect

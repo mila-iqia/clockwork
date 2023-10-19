@@ -151,7 +151,7 @@ def create_app(extra_config: dict):
     @babel.localeselector
     def get_locale():
         # If the user is authenticated
-        if current_user and current_user.is_authenticated():
+        if current_user and current_user.is_authenticated:
 
             return current_user.get_language()
 
@@ -251,7 +251,7 @@ def create_app(extra_config: dict):
         where people can click on the "login" button on the web interface.
         """
 
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             app.logger.debug("in route for '/'; redirecting to jobs/")
             return redirect("jobs/")
         else:

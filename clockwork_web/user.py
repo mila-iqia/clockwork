@@ -94,15 +94,6 @@ class User(UserMixin):
             "actions"
         ] = False
 
-    # If we don't set those two values ourselves, we are going
-    # to have users being asked to login every time they click
-    # on a link or refresh the pages.
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return self.status == "enabled"
-
     def get_id(self):
         return self.mila_email_username
 
@@ -350,6 +341,3 @@ class AnonUser(AnonymousUserMixin):
             A dictionary presenting the default web settings.
         """
         return self.web_settings
-
-    def is_authenticated(self):
-        return False
