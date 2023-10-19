@@ -47,7 +47,9 @@ def authentication_required(f):
             return jsonify("Database error."), 500
 
         D_user = L[0]
-        if secrets.compare_digest(D_user["clockwork_api_key"], auth["password"]):
+        if D_user["clockwork_api_key"] is not None and secrets.compare_digest(
+            D_user["clockwork_api_key"], auth["password"]
+        ):
             g.current_user_with_rest_auth = D_user
             return f(*args, **kwargs)
             # no need to manually clear `g.current_user_with_rest_auth` because
