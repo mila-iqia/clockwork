@@ -72,7 +72,7 @@ def node_parser(f):
             "features": "x86_64,turing,48gb",
             "active_features": "x86_64,turing,48gb",
             "gres": "gpu:rtx8000:8(S:0-1)",
-            "gres_drained": "N\/A",
+            "gres_drained": "N/A",
             "gres_used": "gpu:rtx8000:8(IDX:0-7),tpu:0",
             "mcs_label": "",
             "name": "node_name",
@@ -100,12 +100,12 @@ def node_parser(f):
             "threads": 1,
             "temporary_disk": 0,
             "weight": 1,
-            "tres": "cpu=40,mem=386618M,billing=96,gres\/gpu=8",
+            "tres": "cpu=40,mem=386618M,billing=96,gres/gpu=8",
             "slurmd_version": "23.02.1-ex",
             "alloc_memory": 0,
             "alloc_cpus": 0,
             "idle_cpus": 2,
-            "tres_used": "cpu=26,mem=249G,gres\/gpu=8",
+            "tres_used": "cpu=26,mem=249G,gres/gpu=8",
             "tres_weighted": 0
         },
 
@@ -124,8 +124,8 @@ def node_parser(f):
             "memory": 1800,
             "reason": "Sanity Check Failed",
             "reason_changed_at": 1679695880,
-            "tres": "cpu=40,mem=386618M,billing=96,gres\/gpu=8",
-            "tres_used": "cpu=26,mem=249G,gres\/gpu=8"
+            "tres": "cpu=40,mem=386618M,billing=96,gres/gpu=8",
+            "tres_used": "cpu=26,mem=249G,gres/gpu=8"
         }
 
     Parameters:

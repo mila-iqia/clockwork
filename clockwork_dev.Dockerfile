@@ -12,7 +12,7 @@ ENV CLOCKWORK_ENABLE_TESTING_LOGIN=True
 ENV MONGODB_DATABASE_NAME="clockwork"
 
 # to have gcc to build `dulwich` used by poetry
-RUN apt update && apt install -y build-essential
+RUN apt update && apt install -y build-essential git
 
 RUN pip install --upgrade pip poetry
 
