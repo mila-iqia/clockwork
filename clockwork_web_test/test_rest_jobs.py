@@ -174,7 +174,7 @@ def test_jobs_user_dict_update_successful_update(
             },
             "cw": {
                 "cc_account_username": None,
-                "mila_account_username": None,
+                "mila_cluster_username": None,
                 "mila_email_username": None,
             },
             "user": {
@@ -191,10 +191,10 @@ def test_jobs_user_dict_update_successful_update(
                 )
         elif cluster_name in ["mila"]:
             if update_allowed:
-                D_job["cw"]["mila_account_username"] = D_user["mila_account_username"]
+                D_job["cw"]["mila_cluster_username"] = D_user["mila_cluster_username"]
             else:
-                D_job["cw"]["mila_account_username"] = (
-                    "NOT_" + D_user["mila_account_username"]
+                D_job["cw"]["mila_cluster_username"] = (
+                    "NOT_" + D_user["mila_cluster_username"]
                 )
         else:
             raise Exception("You're not handling properly the cluster_name parameter.")

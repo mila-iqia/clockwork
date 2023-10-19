@@ -17,7 +17,7 @@ def test_status_nb_users(client, fake_data):
     """
     # Choose a user who have access to all the clusters
     user_dict = fake_data["users"][0]
-    assert user_dict["mila_account_username"] is not None
+    assert user_dict["mila_cluster_username"] is not None
     assert user_dict["cc_account_username"] is not None
 
     # Log in to Clockwork as this user

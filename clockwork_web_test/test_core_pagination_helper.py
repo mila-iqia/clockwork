@@ -825,42 +825,41 @@ def test_get_pagination_known_user_wrong_type_wrong_type(
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
-    with app.app_context():
-        known_user_email = known_user["mila_email_username"]
-        # Log in to Clockwork as the current_user (provided as parameter)
-        login_response = client.get(f"/login/testing?user_id={known_user_email}")
-        assert login_response.status_code == 302  # Redirect
+    known_user_email = known_user["mila_email_username"]
+    # Log in to Clockwork as the current_user (provided as parameter)
+    login_response = client.get(f"/login/testing?user_id={known_user_email}")
+    assert login_response.status_code == 302  # Redirect
 
-        # Set the preferred nbr_items_per_page of the user to a value different
-        # from the default one
-        new_nbr_items_per_page = 53
-        set_items_per_page(known_user_email, new_nbr_items_per_page)
+    # Set the preferred nbr_items_per_page of the user to a value different
+    # from the default one
+    new_nbr_items_per_page = 53
+    set_items_per_page(known_user_email, new_nbr_items_per_page)
 
-        # Assert that this value is different from the default one
-        # (NB: for now, it seems obvious, but when we will centralize the default
-        # value, it will make more sense)
-        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
+    # Assert that this value is different from the default one
+    # (NB: for now, it seems obvious, but when we will centralize the default
+    # value, it will make more sense)
+    assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
-        # Define the expected results
-        # The number of elements to display per page we expect to retrieve in the
-        # function's return
-        expected_nbr_items_per_page = new_nbr_items_per_page
-        # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = 0
+    # Define the expected results
+    # The number of elements to display per page we expect to retrieve in the
+    # function's return
+    expected_nbr_items_per_page = new_nbr_items_per_page
+    # The number of skipped items we expect to retrieve in the function's return
+    expected_nbr_of_skipped_items = 0
 
-        # Call the function with the input parameters
-        (
-            retrieved_nbr_of_skipped_items,
-            retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
+    # Call the function with the input parameters
+    (
+        retrieved_nbr_of_skipped_items,
+        retrieved_nbr_items_per_page,
+    ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
 
-        # Assert the values we retrieve equal the values we expect
-        assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
-        assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
+    # Assert the values we retrieve equal the values we expect
+    assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
+    assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
-        # Log out from Clockwork
-        response_logout = client.get("/login/logout")
-        assert response_logout.status_code == 302  # Redirect
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize(
@@ -940,43 +939,42 @@ def test_get_pagination_known_user_wrong_type_positive_value(
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
-    with app.app_context():
-        known_user_email = known_user["mila_email_username"]
+    known_user_email = known_user["mila_email_username"]
 
-        # Log in to Clockwork as the current_user (provided as parameter)
-        login_response = client.get(f"/login/testing?user_id={known_user_email}")
-        assert login_response.status_code == 302  # Redirect
+    # Log in to Clockwork as the current_user (provided as parameter)
+    login_response = client.get(f"/login/testing?user_id={known_user_email}")
+    assert login_response.status_code == 302  # Redirect
 
-        # Set the preferred nbr_items_per_page of the user to a value different
-        # from the default one
-        new_nbr_items_per_page = 53
-        set_items_per_page(known_user_email, new_nbr_items_per_page)
+    # Set the preferred nbr_items_per_page of the user to a value different
+    # from the default one
+    new_nbr_items_per_page = 53
+    set_items_per_page(known_user_email, new_nbr_items_per_page)
 
-        # Assert that this value is different from the default one
-        # (NB: for now, it seems obvious, but when we will centralize the default
-        # value, it will make more sense)
-        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
+    # Assert that this value is different from the default one
+    # (NB: for now, it seems obvious, but when we will centralize the default
+    # value, it will make more sense)
+    assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
-        # Define the expected results
-        # The number of elements to display per page we expect to retrieve in the
-        # function's return
-        expected_nbr_items_per_page = nbr_items_per_page
-        # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = 0
+    # Define the expected results
+    # The number of elements to display per page we expect to retrieve in the
+    # function's return
+    expected_nbr_items_per_page = nbr_items_per_page
+    # The number of skipped items we expect to retrieve in the function's return
+    expected_nbr_of_skipped_items = 0
 
-        # Call the function with the input parameters
-        (
-            retrieved_nbr_of_skipped_items,
-            retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
+    # Call the function with the input parameters
+    (
+        retrieved_nbr_of_skipped_items,
+        retrieved_nbr_items_per_page,
+    ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
 
-        # Assert the values we retrieve equal the values we expect
-        assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
-        assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
+    # Assert the values we retrieve equal the values we expect
+    assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
+    assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
-        # Log out from Clockwork
-        response_logout = client.get("/login/logout")
-        assert response_logout.status_code == 302  # Redirect
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 # When user is known and page_num 0 or a negative integer
@@ -1003,43 +1001,41 @@ def test_get_pagination_known_user_negative_value_wrong_type(
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
-    # Use the app context
-    with app.app_context():
-        known_user_email = known_user["mila_email_username"]
-        # Log in to Clockwork as the current_user (provided as parameter)
-        login_response = client.get(f"/login/testing?user_id={known_user_email}")
-        assert login_response.status_code == 302  # Redirect
+    known_user_email = known_user["mila_email_username"]
+    # Log in to Clockwork as the current_user (provided as parameter)
+    login_response = client.get(f"/login/testing?user_id={known_user_email}")
+    assert login_response.status_code == 302  # Redirect
 
-        # Set the preferred nbr_items_per_page of the user to a value different
-        # from the default one
-        new_nbr_items_per_page = 53
-        set_items_per_page(known_user_email, new_nbr_items_per_page)
+    # Set the preferred nbr_items_per_page of the user to a value different
+    # from the default one
+    new_nbr_items_per_page = 53
+    set_items_per_page(known_user_email, new_nbr_items_per_page)
 
-        # Assert that this value is different from the default one
-        # (NB: for now, it seems obvious, but when we will centralize the default
-        # value, it will make more sense)
-        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
+    # Assert that this value is different from the default one
+    # (NB: for now, it seems obvious, but when we will centralize the default
+    # value, it will make more sense)
+    assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
-        # Define the expected results
-        # The number of elements to display per page we expect to retrieve in the
-        # function's return
-        expected_nbr_items_per_page = new_nbr_items_per_page
-        # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = 0
+    # Define the expected results
+    # The number of elements to display per page we expect to retrieve in the
+    # function's return
+    expected_nbr_items_per_page = new_nbr_items_per_page
+    # The number of skipped items we expect to retrieve in the function's return
+    expected_nbr_of_skipped_items = 0
 
-        # Call the function with the input parameters
-        (
-            retrieved_nbr_of_skipped_items,
-            retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
+    # Call the function with the input parameters
+    (
+        retrieved_nbr_of_skipped_items,
+        retrieved_nbr_items_per_page,
+    ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
 
-        # Assert the values we retrieve equal the values we expect
-        assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
-        assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
+    # Assert the values we retrieve equal the values we expect
+    assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
+    assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
-        # Log out from Clockwork
-        response_logout = client.get("/login/logout")
-        assert response_logout.status_code == 302  # Redirect
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize(
@@ -1065,43 +1061,41 @@ def test_get_pagination_known_user_negative_value_negative_value(
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
-    # Use the app context
-    with app.app_context():
-        known_user_email = known_user["mila_email_username"]
-        # Log in to Clockwork as the current_user (provided as parameter)
-        login_response = client.get(f"/login/testing?user_id={known_user_email}")
-        assert login_response.status_code == 302  # Redirect
+    known_user_email = known_user["mila_email_username"]
+    # Log in to Clockwork as the current_user (provided as parameter)
+    login_response = client.get(f"/login/testing?user_id={known_user_email}")
+    assert login_response.status_code == 302  # Redirect
 
-        # Set the preferred nbr_items_per_page of the user to a value different
-        # from the default one
-        new_nbr_items_per_page = 53
-        set_items_per_page(known_user_email, new_nbr_items_per_page)
+    # Set the preferred nbr_items_per_page of the user to a value different
+    # from the default one
+    new_nbr_items_per_page = 53
+    set_items_per_page(known_user_email, new_nbr_items_per_page)
 
-        # Assert that this value is different from the default one
-        # (NB: for now, it seems obvious, but when we will centralize the default
-        # value, it will make more sense)
-        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
+    # Assert that this value is different from the default one
+    # (NB: for now, it seems obvious, but when we will centralize the default
+    # value, it will make more sense)
+    assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
-        # Define the expected results
-        # The number of elements to display per page we expect to retrieve in the
-        # function's return
-        expected_nbr_items_per_page = new_nbr_items_per_page
-        # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = 0
+    # Define the expected results
+    # The number of elements to display per page we expect to retrieve in the
+    # function's return
+    expected_nbr_items_per_page = new_nbr_items_per_page
+    # The number of skipped items we expect to retrieve in the function's return
+    expected_nbr_of_skipped_items = 0
 
-        # Call the function with the input parameters
-        (
-            retrieved_nbr_of_skipped_items,
-            retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
+    # Call the function with the input parameters
+    (
+        retrieved_nbr_of_skipped_items,
+        retrieved_nbr_items_per_page,
+    ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
 
-        # Assert the values we retrieve equal the values we expect
-        assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
-        assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
+    # Assert the values we retrieve equal the values we expect
+    assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
+    assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
-        # Log out from Clockwork
-        response_logout = client.get("/login/logout")
-        assert response_logout.status_code == 302  # Redirect
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize(
@@ -1127,43 +1121,41 @@ def test_get_pagination_known_user_negative_value_positive_value(
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
-    # Use the app context
-    with app.app_context():
-        known_user_email = known_user["mila_email_username"]
-        # Log in to Clockwork as the current_user (provided as parameter)
-        login_response = client.get(f"/login/testing?user_id={known_user_email}")
-        assert login_response.status_code == 302  # Redirect
+    known_user_email = known_user["mila_email_username"]
+    # Log in to Clockwork as the current_user (provided as parameter)
+    login_response = client.get(f"/login/testing?user_id={known_user_email}")
+    assert login_response.status_code == 302  # Redirect
 
-        # Set the preferred nbr_items_per_page of the user to a value different
-        # from the default one
-        new_nbr_items_per_page = 53
-        set_items_per_page(known_user_email, new_nbr_items_per_page)
+    # Set the preferred nbr_items_per_page of the user to a value different
+    # from the default one
+    new_nbr_items_per_page = 53
+    set_items_per_page(known_user_email, new_nbr_items_per_page)
 
-        # Assert that this value is different from the default one
-        # (NB: for now, it seems obvious, but when we will centralize the default
-        # value, it will make more sense)
-        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
+    # Assert that this value is different from the default one
+    # (NB: for now, it seems obvious, but when we will centralize the default
+    # value, it will make more sense)
+    assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
-        # Define the expected results
-        # The number of elements to display per page we expect to retrieve in the
-        # function's return
-        expected_nbr_items_per_page = nbr_items_per_page
-        # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = 0
+    # Define the expected results
+    # The number of elements to display per page we expect to retrieve in the
+    # function's return
+    expected_nbr_items_per_page = nbr_items_per_page
+    # The number of skipped items we expect to retrieve in the function's return
+    expected_nbr_of_skipped_items = 0
 
-        # Call the function with the input parameters
-        (
-            retrieved_nbr_of_skipped_items,
-            retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
+    # Call the function with the input parameters
+    (
+        retrieved_nbr_of_skipped_items,
+        retrieved_nbr_items_per_page,
+    ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
 
-        # Assert the values we retrieve equal the values we expect
-        assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
-        assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
+    # Assert the values we retrieve equal the values we expect
+    assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
+    assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
-        # Log out from Clockwork
-        response_logout = client.get("/login/logout")
-        assert response_logout.status_code == 302  # Redirect
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 # When user is known and page_num a positive integer
@@ -1190,43 +1182,41 @@ def test_get_pagination_known_user_positive_value_wrong_type(
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
-    # Use the app context
-    with app.app_context():
-        known_user_email = known_user["mila_email_username"]
-        # Log in to Clockwork as the current_user (provided as parameter)
-        login_response = client.get(f"/login/testing?user_id={known_user_email}")
-        assert login_response.status_code == 302  # Redirect
+    known_user_email = known_user["mila_email_username"]
+    # Log in to Clockwork as the current_user (provided as parameter)
+    login_response = client.get(f"/login/testing?user_id={known_user_email}")
+    assert login_response.status_code == 302  # Redirect
 
-        # Set the preferred nbr_items_per_page of the user to a value different
-        # from the default one
-        new_nbr_items_per_page = 53
-        set_items_per_page(known_user_email, new_nbr_items_per_page)
+    # Set the preferred nbr_items_per_page of the user to a value different
+    # from the default one
+    new_nbr_items_per_page = 53
+    set_items_per_page(known_user_email, new_nbr_items_per_page)
 
-        # Assert that this value is different from the default one
-        # (NB: for now, it seems obvious, but when we will centralize the default
-        # value, it will make more sense)
-        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
+    # Assert that this value is different from the default one
+    # (NB: for now, it seems obvious, but when we will centralize the default
+    # value, it will make more sense)
+    assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
-        # Define the expected results
-        # The number of elements to display per page we expect to retrieve in the
-        # function's return
-        expected_nbr_items_per_page = new_nbr_items_per_page
-        # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
+    # Define the expected results
+    # The number of elements to display per page we expect to retrieve in the
+    # function's return
+    expected_nbr_items_per_page = new_nbr_items_per_page
+    # The number of skipped items we expect to retrieve in the function's return
+    expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
-        # Call the function with the input parameters
-        (
-            retrieved_nbr_of_skipped_items,
-            retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
+    # Call the function with the input parameters
+    (
+        retrieved_nbr_of_skipped_items,
+        retrieved_nbr_items_per_page,
+    ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
 
-        # Assert the values we retrieve equal the values we expect
-        assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
-        assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
+    # Assert the values we retrieve equal the values we expect
+    assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
+    assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
-        # Log out from Clockwork
-        response_logout = client.get("/login/logout")
-        assert response_logout.status_code == 302  # Redirect
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize("page_num,nbr_items_per_page", [(24, 0), (46, -70), (10, -5)])
@@ -1250,43 +1240,41 @@ def test_get_pagination_known_user_positive_value_negative_value(
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
-    # Use the app context
-    with app.app_context():
-        known_user_email = known_user["mila_email_username"]
-        # Log in to Clockwork as the current_user (provided as parameter)
-        login_response = client.get(f"/login/testing?user_id={known_user_email}")
-        assert login_response.status_code == 302  # Redirect
+    known_user_email = known_user["mila_email_username"]
+    # Log in to Clockwork as the current_user (provided as parameter)
+    login_response = client.get(f"/login/testing?user_id={known_user_email}")
+    assert login_response.status_code == 302  # Redirect
 
-        # Set the preferred nbr_items_per_page of the user to a value different
-        # from the default one
-        new_nbr_items_per_page = 53
-        set_items_per_page(known_user_email, new_nbr_items_per_page)
+    # Set the preferred nbr_items_per_page of the user to a value different
+    # from the default one
+    new_nbr_items_per_page = 53
+    set_items_per_page(known_user_email, new_nbr_items_per_page)
 
-        # Assert that this value is different from the default one
-        # (NB: for now, it seems obvious, but when we will centralize the default
-        # value, it will make more sense)
-        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
+    # Assert that this value is different from the default one
+    # (NB: for now, it seems obvious, but when we will centralize the default
+    # value, it will make more sense)
+    assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
-        # Define the expected results
-        # The number of elements to display per page we expect to retrieve in the
-        # function's return
-        expected_nbr_items_per_page = new_nbr_items_per_page
-        # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
+    # Define the expected results
+    # The number of elements to display per page we expect to retrieve in the
+    # function's return
+    expected_nbr_items_per_page = new_nbr_items_per_page
+    # The number of skipped items we expect to retrieve in the function's return
+    expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
-        # Call the function with the input parameters
-        (
-            retrieved_nbr_of_skipped_items,
-            retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
+    # Call the function with the input parameters
+    (
+        retrieved_nbr_of_skipped_items,
+        retrieved_nbr_items_per_page,
+    ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
 
-        # Assert the values we retrieve equal the values we expect
-        assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
-        assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
+    # Assert the values we retrieve equal the values we expect
+    assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
+    assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
-        # Log out from Clockwork
-        response_logout = client.get("/login/logout")
-        assert response_logout.status_code == 302  # Redirect
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize("page_num,nbr_items_per_page", [(10, 33), (42, 6), (5, 5)])
@@ -1310,40 +1298,38 @@ def test_get_pagination_known_user_positive_value_positive_value(
         nbr_items_per_page                  The number of elements to display per
                                             page, to pass as argument
     """
-    # Use the app context
-    with app.app_context():
-        known_user_email = known_user["mila_email_username"]
-        # Log in to Clockwork as the current_user (provided as parameter)
-        login_response = client.get(f"/login/testing?user_id={known_user_email}")
-        assert login_response.status_code == 302  # Redirect
+    known_user_email = known_user["mila_email_username"]
+    # Log in to Clockwork as the current_user (provided as parameter)
+    login_response = client.get(f"/login/testing?user_id={known_user_email}")
+    assert login_response.status_code == 302  # Redirect
 
-        # Set the preferred nbr_items_per_page of the user to a value different
-        # from the default one
-        new_nbr_items_per_page = 53
-        set_items_per_page(known_user_email, new_nbr_items_per_page)
+    # Set the preferred nbr_items_per_page of the user to a value different
+    # from the default one
+    new_nbr_items_per_page = 53
+    set_items_per_page(known_user_email, new_nbr_items_per_page)
 
-        # Assert that this value is different from the default one
-        # (NB: for now, it seems obvious, but when we will centralize the default
-        # value, it will make more sense)
-        assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
+    # Assert that this value is different from the default one
+    # (NB: for now, it seems obvious, but when we will centralize the default
+    # value, it will make more sense)
+    assert new_nbr_items_per_page != get_default_setting_value("nbr_items_per_page")
 
-        # Define the expected results
-        # The number of elements to display per page we expect to retrieve in the
-        # function's return
-        expected_nbr_items_per_page = nbr_items_per_page
-        # The number of skipped items we expect to retrieve in the function's return
-        expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
+    # Define the expected results
+    # The number of elements to display per page we expect to retrieve in the
+    # function's return
+    expected_nbr_items_per_page = nbr_items_per_page
+    # The number of skipped items we expect to retrieve in the function's return
+    expected_nbr_of_skipped_items = (page_num - 1) * expected_nbr_items_per_page
 
-        # Call the function with the input parameters
-        (
-            retrieved_nbr_of_skipped_items,
-            retrieved_nbr_items_per_page,
-        ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
+    # Call the function with the input parameters
+    (
+        retrieved_nbr_of_skipped_items,
+        retrieved_nbr_items_per_page,
+    ) = get_pagination_values(known_user_email, page_num, nbr_items_per_page)
 
-        # Assert the values we retrieve equal the values we expect
-        assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
-        assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
+    # Assert the values we retrieve equal the values we expect
+    assert retrieved_nbr_items_per_page == expected_nbr_items_per_page
+    assert retrieved_nbr_of_skipped_items == expected_nbr_of_skipped_items
 
-        # Log out from Clockwork
-        response_logout = client.get("/login/logout")
-        assert response_logout.status_code == 302  # Redirect
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect

@@ -454,12 +454,15 @@ function generate_cell_time_content(td, D_job_slurm, column_key, job_time_type){
     if (D_job_slurm[job_time_type] == null) {
         td.innerHTML = "";
     } else {
+        // If the timestamp is 0, does not display a time
+        if (D_job_slurm[job_time_type] == 0) {
+            td.innerHTML = "";
+        }
         // If you want to display the time as "2021-07-06 22:19:46" for readability
         // you need to set it up because this is going to be written as a unix timestamp.
         // This might include injecting another field with a name
         // such as "start_time_human_readable" or something like that, and using it here.
-
-        if ("date_format" in web_settings && web_settings["date_format"] == "words") {
+        else if ("date_format" in web_settings && web_settings["date_format"] == "words") {
             td.innerHTML = TimeAgo.inWords(Date.now() - D_job_slurm[job_time_type]); // For a relative time
         }
         else {

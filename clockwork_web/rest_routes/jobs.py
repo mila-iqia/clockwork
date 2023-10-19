@@ -224,7 +224,7 @@ def route_api_v1_jobs_user_dict_update():
     # then we refuse the update and return an error
     # that describes the problem.
 
-    for key in ["mila_email_username", "mila_account_username", "cc_account_username"]:
+    for key in ["mila_email_username", "mila_cluster_username", "cc_account_username"]:
         # Be as strict as possible here. If the job entry
         # contains any of the three types of usernames (and it's not `None`),
         # than it must be matched against that of the user

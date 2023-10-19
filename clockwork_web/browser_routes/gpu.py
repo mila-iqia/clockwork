@@ -1,5 +1,5 @@
 import logging
-from flask import Blueprint, Markup, request
+from flask import Blueprint, request
 from flask.json import jsonify
 from flask_login import current_user, login_required
 from flask_babel import gettext

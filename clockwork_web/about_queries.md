@@ -60,7 +60,7 @@ when it comes to being set to 0 to represent a missing value.
 There are three kinds of accounts that are relevant in our ecosystem.
 We try to include them in the following fields:
 
-- mila_account_username
+- mila_cluster_username
 - cc_account_username
 - mila_email_username
 
@@ -73,7 +73,7 @@ When `query_filter` has the field "user", we are going to ignore it if
 - it's "*".
 
 Otherwise, we will try to match that "user" value against all of the four
-fields "mila_account_username", "cc_account_username", "mila_email_username",
+fields "mila_cluster_username", "cc_account_username", "mila_email_username",
 "mila_user_account", provided they exist. The nice thing about it is that
 we don't need to test for the presence of the fields using '$exists', because
 we're using an OR clause with the four tests.
@@ -81,7 +81,7 @@ we're using an OR clause with the four tests.
 ## what this means for mongodb
 
 ```python
-{'$or': [   {'mila_account_username': user}, 
+{'$or': [   {'mila_cluster_username': user}, 
             {'cc_account_username': user}, 
             {'mila_email_username': user}
 ]}

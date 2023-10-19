@@ -1,0 +1,4 @@
+coverage==7.3.2
+pytest==7.4.2
+requests-mock==1.11.0
+toml==0.10.2
