@@ -1,6 +1,8 @@
 [flask]
 testing=true
-login_disabled=true
+# login_disabled is set to false in order to test the "true" handling of the anonymous user
+# but it could be changed for testing purposes
+login_disabled=false
 secret_key="testing_secret_key"
 
 [sentry]

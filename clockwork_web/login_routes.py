@@ -206,9 +206,9 @@ def route_callback():
     from flask import current_app
 
     current_app.logger.debug(
-        "called login_user(user) for user with email %s, user.is_authenticated() is %s",
+        "called login_user(user) for user with email %s, user.is_authenticated is %s",
         user.mila_email_username,
-        user.is_authenticated(),
+        user.is_authenticated,
     )
     # Send user back to homepage
     return redirect(url_for("index"))
