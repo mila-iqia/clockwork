@@ -9,8 +9,8 @@ from pymongo import InsertOne, ReplaceOne, UpdateOne
 from slurm_state.helpers.gpu_helper import get_cw_gres_description
 from slurm_state.helpers.clusters_helper import get_all_clusters
 
-# from slurm_state.sinfo_parser import node_parser, generate_node_report
-from slurm_state.sacct_parser import job_parser, generate_job_report
+# Import parser classes
+from slurm_state.parsers.job_parser import JobParser
 from slurm_state.parsers.node_parser import NodeParser
 
 
@@ -33,14 +33,9 @@ def fetch_slurm_report(parser, cluster_name, report_path):
     assert ctx is not None, f"{cluster_name} not configured"
 
     with open(report_path, "r") as f:
-        if isinstance(parser, NodeParser):
-            for e in parser.parser(f):
-                e["cluster_name"] = cluster_name
-                yield e
-        else:
-            for e in parser(f):
-                e["cluster_name"] = cluster_name
-                yield e
+        for e in parser.parser(f):
+            e["cluster_name"] = cluster_name
+            yield e
 
 
 def slurm_job_to_clockwork_job(slurm_job: dict):
@@ -149,9 +144,10 @@ def main_read_report_and_update_collection(
         id_key = (
             "job_id"  # The id_key is used to determine how to retrieve the ID of a job
         )
-        parser = job_parser  # This parser is used to retrieve and format useful information from a sacct job
+        parser = JobParser(
+            cluster_name
+        )  # This parser is used to retrieve and format useful information from a sacct job
         from_slurm_to_clockwork = slurm_job_to_clockwork_job  # This function is used to translate a Slurm job (created through the parser) to a Clockwork job
-        generate_report = generate_job_report  # This function is used to generate the file gathering the job information which will be explained later
     elif entity == "nodes":
         id_key = (
             "name"  # The id_key is used to determine how to retrieve the ID of a node
@@ -160,7 +156,6 @@ def main_read_report_and_update_collection(
             cluster_name
         )  # This parser is used to retrieve and format useful information from a sacct node
         from_slurm_to_clockwork = slurm_node_to_clockwork_node  # This function is used to translate a Slurm node (created through the parser) to a Clockwork node
-        # generate_report = generate_node_report  # This function is used to generate the file gathering the node information which will be explained later
     else:
         # Raise an error because it should not happen
         raise ValueError(
@@ -178,10 +173,7 @@ def main_read_report_and_update_collection(
         print(
             f"Generate report file for the {cluster_name} cluster at location {report_file_path}."
         )
-        if entity == "jobs":
-            generate_report(cluster_name, report_file_path)
-        else:
-            parser.generate_report(report_file_path)
+        parser.generate_report(report_file_path)
 
     # Construct an iterator over the list of entities in the report file,
     # each one of them is turned into a clockwork job or node, according to applicability

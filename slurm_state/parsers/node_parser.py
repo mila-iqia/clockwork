@@ -9,7 +9,7 @@ from slurm_state.helpers.parser_helper import (
     rename,
 )
 
-# Common import
+# Common imports
 import json, re
 
 
@@ -25,8 +25,17 @@ class NodeParser(SlurmParser):
 
         return super().generate_report(remote_command, file_name)
 
-    def get_field_map(self):
-        node_field_map = {
+    def parser(self, f):
+        """ """
+        if re.search("^slurm 22\..*$", self.slurm_version):
+            return self.parser_v22(f)
+        else:
+            raise Exception(
+                f'The {self.entity} parser is not implemented for the Slurm version "{self.slurm_version}".'
+            )
+
+    def parser_v22(self, f):
+        NODE_FIELD_MAP = {
             "architecture": rename("arch"),
             "comment": copy,
             "cores": copy,
@@ -45,18 +54,7 @@ class NodeParser(SlurmParser):
             "tres": copy,
             "tres_used": copy,
         }
-        return node_field_map
 
-    def parser(self, f):
-        """ """
-        if re.search("^slurm 22\..*$", self.slurm_version):
-            return self.parser_v22(f)
-        else:
-            raise Exception(
-                f'The {self.entity} parser is not implemented for the Slurm version "{self.slurm_version}".'
-            )
-
-    def parser_v22(self, f):
         # Load the JSON file generated using the Slurm command
         # (At this point, slurm_data is a hierarchical structure of dictionaries and lists)
         slurm_data = json.load(f)
@@ -70,7 +68,7 @@ class NodeParser(SlurmParser):
 
             for k, v in slurm_entity.items():
                 # We will use a handler mapping to translate this
-                translator = self.get_field_map().get(k, None)
+                translator = NODE_FIELD_MAP.get(k, None)
 
                 if translator is not None:
                     # Translate using the translator retrieved from the fields map

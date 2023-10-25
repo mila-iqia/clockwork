@@ -53,19 +53,6 @@ class SlurmParser:
             self.cluster["ssh_port"],
         )
 
-    def get_field_map(self):
-        """
-        Retrieve the field map used to parse the Slurm data. It depends on the
-        entity ("job" or "node") and the Slurm version
-        """
-        # The returned map should contain all the fields that come from parsing a node entry
-        # Each field should be mapped to a handler that will process the string data
-        # and set the result in the output dictionary. Fields not associated to any
-        # parsing function are ignored.
-        raise Exception(
-            f"The method get_field_map must be implemented in the {self.entity} parser."
-        )
-
     def generate_report(self, remote_command, file_name):
         """
         Launch a Slurm command in order to retrieve JSON report containing
