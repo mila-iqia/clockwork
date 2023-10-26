@@ -21,11 +21,13 @@ def pprint_bulk_result(result):
     print(result.bulk_api_result)
 
 
-def fetch_slurm_report(parser, cluster_name, report_path):
+def fetch_slurm_report(parser, report_path):
     """
     Yields elements ready to be slotted into the "slurm" field,
     but they have to be processed further before committing to MongoDB.
     """
+    # Retrieve the cluster name
+    cluster_name = parser.cluster["name"]
 
     assert os.path.exists(report_path), f"The report path {report_path} is missing."
 
@@ -179,7 +181,7 @@ def main_read_report_and_update_collection(
     # each one of them is turned into a clockwork job or node, according to applicability
     I_clockwork_entities_from_report = map(
         from_slurm_to_clockwork,
-        fetch_slurm_report(parser, cluster_name, report_file_path),
+        fetch_slurm_report(parser, report_file_path),
     )
 
     L_updates_to_do = []  # Entity updates to store in the database if requested

@@ -16,6 +16,7 @@ class SlurmParser:
         assert entity in ["jobs", "nodes"]
 
         self.cluster = get_all_clusters()[cluster_name]
+        self.cluster["name"] = cluster_name
 
         self.slurm_command = slurm_command
         # Retrieve the path to the Slurm command we want to launch on the cluster
