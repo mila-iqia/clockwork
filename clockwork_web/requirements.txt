@@ -6,7 +6,7 @@ click==8.1.7
 dnspython==2.4.2
 Flask==3.0.0
 flask-babel==4.0.0
-Flask-Login==Flask-Login @ git+https://github.com/maxcountryman/flask-login.git@ea80968c10f3d521ea4983652f183aa42e2f44fc
+Flask-Login @ git+https://github.com/maxcountryman/flask-login.git@ea80968c10f3d521ea4983652f183aa42e2f44fc
 idna==3.4
 itsdangerous==2.1.2
 Jinja2==3.1.2
