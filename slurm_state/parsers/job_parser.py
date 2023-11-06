@@ -58,9 +58,9 @@ class JobParser(SlurmParser):
 
     def parser(self, f):
         """ """
-        if re.search("^slurm 22\..*$", self.slurm_version):
+        if re.search(r"^slurm 22\..*$", self.slurm_version):
             return self.parser_v22_and_23(f)
-        elif re.search("^slurm 23\..*$", self.slurm_version):
+        elif re.search(r"^slurm 23\..*$", self.slurm_version):
             return self.parser_v22_and_23(f)
         else:
             raise Exception(
