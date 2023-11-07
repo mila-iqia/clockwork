@@ -22,8 +22,8 @@ import json, re
 class JobParser(SlurmParser):
     """ """
 
-    def __init__(self, cluster_name):
-        super().__init__("jobs", "sacct", cluster_name)
+    def __init__(self, cluster_name, slurm_version=None):
+        super().__init__("jobs", "sacct", cluster_name, slurm_version=slurm_version)
 
     def generate_report(self, file_name):
 
@@ -58,9 +58,9 @@ class JobParser(SlurmParser):
 
     def parser(self, f):
         """ """
-        if re.search(r"^slurm 22\..*$", self.slurm_version):
+        if re.search(r"^22\..*$", self.slurm_version):
             return self.parser_v22_and_23(f)
-        elif re.search(r"^slurm 23\..*$", self.slurm_version):
+        elif re.search(r"^23\..*$", self.slurm_version):
             return self.parser_v22_and_23(f)
         else:
             raise Exception(

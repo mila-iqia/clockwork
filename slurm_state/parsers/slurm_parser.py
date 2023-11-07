@@ -3,7 +3,7 @@ from slurm_state.helpers.ssh_helper import launch_slurm_command, open_connection
 from slurm_state.helpers.clusters_helper import get_all_clusters
 
 # Common imports
-import os
+import os, re
 
 
 class SlurmParser:
@@ -11,7 +11,7 @@ class SlurmParser:
     A parser for Slurm entities
     """
 
-    def __init__(self, entity, slurm_command, cluster_name):
+    def __init__(self, entity, slurm_command, cluster_name, slurm_version=None):
         self.entity = entity
         assert entity in ["jobs", "nodes"]
 
@@ -31,18 +31,36 @@ class SlurmParser:
             self.slurm_command
         ), f"Error. The {self.slurm_command}_path configuration needs to end with '{self.slurm_command}'. It is currently {self.slurm_command_path} ."
 
-        # Retrieve the version of Slurm installed on the current cluster
-        self.slurm_version = self.get_slurm_version()
+        if slurm_version is not None:
+            self.slurm_version = slurm_version
+        else:
+            # If no Slurm version is provided, retrieve the version of Slurm installed on the current cluster
+            self.slurm_version = self.get_slurm_version()
 
     def get_slurm_version(self):
         """
         Get the Slurm version
         """
-        # Launch the sacct or sinfo command to get its version
-        remote_command = f"{self.slurm_command_path} -V"
-        response = self.launch_slurm_command(remote_command)
-        assert len(response) == 1
-        return response[0]
+        if (
+            "slurm_version" in self.cluster
+            and self.cluster["slurm_version"] is not None
+        ):
+            # If the Slurm version has been added to the configuration file,
+            # return the value of the configuration
+            return self.cluster["slurm_version"]
+        else:
+            print("3")
+            # Launch the sacct or sinfo command to get its version
+            remote_command = f"{self.slurm_command_path} -V"
+            response = self.launch_slurm_command(remote_command)
+            assert len(response) == 1
+            version_regex = re.compile(r"^slurm (\d+\.\d+\.\d+)$")
+            if m := version_regex.match(response):
+                return m.group(1)
+            # If the version has not been identified, raise an error
+            raise Exception(
+                f'The version "{response}" has not been recognized as a Slurm version.'
+            )
 
     def launch_slurm_command(self, remote_command):
         """ """

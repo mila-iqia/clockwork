@@ -53,6 +53,7 @@ remote_hostname="clockwork-stats"
 sacct_enabled=true
 sacct_path="/opt/slurm/bin/sacct"
 sinfo_path="/opt/slurm/bin/sinfo"
+slurm_version="22.05.9"
 ssh_key_filename="id_clockwork"
 ssh_port=22
 
@@ -110,6 +111,7 @@ remote_hostname="cedar.computecanada.ca"
 sacct_enabled=false
 sacct_path="/opt/software/slurm/bin/sacct"
 sinfo_path="/opt/software/slurm/bin/sinfo"
+slurm_version="23.02.6"
 ssh_key_filename="id_clockwork"
 ssh_port=22
 

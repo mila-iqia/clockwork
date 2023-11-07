@@ -16,8 +16,8 @@ import json, re
 class NodeParser(SlurmParser):
     """ """
 
-    def __init__(self, cluster_name):
-        super().__init__("nodes", "sinfo", cluster_name)
+    def __init__(self, cluster_name, slurm_version=None):
+        super().__init__("nodes", "sinfo", cluster_name, slurm_version=slurm_version)
 
     def generate_report(self, file_name):
         # The command to be launched through SSH is "sinfo --json"
@@ -27,7 +27,7 @@ class NodeParser(SlurmParser):
 
     def parser(self, f):
         """ """
-        if re.search("^slurm 22\..*$", self.slurm_version):
+        if re.search(r"^22\..*$", self.slurm_version):
             return self.parser_v22(f)
         else:
             raise Exception(

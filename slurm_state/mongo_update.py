@@ -139,6 +139,10 @@ def main_read_report_and_update_collection(
     # Initialize the time of this operation's beginning
     timestamp_start = time.time()
 
+    # Retrieve clusters data from the configuration file
+    clusters = get_all_clusters()
+    assert cluster_name in clusters
+
     # Check the input parameters
     assert entity in ["jobs", "nodes"]
 
@@ -163,10 +167,6 @@ def main_read_report_and_update_collection(
         raise ValueError(
             f'Incorrect value for entity in main_read_sacct_and_update_collection: "{entity}" when it should be "jobs" or "nodes".'
         )
-
-    # Retrieve clusters data from the configuration file
-    clusters = get_all_clusters()
-    assert cluster_name in clusters
 
     ## Retrieve entities ##
 

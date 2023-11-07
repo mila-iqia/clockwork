@@ -65,6 +65,7 @@ def _load_clusters_from_config():
 
     clusters_valid.add_field("sacct_path", optional_string)
     clusters_valid.add_field("sinfo_path", optional_string)
+    clusters_valid.add_field("slurm_version", optional_string, default=None)
 
     # Load the clusters from the configuration file, asserting that it uses the
     # predefined format
