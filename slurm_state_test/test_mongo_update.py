@@ -2,20 +2,20 @@ from slurm_state.mongo_update import *
 from slurm_state.mongo_client import get_mongo_client
 from slurm_state.config import get_config
 
-from datetime import datetime
-from slurm_state.sinfo_parser import node_parser
-from slurm_state.sacct_parser import job_parser
+# Import jobs and nodes parsers
+from slurm_state.parsers.job_parser import JobParser
+from slurm_state.parsers.node_parser import NodeParser
 
+# Common imports
+from datetime import datetime
 import pytest
-import pprint
 
 
 def test_fetch_slurm_report_jobs():
     res = list(
         fetch_slurm_report(
-            job_parser,
-            "cedar",
-            "slurm_state_test/files/sacct_1",
+            JobParser("cedar", slurm_version="23.02.6"),  # parser
+            "slurm_state_test/files/sacct_1",  # report path
         )
     )
 
@@ -90,8 +90,7 @@ def test_fetch_slurm_report_jobs():
 def test_fetch_slurm_report_nodes():
     res = list(
         fetch_slurm_report(
-            node_parser,
-            "mila",
+            NodeParser("mila", slurm_version="22.05.9"),
             "slurm_state_test/files/sinfo_1",
         )
     )
@@ -229,13 +228,23 @@ def test_main_read_jobs_and_update_collection():
     db.drop_collection("test_jobs")
 
     main_read_report_and_update_collection(
-        "jobs", db.test_jobs, db.test_users, "cedar", "slurm_state_test/files/sacct_1"
+        "jobs",
+        db.test_jobs,
+        db.test_users,
+        "cedar",
+        "slurm_state_test/files/sacct_1",
+        from_file=True,
     )
 
     assert db.test_jobs.count_documents({}) == 2
 
     main_read_report_and_update_collection(
-        "jobs", db.test_jobs, db.test_users, "cedar", "slurm_state_test/files/sacct_2"
+        "jobs",
+        db.test_jobs,
+        db.test_users,
+        "cedar",
+        "slurm_state_test/files/sacct_2",
+        from_file=True,
     )
 
     assert db.test_jobs.count_documents({}) == 3
@@ -255,6 +264,7 @@ def test_main_read_nodes_and_update_collection():
         None,
         "mila",
         "slurm_state_test/files/sinfo_1",
+        from_file=True,
     )
 
     assert db.test_nodes.count_documents({}) == 2
@@ -265,6 +275,7 @@ def test_main_read_nodes_and_update_collection():
         None,
         "mila",
         "slurm_state_test/files/sinfo_2",
+        from_file=True,
     )
 
     assert db.test_nodes.count_documents({}) == 3

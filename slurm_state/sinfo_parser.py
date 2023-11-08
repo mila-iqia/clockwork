@@ -147,7 +147,7 @@ def node_parser(f):
             translator = NODE_FIELD_MAP.get(k, None)
 
             if translator is not None:
-                # Translate using the translator retrieved from JOB_FIELD_MAP
+                # Translate using the translator retrieved from NODE_FIELD_MAP
                 translator(k, v, res_node)
 
             # If no translator has been provided: ignore the field
@@ -156,8 +156,6 @@ def node_parser(f):
 
 
 # The functions used to create the report file, gathering the information to parse
-
-
 def generate_node_report(
     cluster_name,
     file_name,

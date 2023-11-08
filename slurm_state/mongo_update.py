@@ -9,8 +9,9 @@ from pymongo import InsertOne, ReplaceOne, UpdateOne
 from slurm_state.helpers.gpu_helper import get_cw_gres_description
 from slurm_state.helpers.clusters_helper import get_all_clusters
 
-from slurm_state.sinfo_parser import node_parser, generate_node_report
-from slurm_state.sacct_parser import job_parser, generate_job_report
+# Import parser classes
+from slurm_state.parsers.job_parser import JobParser
+from slurm_state.parsers.node_parser import NodeParser
 
 
 def pprint_bulk_result(result):
@@ -20,11 +21,13 @@ def pprint_bulk_result(result):
     print(result.bulk_api_result)
 
 
-def fetch_slurm_report(parser, cluster_name, report_path):
+def fetch_slurm_report(parser, report_path):
     """
     Yields elements ready to be slotted into the "slurm" field,
     but they have to be processed further before committing to MongoDB.
     """
+    # Retrieve the cluster name
+    cluster_name = parser.cluster["name"]
 
     assert os.path.exists(report_path), f"The report path {report_path} is missing."
 
@@ -32,7 +35,7 @@ def fetch_slurm_report(parser, cluster_name, report_path):
     assert ctx is not None, f"{cluster_name} not configured"
 
     with open(report_path, "r") as f:
-        for e in parser(f):
+        for e in parser.parser(f):
             e["cluster_name"] = cluster_name
             yield e
 
@@ -136,6 +139,10 @@ def main_read_report_and_update_collection(
     # Initialize the time of this operation's beginning
     timestamp_start = time.time()
 
+    # Retrieve clusters data from the configuration file
+    clusters = get_all_clusters()
+    assert cluster_name in clusters
+
     # Check the input parameters
     assert entity in ["jobs", "nodes"]
 
@@ -143,25 +150,23 @@ def main_read_report_and_update_collection(
         id_key = (
             "job_id"  # The id_key is used to determine how to retrieve the ID of a job
         )
-        parser = job_parser  # This parser is used to retrieve and format useful information from a sacct job
+        parser = JobParser(
+            cluster_name
+        )  # This parser is used to retrieve and format useful information from a sacct job
         from_slurm_to_clockwork = slurm_job_to_clockwork_job  # This function is used to translate a Slurm job (created through the parser) to a Clockwork job
-        generate_report = generate_job_report  # This function is used to generate the file gathering the job information which will be explained later
     elif entity == "nodes":
         id_key = (
             "name"  # The id_key is used to determine how to retrieve the ID of a node
         )
-        parser = node_parser  # This parser is used to retrieve and format useful information from a sacct node
+        parser = NodeParser(
+            cluster_name
+        )  # This parser is used to retrieve and format useful information from a sacct node
         from_slurm_to_clockwork = slurm_node_to_clockwork_node  # This function is used to translate a Slurm node (created through the parser) to a Clockwork node
-        generate_report = generate_node_report  # This function is used to generate the file gathering the node information which will be explained later
     else:
         # Raise an error because it should not happen
         raise ValueError(
             f'Incorrect value for entity in main_read_sacct_and_update_collection: "{entity}" when it should be "jobs" or "nodes".'
         )
-
-    # Retrieve clusters data from the configuration file
-    clusters = get_all_clusters()
-    assert cluster_name in clusters
 
     ## Retrieve entities ##
 
@@ -170,13 +175,13 @@ def main_read_report_and_update_collection(
         print(
             f"Generate report file for the {cluster_name} cluster at location {report_file_path}."
         )
-        generate_report(cluster_name, report_file_path)
+        parser.generate_report(report_file_path)
 
     # Construct an iterator over the list of entities in the report file,
     # each one of them is turned into a clockwork job or node, according to applicability
     I_clockwork_entities_from_report = map(
         from_slurm_to_clockwork,
-        fetch_slurm_report(parser, cluster_name, report_file_path),
+        fetch_slurm_report(parser, report_file_path),
     )
 
     L_updates_to_do = []  # Entity updates to store in the database if requested
