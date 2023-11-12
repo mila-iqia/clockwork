@@ -21,7 +21,7 @@ def parse_search_request(user, args, force_pagination=True):
     want_count = to_boolean(want_count)
 
     job_array = args.get("job_array", type=int, default=None)
-    job_label = args.get("job_label", type=str, default=None)
+    job_label = args.get("job_label", type=str, default=None) or None
 
     default_page_number = "1" if force_pagination else None
 

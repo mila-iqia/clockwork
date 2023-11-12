@@ -24,7 +24,7 @@
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 			<script type="text/javascript" src="{{ url_for('static', filename='js/sortable.min.js') }}"></script>
-			
+
 			<script type="text/javascript" src="{{ url_for('static', filename='js/moment-with-locales.min.js') }}"></script>
 			<script type="text/javascript" src="{{ url_for('static', filename='js/livestamp.min.js') }}"></script>
 
@@ -339,7 +339,7 @@
 										 {% endif %}
 
 										 {% if previous_request_args['job_label'] is not none %}
-										 <a href="{{ modify_query(job_label=none) }}" title="Reset filter by job label" class="px-3 py-2">
+										 <a href="{{ modify_query(job_label='') }}" title="Reset filter by job label" class="px-3 py-2">
 											 Label "{{ previous_request_args['job_label'] }}"&nbsp;&nbsp;&nbsp;&nbsp;
 											 <i class="fa-solid fa-circle-xmark" style="color: #888a85;"></i>
 										 </a>
