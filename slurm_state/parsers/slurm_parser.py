@@ -49,17 +49,16 @@ class SlurmParser:
             # return the value of the configuration
             return self.cluster["slurm_version"]
         else:
-            print("3")
             # Launch the sacct or sinfo command to get its version
             remote_command = f"{self.slurm_command_path} -V"
             response = self.launch_slurm_command(remote_command)
             assert len(response) == 1
             version_regex = re.compile(r"^slurm (\d+\.\d+\.\d+)$")
-            if m := version_regex.match(response):
+            if m := version_regex.match(response[0]):
                 return m.group(1)
             # If the version has not been identified, raise an error
             raise Exception(
-                f'The version "{response}" has not been recognized as a Slurm version.'
+                f'The version "{response[0]}" has not been recognized as a Slurm version.'
             )
 
     def launch_slurm_command(self, remote_command):
