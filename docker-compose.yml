@@ -87,6 +87,7 @@ services:
     ports:
       - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
     volumes:
+      - ./clockwork_frontend_test:/clockwork/clockwork_frontend_test
       - ./clockwork_tools:/clockwork/clockwork_tools
       - ./clockwork_tools_test:/clockwork/clockwork_tools_test
       - ./clockwork_web:/clockwork/clockwork_web
