@@ -65,6 +65,25 @@ services:
       clockwork_tools_test_EMAIL: ${clockwork_tools_test_EMAIL}
       clockwork_tools_test_CLOCKWORK_API_KEY: ${clockwork_tools_test_CLOCKWORK_API_KEY}
 
+  clockwork_frontend_test:
+    image: clockwork_frontend_test
+    depends_on:
+      - mongodb
+      - clockwork_web-dev
+    user: "${CLOCKWORK_UID}:${CLOCKWORK_GID}"
+    working_dir: /clockwork
+    volumes:
+      - ./clockwork_web:/clockwork/clockwork_web
+      - ./clockwork_frontend_test:/clockwork/clockwork_frontend_test
+      - ./scripts:/clockwork/scripts
+      - ./slurm_state:/clockwork/slurm_state
+      - ./test_common:/clockwork/test_common
+      - ./test_config.toml:/clockwork/test_config.toml
+    ports:
+      - ${EXTERNAL_FLASK_RUN_PORT}:${FLASK_RUN_PORT}
+    environment:
+      CLOCKWORK_CONFIG: /clockwork/test_config.toml
+
   slurm_state_test:
     image: slurm_state_test
     depends_on:
