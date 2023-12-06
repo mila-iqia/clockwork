@@ -17,4 +17,4 @@ jobs:
     - name: Launch frontend tests
       run: |
         . ./env.sh
-        docker-compose run clockwork_dev scripts/launch_frontend_tests_in_clockwork_dev.sh
+        docker-compose run clockwork_dev clockwork_frontend_test/launch_frontend_tests_in_clockwork_dev.sh

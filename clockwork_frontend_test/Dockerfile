@@ -16,8 +16,6 @@ RUN pip install -r /requirements_frontend_test.txt && rm -rf /root/.cache
 
 # Add a variable available only inside container.
 ENV WE_ARE_IN_DOCKER=1
-#ENV TESTING=1
-#ENV LOGIN_DISABLED=1
 ENV CLOCKWORK_ENABLE_TESTING_LOGIN="True"
 
 CMD ["bash", "clockwork_frontend_test/launch_frontend_tests_in_clockwork_dev.sh"]
