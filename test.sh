@@ -6,6 +6,7 @@ docker build -t clockwork_web_test clockwork_web_test
 docker build -t clockwork_tools_test -f clockwork_tools_test/Dockerfile .
 docker build -t slurm_state_test -f slurm_state_test/Dockerfile .
 docker build -t scripts_test -f scripts_test/Dockerfile .
+docker build -t clockwork_frontend_test -f clockwork_frontend_test/Dockerfile .
 
 . ./env.sh
 
@@ -16,3 +17,4 @@ docker-compose run clockwork_web_test
 docker-compose run clockwork_tools_test
 docker-compose run slurm_state_test
 docker-compose run scripts_test
+docker-compose run clockwork_frontend_test

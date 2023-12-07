@@ -1,14 +1,6 @@
 FROM python:3.9-slim-buster
 
 RUN mkdir /clockwork
-# Create folder required by Playwright to install browsers,
-# and set permissions so that Playwright can install browsers in these folders.
-RUN mkdir /.cache
-RUN chmod -R 777 /.cache
-RUN chmod -R 777 /clockwork
-
-# Add a variable available only inside container.
-ENV WE_ARE_IN_DOCKER=1
 
 ENV CLOCKWORK_ROOT=/clockwork
 ENV PYTHONPATH=${PYTHONPATH}:${CLOCKWORK_ROOT}:${CLOCKWORK_ROOT}/clockwork_tools
@@ -21,10 +13,6 @@ ENV MONGODB_DATABASE_NAME="clockwork"
 
 # to have gcc to build `dulwich` used by poetry
 RUN apt update && apt install -y build-essential git
-
-# Install OS packages required for Playwright browsers
-# https://github.com/microsoft/playwright-python/issues/498#issuecomment-856349356
-RUN apt install -y gstreamer1.0-libav libnss3-tools libatk-bridge2.0-0 libcups2-dev libxkbcommon-x11-0 libxcomposite-dev libxrandr2 libgbm-dev libgtk-3-0
 
 RUN pip install --upgrade pip poetry
 
