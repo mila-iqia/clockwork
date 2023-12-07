@@ -3,7 +3,7 @@ FROM clockwork_web
 # Create folder required by Playwright to install browsers
 # and set permissions so that Playwright can install browsers in this folder
 RUN mkdir /.cache
-RUN chmod -R 664 /.cache
+RUN chmod -R 666 /.cache
 
 RUN apt update && apt install -y build-essential
 
