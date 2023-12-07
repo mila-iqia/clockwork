@@ -12,7 +12,7 @@ python3 -m flask run --host="0.0.0.0" &
 echo Wait 5 seconds to let server fully start
 sleep 5
 
-echo Check that server is onlinw
+echo Check that server is online
 python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:5000/').getcode())"
 
 echo Run tests
