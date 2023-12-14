@@ -17,4 +17,4 @@ docker-compose run clockwork_web_test
 docker-compose run clockwork_tools_test
 docker-compose run slurm_state_test
 docker-compose run scripts_test
-docker-compose run clockwork_frontend_test
+docker-compose run --user 1001:1001 clockwork_frontend_test
