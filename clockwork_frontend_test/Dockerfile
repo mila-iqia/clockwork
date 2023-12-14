@@ -21,4 +21,4 @@ ENV WE_ARE_IN_DOCKER=1
 ENV CLOCKWORK_ENABLE_TESTING_LOGIN="True"
 
 CMD ["bash", "clockwork_frontend_test/launch_frontend_tests_in_clockwork_dev.sh"]
-
+CMD ["whoami"]
