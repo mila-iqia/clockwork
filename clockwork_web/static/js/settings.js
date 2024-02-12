@@ -16,7 +16,8 @@
 function fill_nbr_items_per_page_dropdown_menu(current_nbr_items_per_page) {
     // Initialise the list of options for the values of nbr_items_per_page
     // proposed to the user
-    let nbr_items_per_page_options = [25, 50, 100];
+    // NB: Let's also allow user to go back to default 40 items per page.
+    let nbr_items_per_page_options = [25, 40, 50, 100];
 
     // Add the current_nbr_items_per_page to this list if it is not contained
     // in it yet
