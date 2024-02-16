@@ -200,10 +200,11 @@
                             <!-- Job labels -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_labels")) %}
                                 <td>
-                                    {% for D_label in D_job.get('job_labels', []) %}
+                                    {% for D_label_name, D_label_content in D_job.get('job_labels', {}).items() %}
                                     <p>
-                                    <a href="{{ modify_query(job_label=D_label['name'], page_num=1) }}" title="Filter by job label &quot;{{D_label['name']}}&quot;">
-                                        {{ D_label['name'] }}
+                                    <a href="{{ modify_query(job_label_name=D_label_name, job_label_content=D_label_content, page_num=1) }}" title="Filter by job label &quot;{{D_label_name}}&quot;: &quot;{{D_label_content}}&quot;">
+                                        <strong>{{ D_label_name }}</strong><br/>
+                                        {{ D_label_content }}
                                     </a>
                                     </p>
                                     {% endfor %}

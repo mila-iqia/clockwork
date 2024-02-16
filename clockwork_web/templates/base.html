@@ -324,8 +324,11 @@
                                 {% if previous_request_args['job_array'] is not none %}
                                 <input type="hidden" name="job_array" value="{{ previous_request_args['job_array'] }}"/>
                                 {% endif %}
-                                {% if previous_request_args['job_label'] is not none %}
-                                <input type="hidden" name="job_label" value="{{ previous_request_args['job_label'] }}"/>
+                                {% if previous_request_args['job_label_name'] is not none %}
+                                <input type="hidden" name="job_label_name" value="{{ previous_request_args['job_label_name'] }}"/>
+                                {% endif %}
+                                {% if previous_request_args['job_label_content'] is not none %}
+                                <input type="hidden" name="job_label_content" value="{{ previous_request_args['job_label_content'] }}"/>
                                 {% endif %}
 
 				                 <div class="row align-items-center">
@@ -338,9 +341,9 @@
 										 </a>
 										 {% endif %}
 
-										 {% if previous_request_args['job_label'] is not none %}
-										 <a href="{{ modify_query(job_label='') }}" title="Reset filter by job label" class="px-3 py-2">
-											 Label "{{ previous_request_args['job_label'] }}"&nbsp;&nbsp;&nbsp;&nbsp;
+										 {% if previous_request_args['job_label_name'] is not none and previous_request_args['job_label_content'] is not none %}
+										 <a href="{{ modify_query(job_label_name='', job_label_content='') }}" title="Reset filter by job label" class="px-3 py-2">
+											 Label <strong>{{ previous_request_args['job_label_name'] }}</strong>: "{{ previous_request_args['job_label_content'] }}"&nbsp;&nbsp;&nbsp;&nbsp;
 											 <i class="fa-solid fa-circle-xmark" style="color: #888a85;"></i>
 										 </a>
 										 {% endif %}

@@ -25,9 +25,10 @@ def fake_data():
     for job in E["jobs"]:
         job_id = int(job["slurm"]["job_id"])
         user_id = job["cw"]["mila_email_username"]
+        cluster_name = job["slurm"]["cluster_name"]
         for label in E["labels"]:
-            if label["job_id"] == job_id and label["user_id"] == user_id:
-                job.setdefault("job_labels", []).append(label)
+            if label["job_id"] == job_id and label["user_id"] == user_id and label["cluster_name"] == cluster_name:
+                job["job_labels"] = label["labels"]
 
     mutate_some_job_status(E)
     return E
@@ -80,7 +81,7 @@ def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
     )
     db_insertion_point["gpu"].create_index([("name", 1)], name="gpu_name")
     db_insertion_point["labels"].create_index(
-        [("user_id", 1), ("job_id", 1), ("name", 1)], name="job_label_index"
+        [("user_id", 1), ("job_id", 1), ("cluster_name", 1), ("labels", 1)], name="job_label_index"
     )
 
     for k in ["users", "jobs", "nodes", "gpu", "labels"]:
@@ -109,7 +110,9 @@ def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
             db_insertion_point["gpu"].delete_many({"name": e["name"]})
 
         for e in E["labels"]:
-            db_insertion_point["labels"].delete_many({"name": e["name"]})
+            copy_e = e
+            copy_e.pop("labels")
+            db_insertion_point["labels"].delete_many(copy_e)
 
         for (k, sub, id_field) in [
             ("jobs", "slurm", "job_id"),

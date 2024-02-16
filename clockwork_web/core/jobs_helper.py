@@ -161,7 +161,7 @@ def get_filtered_and_paginated_jobs(
     if LD_jobs:
         label_map = {}
         # Collect all labels related to found jobs,
-        # and store them in a dict with keys (user ID, job ID)
+        # and store them in a dict with keys (user ID, job ID, cluster_name)
         for label in list(
             mc["labels"].find(
                 combine_all_mongodb_filters(
@@ -175,10 +175,13 @@ def get_filtered_and_paginated_jobs(
         ):
             # Remove MongoDB identifier, as we won't use it.
             label.pop("_id")
-            label_map.setdefault((label["user_id"], label["job_id"]), []).append(label)
-        # Populate jobs with labels using job's user email and job ID to find related labels in labels dict.
+            key = (label["user_id"], label["job_id"], label["cluster_name"])
+            assert key not in label_map
+            label_map[key] = label["labels"]
+        # Populate jobs with labels using job's user email,  job ID and cluster name
+        # to find related labels in labels dict.
         for job in LD_jobs:
-            key = (job["cw"]["mila_email_username"], int(job["slurm"]["job_id"]))
+            key = (job["cw"]["mila_email_username"], int(job["slurm"]["job_id"]), job["slurm"]["cluster_name"])
             if key in label_map:
                 job["job_labels"] = label_map[key]
 
@@ -260,7 +263,8 @@ def get_jobs(
     sort_by="submit_time",
     sort_asc=-1,
     job_array=None,
-    job_label=None,
+    job_label_name=None,
+    job_label_content=None,
 ):
     """
     Set up the filters according to the parameters and retrieve the requested jobs from the database.
@@ -278,7 +282,8 @@ def get_jobs(
         sort_asc                Whether or not to sort in ascending order (1)
                                 or descending order (-1).
         job_array               ID of job array in which we look for jobs.
-        job_label               label (string) we must find in jobs to look for.
+        job_label_name          name of label (string) we must find in jobs to look for.
+        job_label_content       content of label (string) we must find in jobs to look for.
 
     Returns:
         A tuple containing:
@@ -288,12 +293,12 @@ def get_jobs(
     """
     # If job label is specified,
     # get job indices from jobs associated to this label.
-    if job_label is not None:
+    if job_label_name is not None and job_label_content is not None:
         mc = get_db()
         label_job_ids = [
             str(label["job_id"])
             for label in mc["labels"].find(
-                combine_all_mongodb_filters({"name": job_label})
+                combine_all_mongodb_filters({f"labels.{job_label_name}": job_label_content})
             )
         ]
         if job_ids:
