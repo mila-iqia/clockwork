@@ -181,7 +181,11 @@ def get_filtered_and_paginated_jobs(
         # Populate jobs with labels using job's user email,  job ID and cluster name
         # to find related labels in labels dict.
         for job in LD_jobs:
-            key = (job["cw"]["mila_email_username"], int(job["slurm"]["job_id"]), job["slurm"]["cluster_name"])
+            key = (
+                job["cw"]["mila_email_username"],
+                int(job["slurm"]["job_id"]),
+                job["slurm"]["cluster_name"],
+            )
             if key in label_map:
                 job["job_labels"] = label_map[key]
 
@@ -298,7 +302,9 @@ def get_jobs(
         label_job_ids = [
             str(label["job_id"])
             for label in mc["labels"].find(
-                combine_all_mongodb_filters({f"labels.{job_label_name}": job_label_content})
+                combine_all_mongodb_filters(
+                    {f"labels.{job_label_name}": job_label_content}
+                )
             )
         ]
         if job_ids:
