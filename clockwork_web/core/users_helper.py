@@ -592,19 +592,30 @@ def render_template_with_user_settings(template_name_or_list, **context):
 
     # Get cluster status (if jobs are old and cluster has error).
     for cluster_name in context["clusters"]:
-        # Default status values.
-        jobs_are_old = False
+        # Cluster error cannot yet be checked, so
+        # cluster_has_error is always False for now.
         cluster_has_error = False
+        context["clusters"][cluster_name]["status"] = {
+            "jobs_are_old": _jobs_are_old(cluster_name),
+            "cluster_has_error": cluster_has_error,
+        }
 
-        # Check if jobs are old.
-        jobs, _ = get_jobs(cluster_names=[cluster_name])
-        job_dates = [
-            job["cw"]["last_slurm_update"]
-            for job in jobs
-            if "last_slurm_update" in job["cw"]
-        ]
-        if job_dates:
-            most_recent_job_edition = max(job_dates)
+    return render_template(template_name_or_list, **context)
+
+
+def _jobs_are_old(cluster_name):
+    jobs_are_old = False
+
+    mongodb_filter = {"slurm.cluster_name": cluster_name}
+    mc = get_db()
+    job_with_max_cw_last_slurm_update = list(
+        mc["jobs"].find(mongodb_filter).sort([("cw.last_slurm_update", -1)]).limit(1)
+    )
+
+    if job_with_max_cw_last_slurm_update:
+        (job,) = job_with_max_cw_last_slurm_update
+        if "last_slurm_update" in job["cw"]:
+            most_recent_job_edition = job["cw"]["last_slurm_update"]
             current_timestamp = datetime.now().timestamp()
             elapsed_time = timedelta(
                 seconds=current_timestamp - most_recent_job_edition
@@ -613,12 +624,4 @@ def render_template_with_user_settings(template_name_or_list, **context):
             max_delay = timedelta(days=30)
             jobs_are_old = elapsed_time > max_delay
 
-        # Cluster error cannot yet be checked, so
-        # cluster_has_error is always False for now.
-
-        context["clusters"][cluster_name]["status"] = {
-            "jobs_are_old": jobs_are_old,
-            "cluster_has_error": cluster_has_error,
-        }
-
-    return render_template(template_name_or_list, **context)
+    return jobs_are_old
