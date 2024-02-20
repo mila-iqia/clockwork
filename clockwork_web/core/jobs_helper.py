@@ -7,6 +7,7 @@ import re
 import time
 
 from flask.globals import current_app
+from flask_login import current_user
 from ..db import get_db
 
 
@@ -168,7 +169,8 @@ def get_filtered_and_paginated_jobs(
                     {
                         "job_id": {
                             "$in": [int(job["slurm"]["job_id"]) for job in LD_jobs]
-                        }
+                        },
+                        "user_id": current_user.mila_email_username,
                     }
                 )
             )
@@ -178,16 +180,19 @@ def get_filtered_and_paginated_jobs(
             key = (label["user_id"], label["job_id"], label["cluster_name"])
             assert key not in label_map
             label_map[key] = label["labels"]
-        # Populate jobs with labels using job's user email,  job ID and cluster name
-        # to find related labels in labels dict.
-        for job in LD_jobs:
-            key = (
-                job["cw"]["mila_email_username"],
-                int(job["slurm"]["job_id"]),
-                job["slurm"]["cluster_name"],
-            )
-            if key in label_map:
-                job["job_labels"] = label_map[key]
+
+        if label_map:
+            # Populate jobs with labels using job's user email,  job ID and cluster name
+            # to find related labels in labels dict.
+            for job in LD_jobs:
+                key = (
+                    # job["cw"]["mila_email_username"],
+                    current_user.mila_email_username,
+                    int(job["slurm"]["job_id"]),
+                    job["slurm"]["cluster_name"],
+                )
+                if key in label_map:
+                    job["job_labels"] = label_map[key]
 
     # Set nbr_total_jobs
     if want_count:
