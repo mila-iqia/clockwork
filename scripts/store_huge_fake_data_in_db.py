@@ -333,12 +333,6 @@ BASE_JOB_CW = {
     "last_slurm_update": 1686248596.476063,
     "last_slurm_update_by_sacct": 1686248596.476063,
 }
-BASE_USER_JOB_DICT = {
-    "user_id": "student00@mila.quebec",
-    "job_id": 795002,
-    "cluster_name": "beluga",
-    "labels": {f"name_{i + 1}": f"i am a label {i + 1}" for i in range(4)},
-}
 
 
 def _generate_huge_fake_data(with_labels=False):
@@ -370,9 +364,15 @@ def _generate_huge_fake_data(with_labels=False):
     if with_labels:
         # populate labels
         for i in range(nb_user_job_dicts):
-            user_job_dict = BASE_USER_JOB_DICT.copy()
-            # edit job_id
-            user_job_dict["job_id"] = i + 1
+            user_job_dict = {
+                "user_id": "student00@mila.quebec",
+                "job_id": i + 1,
+                "cluster_name": "beluga",
+                "labels": {
+                    f"prop_{j + 1}_for_job_{i + 1}": f"I am user dict prop {j + 1} for job ID {i + 1}"
+                    for j in range(4)
+                },
+            }
             labels.append(user_job_dict)
 
     return {"users": USERS, "jobs": jobs, "labels": labels}
