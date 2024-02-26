@@ -335,52 +335,65 @@ BASE_JOB_CW = {
 }
 
 
-def _generate_huge_fake_data(with_labels=False):
-    nb_jobs_per_user = [2**i for i in range(len(USERS))]
-    assert len(nb_jobs_per_user) == len(USERS)
-    nb_user_job_dicts = sum(nb_jobs_per_user)
+DEFAULT_NB_JOBS = len(USERS)
+DEFAULT_NB_DICTS = DEFAULT_NB_JOBS
+DEFAULT_NB_PROPS_PER_DICT = 4
+
+
+def _generate_huge_fake_data(
+    nb_jobs=DEFAULT_NB_JOBS,
+    nb_dicts=DEFAULT_NB_DICTS,
+    nb_props_per_dict=DEFAULT_NB_PROPS_PER_DICT,
+):
     jobs = []
-    labels = []
+    job_user_dicts = []
 
     # populate jobs
-    job_id = 0
-    for user, nb_user_jobs in zip(USERS, nb_jobs_per_user):
-        for i in range(nb_user_jobs):
-            job_id += 1
-            job_slurm = BASE_JOB_SLURM.copy()
-            job_cw = BASE_JOB_CW.copy()
-            # edit slurm.job_id
-            job_slurm["job_id"] = str(job_id)
-            # edit slurm.name
-            job_slurm["name"] = f"job_name_{job_id}"
-            # edit slurm.username
-            job_slurm["username"] = user["cc_account_username"]
-            # edit cw.mila_email_username
-            job_cw["mila_email_username"] = user["mila_email_username"]
-            jobs.append({"slurm": job_slurm, "cw": job_cw, "user": {}})
-    print("Nb. jobs:", job_id)
-    assert job_id == nb_user_job_dicts
+    if nb_jobs:
+        assert 1 <= nb_jobs <= len(USERS)
+        nb_jobs_per_user = [2**i for i in range(nb_jobs)]
+        assert len(nb_jobs_per_user) == nb_jobs
+        job_id = 0
+        for user, nb_user_jobs in zip(USERS[:nb_jobs], nb_jobs_per_user):
+            for i in range(nb_user_jobs):
+                job_id += 1
+                job_slurm = BASE_JOB_SLURM.copy()
+                job_cw = BASE_JOB_CW.copy()
+                # edit slurm.job_id
+                job_slurm["job_id"] = str(job_id)
+                # edit slurm.name
+                job_slurm["name"] = f"job_name_{job_id}"
+                # edit slurm.username
+                job_slurm["username"] = user["cc_account_username"]
+                # edit cw.mila_email_username
+                job_cw["mila_email_username"] = user["mila_email_username"]
+                jobs.append({"slurm": job_slurm, "cw": job_cw, "user": {}})
+        print("Nb. jobs:", job_id)
+        assert job_id == sum(nb_jobs_per_user)
 
-    if with_labels:
-        # populate labels
-        for i in range(nb_user_job_dicts):
+    # populate job-user-dicts
+    if nb_dicts:
+        real_nb_dicts = sum(2**i for i in range(nb_dicts))
+        for i in range(real_nb_dicts):
             user_job_dict = {
                 "user_id": "student00@mila.quebec",
                 "job_id": i + 1,
                 "cluster_name": "beluga",
                 "labels": {
                     f"prop_{j + 1}_for_job_{i + 1}": f"I am user dict prop {j + 1} for job ID {i + 1}"
-                    for j in range(4)
+                    for j in range(nb_props_per_dict)
                 },
             }
-            labels.append(user_job_dict)
+            job_user_dicts.append(user_job_dict)
+        print("Nb. dicts:", real_nb_dicts)
+        print("NB. props per dict:", nb_props_per_dict)
 
-    return {"users": USERS, "jobs": jobs, "labels": labels}
+    return {"users": USERS, "jobs": jobs, "labels": job_user_dicts}
 
 
-def populate_fake_data(db_insertion_point, labels=False):
+def populate_fake_data(db_insertion_point, **kwargs):
     print("Generating huge fake data")
-    E = _generate_huge_fake_data(with_labels=labels)
+    E = _generate_huge_fake_data(**kwargs)
     print("Generated huge fake data")
 
     # Create indices. This isn't half as important as when we're
@@ -404,9 +417,14 @@ def populate_fake_data(db_insertion_point, labels=False):
     )
 
     for k in ["users", "jobs", "nodes", "gpu", "labels"]:
+        # Anyway clean before inserting
+        db_insertion_point[k].delete_many({})
         if k in E and E[k]:
             print("Inserting", k)
+            # Then insert
             db_insertion_point[k].insert_many(E[k])
+            # And check count
+            assert db_insertion_point[k].count_documents({}) == len(E[k])
             print("Inserted", k)
 
     def cleanup_function():
@@ -451,48 +469,43 @@ def populate_fake_data(db_insertion_point, labels=False):
     return cleanup_function
 
 
-def store_data_in_db(labels=False):
+def store_data_in_db(**kwargs):
     # Open the database and insert the contents.
     client = get_mongo_client()
-    populate_fake_data(client[get_config("mongo.database_name")], labels=labels)
-
-
-def modify_timestamps(data):
-    """
-    This function updates the timestamps in order to simulate jobs which have
-    been launched more recently than they were.
-    """
-    # Retrieve the most recent timestamp (ie its end_time)
-    most_recent_timestamp = data["jobs"][0]["slurm"]["end_time"]
-    # most_recent_timestamp = min(job["slurm"]["end_time"] for job in data["jobs"])
-    for job in data["jobs"]:
-        new_end_time = job["slurm"]["end_time"]
-        if new_end_time:
-            if new_end_time > most_recent_timestamp:
-                most_recent_timestamp = new_end_time
-
-    # Retrieve the time interval between this timestamp and now
-    time_delta = datetime.now().timestamp() - most_recent_timestamp
-
-    # Substract it to the timestamps of the jobs
-    for job in data["jobs"]:
-        if job["slurm"]["submit_time"]:
-            job["slurm"]["submit_time"] += time_delta
-        if job["slurm"]["start_time"]:
-            job["slurm"]["start_time"] += time_delta
-        if job["slurm"]["end_time"]:
-            job["slurm"]["end_time"] += time_delta
+    populate_fake_data(client[get_config("mongo.database_name")], **kwargs)
 
 
 def main(argv):
     # Retrieve the arguments passed to the script
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     parser.add_argument(
-        "--labels",
-        type=bool,
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Add fake job-user dicts. If False (default), only add jobs.",
+        "--nb-jobs",
+        type=int,
+        default=DEFAULT_NB_JOBS,
+        help="Number of users for which to add jobs. "
+        "Control the number of jobs in database by generating "
+        "2**i jobs for each user i from user <0> to user <nb-jobs>. "
+        "If 0, no jobs are added. "
+        f"Default is {DEFAULT_NB_JOBS}, for all users available, ie. "
+        f"{sum(2**i for i in range(DEFAULT_NB_JOBS))} total jobs.",
+    )
+    parser.add_argument(
+        "--nb-dicts",
+        type=int,
+        default=DEFAULT_NB_DICTS,
+        help="Control the number of job-user dicts in database by generating "
+        "sum(2**i for i in range(nb-dicts)) dictionaries. "
+        "If 0, no dicts are added. "
+        f"Default is {DEFAULT_NB_DICTS} to match the maximum number of potential jobs, ie. "
+        f"{sum(2**i for i in range(DEFAULT_NB_DICTS))} total dicts.",
+    )
+    parser.add_argument(
+        "--nb-props-per-dict",
+        type=int,
+        default=DEFAULT_NB_PROPS_PER_DICT,
+        help=f"Number of key-value pairs in each job-user dict.",
     )
     args = parser.parse_args(argv[1:])
     print(args)
@@ -502,7 +515,11 @@ def main(argv):
     register_config("mongo.database_name", "clockwork")
 
     # Store the generated fake data in the database
-    store_data_in_db(labels=args.labels)
+    store_data_in_db(
+        nb_jobs=args.nb_jobs,
+        nb_dicts=args.nb_dicts,
+        nb_props_per_dict=args.nb_props_per_dict,
+    )
 
 
 if __name__ == "__main__":
