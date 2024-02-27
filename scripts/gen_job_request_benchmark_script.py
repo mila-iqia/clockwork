@@ -1,9 +1,9 @@
 import sys
 
-# max: sum(2**i for i in range(n)) jobs
-# max: sum(2**i for i in range(n)) dicts
-N = 17
-Ks = (1, 10, 100)
+# Ns = [i * 10_000 for i in range(16)]
+Ns = [i * 10_000 for i in range(11)]
+Ks = (1, 500)
+N = Ns[-1]
 
 NB_REQUESTS = 10
 
@@ -17,19 +17,19 @@ def main():
     print("set -eu")
 
     for nb_props_per_dict in Ks:
-        for nb_dicts in range(N + 1):
+        for nb_dicts in Ns:
             gen_commands(N, nb_dicts, nb_props_per_dict, wd)
 
-    for nb_jobs in range(N):
+    for nb_jobs in Ns[:-1]:
         gen_commands(nb_jobs, 0, 1, wd)
 
     for nb_props_per_dict in Ks:
-        for nb_jobs in range(N):
+        for nb_jobs in Ns[:-1]:
             gen_commands(nb_jobs, N, nb_props_per_dict, wd)
 
 
 def gen_commands(nb_jobs, nb_dicts, nb_props_per_dict, working_directory):
-    task_name = f"jobs-{nb_jobs:02}_dicts-{nb_dicts:02}_props-{nb_props_per_dict:02}"
+    task_name = f"jobs-{nb_jobs:06}_dicts-{nb_dicts:06}_props-{nb_props_per_dict:03}"
 
     cmd_fake_data = (
         f"python3 scripts/store_huge_fake_data_in_db.py "
@@ -43,8 +43,18 @@ def gen_commands(nb_jobs, nb_dicts, nb_props_per_dict, working_directory):
         f"--nb-requests {NB_REQUESTS} "
         f"--output {task_name}"
     )
+
     print(cmd_fake_data)
+    print('python3 -m flask run --host="0.0.0.0" &')
+    print("export SERVER_PID=$!")
+    print("sleep 1")
+    print(
+        '''python3 -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:5000/').getcode())"'''
+    )
     print(cmd_benchmark)
+    print("kill $SERVER_PID")
+    print("export SERVER_PID=")
+    print()
 
 
 if __name__ == "__main__":

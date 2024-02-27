@@ -335,7 +335,7 @@ BASE_JOB_CW = {
 }
 
 
-DEFAULT_NB_JOBS = len(USERS)
+DEFAULT_NB_JOBS = 1_000_000
 DEFAULT_NB_DICTS = DEFAULT_NB_JOBS
 DEFAULT_NB_PROPS_PER_DICT = 4
 
@@ -349,45 +349,37 @@ def _generate_huge_fake_data(
     job_user_dicts = []
 
     # populate jobs
-    if nb_jobs:
-        assert 1 <= nb_jobs <= len(USERS)
-        nb_jobs_per_user = [2**i for i in range(nb_jobs)]
-        assert len(nb_jobs_per_user) == nb_jobs
-        job_id = 0
-        for user, nb_user_jobs in zip(USERS[:nb_jobs], nb_jobs_per_user):
-            for i in range(nb_user_jobs):
-                job_id += 1
-                job_slurm = BASE_JOB_SLURM.copy()
-                job_cw = BASE_JOB_CW.copy()
-                # edit slurm.job_id
-                job_slurm["job_id"] = str(job_id)
-                # edit slurm.name
-                job_slurm["name"] = f"job_name_{job_id}"
-                # edit slurm.username
-                job_slurm["username"] = user["cc_account_username"]
-                # edit cw.mila_email_username
-                job_cw["mila_email_username"] = user["mila_email_username"]
-                jobs.append({"slurm": job_slurm, "cw": job_cw, "user": {}})
-        print("Nb. jobs:", job_id)
-        assert job_id == sum(nb_jobs_per_user)
+    for i in range(nb_jobs):
+        user = USERS[i % len(USERS)]
+        job_id = i + 1
+        job_slurm = BASE_JOB_SLURM.copy()
+        job_cw = BASE_JOB_CW.copy()
+        # edit slurm.job_id
+        job_slurm["job_id"] = str(job_id)
+        # edit slurm.name
+        job_slurm["name"] = f"job_name_{job_id}"
+        # edit slurm.username
+        job_slurm["username"] = user["cc_account_username"]
+        # edit cw.mila_email_username
+        job_cw["mila_email_username"] = user["mila_email_username"]
+        jobs.append({"slurm": job_slurm, "cw": job_cw, "user": {}})
 
     # populate job-user-dicts
-    if nb_dicts:
-        real_nb_dicts = sum(2**i for i in range(nb_dicts))
-        for i in range(real_nb_dicts):
-            user_job_dict = {
-                "user_id": "student00@mila.quebec",
-                "job_id": i + 1,
-                "cluster_name": "beluga",
-                "labels": {
-                    f"prop_{j + 1}_for_job_{i + 1}": f"I am user dict prop {j + 1} for job ID {i + 1}"
-                    for j in range(nb_props_per_dict)
-                },
-            }
-            job_user_dicts.append(user_job_dict)
-        print("Nb. dicts:", real_nb_dicts)
-        print("NB. props per dict:", nb_props_per_dict)
+    for i in range(nb_dicts):
+        user_job_dict = {
+            "user_id": "student00@mila.quebec",
+            "job_id": i + 1,
+            "cluster_name": "beluga",
+            "labels": {
+                f"prop_{j + 1}_for_job_{i + 1}": f"I am user dict prop {j + 1} for job ID {i + 1}"
+                for j in range(nb_props_per_dict)
+            },
+        }
+        job_user_dicts.append(user_job_dict)
 
+    print(
+        f"Jobs: {len(jobs)}, dicts: {len(job_user_dicts)}, props per dict: {nb_props_per_dict}"
+    )
     return {"users": USERS, "jobs": jobs, "labels": job_user_dicts}
 
 
@@ -420,53 +412,11 @@ def populate_fake_data(db_insertion_point, **kwargs):
         # Anyway clean before inserting
         db_insertion_point[k].delete_many({})
         if k in E and E[k]:
-            print("Inserting", k)
-            # Then insert
+            print(f"Inserting {k}, {len(E[k])} value(s)")
             db_insertion_point[k].insert_many(E[k])
-            # And check count
+            # Check count
             assert db_insertion_point[k].count_documents({}) == len(E[k])
             print("Inserted", k)
-
-    def cleanup_function():
-        """
-        Each of those kinds of data is identified in a unique way,
-        and we can use that identifier to clean up.
-
-        For example, when clearing out jobs, we can look at the "job_id"
-        of the entries that we inserted.
-
-        The point is that we can run a test against the production mongodb on Atlas
-        and not affect the real data. If we cleared the tables completely,
-        then we'd be affecting the real data in a bad way.
-        """
-        for e in E["users"]:
-            db_insertion_point["users"].delete_many(
-                {"mila_email_username": e["mila_email_username"]}
-            )
-
-        for e in E["gpu"]:
-            db_insertion_point["gpu"].delete_many({"name": e["name"]})
-
-        for e in E["labels"]:
-            copy_e = e
-            copy_e.pop("labels")
-            db_insertion_point["labels"].delete_many(copy_e)
-
-        for (k, sub, id_field) in [
-            ("jobs", "slurm", "job_id"),
-            ("nodes", "slurm", "name"),
-        ]:
-            if k in E:
-                for e in E[k]:
-                    # This is complicated, but it's just about a way to say something like
-                    # that we want to remove {"slurm.job_id", e["slurm"]["job_id"]},
-                    # and the weird notation comes from the fact that mongodb filters use dots,
-                    # but not the original python.
-                    db_insertion_point[k].delete_many(
-                        {f"{sub}.{id_field}": e[sub][id_field]}
-                    )
-
-    return cleanup_function
 
 
 def store_data_in_db(**kwargs):
@@ -484,22 +434,13 @@ def main(argv):
         "--nb-jobs",
         type=int,
         default=DEFAULT_NB_JOBS,
-        help="Number of users for which to add jobs. "
-        "Control the number of jobs in database by generating "
-        "2**i jobs for each user i from user <0> to user <nb-jobs>. "
-        "If 0, no jobs are added. "
-        f"Default is {DEFAULT_NB_JOBS}, for all users available, ie. "
-        f"{sum(2**i for i in range(DEFAULT_NB_JOBS))} total jobs.",
+        help="Number of jobs to add. May be 0 (no job added).",
     )
     parser.add_argument(
         "--nb-dicts",
         type=int,
         default=DEFAULT_NB_DICTS,
-        help="Control the number of job-user dicts in database by generating "
-        "sum(2**i for i in range(nb-dicts)) dictionaries. "
-        "If 0, no dicts are added. "
-        f"Default is {DEFAULT_NB_DICTS} to match the maximum number of potential jobs, ie. "
-        f"{sum(2**i for i in range(DEFAULT_NB_DICTS))} total dicts.",
+        help="Number of job-user dicts to add. May be 0 (no job added).",
     )
     parser.add_argument(
         "--nb-props-per-dict",

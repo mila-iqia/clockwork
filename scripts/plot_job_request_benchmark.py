@@ -5,6 +5,7 @@ import json
 
 try:
     import matplotlib.pyplot as plt
+
     # plt.figure(figure=(10.8, 7.2), dpi=100)
 except Exception:
     print(
@@ -49,21 +50,23 @@ def main():
             nbs_dicts.append(nb_dicts)
             nbs_props.append(nb_props_per_dict)
 
-    assert max(nbs_jobs) == max(nbs_dicts)
-    N = max(nbs_jobs)
+    assert sorted(set(nbs_jobs)) == sorted(set(nbs_dicts))
+    Ns = sorted(set(nbs_jobs))
     Ks = sorted(set(nbs_props))
 
-    _plot_request_time_per_nb_dicts(stats, N, Ks, folder)
-    _plots_request_time_per_nb_jobs(stats, N, Ks, folder)
+    _plot_request_time_per_nb_dicts(stats, Ns, Ks, folder)
+    _plots_request_time_per_nb_jobs(stats, Ns, Ks, folder)
 
 
-def _plot_request_time_per_nb_dicts(stats: dict, N: int, Ks: list, folder: str):
-    x_nb_dicts = [_compute_nb_jobs(n) for n in range(N + 1)]
+def _plot_request_time_per_nb_dicts(stats: dict, Ns: list, Ks: list, folder: str):
+    N = max(Ns)
+
+    x_nb_dicts = list(Ns)
     y_time = {nb_props: [] for nb_props in Ks}
 
     for nb_props in Ks:
         print()
-        for nb_dicts in range(N + 1):
+        for nb_dicts in Ns:
             key = (N, nb_dicts, nb_props)
             average_duration = _debug_average_seconds(key, stats[key])
             y_time[nb_props].append(average_duration)
@@ -73,9 +76,11 @@ def _plot_request_time_per_nb_dicts(stats: dict, N: int, Ks: list, folder: str):
         ax.plot(
             x_nb_dicts,
             y_time[nb_props],
-            marker='o',
+            marker="o",
             label=f"{_compute_nb_jobs(N)} jobs in DB, {nb_props} prop(s) per dict",
         )
+        _show_points(x_nb_dicts, y_time[nb_props])
+
     ax.set_title("Request duration per number of job-user dicts")
     ax.set_xlabel("Number of job-user dicts in DB")
     ax.set_ylabel("Request duration in seconds")
@@ -89,32 +94,39 @@ def _plot_request_time_per_nb_dicts(stats: dict, N: int, Ks: list, folder: str):
     plt.close(fig)
 
 
-def _plots_request_time_per_nb_jobs(stats: dict, N: int, Ks: list, folder: str):
-    x_nb_jobs = [_compute_nb_jobs(n) for n in range(N + 1)]
+def _plots_request_time_per_nb_jobs(stats: dict, Ns: list, Ks: list, folder: str):
+    x_nb_jobs = list(Ns)
     y_time_0_dicts_1_props = []
     y_time_N_dicts = {nb_props: [] for nb_props in Ks}
+    N = max(Ns)
 
     print()
-    for nb_jobs in range(N + 1):
+    for nb_jobs in Ns:
         key = (nb_jobs, 0, 1)
         average_duration = _debug_average_seconds(key, stats[key])
         y_time_0_dicts_1_props.append(average_duration)
     print()
     for nb_props in Ks:
-        for nb_jobs in range(N + 1):
+        for nb_jobs in Ns:
             key = (nb_jobs, N, nb_props)
             average_duration = _debug_average_seconds(key, stats[key])
             y_time_N_dicts[nb_props].append(average_duration)
 
     fig, ax = plt.subplots()
-    ax.plot(x_nb_jobs, y_time_0_dicts_1_props, marker='o', label=f"0 job-user dicts in DB")
+    ax.plot(
+        x_nb_jobs, y_time_0_dicts_1_props, marker="o", label=f"0 job-user dicts in DB"
+    )
+    _show_points(x_nb_jobs, y_time_0_dicts_1_props)
+
     for nb_props in Ks:
         ax.plot(
             x_nb_jobs,
             y_time_N_dicts[nb_props],
-            marker='o',
+            marker="o",
             label=f"{_compute_nb_jobs(N)} job-user dicts in DB, {nb_props} props per dict",
         )
+        _show_points(x_nb_jobs, y_time_N_dicts[nb_props])
+
     ax.set_title("Request duration per number of jobs")
     ax.set_xlabel("Number of jobs in DB")
     ax.set_ylabel("Request duration in seconds")
@@ -126,7 +138,13 @@ def _plots_request_time_per_nb_jobs(stats: dict, N: int, Ks: list, folder: str):
 
 
 def _compute_nb_jobs(n: int):
-    return sum(2**i for i in range(n))
+    return n
+
+
+def _show_points(xs, ys):
+    # return
+    for x, y in zip(xs, ys):
+        plt.text(x, y, f"({x}, {round(y, 2)})")
 
 
 def _debug_average_seconds(key, durations):
