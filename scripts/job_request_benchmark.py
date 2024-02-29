@@ -4,7 +4,6 @@ import argparse
 import sys
 import logging
 import time
-from datetime import datetime
 from collections import namedtuple
 import json
 
@@ -109,6 +108,28 @@ def main():
         ),
     )
     parser.add_argument(
+        "-w",
+        "--working-directory",
+        type=str,
+        default=".",
+        help=(
+            "Working directory. "
+            "Default is '.'. "
+            "If `--config` specified, `--working-directory` is ignored "
+            "and working directory is config folder."
+        ),
+    )
+    parser.add_argument(
+        "-u",
+        "--username",
+        type=str,
+        help=(
+            "Optional email of specific username for which we want to search jobs. "
+            "By default, no username is specified, and all jobs visible by logged user "
+            "(using client email an api key) are retrieved."
+        ),
+    )
+    parser.add_argument(
         "-n",
         "--nb-requests",
         type=int,
@@ -130,9 +151,8 @@ def main():
         logger.error(f"No positive time specified for benchmarking, exit.")
         sys.exit(1)
 
-    bench_date = datetime.now()
     config_path = None
-    working_directory = "."
+    working_directory = args.working_directory
     if args.config:
         config_path = os.path.abspath(args.config)
         working_directory = os.path.dirname(config_path)
@@ -171,7 +191,7 @@ def main():
 
     output = []
     for i in range(args.nb_requests):
-        cs = client.profile_getting_user_jobs()
+        cs = client.profile_getting_user_jobs(username=args.username)
         logger.info(
             f"[{i + 1}] Sent request for username in {cs.pc_nanoseconds / 1e9} seconds, "
             f"received {cs.nb_jobs} jobs."
