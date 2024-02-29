@@ -101,8 +101,8 @@ def route_search():
     - "sort_asc" is an optional integer and used to specify if sorting is
       ascending (1) or descending (-1). Default is 1.
     - "job_array" is optional and used to specify the job array in which we are looking for jobs
-    - "job_label_name" is optional and used to specify the label name associated to jobs we are looking for
-    - "job_label_content" is optional and used to specify the label value associated to jobs we are looking for
+    - "user_prop_name" is optional and used to specify the user prop name associated to jobs we are looking for
+    - "user_prop_content" is optional and used to specify the user prop value associated to jobs we are looking for
 
     .. :quickref: list all Slurm job as formatted html
     """
@@ -166,8 +166,8 @@ def route_search():
                 "sort_by": query.sort_by,
                 "sort_asc": query.sort_asc,
                 "job_array": query.job_array,
-                "job_label_name": query.job_label_name,
-                "job_label_content": query.job_label_content,
+                "user_prop_name": query.user_prop_name,
+                "user_prop_content": query.user_prop_content,
             },
         )
 

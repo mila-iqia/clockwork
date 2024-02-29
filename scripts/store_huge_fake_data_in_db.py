@@ -423,13 +423,15 @@ def _generate_huge_fake_data(
             jobs.append({"slurm": job_slurm, "cw": job_cw, "user": {}})
 
     # populate job-user-dicts
-    props_editor = "student01@mila.quebec" if nb_student_jobs else "student00@mila.quebec"
+    props_editor = (
+        "student01@mila.quebec" if nb_student_jobs else "student00@mila.quebec"
+    )
     job_user_dicts = [
         {
-            "user_id": props_editor,
+            "mila_email_username": props_editor,
             "job_id": i + 1,
             "cluster_name": "beluga",
-            "labels": {
+            "props": {
                 f"prop_{j + 1}_for_job_{i + 1}": f"I am user dict prop {j + 1} for job ID {i + 1}"
                 for j in range(nb_props_per_dict)
             },
@@ -440,7 +442,7 @@ def _generate_huge_fake_data(
     print(
         f"Jobs: {len(jobs)}, dicts: {len(job_user_dicts)}, props per dict: {nb_props_per_dict}"
     )
-    return {"users": USERS, "jobs": jobs, "labels": job_user_dicts}
+    return {"users": USERS, "jobs": jobs, "job_user_props": job_user_dicts}
 
 
 def populate_fake_data(db_insertion_point, **kwargs):
@@ -463,12 +465,12 @@ def populate_fake_data(db_insertion_point, **kwargs):
         [("mila_email_username", 1)], name="users_email_index"
     )
     db_insertion_point["gpu"].create_index([("name", 1)], name="gpu_name")
-    db_insertion_point["labels"].create_index(
-        [("user_id", 1), ("job_id", 1), ("cluster_name", 1), ("labels", 1)],
-        name="job_label_index",
+    db_insertion_point["job_user_props"].create_index(
+        [("mila_email_username", 1), ("job_id", 1), ("cluster_name", 1), ("props", 1)],
+        name="job_user_props_index",
     )
 
-    for k in ["users", "jobs", "nodes", "gpu", "labels"]:
+    for k in ["users", "jobs", "nodes", "gpu", "job_user_props"]:
         # Anyway clean before inserting
         db_insertion_point[k].delete_many({})
         if k in E and E[k]:

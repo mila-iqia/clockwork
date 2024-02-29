@@ -324,11 +324,11 @@
                                 {% if previous_request_args['job_array'] is not none %}
                                 <input type="hidden" name="job_array" value="{{ previous_request_args['job_array'] }}"/>
                                 {% endif %}
-                                {% if previous_request_args['job_label_name'] is not none %}
-                                <input type="hidden" name="job_label_name" value="{{ previous_request_args['job_label_name'] }}"/>
+                                {% if previous_request_args['user_prop_name'] is not none %}
+                                <input type="hidden" name="user_prop_name" value="{{ previous_request_args['user_prop_name'] }}"/>
                                 {% endif %}
-                                {% if previous_request_args['job_label_content'] is not none %}
-                                <input type="hidden" name="job_label_content" value="{{ previous_request_args['job_label_content'] }}"/>
+                                {% if previous_request_args['user_prop_content'] is not none %}
+                                <input type="hidden" name="user_prop_content" value="{{ previous_request_args['user_prop_content'] }}"/>
                                 {% endif %}
 
 				                 <div class="row align-items-center">
@@ -341,9 +341,9 @@
 										 </a>
 										 {% endif %}
 
-										 {% if previous_request_args['job_label_name'] is not none and previous_request_args['job_label_content'] is not none %}
-										 <a href="{{ modify_query(job_label_name='', job_label_content='') }}" title="Reset filter by job label" class="px-3 py-2">
-											 Label <strong>{{ previous_request_args['job_label_name'] }}</strong>: "{{ previous_request_args['job_label_content'] }}"&nbsp;&nbsp;&nbsp;&nbsp;
+										 {% if previous_request_args['user_prop_name'] is not none and previous_request_args['user_prop_content'] is not none %}
+										 <a href="{{ modify_query(user_prop_name='', user_prop_content='') }}" title="Reset filter by job user prop" class="px-3 py-2">
+											 User prop <strong>{{ previous_request_args['user_prop_name'] }}</strong>: "{{ previous_request_args['user_prop_content'] }}"&nbsp;&nbsp;&nbsp;&nbsp;
 											 <i class="fa-solid fa-circle-xmark" style="color: #888a85;"></i>
 										 </a>
 										 {% endif %}

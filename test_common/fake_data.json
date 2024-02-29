@@ -5963,46 +5963,46 @@
       "tflops_fp32": 16.31
     }
   ],
-  "labels": [
+  "job_user_props": [
     {
-      "user_id": "student06@mila.quebec",
+      "mila_email_username": "student00@mila.quebec",
       "job_id": 795002,
       "cluster_name": "mila",
-      "labels": {
-        "name": "je suis un label 1"
+      "props": {
+        "name": "je suis une user prop 1"
       }
     },
     {
-      "user_id": "student16@mila.quebec",
+      "mila_email_username": "student00@mila.quebec",
       "job_id": 606872,
       "cluster_name": "mila",
-      "labels": {
-        "name": "je suis un label 2"
+      "props": {
+        "name": "je suis une user prop 2"
       }
     },
     {
-      "user_id": "student15@mila.quebec",
+      "mila_email_username": "student00@mila.quebec",
       "job_id": 834395,
       "cluster_name": "graham",
-      "labels": {
-        "name": "je suis un label 3"
+      "props": {
+        "name": "je suis une user prop 3"
       }
     },
     {
-      "user_id": "student15@mila.quebec",
+      "mila_email_username": "student00@mila.quebec",
       "job_id": 154325,
       "cluster_name": "graham",
-      "labels": {
-        "name": "je suis un label 3",
-        "name2": "je suis un label 4"
+      "props": {
+        "name": "je suis une user prop 3",
+        "name2": "je suis une user prop 4"
       }
     },
     {
-      "user_id": "student12@mila.quebec",
+      "mila_email_username": "student00@mila.quebec",
       "job_id": 613024,
       "cluster_name": "graham",
-      "labels": {
-        "name": "je suis un label 1"
+      "props": {
+        "name": "je suis une user prop 1"
       }
     }
   ]
