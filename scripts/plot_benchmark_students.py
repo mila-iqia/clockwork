@@ -25,18 +25,33 @@ def main():
     folder = sys.argv[1]
     stats_file_names = []
     for name in os.listdir(folder):
-        if name.startswith("student00-") and name.endswith(".json"):
+        if name.startswith("std00-") and name.endswith(".json"):
             stats_file_names.append(name)
 
     # Get stat data.
     stats = {}
+    infos_nb_props = set()
+    infos_index = set()
     for name in sorted(stats_file_names):
         title, extension = name.split(".")
-        info_student00, info_student01 = title.split("_")
+        (
+            info_student00,
+            info_student01,
+            info_nb_dicts,
+            info_nb_props,
+            info_index,
+        ) = title.split("_")
         _, nb_jobs_student00 = info_student00.split("-")
         _, nb_jobs_student01 = info_student01.split("-")
+        _, nb_dicts = info_nb_dicts.split("-")
+        _, nb_props = info_nb_props.split("-")
+        _, nb_index = info_index.split("-")
         nb_jobs_student00 = int(nb_jobs_student00)
         nb_jobs_student01 = int(nb_jobs_student01)
+        nb_props = int(nb_props)
+        nb_index = int(nb_index)
+        infos_nb_props.add(nb_props)
+        infos_index.add(nb_index)
 
         with open(os.path.join(folder, name)) as file:
             local_stats = json.load(file)
@@ -46,10 +61,17 @@ def main():
             durations = sorted(stat["pc_nanoseconds"] for stat in local_stats)
             stats[(nb_jobs_student00, nb_jobs_student01)] = durations
 
-    _plots_request_time_per_nb_jobs(stats, folder)
+    assert len(infos_nb_props) == 1
+    assert len(infos_index) == 1
+    nb_props = next(iter(infos_nb_props))
+    nb_index = next(iter(infos_index))
+    output_name = f"nb-student01-jobs-to-time_props-{nb_props}_index-{nb_index}"
+    _plots_request_time_per_nb_jobs(stats, folder, output_name, nb_props, nb_index)
 
 
-def _plots_request_time_per_nb_jobs(stats: dict, folder: str):
+def _plots_request_time_per_nb_jobs(
+    stats: dict, folder: str, output_name: str, nb_props: int, has_index: int
+):
     cdict = {
         "red": (
             (0.0, 0.0, 0.0),
@@ -93,11 +115,14 @@ def _plots_request_time_per_nb_jobs(stats: dict, folder: str):
         )
         # _show_points(xs, ys)
 
-    ax.set_title("Request duration per number of jobs for student01")
+    ax.set_title(
+        f"Request duration per number of jobs for student01 ({nb_props} props per dict)"
+        + (" (no MongoDB index)" if not has_index else "")
+    )
     ax.set_xlabel("Number of student01's jobs in DB")
     ax.set_ylabel("Request duration in seconds")
     ax.legend()
-    plot_path = os.path.join(folder, f"nb_student01_jobs_to_time.jpg")
+    plot_path = os.path.join(folder, f"{output_name}.jpg")
     plt.gcf().set_size_inches(20, 10)
     plt.savefig(plot_path, bbox_inches="tight")
     plt.close(fig)

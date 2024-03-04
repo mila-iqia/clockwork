@@ -35,7 +35,6 @@ n           n           k
 
 import argparse
 import sys
-from datetime import datetime
 
 from clockwork_web.config import register_config
 from slurm_state.mongo_client import get_mongo_client
@@ -345,6 +344,7 @@ def _generate_huge_fake_data(
     nb_student_jobs=None,
     nb_dicts=DEFAULT_NB_DICTS,
     nb_props_per_dict=DEFAULT_NB_PROPS_PER_DICT,
+    props_username="student00@mila.quebec",
 ):
     student_to_nb_jobs = []
     if nb_student_jobs is not None:
@@ -423,12 +423,9 @@ def _generate_huge_fake_data(
             jobs.append({"slurm": job_slurm, "cw": job_cw, "user": {}})
 
     # populate job-user-dicts
-    props_editor = (
-        "student01@mila.quebec" if nb_student_jobs else "student00@mila.quebec"
-    )
     job_user_dicts = [
         {
-            "mila_email_username": props_editor,
+            "mila_email_username": props_username,
             "job_id": i + 1,
             "cluster_name": "beluga",
             "props": {
@@ -446,29 +443,41 @@ def _generate_huge_fake_data(
 
 
 def populate_fake_data(db_insertion_point, **kwargs):
+    disable_index = kwargs.pop("disable_index", False)
+
     print("Generating huge fake data")
     E = _generate_huge_fake_data(**kwargs)
     print("Generated huge fake data")
 
-    # Create indices. This isn't half as important as when we're
-    # dealing with large quantities of data, but it's part of the
-    # set up for the database.
-    db_insertion_point["jobs"].create_index(
-        [("slurm.job_id", 1), ("slurm.cluster_name", 1)],
-        name="job_id_and_cluster_name",
-    )
-    db_insertion_point["nodes"].create_index(
-        [("slurm.name", 1), ("slurm.cluster_name", 1)],
-        name="name_and_cluster_name",
-    )
-    db_insertion_point["users"].create_index(
-        [("mila_email_username", 1)], name="users_email_index"
-    )
-    db_insertion_point["gpu"].create_index([("name", 1)], name="gpu_name")
-    db_insertion_point["job_user_props"].create_index(
-        [("mila_email_username", 1), ("job_id", 1), ("cluster_name", 1), ("props", 1)],
-        name="job_user_props_index",
-    )
+    if not disable_index:
+        print("Generate MongoDB index.")
+        # Create indices. This isn't half as important as when we're
+        # dealing with large quantities of data, but it's part of the
+        # set up for the database.
+        db_insertion_point["jobs"].create_index(
+            [
+                ("slurm.job_id", 1),
+                ("slurm.cluster_name", 1),
+                ("cw.mila_email_username", 1),
+            ],
+            name="job_id_and_cluster_name",
+        )
+        db_insertion_point["nodes"].create_index(
+            [("slurm.name", 1), ("slurm.cluster_name", 1)],
+            name="name_and_cluster_name",
+        )
+        db_insertion_point["users"].create_index(
+            [("mila_email_username", 1)], name="users_email_index"
+        )
+        db_insertion_point["gpu"].create_index([("name", 1)], name="gpu_name")
+        db_insertion_point["job_user_props"].create_index(
+            [
+                ("mila_email_username", 1),
+                ("job_id", 1),
+                ("cluster_name", 1),
+            ],
+            name="job_user_props_index",
+        )
 
     for k in ["users", "jobs", "nodes", "gpu", "job_user_props"]:
         # Anyway clean before inserting
@@ -498,7 +507,10 @@ def main(argv):
         "--nb-student-jobs",
         action="append",
         type=str,
-        help="Number of job for a specific student, in format: <student>=<nb-jobs>. Accept multiple declarations. Example: -j student00=100 -j student05=1900",
+        help=(
+            "Number of job for a specific student, in format: <student>=<nb-jobs>. "
+            "Accept multiple declarations. Example: -j student00=100 -j student05=1900"
+        ),
     )
     group.add_argument(
         "--nb-jobs",
@@ -518,6 +530,17 @@ def main(argv):
         default=DEFAULT_NB_PROPS_PER_DICT,
         help=f"Number of key-value pairs in each job-user dict.",
     )
+    parser.add_argument(
+        "--props-username",
+        type=str,
+        default="student00@mila.quebec",
+        help="Email of user who creates job-user dicts.",
+    )
+    parser.add_argument(
+        "--disable-index",
+        action="store_true",
+        help="If specified, will not create MongoDB index.",
+    )
     args = parser.parse_args(argv[1:])
     print(args)
 
@@ -531,6 +554,8 @@ def main(argv):
         nb_student_jobs=args.nb_student_jobs,
         nb_dicts=args.nb_dicts,
         nb_props_per_dict=args.nb_props_per_dict,
+        props_username=args.props_username,
+        disable_index=args.disable_index,
     )
 
 
