@@ -449,6 +449,11 @@ def populate_fake_data(db_insertion_point, **kwargs):
     E = _generate_huge_fake_data(**kwargs)
     print("Generated huge fake data")
 
+    # Drop any collection (and related index) before.
+    for k in ["users", "jobs", "nodes", "gpu", "job_user_props"]:
+        db_insertion_point[k].drop()
+        assert not list(db_insertion_point[k].list_indexes())
+
     if not disable_index:
         print("Generate MongoDB index.")
         # Create indices. This isn't half as important as when we're
@@ -478,6 +483,9 @@ def populate_fake_data(db_insertion_point, **kwargs):
             ],
             name="job_user_props_index",
         )
+
+        for k in ["users", "jobs", "nodes", "gpu", "job_user_props"]:
+            assert list(db_insertion_point[k].list_indexes())
 
     for k in ["users", "jobs", "nodes", "gpu", "job_user_props"]:
         # Anyway clean before inserting
