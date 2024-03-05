@@ -157,6 +157,31 @@ def get_filtered_and_paginated_jobs(
         # on the server because not enough memory was allocated to perform the sorting.
         LD_jobs = list(mc["jobs"].find(mongodb_filter))
 
+    # Get job labels
+    if LD_jobs:
+        label_map = {}
+        # Collect all labels related to found jobs,
+        # and store them in a dict with keys (user ID, job ID)
+        for label in list(
+            mc["labels"].find(
+                combine_all_mongodb_filters(
+                    {
+                        "job_id": {
+                            "$in": [int(job["slurm"]["job_id"]) for job in LD_jobs]
+                        }
+                    }
+                )
+            )
+        ):
+            # Remove MongoDB identifier, as we won't use it.
+            label.pop("_id")
+            label_map.setdefault((label["user_id"], label["job_id"]), []).append(label)
+        # Populate jobs with labels using job's user email and job ID to find related labels in labels dict.
+        for job in LD_jobs:
+            key = (job["cw"]["mila_email_username"], int(job["slurm"]["job_id"]))
+            if key in label_map:
+                job["job_labels"] = label_map[key]
+
     # Set nbr_total_jobs
     if want_count:
         # Get the number of filtered jobs (not paginated)
@@ -235,6 +260,7 @@ def get_jobs(
     sort_by="submit_time",
     sort_asc=-1,
     job_array=None,
+    job_label=None,
 ):
     """
     Set up the filters according to the parameters and retrieve the requested jobs from the database.
@@ -252,6 +278,7 @@ def get_jobs(
         sort_asc                Whether or not to sort in ascending order (1)
                                 or descending order (-1).
         job_array               ID of job array in which we look for jobs.
+        job_label               label (string) we must find in jobs to look for.
 
     Returns:
         A tuple containing:
@@ -259,6 +286,22 @@ def get_jobs(
             - the total number of jobs corresponding of the filters in the databse, if want_count has been set to
             True, None otherwise, as second element
     """
+    # If job label is specified,
+    # get job indices from jobs associated to this label.
+    if job_label is not None:
+        mc = get_db()
+        label_job_ids = [
+            str(label["job_id"])
+            for label in mc["labels"].find(
+                combine_all_mongodb_filters({"name": job_label})
+            )
+        ]
+        if job_ids:
+            # If job ids where provided, make intersection between given job ids and labelled job ids.
+            job_ids = list(set(label_job_ids) & set(job_ids))
+        else:
+            # Otherwise, just use labelled job ids.
+            job_ids = label_job_ids
 
     # Set up and combine filters
     filter = get_global_filter(
@@ -405,6 +448,7 @@ def get_jobs_properties_list_per_page():
             "user",
             "job_id",
             "job_array",
+            "job_labels",
             "job_name",
             "job_state",
             "start_time",

@@ -20,6 +20,15 @@ def fake_data():
     )
     with open(json_file, "r") as f:
         E = json.load(f)
+
+    # Add labels to jobs
+    for job in E["jobs"]:
+        job_id = int(job["slurm"]["job_id"])
+        user_id = job["cw"]["mila_email_username"]
+        for label in E["labels"]:
+            if label["job_id"] == job_id and label["user_id"] == user_id:
+                job.setdefault("job_labels", []).append(label)
+
     mutate_some_job_status(E)
     return E
 
@@ -70,8 +79,11 @@ def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
         [("mila_email_username", 1)], name="users_email_index"
     )
     db_insertion_point["gpu"].create_index([("name", 1)], name="gpu_name")
+    db_insertion_point["labels"].create_index(
+        [("user_id", 1), ("job_id", 1), ("name", 1)], name="job_label_index"
+    )
 
-    for k in ["users", "jobs", "nodes", "gpu"]:
+    for k in ["users", "jobs", "nodes", "gpu", "labels"]:
         if k in E:
             for e in E[k]:
                 db_insertion_point[k].insert_one(e)
@@ -95,6 +107,9 @@ def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
 
         for e in E["gpu"]:
             db_insertion_point["gpu"].delete_many({"name": e["name"]})
+
+        for e in E["labels"]:
+            db_insertion_point["labels"].delete_many({"name": e["name"]})
 
         for (k, sub, id_field) in [
             ("jobs", "slurm", "job_id"),
