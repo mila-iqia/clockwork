@@ -159,7 +159,7 @@ def get_filtered_and_paginated_jobs(
         LD_jobs = list(mc["jobs"].find(mongodb_filter))
 
     # Get job user props
-    if LD_jobs:
+    if LD_jobs and current_user:
         user_props_map = {}
         # Collect all job user props related to found jobs,
         # and store them in a dict with keys (mila email username, job ID, cluster_name)
