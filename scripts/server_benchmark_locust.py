@@ -107,6 +107,7 @@ class ClockworkUser(FastHttpUser):
         global NEXT_USER_ID
         super().__init__(*args, **kwargs)
         self.username = USERNAMES[NEXT_USER_ID % len(USERNAMES)]
+        # self.username = EMAIL
         # Move to next username for next user
         NEXT_USER_ID += 1
         print("Username:", NEXT_USER_ID, self.username)
