@@ -189,7 +189,6 @@ def get_filtered_and_paginated_jobs(
             # to find related user props in props map.
             for job in LD_jobs:
                 key = (
-                    # job["cw"]["mila_email_username"],
                     current_user.mila_email_username,
                     int(job["slurm"]["job_id"]),
                     job["slurm"]["cluster_name"],
