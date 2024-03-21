@@ -604,7 +604,7 @@ def render_template_with_user_settings(template_name_or_list, **context):
 
 
 def _jobs_are_old(cluster_name):
-    """Return True if last slurm update in given cluster is older than 30 days."""
+    """Return True if last slurm update in given cluster is older than 2 days."""
 
     jobs_are_old = False
 
@@ -622,8 +622,8 @@ def _jobs_are_old(cluster_name):
             elapsed_time = timedelta(
                 seconds=current_timestamp - most_recent_job_edition
             )
-            # Let's say the latest jobs edition must not be older than 30 days ago.
-            max_delay = timedelta(days=30)
+            # Let's say the latest jobs edition must not be older than max_delay.
+            max_delay = timedelta(days=2)
             jobs_are_old = elapsed_time > max_delay
 
     return jobs_are_old
