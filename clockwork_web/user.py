@@ -93,6 +93,10 @@ class User(UserMixin):
         self.web_settings.setdefault("column_display", {}).setdefault("jobs_list", {})[
             "actions"
         ] = False
+        # By default, do not display column "job_user_props" in job tables.
+        self.web_settings.setdefault("column_display", {}).setdefault(
+            "jobs_list", {}
+        ).setdefault("job_user_props", False)
 
     def get_id(self):
         return self.mila_email_username
