@@ -20,20 +20,6 @@ def fake_data():
     )
     with open(json_file, "r") as f:
         E = json.load(f)
-
-    # Add user props to jobs
-    for job in E["jobs"]:
-        job_id = int(job["slurm"]["job_id"])
-        mila_email_username = job["cw"]["mila_email_username"]
-        cluster_name = job["slurm"]["cluster_name"]
-        for user_props in E["job_user_props"]:
-            if (
-                user_props["job_id"] == job_id
-                and user_props["mila_email_username"] == mila_email_username
-                and user_props["cluster_name"] == cluster_name
-            ):
-                job["job_user_props"] = user_props["props"]
-
     mutate_some_job_status(E)
     return E
 
