@@ -1,36 +1,8 @@
 """
-Variation du temps de requête en fonction du nombre de dictionnaires job-utilisateur
-Pour un nombre de jobs fixes = n:
-    0 à n dicts de 1 prop chacun
-        --nb-dicts
-    1 à k props pour chacun des n dicts
-        --nb-props
-Variation du temps de requête en fonction du nombre de jobs dans la DB
-    Avec 0 dicts: 0 à n jobs
-        --nb-jobs
-    Avec n dicts de k props: 0 à n jobs
-        --nb-jobs
-
-n = 19
---nb-jobs: 0 à n => 2 ** 0 à 2 ** n
---nb-dicts: 0 à n => 2 ** 0 à 2 ** n
---nb-props: 1 à k
-
-Paramètres:
---nb-jobs   --nb-dicts  --nb-props-per-dict
-n           0           1
-n           ...         1
-n           n           1
-n           n           ...
-n           n           k
-
-0           0           1
-...         0           1
-n           0           1
-------------VS-----------
-0           n           k
-...         n           k
-n           n           k
+This script is inspired from `store_fake_data_in_db.py` for same usage, i.e. with "dev.sh".
+The difference is that here, we can call this script with parameters to control
+how much data will be inserted in database. This allows to test database
+when populated with a huge amount of data.
 """
 
 import argparse
@@ -302,41 +274,47 @@ USERS = [
         },
     },
 ]
-BASE_JOB_SLURM = {
-    "account": "def-patate-rrg",
-    "cluster_name": "beluga",
-    "time_limit": 4320,
-    "submit_time": 1681680327,
-    "start_time": 0,
-    "end_time": 0,
-    "exit_code": "SUCCESS:0",
-    "array_job_id": "0",
-    "array_task_id": "None",
-    "job_id": "197775",
-    "name": "somejobname_507716",
-    "nodes": "None assigned",
-    "partition": "other_fun_partition",
-    "job_state": "PENDING",
-    "tres_allocated": {},
-    "tres_requested": {
-        "num_cpus": 80,
-        "mem": 95000,
-        "num_nodes": 1,
-        "billing": 80,
-    },
-    "username": "ccuser02",
-    "working_directory": "/a809/b333/c569",
-}
-BASE_JOB_CW = {
-    "mila_email_username": "student02@mila.quebec",
-    "last_slurm_update": 1686248596.476063,
-    "last_slurm_update_by_sacct": 1686248596.476063,
-}
 
 
 DEFAULT_NB_JOBS = 1_000_000
 DEFAULT_NB_DICTS = DEFAULT_NB_JOBS
 DEFAULT_NB_PROPS_PER_DICT = 4
+
+
+def _gen_new_job(job_id, slurm_username, mila_email_username):
+    return {
+        "slurm": {
+            "account": "def-patate-rrg",
+            "cluster_name": "beluga",
+            "time_limit": 4320,
+            "submit_time": 1681680327,
+            "start_time": 0,
+            "end_time": 0,
+            "exit_code": "SUCCESS:0",
+            "array_job_id": "0",
+            "array_task_id": "None",
+            "job_id": str(job_id),
+            "name": f"job_name_{job_id}",
+            "nodes": "None assigned",
+            "partition": "other_fun_partition",
+            "job_state": "PENDING",
+            "tres_allocated": {},
+            "tres_requested": {
+                "num_cpus": 80,
+                "mem": 95000,
+                "num_nodes": 1,
+                "billing": 80,
+            },
+            "username": slurm_username,
+            "working_directory": "/a809/b333/c569",
+        },
+        "cw": {
+            "mila_email_username": mila_email_username,
+            "last_slurm_update": 1686248596.476063,
+            "last_slurm_update_by_sacct": 1686248596.476063,
+        },
+        "user": {},
+    }
 
 
 def _generate_huge_fake_data(
@@ -368,59 +346,23 @@ def _generate_huge_fake_data(
             for i in range(nb_student_jobs):
                 job_id += 1
                 jobs.append(
-                    {
-                        "slurm": {
-                            "account": "def-patate-rrg",
-                            "cluster_name": "beluga",
-                            "time_limit": 4320,
-                            "submit_time": 1681680327,
-                            "start_time": 0,
-                            "end_time": 0,
-                            "exit_code": "SUCCESS:0",
-                            "array_job_id": "0",
-                            "array_task_id": "None",
-                            "job_id": str(job_id),
-                            "name": f"job_name_{job_id}",
-                            "nodes": "None assigned",
-                            "partition": "other_fun_partition",
-                            "job_state": "PENDING",
-                            "tres_allocated": {},
-                            "tres_requested": {
-                                "num_cpus": 80,
-                                "mem": 95000,
-                                "num_nodes": 1,
-                                "billing": 80,
-                            },
-                            "username": user["cc_account_username"],
-                            "working_directory": "/a809/b333/c569",
-                        },
-                        "cw": {
-                            "mila_email_username": user["mila_email_username"],
-                            "last_slurm_update": 1686248596.476063,
-                            "last_slurm_update_by_sacct": 1686248596.476063,
-                        },
-                        "user": {},
-                    }
+                    _gen_new_job(
+                        job_id, user["cc_account_username"], user["mila_email_username"]
+                    )
                 )
-
             print(f"Student {student_email}: {nb_student_jobs} jobs")
-
         assert job_id == len(jobs)
     else:
         for i in range(nb_jobs):
+            # Pick a user
             user = USERS[i % len(USERS)]
+            # Then create job
             job_id = i + 1
-            job_slurm = BASE_JOB_SLURM.copy()
-            job_cw = BASE_JOB_CW.copy()
-            # edit slurm.job_id
-            job_slurm["job_id"] = str(job_id)
-            # edit slurm.name
-            job_slurm["name"] = f"job_name_{job_id}"
-            # edit slurm.username
-            job_slurm["username"] = user["cc_account_username"]
-            # edit cw.mila_email_username
-            job_cw["mila_email_username"] = user["mila_email_username"]
-            jobs.append({"slurm": job_slurm, "cw": job_cw, "user": {}})
+            jobs.append(
+                _gen_new_job(
+                    job_id, user["cc_account_username"], user["mila_email_username"]
+                )
+            )
 
     # populate job-user-dicts
     job_user_dicts = [
@@ -452,6 +394,7 @@ def populate_fake_data(db_insertion_point, **kwargs):
     # Drop any collection (and related index) before.
     for k in ["users", "jobs", "nodes", "gpu", "job_user_props"]:
         db_insertion_point[k].drop()
+        # This should verify we do not have collection indexes.
         assert not list(db_insertion_point[k].list_indexes())
 
     if not disable_index:
@@ -484,6 +427,7 @@ def populate_fake_data(db_insertion_point, **kwargs):
             name="job_user_props_index",
         )
 
+        # This should verify we do have collection indexes.
         for k in ["users", "jobs", "nodes", "gpu", "job_user_props"]:
             assert list(db_insertion_point[k].list_indexes())
 
@@ -524,7 +468,7 @@ def main(argv):
         "--nb-jobs",
         type=int,
         default=DEFAULT_NB_JOBS,
-        help="Number of jobs to add. May be 0 (no job added).",
+        help="Number of jobs to add. May be 0 (no job added). Mutually exclusive with --nb-student-jobs.",
     )
     parser.add_argument(
         "--nb-dicts",
