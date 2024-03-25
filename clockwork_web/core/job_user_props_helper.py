@@ -9,37 +9,48 @@ import json
 MAX_PROPS_LENGTH = 2 * 1024 * 1024
 
 
-def get_user_props(job_id: Union[str, int], cluster_name: str) -> dict:
+def get_user_props(
+    job_id: Union[str, int], cluster_name: str, mila_email_username: str = None
+) -> dict:
     """
-    Get job-user props created by current logged user.
+    Get job-user props.
 
     Parameters:
-        job_id          ID of job for which we want to get user props.
-        cluster_name    Name of cluster to which the job belongs.
+        job_id                  ID of job for which we want to get user props.
+        cluster_name            Name of cluster to which the job belongs.
+        mila_email_username     Optional email of user who sets the props we want to get.
+                                Default is current logged user.
 
     Returns:
         Dictionary of user-props, empty if no props were found.
         Each prop is a key-value pair in returned dictionary.
     """
     # Get matching MongoDB document.
-    props_dict = _get_user_props_document(job_id, cluster_name)
+    props_dict = _get_user_props_document(job_id, cluster_name, mila_email_username)
     # Return props if available.
     return props_dict.get("props", {})
 
 
-def set_user_props(job_id: Union[str, int], cluster_name: str, updates: dict):
+def set_user_props(
+    job_id: Union[str, int],
+    cluster_name: str,
+    updates: dict,
+    mila_email_username: str = None,
+):
     """
-    Update job-user-props as current logged user.
+    Update job-user-props.
 
     Parameters:
-        job_id          ID of job for which we want to update user props.
-        cluster_name    Name of cluster to which the job belongs.
-        updates         Dictionary of props to add.
-                        Each key-value represents a prop.
+        job_id                  ID of job for which we want to update user props.
+        cluster_name            Name of cluster to which the job belongs.
+        updates                 Dictionary of props to add.
+                                Each key-value represents a prop.
+        mila_email_username     Optional email of user who wants to update his props.
+                                Default is current logged user.
     """
     # Get previous props and check that
     # previous + updates props do not exceed a size limit.
-    previous_doc = _get_user_props_document(job_id, cluster_name)
+    previous_doc = _get_user_props_document(job_id, cluster_name, mila_email_username)
     previous_props = previous_doc.get("props", {})
     new_props = previous_props.copy()
     new_props.update(updates)
@@ -66,15 +77,17 @@ def set_user_props(job_id: Union[str, int], cluster_name: str, updates: dict):
         )
 
 
-def delete_user_props(job_id, cluster_name, key_or_keys):
+def delete_user_props(job_id, cluster_name, key_or_keys, mila_email_username=None):
     """
     Delete some job-user props.
 
     Parameters:
-        job_id          ID of job for which we want to delete some user props.
-        cluster_name    Name of cluster to which the job belongs.
-        key_or_keys     Either a key or a sequence of keys,
-                        representing prop names to delete.
+        job_id                  ID of job for which we want to delete some user props.
+        cluster_name            Name of cluster to which the job belongs.
+        key_or_keys             Either a key or a sequence of keys,
+                                representing prop names to delete.
+        mila_email_username     Optional email of user who wants to delete props.
+                                Default is current logged user.
     """
     # Parsekey_or_keys to get keys to delete.
     if isinstance(key_or_keys, str):
@@ -84,7 +97,7 @@ def delete_user_props(job_id, cluster_name, key_or_keys):
         keys = list(key_or_keys)
 
     # Get previous props
-    previous_doc = _get_user_props_document(job_id, cluster_name)
+    previous_doc = _get_user_props_document(job_id, cluster_name, mila_email_username)
     previous_props = previous_doc.get("props", {})
     new_props = previous_props.copy()
     # Remove keys
@@ -97,13 +110,17 @@ def delete_user_props(job_id, cluster_name, key_or_keys):
         db.update_one({"_id": previous_doc["_id"]}, {"$set": {"props": new_props}})
 
 
-def _get_user_props_document(job_id: Union[str, int], cluster_name: str) -> dict:
+def _get_user_props_document(
+    job_id: Union[str, int], cluster_name: str, mila_email_username: str = None
+) -> dict:
     """
-    Get MongoDB document representing job-user props created by current logged user.
+    Get MongoDB document representing job-user props corresponding to given parameters.
 
     Parameters:
-        job_id          ID of job for which we want to get user props.
-        cluster_name    Name of cluster to which the job belongs.
+        job_id                  ID of job for which we want to get user props.
+        cluster_name            Name of cluster to which the job belongs.
+        mila_email_username     Optional email of user who sets the props we want to get.
+                                Default is current logged user.
 
     Returns:
         MongoDB document representing job-user props.
@@ -121,7 +138,9 @@ def _get_user_props_document(job_id: Union[str, int], cluster_name: str) -> dict
             {
                 "job_id": int(job_id),
                 "cluster_name": str(cluster_name),
-                "mila_email_username": current_user.mila_email_username,
+                "mila_email_username": (
+                    mila_email_username or current_user.mila_email_username
+                ),
             }
         )
     )
