@@ -154,6 +154,66 @@ class ClockworkToolsBaseClient:
                 params[k] = a
         return self._request(endpoint, params)
 
+    def get_user_props(self, job_id: int, cluster_name: str) -> dict[str, any]:
+        """REST call to api/v1/clusters/jobs/user_props/get.
+
+        Call for get_user_props().
+
+        Args:
+            job_id (str): ID of job to retrieve props
+            cluster_name (str): Name of job cluster
+
+        Returns:
+            dict[any,any]: props.
+        """
+        endpoint = "api/v1/clusters/jobs/user_props/get"
+        params = {"job_id": int(job_id), "cluster_name": cluster_name}
+        return self._request(endpoint, params)
+
+    def set_user_props(
+        self, job_id: int, cluster_name: str, updates: dict
+    ) -> dict[str, any]:
+        """REST call to api/v1/clusters/jobs/user_props/set.
+
+        Call for set_user_props().
+
+        Args:
+            job_id (str): ID of job to retrieve props
+            cluster_name (str): Name of job cluster
+            updates (dict): Dict of props to update.
+
+        Returns:
+            dict[any,any]: Returns the updated props.
+        """
+        endpoint = "api/v1/clusters/jobs/user_props/set"
+        params = {"job_id": int(job_id), "cluster_name": cluster_name}
+        # Due to current constraints, we have to pass "updates"
+        # as a string representing a structure in json.
+        params["updates"] = json.dumps(updates)
+        return self._request(endpoint, params, method="PUT")
+
+    def delete_user_props(
+        self, job_id: int, cluster_name: str, keys: list
+    ) -> dict[str, any]:
+        """REST call to api/v1/clusters/jobs/user_props/delete.
+
+        Call for delete_user_props().
+
+        Args:
+            job_id (str): ID of job to retrieve props
+            cluster_name (str): Name of job cluster
+            keys (list): List of keys to delete.
+
+        Returns:
+            dict[any,any]: Returns the updated props.
+        """
+        endpoint = "api/v1/clusters/jobs/user_props/delete"
+        params = {"job_id": int(job_id), "cluster_name": cluster_name}
+        # Due to current constraints, we have to pass "keys"
+        # as a string representing a structure in json.
+        params["keys"] = json.dumps(keys)
+        return self._request(endpoint, params, method="PUT")
+
     def jobs_user_dict_update(
         self, job_id: str = None, cluster_name: str = None, update_pairs: dict = {}
     ) -> dict[str, any]:
