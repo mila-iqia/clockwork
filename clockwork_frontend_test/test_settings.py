@@ -223,3 +223,66 @@ def test_jobs_search_columns(page: Page):
     expect(headers.nth(7)).to_contain_text("Start time")
     expect(headers.nth(8)).to_contain_text("End time")
     expect(headers.nth(9)).to_contain_text("Links")
+
+
+def test_jobs_search_column_job_user_props(page: Page):
+    # Login
+    page.goto(f"{BASE_URL}/login/testing?user_id=student00@mila.quebec")
+    # Check default jobs search columns.
+    page.goto(f"{BASE_URL}/jobs/search")
+    headers = page.locator("table#search_table thead tr th")
+    expect(headers).to_have_count(10)
+    expect(headers.nth(0)).to_contain_text("Cluster")
+    expect(headers.nth(1)).to_contain_text("User (@mila.quebec)")
+    expect(headers.nth(2)).to_contain_text("Job ID")
+    expect(headers.nth(3)).to_contain_text("Job array")
+    expect(headers.nth(4)).to_contain_text("Job name [:20]")
+    expect(headers.nth(5)).to_contain_text("Job state")
+    expect(headers.nth(6)).to_contain_text("Submit time")
+    expect(headers.nth(7)).to_contain_text("Start time")
+    expect(headers.nth(8)).to_contain_text("End time")
+    expect(headers.nth(9)).to_contain_text("Links")
+
+    # Go to settings.
+    page.goto(f"{BASE_URL}/settings/")
+    radio_job_user_props = page.locator("input#jobs_list_job_user_props_toggle")
+    expect(radio_job_user_props).to_be_checked(checked=False)
+    # Check column job_user_props.
+    radio_job_user_props.click()
+    expect(radio_job_user_props).to_be_checked(checked=True)
+
+    # Check column job_user_props is indeed now displayed in jobs/search.
+    page.goto(f"{BASE_URL}/jobs/search")
+    headers = page.locator("table#search_table thead tr th")
+    expect(headers).to_have_count(11)
+    expect(headers.nth(0)).to_contain_text("Cluster")
+    expect(headers.nth(1)).to_contain_text("User (@mila.quebec)")
+    expect(headers.nth(2)).to_contain_text("Job ID")
+    expect(headers.nth(3)).to_contain_text("Job array")
+    expect(headers.nth(4)).to_contain_text("Job-user props")
+    expect(headers.nth(5)).to_contain_text("Job name [:20]")
+    expect(headers.nth(6)).to_contain_text("Job state")
+    expect(headers.nth(7)).to_contain_text("Submit time")
+    expect(headers.nth(8)).to_contain_text("Start time")
+    expect(headers.nth(9)).to_contain_text("End time")
+    expect(headers.nth(10)).to_contain_text("Links")
+
+    # Back to default settings.
+    page.goto(f"{BASE_URL}/settings/")
+    radio_job_user_props = page.locator("input#jobs_list_job_user_props_toggle")
+    expect(radio_job_user_props).to_be_checked(checked=True)
+    radio_job_user_props.click()
+    expect(radio_job_user_props).to_be_checked(checked=False)
+    page.goto(f"{BASE_URL}/jobs/search")
+    headers = page.locator("table#search_table thead tr th")
+    expect(headers).to_have_count(10)
+    expect(headers.nth(0)).to_contain_text("Cluster")
+    expect(headers.nth(1)).to_contain_text("User (@mila.quebec)")
+    expect(headers.nth(2)).to_contain_text("Job ID")
+    expect(headers.nth(3)).to_contain_text("Job array")
+    expect(headers.nth(4)).to_contain_text("Job name [:20]")
+    expect(headers.nth(5)).to_contain_text("Job state")
+    expect(headers.nth(6)).to_contain_text("Submit time")
+    expect(headers.nth(7)).to_contain_text("Start time")
+    expect(headers.nth(8)).to_contain_text("End time")
+    expect(headers.nth(9)).to_contain_text("Links")

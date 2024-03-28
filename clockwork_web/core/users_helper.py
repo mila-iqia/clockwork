@@ -605,7 +605,6 @@ def render_template_with_user_settings(template_name_or_list, **context):
 
 def _jobs_are_old(cluster_name):
     """Return True if last slurm update in given cluster is older than 2 days."""
-
     jobs_are_old = False
 
     mongodb_filter = {"slurm.cluster_name": cluster_name}

@@ -59,7 +59,7 @@ def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
     # dealing with large quantities of data, but it's part of the
     # set up for the database.
     db_insertion_point["jobs"].create_index(
-        [("slurm.job_id", 1), ("slurm.cluster_name", 1)],
+        [("slurm.job_id", 1), ("slurm.cluster_name", 1), ("cw.mila_email_username", 1)],
         name="job_id_and_cluster_name",
     )
     db_insertion_point["nodes"].create_index(
@@ -70,8 +70,12 @@ def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
         [("mila_email_username", 1)], name="users_email_index"
     )
     db_insertion_point["gpu"].create_index([("name", 1)], name="gpu_name")
+    db_insertion_point["job_user_props"].create_index(
+        [("mila_email_username", 1), ("job_id", 1), ("cluster_name", 1)],
+        name="job_user_props_index",
+    )
 
-    for k in ["users", "jobs", "nodes", "gpu"]:
+    for k in ["users", "jobs", "nodes", "gpu", "job_user_props"]:
         if k in E:
             for e in E[k]:
                 db_insertion_point[k].insert_one(e)
@@ -95,6 +99,11 @@ def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
 
         for e in E["gpu"]:
             db_insertion_point["gpu"].delete_many({"name": e["name"]})
+
+        for e in E["job_user_props"]:
+            copy_e = e.copy()
+            copy_e.pop("props")
+            db_insertion_point["job_user_props"].delete_many(copy_e)
 
         for (k, sub, id_field) in [
             ("jobs", "slurm", "job_id"),

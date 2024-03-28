@@ -101,6 +101,10 @@
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_array")) %}
                                 <th>Job array</th>
                             {% endif %}
+                            <!-- Job user props header -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_user_props")) %}
+                                <th>Job-user props</th>
+                            {% endif %}
                             <!-- Job name header -->
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_name")) %}
                                 {% set sort_by = "name" %}
@@ -190,6 +194,20 @@
                                         <i class="fa-solid fa-table-list"></i>
                                     </a>
                                     {% endif %}
+                                </td>
+                            {% endif %}
+
+                            <!-- Job user props -->
+                            {% if (web_settings | check_web_settings_column_display(page_name, "job_user_props")) %}
+                                <td>
+                                    {% for D_user_prop_name, D_user_prop_content in D_job.get('job_user_props', {}).items() %}
+                                    <p>
+                                    <a href="{{ modify_query(user_prop_name=D_user_prop_name, user_prop_content=D_user_prop_content, page_num=1) }}" title="Filter by job-user prop &quot;{{D_user_prop_name}}&quot;: &quot;{{D_user_prop_content}}&quot;">
+                                        <strong>{{ D_user_prop_name }}</strong><br/>
+                                        {{ D_user_prop_content }}
+                                    </a>
+                                    </p>
+                                    {% endfor %}
                                 </td>
                             {% endif %}
 

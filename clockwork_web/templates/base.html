@@ -24,7 +24,7 @@
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 			<script type="text/javascript" src="{{ url_for('static', filename='js/sortable.min.js') }}"></script>
-			
+
 			<script type="text/javascript" src="{{ url_for('static', filename='js/moment-with-locales.min.js') }}"></script>
 			<script type="text/javascript" src="{{ url_for('static', filename='js/livestamp.min.js') }}"></script>
 
@@ -324,6 +324,12 @@
                                 {% if previous_request_args['job_array'] is not none %}
                                 <input type="hidden" name="job_array" value="{{ previous_request_args['job_array'] }}"/>
                                 {% endif %}
+                                {% if previous_request_args['user_prop_name'] is not none %}
+                                <input type="hidden" name="user_prop_name" value="{{ previous_request_args['user_prop_name'] }}"/>
+                                {% endif %}
+                                {% if previous_request_args['user_prop_content'] is not none %}
+                                <input type="hidden" name="user_prop_content" value="{{ previous_request_args['user_prop_content'] }}"/>
+                                {% endif %}
 
 				                 <div class="row align-items-center">
 									 <!-- Deselection buttons for search options that are not in search form  -->
@@ -331,6 +337,13 @@
 										 {% if previous_request_args['job_array'] is not none %}
 										 <a href="{{ modify_query(job_array=none) }}" title="Reset filter by job array" class="px-3 py-2">
 											 Job array {{ previous_request_args['job_array'] }}&nbsp;&nbsp;&nbsp;&nbsp;
+											 <i class="fa-solid fa-circle-xmark" style="color: #888a85;"></i>
+										 </a>
+										 {% endif %}
+
+										 {% if previous_request_args['user_prop_name'] is not none and previous_request_args['user_prop_content'] is not none %}
+										 <a href="{{ modify_query(user_prop_name='', user_prop_content='') }}" title="Reset filter by job user prop" class="px-3 py-2">
+											 User prop <strong>{{ previous_request_args['user_prop_name'] }}</strong>: "{{ previous_request_args['user_prop_content'] }}"&nbsp;&nbsp;&nbsp;&nbsp;
 											 <i class="fa-solid fa-circle-xmark" style="color: #888a85;"></i>
 										 </a>
 										 {% endif %}

@@ -7,6 +7,7 @@ import re
 import time
 
 from flask.globals import current_app
+from flask_login import current_user
 from ..db import get_db
 
 
@@ -157,6 +158,44 @@ def get_filtered_and_paginated_jobs(
         # on the server because not enough memory was allocated to perform the sorting.
         LD_jobs = list(mc["jobs"].find(mongodb_filter))
 
+    # Get job user props
+    if LD_jobs and current_user:
+        user_props_map = {}
+        # Collect all job user props related to found jobs,
+        # and store them in a dict with keys (mila email username, job ID, cluster_name)
+        for user_props in list(
+            mc["job_user_props"].find(
+                combine_all_mongodb_filters(
+                    {
+                        "job_id": {
+                            "$in": [int(job["slurm"]["job_id"]) for job in LD_jobs]
+                        },
+                        "mila_email_username": current_user.mila_email_username,
+                    }
+                )
+            )
+        ):
+            key = (
+                user_props["mila_email_username"],
+                user_props["job_id"],
+                user_props["cluster_name"],
+            )
+            assert key not in user_props_map
+            user_props_map[key] = user_props["props"]
+
+        if user_props_map:
+            # Populate jobs with user props using
+            # current user email, job ID and job cluster name
+            # to find related user props in props map.
+            for job in LD_jobs:
+                key = (
+                    current_user.mila_email_username,
+                    int(job["slurm"]["job_id"]),
+                    job["slurm"]["cluster_name"],
+                )
+                if key in user_props_map:
+                    job["job_user_props"] = user_props_map[key]
+
     # Set nbr_total_jobs
     if want_count:
         # Get the number of filtered jobs (not paginated)
@@ -235,6 +274,8 @@ def get_jobs(
     sort_by="submit_time",
     sort_asc=-1,
     job_array=None,
+    user_prop_name=None,
+    user_prop_content=None,
 ):
     """
     Set up the filters according to the parameters and retrieve the requested jobs from the database.
@@ -252,6 +293,8 @@ def get_jobs(
         sort_asc                Whether or not to sort in ascending order (1)
                                 or descending order (-1).
         job_array               ID of job array in which we look for jobs.
+        user_prop_name          name of user prop (string) we must find in jobs to look for.
+        user_prop_content       content of user prop (string) we must find in jobs to look for.
 
     Returns:
         A tuple containing:
@@ -259,6 +302,24 @@ def get_jobs(
             - the total number of jobs corresponding of the filters in the databse, if want_count has been set to
             True, None otherwise, as second element
     """
+    # If job user prop is specified,
+    # get job indices from jobs associated to this prop.
+    if user_prop_name is not None and user_prop_content is not None:
+        mc = get_db()
+        props_job_ids = [
+            str(user_props["job_id"])
+            for user_props in mc["job_user_props"].find(
+                combine_all_mongodb_filters(
+                    {f"props.{user_prop_name}": user_prop_content}
+                )
+            )
+        ]
+        if job_ids:
+            # If job ids where provided, make intersection between given job ids and props job ids.
+            job_ids = list(set(props_job_ids) & set(job_ids))
+        else:
+            # Otherwise, just use props job ids.
+            job_ids = props_job_ids
 
     # Set up and combine filters
     filter = get_global_filter(
@@ -405,6 +466,7 @@ def get_jobs_properties_list_per_page():
             "user",
             "job_id",
             "job_array",
+            "job_user_props",
             "job_name",
             "job_state",
             "start_time",

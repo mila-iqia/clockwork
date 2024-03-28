@@ -640,6 +640,59 @@ def test_filter_by_job_array(page: Page):
     _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
 
 
+def test_filter_by_job_user_props(page: Page):
+    # Login
+    page.goto(f"{BASE_URL}/login/testing?user_id=student00@mila.quebec")
+    # Go to settings.
+    page.goto(f"{BASE_URL}/settings/")
+    radio_job_user_props = page.locator("input#jobs_list_job_user_props_toggle")
+    expect(radio_job_user_props).to_be_checked(checked=False)
+    # Check column job_user_props.
+    radio_job_user_props.click()
+    expect(radio_job_user_props).to_be_checked(checked=True)
+    # Back to jobs/search.
+    page.goto(f"{BASE_URL}/jobs/search")
+
+    job_id = page.get_by_text("795002")
+    expect(job_id).to_have_count(1)
+    parent_row = page.locator("table#search_table tbody tr").filter(has=job_id)
+    expect(parent_row).to_have_count(1)
+    cols = parent_row.locator("td")
+    link_job_user_prop = cols.nth(4).locator("a")
+    expect(link_job_user_prop).to_have_count(1)
+    expect(link_job_user_prop).to_contain_text("name je suis une user prop 1")
+    link_job_user_prop.click()
+    expect(page).to_have_url(
+        f"{BASE_URL}/jobs/search?"
+        f"user_prop_name=name"
+        f"&user_prop_content=je+suis+une+user+prop+1"
+        f"&page_num=1"
+    )
+    _check_jobs_table(
+        page,
+        [
+            ["mila", "student06 @mila.quebec", "795002"],
+            ["graham", "student12 @mila.quebec", "613024"],
+        ],
+    )
+
+    filter_reset = page.get_by_title("Reset filter by job user prop")
+    expect(filter_reset).to_contain_text('User prop name: "je suis une user prop 1"')
+    filter_reset.click()
+
+    expect(page).to_have_url(
+        f"{BASE_URL}/jobs/search?user_prop_name=&user_prop_content=&page_num=1"
+    )
+    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+
+    # Back to default settings.
+    page.goto(f"{BASE_URL}/settings/")
+    radio_job_user_props = page.locator("input#jobs_list_job_user_props_toggle")
+    expect(radio_job_user_props).to_be_checked(checked=True)
+    radio_job_user_props.click()
+    expect(radio_job_user_props).to_be_checked(checked=False)
+
+
 def test_jobs_table_sorting_by_cluster(page: Page):
     _load_jobs_search_page(page)
     expected_content = [
