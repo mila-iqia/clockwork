@@ -32,7 +32,7 @@ def get_user_props(
 
 def set_user_props(
     job_id: str, cluster_name: str, updates: dict, mila_email_username: str = None
-):
+) -> dict:
     """
     Update job-user-props.
 
@@ -43,6 +43,9 @@ def set_user_props(
                                 Each key-value represents a prop.
         mila_email_username     Optional email of user who wants to update his props.
                                 Default is current logged user.
+
+    Returns:
+        Dictionary of Updated job-user props.
     """
     # Get previous props and check that
     # previous + updates props do not exceed a size limit.
@@ -71,6 +74,8 @@ def set_user_props(
                 "props": new_props,
             }
         )
+
+    return new_props
 
 
 def delete_user_props(job_id, cluster_name, key_or_keys, mila_email_username=None):

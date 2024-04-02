@@ -212,8 +212,7 @@ def route_user_props_set():
 
     # Set props, using current_user_id as mila email username.
     try:
-        set_user_props(job_id, cluster_name, updates, current_user_id)
-        props = get_user_props(job_id, cluster_name, current_user_id)
+        props = set_user_props(job_id, cluster_name, updates, current_user_id)
         return jsonify(props)
     except ValueError:
         # If props size limit error occurs, return it as an HTTP 500 error.

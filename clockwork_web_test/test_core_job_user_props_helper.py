@@ -133,50 +133,77 @@ def test_set_user_props(local_logged_app):
         ) == {"name": "je suis une user prop 1"}
 
         # Edit prop "name"
-        set_user_props(job_id, cluster_name, {"name": "new name"})
-        assert get_user_props(
-            job_id=job_id,
-            cluster_name=cluster_name,
-        ) == {"name": "new name"}
+        assert (
+            set_user_props(job_id, cluster_name, {"name": "new name"})
+            == get_user_props(
+                job_id=job_id,
+                cluster_name=cluster_name,
+            )
+            == {"name": "new name"}
+        )
 
         # Add prop "name2"
-        set_user_props(job_id, cluster_name, {"name2": "another name"})
-        assert get_user_props(
-            job_id=job_id,
-            cluster_name=cluster_name,
-        ) == {"name": "new name", "name2": "another name"}
+        assert (
+            set_user_props(job_id, cluster_name, {"name2": "another name"})
+            == get_user_props(
+                job_id=job_id,
+                cluster_name=cluster_name,
+            )
+            == {"name": "new name", "name2": "another name"}
+        )
 
         # Add prop "my name is 3"
-        set_user_props(job_id, cluster_name, {"my name is 3": "third name"})
-        assert get_user_props(
-            job_id=job_id,
-            cluster_name=cluster_name,
-        ) == {"name": "new name", "name2": "another name", "my name is 3": "third name"}
+        assert (
+            set_user_props(job_id, cluster_name, {"my name is 3": "third name"})
+            == get_user_props(
+                job_id=job_id,
+                cluster_name=cluster_name,
+            )
+            == {
+                "name": "new name",
+                "name2": "another name",
+                "my name is 3": "third name",
+            }
+        )
 
         # Edit props "name2" and "my name is 3"
-        set_user_props(
-            job_id,
-            cluster_name,
-            {"my name is 3": "new third name", "name2": "new name 2"},
+        assert (
+            set_user_props(
+                job_id,
+                cluster_name,
+                {"my name is 3": "new third name", "name2": "new name 2"},
+            )
+            == get_user_props(
+                job_id=job_id,
+                cluster_name=cluster_name,
+            )
+            == {
+                "name": "new name",
+                "name2": "new name 2",
+                "my name is 3": "new third name",
+            }
         )
-        assert get_user_props(job_id=job_id, cluster_name=cluster_name,) == {
-            "name": "new name",
-            "name2": "new name 2",
-            "my name is 3": "new third name",
-        }
 
         # Edit prop "name" and add props "a", "bb" and "ccc".
-        set_user_props(
-            job_id, cluster_name, {"a": 1, "bb": 2, "ccc": "hello", "name": "no name"}
+        assert (
+            set_user_props(
+                job_id,
+                cluster_name,
+                {"a": 1, "bb": 2, "ccc": "hello", "name": "no name"},
+            )
+            == get_user_props(
+                job_id=job_id,
+                cluster_name=cluster_name,
+            )
+            == {
+                "name": "no name",
+                "name2": "new name 2",
+                "my name is 3": "new third name",
+                "a": 1,
+                "bb": 2,
+                "ccc": "hello",
+            }
         )
-        assert get_user_props(job_id=job_id, cluster_name=cluster_name,) == {
-            "name": "no name",
-            "name2": "new name 2",
-            "my name is 3": "new third name",
-            "a": 1,
-            "bb": 2,
-            "ccc": "hello",
-        }
 
 
 def test_set_user_props_limits(local_logged_app):
@@ -192,13 +219,13 @@ def test_set_user_props_limits(local_logged_app):
         acceptable_field = "x" * (2 * 1024 * 512)
 
         # Should pass
-        set_user_props(job_id, cluster_name, {"huge field": acceptable_field})
         expected_props = {
             "name": "je suis une user prop 1",
             "huge field": acceptable_field,
         }
         assert (
-            get_user_props(
+            set_user_props(job_id, cluster_name, {"huge field": acceptable_field})
+            == get_user_props(
                 job_id=job_id,
                 cluster_name=cluster_name,
             )
@@ -231,16 +258,19 @@ def test_delete_user_props(local_logged_app):
         ) == {"name": "je suis une user prop 1"}
 
         # Add props
-        set_user_props(
-            job_id, cluster_name, {"a": 1, "bb": 2, "ccc": "hello", "d e f": "gg"}
+        assert (
+            set_user_props(
+                job_id, cluster_name, {"a": 1, "bb": 2, "ccc": "hello", "d e f": "gg"}
+            )
+            == get_user_props(job_id=job_id, cluster_name=cluster_name)
+            == {
+                "name": "je suis une user prop 1",
+                "a": 1,
+                "bb": 2,
+                "ccc": "hello",
+                "d e f": "gg",
+            }
         )
-        assert get_user_props(job_id=job_id, cluster_name=cluster_name,) == {
-            "name": "je suis une user prop 1",
-            "a": 1,
-            "bb": 2,
-            "ccc": "hello",
-            "d e f": "gg",
-        }
 
         # Delete 1 prop by passing only a string
         delete_user_props(job_id, cluster_name, "bb")
