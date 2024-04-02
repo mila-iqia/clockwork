@@ -137,7 +137,7 @@ def route_user_props_get():
     """
     Endpoint to get user props.
 
-    Parameters: job_id (int), cluster_name (str)
+    Parameters: job_id (str), cluster_name (str)
 
     Return: user props
     """
@@ -167,7 +167,7 @@ def route_user_props_set():
     """
     Endpoint to set user props
 
-    Parameters: job_id (int), cluster_name (str), updates (JSON-string of a dict)
+    Parameters: job_id (str), cluster_name (str), updates (JSON-string of a dict)
 
     Return: updated user props
     """
@@ -226,7 +226,7 @@ def route_user_props_delete():
     """
     Endpoint to delete user props.
 
-    Parameters: job_id (int), cluster_name (str), keys (JSON-string of a list)
+    Parameters: job_id (str), cluster_name (str), keys (JSON-string of a list)
 
     Return: updated user props
     """

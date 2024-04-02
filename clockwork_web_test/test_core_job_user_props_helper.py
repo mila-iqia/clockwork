@@ -64,7 +64,7 @@ def local_logged_app(request):
 
 def test_get_user_props(local_logged_app):
     with local_logged_app.app_context():
-        job_id = 795002
+        job_id = "795002"
         cluster_name = "mila"
         assert get_user_props(
             job_id=job_id,
@@ -76,7 +76,7 @@ def test_get_user_props(local_logged_app):
 def test_get_user_props_from_student01(local_logged_app):
     # Should fail because only student00 created props in fake data.
     with local_logged_app.app_context():
-        job_id = 795002
+        job_id = "795002"
         cluster_name = "mila"
         assert (
             get_user_props(
@@ -89,7 +89,7 @@ def test_get_user_props_from_student01(local_logged_app):
 
 def test_get_user_props_from_unknown_cluster(local_logged_app):
     with local_logged_app.app_context():
-        job_id = 795002
+        job_id = "795002"
         cluster_name = "unknown_cluster"
         assert (
             get_user_props(
@@ -102,7 +102,7 @@ def test_get_user_props_from_unknown_cluster(local_logged_app):
 
 def test_get_user_props_from_unknown_job_id(local_logged_app):
     with local_logged_app.app_context():
-        job_id = 999999
+        job_id = "999999"
         cluster_name = "mila"
         assert (
             get_user_props(
@@ -125,7 +125,7 @@ def test_get_user_props_vs_fake_data(local_logged_app, fake_data):
 
 def test_set_user_props(local_logged_app):
     with local_logged_app.app_context():
-        job_id = 795002
+        job_id = "795002"
         cluster_name = "mila"
         assert get_user_props(
             job_id=job_id,
@@ -182,7 +182,7 @@ def test_set_user_props(local_logged_app):
 def test_set_user_props_limits(local_logged_app):
     with local_logged_app.app_context():
         # Check default
-        job_id = 795002
+        job_id = "795002"
         cluster_name = "mila"
         assert get_user_props(
             job_id=job_id,
@@ -223,7 +223,7 @@ def test_set_user_props_limits(local_logged_app):
 def test_delete_user_props(local_logged_app):
     with local_logged_app.app_context():
         # Check default
-        job_id = 795002
+        job_id = "795002"
         cluster_name = "mila"
         assert get_user_props(
             job_id=job_id,

@@ -1,4 +1,3 @@
-from typing import Union
 from flask_login import current_user
 from ..db import get_db
 import json
@@ -10,7 +9,7 @@ MAX_PROPS_LENGTH = 2 * 1024 * 1024
 
 
 def get_user_props(
-    job_id: Union[str, int], cluster_name: str, mila_email_username: str = None
+    job_id: str, cluster_name: str, mila_email_username: str = None
 ) -> dict:
     """
     Get job-user props.
@@ -32,10 +31,7 @@ def get_user_props(
 
 
 def set_user_props(
-    job_id: Union[str, int],
-    cluster_name: str,
-    updates: dict,
-    mila_email_username: str = None,
+    job_id: str, cluster_name: str, updates: dict, mila_email_username: str = None
 ):
     """
     Update job-user-props.
@@ -69,7 +65,7 @@ def set_user_props(
     else:
         db.insert_one(
             {
-                "job_id": int(job_id),
+                "job_id": job_id,
                 "cluster_name": str(cluster_name),
                 "mila_email_username": current_user.mila_email_username,
                 "props": new_props,
@@ -111,7 +107,7 @@ def delete_user_props(job_id, cluster_name, key_or_keys, mila_email_username=Non
 
 
 def _get_user_props_document(
-    job_id: Union[str, int], cluster_name: str, mila_email_username: str = None
+    job_id: str, cluster_name: str, mila_email_username: str = None
 ) -> dict:
     """
     Get MongoDB document representing job-user props corresponding to given parameters.
@@ -126,7 +122,7 @@ def _get_user_props_document(
         MongoDB document representing job-user props.
         Document is a dictionary with following format:
         {
-            job_id: int                 # ID of job associated to props.
+            job_id: str                 # ID of job associated to props.
             cluster_name: str           # cluster name of job associated to props.
             mila_email_username: str    # user who created these props.
             props: dict                 # actual user-props, each prop is a key-value.
@@ -136,7 +132,7 @@ def _get_user_props_document(
     result = list(
         mc["job_user_props"].find(
             {
-                "job_id": int(job_id),
+                "job_id": job_id,
                 "cluster_name": str(cluster_name),
                 "mila_email_username": (
                     mila_email_username or current_user.mila_email_username

@@ -5966,7 +5966,7 @@
   "job_user_props": [
     {
       "mila_email_username": "student00@mila.quebec",
-      "job_id": 795002,
+      "job_id": "795002",
       "cluster_name": "mila",
       "props": {
         "name": "je suis une user prop 1"
@@ -5974,7 +5974,7 @@
     },
     {
       "mila_email_username": "student00@mila.quebec",
-      "job_id": 606872,
+      "job_id": "606872",
       "cluster_name": "mila",
       "props": {
         "name": "je suis une user prop 2"
@@ -5982,7 +5982,7 @@
     },
     {
       "mila_email_username": "student00@mila.quebec",
-      "job_id": 834395,
+      "job_id": "834395",
       "cluster_name": "graham",
       "props": {
         "name": "je suis une user prop 3"
@@ -5990,7 +5990,7 @@
     },
     {
       "mila_email_username": "student00@mila.quebec",
-      "job_id": 154325,
+      "job_id": "154325",
       "cluster_name": "graham",
       "props": {
         "name": "je suis une user prop 3",
@@ -5999,7 +5999,7 @@
     },
     {
       "mila_email_username": "student00@mila.quebec",
-      "job_id": 613024,
+      "job_id": "613024",
       "cluster_name": "graham",
       "props": {
         "name": "je suis une user prop 1"

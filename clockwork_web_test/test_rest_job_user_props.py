@@ -49,7 +49,7 @@ def valid_rest_auth_headers_student00():
 
 
 def test_jobs_user_props_get(local_client, valid_rest_auth_headers_student00):
-    job_id = 795002
+    job_id = "795002"
     cluster_name = "mila"
     response = local_client.get(
         f"/api/v1/clusters/jobs/user_props/get?cluster_name={cluster_name}&job_id={job_id}",
@@ -62,7 +62,7 @@ def test_jobs_user_props_get(local_client, valid_rest_auth_headers_student00):
 
 
 def test_jobs_user_props_set(local_client, valid_rest_auth_headers_student00):
-    job_id = 795002
+    job_id = "795002"
     cluster_name = "mila"
     response = local_client.put(
         f"/api/v1/clusters/jobs/user_props/set",
@@ -81,7 +81,7 @@ def test_jobs_user_props_set(local_client, valid_rest_auth_headers_student00):
 
 def test_jobs_user_props_delete(local_client, valid_rest_auth_headers_student00):
     # Set some props.
-    job_id = 795002
+    job_id = "795002"
     cluster_name = "mila"
     response = local_client.put(
         f"/api/v1/clusters/jobs/user_props/set",
@@ -120,7 +120,7 @@ def test_jobs_user_props_delete(local_client, valid_rest_auth_headers_student00)
 def test_size_limit_for_jobs_user_props_set(
     local_client, valid_rest_auth_headers_student00
 ):
-    job_id = 795002
+    job_id = "795002"
     cluster_name = "mila"
     huge_text = "x" * (2 * 1024 * 1024)
     response = local_client.put(

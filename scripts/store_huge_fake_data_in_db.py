@@ -215,7 +215,7 @@ def _generate_huge_fake_data(
     job_user_dicts = [
         {
             "mila_email_username": props_username,
-            "job_id": i + 1,
+            "job_id": str(i + 1),
             "cluster_name": "beluga",
             "props": {
                 f"prop_{j + 1}_for_job_{i + 1}": f"I am user dict prop {j + 1} for job ID {i + 1}"
