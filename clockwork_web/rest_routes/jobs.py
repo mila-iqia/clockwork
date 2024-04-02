@@ -270,8 +270,7 @@ def route_user_props_delete():
 
     # Delete props, using current_user_id as mila email username.
     delete_user_props(job_id, cluster_name, keys, current_user_id)
-    props = get_user_props(job_id, cluster_name, current_user_id)
-    return jsonify(props)
+    return jsonify("")
 
 
 # Note that this whole `user_dict_update` thing needs to be rewritten

@@ -113,6 +113,13 @@ def test_jobs_user_props_delete(local_client, valid_rest_auth_headers_student00)
     )
     assert response.content_type == "application/json"
     assert response.status_code == 200
+    assert response.get_json() == ""
+
+    response = local_client.get(
+        f"/api/v1/clusters/jobs/user_props/get?cluster_name={cluster_name}&job_id={job_id}",
+        headers=valid_rest_auth_headers_student00,
+    )
+    assert response.status_code == 200
     props = response.get_json()
     assert props == {"other name": "other value"}
 

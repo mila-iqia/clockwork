@@ -35,5 +35,6 @@ def test_cw_tools_delete_user_props(client):
     props = client.set_user_props(job_id, cluster_name, {"a new name": "a new prop"})
     assert props == {"name": "je suis une user prop 1", "a new name": "a new prop"}
 
-    props = client.delete_user_props(job_id, cluster_name, ["name"])
+    assert client.delete_user_props(job_id, cluster_name, ["name"]) == ""
+    props = client.get_user_props(job_id, cluster_name)
     assert props == {"a new name": "a new prop"}
