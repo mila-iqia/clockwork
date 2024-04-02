@@ -193,8 +193,8 @@ def route_user_props_set():
     elif isinstance(updates, str):
         try:
             updates = json.loads(updates)
-        except Exception as exc:
-            return jsonify(f"Failed to json.loads(updates). \n{exc}."), 500
+        except Exception:
+            return jsonify("Failed to json.loads(updates)."), 500
     else:
         return (
             jsonify(
@@ -215,9 +215,9 @@ def route_user_props_set():
         set_user_props(job_id, cluster_name, updates, current_user_id)
         props = get_user_props(job_id, cluster_name, current_user_id)
         return jsonify(props)
-    except ValueError as exc:
+    except ValueError:
         # If props size limit error occurs, return it as an HTTP 500 error.
-        return jsonify(str(exc)), 500
+        return jsonify("Total props size limit exceeded (max. 2 Mbytes)."), 500
 
 
 @flask_api.route("/jobs/user_props/delete", methods=["PUT"])
@@ -252,8 +252,8 @@ def route_user_props_delete():
     elif isinstance(keys, str):
         try:
             keys = json.loads(keys)
-        except Exception as exc:
-            return jsonify(f"Failed to json.loads(keys). \n{exc}."), 500
+        except Exception:
+            return jsonify("Failed to json.loads(keys)."), 500
     else:
         return (
             jsonify(
