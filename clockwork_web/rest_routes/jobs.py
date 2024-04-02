@@ -194,7 +194,7 @@ def route_user_props_set():
         try:
             updates = json.loads(updates)
         except Exception:
-            return jsonify("Failed to json.loads(updates)."), 500
+            return jsonify("Failed to get `updates` dict."), 500
     else:
         return (
             jsonify(
@@ -205,7 +205,7 @@ def route_user_props_set():
     if not isinstance(updates, dict):
         return (
             jsonify(
-                f"Expected json.lodas(updates) to return a dict, got {type(updates)}: {updates}."
+                f"Expected `updates` to be a dict, but instead it is of type {type(updates)}: {updates}."
             ),
             500,
         )
@@ -253,7 +253,7 @@ def route_user_props_delete():
         try:
             keys = json.loads(keys)
         except Exception:
-            return jsonify("Failed to json.loads(keys)."), 500
+            return jsonify("Failed to get `keys` dict."), 500
     else:
         return (
             jsonify(
@@ -264,7 +264,7 @@ def route_user_props_delete():
     if not isinstance(keys, list):
         return (
             jsonify(
-                f"Expected json.lodas(keys) to return a list, got {type(keys)}: {keys}."
+                f"Expected `keys` to be a list, instead it is of type {type(keys)}: {keys}."
             ),
             500,
         )
