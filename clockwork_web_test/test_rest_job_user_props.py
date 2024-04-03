@@ -1,5 +1,3 @@
-import json
-
 import pytest
 import base64
 
@@ -33,10 +31,10 @@ def test_jobs_user_props_set(client, valid_rest_auth_headers_student00):
     cluster_name = "mila"
     response = client.put(
         f"/api/v1/clusters/jobs/user_props/set",
-        data={
+        json={
             "job_id": job_id,
             "cluster_name": cluster_name,
-            "updates": json.dumps({"other name": "other value"}),
+            "updates": {"other name": "other value"},
         },
         headers=valid_rest_auth_headers_student00,
     )
@@ -48,19 +46,15 @@ def test_jobs_user_props_set(client, valid_rest_auth_headers_student00):
     # Back to default props
     client.put(
         f"/api/v1/clusters/jobs/user_props/delete",
-        data={
-            "job_id": job_id,
-            "cluster_name": cluster_name,
-            "keys": json.dumps(["other name"]),
-        },
+        json={"job_id": job_id, "cluster_name": cluster_name, "keys": ["other name"]},
         headers=valid_rest_auth_headers_student00,
     )
     client.put(
         f"/api/v1/clusters/jobs/user_props/set",
-        data={
+        json={
             "job_id": job_id,
             "cluster_name": cluster_name,
-            "updates": json.dumps({"name": "je suis une user prop 1"}),
+            "updates": {"name": "je suis une user prop 1"},
         },
         headers=valid_rest_auth_headers_student00,
     )
@@ -76,10 +70,10 @@ def test_jobs_user_props_delete(client, valid_rest_auth_headers_student00):
     cluster_name = "mila"
     response = client.put(
         f"/api/v1/clusters/jobs/user_props/set",
-        data={
+        json={
             "job_id": job_id,
             "cluster_name": cluster_name,
-            "updates": json.dumps({"other name": "other value", "dino": "saurus"}),
+            "updates": {"other name": "other value", "dino": "saurus"},
         },
         headers=valid_rest_auth_headers_student00,
     )
@@ -95,11 +89,7 @@ def test_jobs_user_props_delete(client, valid_rest_auth_headers_student00):
     # Then delete some props.
     response = client.put(
         f"/api/v1/clusters/jobs/user_props/delete",
-        data={
-            "job_id": job_id,
-            "cluster_name": cluster_name,
-            "keys": json.dumps(["name", "dino"]),
-        },
+        json={"job_id": job_id, "cluster_name": cluster_name, "keys": ["name", "dino"]},
         headers=valid_rest_auth_headers_student00,
     )
     assert response.content_type == "application/json"
@@ -117,19 +107,15 @@ def test_jobs_user_props_delete(client, valid_rest_auth_headers_student00):
     # Back to default props
     client.put(
         f"/api/v1/clusters/jobs/user_props/delete",
-        data={
-            "job_id": job_id,
-            "cluster_name": cluster_name,
-            "keys": json.dumps(["other name"]),
-        },
+        json={"job_id": job_id, "cluster_name": cluster_name, "keys": "other name"},
         headers=valid_rest_auth_headers_student00,
     )
     client.put(
         f"/api/v1/clusters/jobs/user_props/set",
-        data={
+        json={
             "job_id": job_id,
             "cluster_name": cluster_name,
-            "updates": json.dumps({"name": "je suis une user prop 1"}),
+            "updates": {"name": "je suis une user prop 1"},
         },
         headers=valid_rest_auth_headers_student00,
     )
@@ -145,10 +131,10 @@ def test_size_limit_for_jobs_user_props_set(client, valid_rest_auth_headers_stud
     huge_text = "x" * (2 * 1024 * 1024)
     response = client.put(
         f"/api/v1/clusters/jobs/user_props/set",
-        data={
+        json={
             "job_id": job_id,
             "cluster_name": cluster_name,
-            "updates": json.dumps({"other name": huge_text}),
+            "updates": {"other name": huge_text},
         },
         headers=valid_rest_auth_headers_student00,
     )
