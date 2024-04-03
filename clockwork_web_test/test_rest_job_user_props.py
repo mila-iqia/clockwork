@@ -1,9 +1,6 @@
 import json
 
 import pytest
-from clockwork_web.server_app import create_app
-from clockwork_web.db import get_db, init_db
-from test_common.fake_data import populate_fake_data
 import base64
 
 
