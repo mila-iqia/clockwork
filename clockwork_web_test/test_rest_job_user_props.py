@@ -7,36 +7,6 @@ from test_common.fake_data import populate_fake_data
 import base64
 
 
-@pytest.fixture(scope="function")
-def local_client():
-    """
-    Create and configure a new client instance for each test.
-
-    Inspired from `app` fixture, with scope set to "function" instead of "module",
-    so that client is not shared across all tests. This is to make sure client is
-    fully recreated in each test, thus modifications on database are
-    entirely reset for each test. Doc:
-    https://docs.pytest.org/en/6.2.x/fixture.html#scope-sharing-fixtures-across-classes-modules-packages-or-session
-    """
-
-    app = create_app(
-        extra_config={
-            "TESTING": True,
-            "LOGIN_DISABLED": True,
-        }
-    )
-    with app.app_context():
-        init_db()
-        db = get_db()
-        cleanup_function = populate_fake_data(db, mutate=True)
-
-    with app.test_client() as client:
-        # Yield client
-        yield client
-
-    cleanup_function()
-
-
 @pytest.fixture
 def valid_rest_auth_headers_student00():
     """Fixture to be logged as student00"""
@@ -48,10 +18,10 @@ def valid_rest_auth_headers_student00():
     return {"Authorization": f"Basic {encoded_s}"}
 
 
-def test_jobs_user_props_get(local_client, valid_rest_auth_headers_student00):
+def test_jobs_user_props_get(client, valid_rest_auth_headers_student00):
     job_id = "795002"
     cluster_name = "mila"
-    response = local_client.get(
+    response = client.get(
         f"/api/v1/clusters/jobs/user_props/get?cluster_name={cluster_name}&job_id={job_id}",
         headers=valid_rest_auth_headers_student00,
     )
@@ -61,10 +31,10 @@ def test_jobs_user_props_get(local_client, valid_rest_auth_headers_student00):
     assert props == {"name": "je suis une user prop 1"}
 
 
-def test_jobs_user_props_set(local_client, valid_rest_auth_headers_student00):
+def test_jobs_user_props_set(client, valid_rest_auth_headers_student00):
     job_id = "795002"
     cluster_name = "mila"
-    response = local_client.put(
+    response = client.put(
         f"/api/v1/clusters/jobs/user_props/set",
         data={
             "job_id": job_id,
@@ -78,12 +48,36 @@ def test_jobs_user_props_set(local_client, valid_rest_auth_headers_student00):
     props = response.get_json()
     assert props == {"name": "je suis une user prop 1", "other name": "other value"}
 
+    # Back to default props
+    client.put(
+        f"/api/v1/clusters/jobs/user_props/delete",
+        data={
+            "job_id": job_id,
+            "cluster_name": cluster_name,
+            "keys": json.dumps(["other name"]),
+        },
+        headers=valid_rest_auth_headers_student00,
+    )
+    client.put(
+        f"/api/v1/clusters/jobs/user_props/set",
+        data={
+            "job_id": job_id,
+            "cluster_name": cluster_name,
+            "updates": json.dumps({"name": "je suis une user prop 1"}),
+        },
+        headers=valid_rest_auth_headers_student00,
+    )
+    assert client.get(
+        f"/api/v1/clusters/jobs/user_props/get?cluster_name={cluster_name}&job_id={job_id}",
+        headers=valid_rest_auth_headers_student00,
+    ).get_json() == {"name": "je suis une user prop 1"}
 
-def test_jobs_user_props_delete(local_client, valid_rest_auth_headers_student00):
+
+def test_jobs_user_props_delete(client, valid_rest_auth_headers_student00):
     # Set some props.
     job_id = "795002"
     cluster_name = "mila"
-    response = local_client.put(
+    response = client.put(
         f"/api/v1/clusters/jobs/user_props/set",
         data={
             "job_id": job_id,
@@ -102,7 +96,7 @@ def test_jobs_user_props_delete(local_client, valid_rest_auth_headers_student00)
     }
 
     # Then delete some props.
-    response = local_client.put(
+    response = client.put(
         f"/api/v1/clusters/jobs/user_props/delete",
         data={
             "job_id": job_id,
@@ -115,7 +109,7 @@ def test_jobs_user_props_delete(local_client, valid_rest_auth_headers_student00)
     assert response.status_code == 200
     assert response.get_json() == ""
 
-    response = local_client.get(
+    response = client.get(
         f"/api/v1/clusters/jobs/user_props/get?cluster_name={cluster_name}&job_id={job_id}",
         headers=valid_rest_auth_headers_student00,
     )
@@ -123,14 +117,36 @@ def test_jobs_user_props_delete(local_client, valid_rest_auth_headers_student00)
     props = response.get_json()
     assert props == {"other name": "other value"}
 
+    # Back to default props
+    client.put(
+        f"/api/v1/clusters/jobs/user_props/delete",
+        data={
+            "job_id": job_id,
+            "cluster_name": cluster_name,
+            "keys": json.dumps(["other name"]),
+        },
+        headers=valid_rest_auth_headers_student00,
+    )
+    client.put(
+        f"/api/v1/clusters/jobs/user_props/set",
+        data={
+            "job_id": job_id,
+            "cluster_name": cluster_name,
+            "updates": json.dumps({"name": "je suis une user prop 1"}),
+        },
+        headers=valid_rest_auth_headers_student00,
+    )
+    assert client.get(
+        f"/api/v1/clusters/jobs/user_props/get?cluster_name={cluster_name}&job_id={job_id}",
+        headers=valid_rest_auth_headers_student00,
+    ).get_json() == {"name": "je suis une user prop 1"}
 
-def test_size_limit_for_jobs_user_props_set(
-    local_client, valid_rest_auth_headers_student00
-):
+
+def test_size_limit_for_jobs_user_props_set(client, valid_rest_auth_headers_student00):
     job_id = "795002"
     cluster_name = "mila"
     huge_text = "x" * (2 * 1024 * 1024)
-    response = local_client.put(
+    response = client.put(
         f"/api/v1/clusters/jobs/user_props/set",
         data={
             "job_id": job_id,
@@ -144,7 +160,7 @@ def test_size_limit_for_jobs_user_props_set(
     assert response.get_json() == "Total props size limit exceeded (max. 2 Mbytes)."
 
     # Props should have not changed.
-    response = local_client.get(
+    response = client.get(
         f"/api/v1/clusters/jobs/user_props/get?cluster_name={cluster_name}&job_id={job_id}",
         headers=valid_rest_auth_headers_student00,
     )
