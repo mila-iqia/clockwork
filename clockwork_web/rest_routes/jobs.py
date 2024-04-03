@@ -167,7 +167,7 @@ def route_user_props_set():
     """
     Endpoint to set user props
 
-    Parameters: job_id (str), cluster_name (str), updates (JSON-string of a dict)
+    Parameters: job_id (str), cluster_name (str), updates (dict)
 
     Return: updated user props
     """
@@ -176,32 +176,25 @@ def route_user_props_set():
         f"clockwork REST route: /jobs/user_props/set - current_user_with_rest_auth={current_user_id}"
     )
 
+    if not request.is_json:
+        return jsonify("Expected a JSON request"), 400  # bad request
+
+    params = request.get_json()
+
     # Retrieve the requested job ID
-    job_id = request.values.get("job_id", None)
+    job_id = params.get("job_id", None)
     if job_id is None:
         return jsonify("Missing argument job_id."), 400  # bad request
 
     # Retrieve the requested cluster name
-    cluster_name = request.values.get("cluster_name", None)
+    cluster_name = params.get("cluster_name", None)
     if cluster_name is None:
         return jsonify("Missing argument cluster_name."), 400  # bad request
 
     # Retrieve the requested updates.
-    updates = request.values.get("updates", None)
+    updates = params.get("updates", None)
     if updates is None:
         return jsonify(f"Missing argument 'updates'."), 500
-    elif isinstance(updates, str):
-        try:
-            updates = json.loads(updates)
-        except Exception:
-            return jsonify("Failed to get `updates` dict."), 500
-    else:
-        return (
-            jsonify(
-                f"Field 'updates' was not a string (encoding a json structure). {updates}"
-            ),
-            500,
-        )
     if not isinstance(updates, dict):
         return (
             jsonify(
@@ -225,7 +218,7 @@ def route_user_props_delete():
     """
     Endpoint to delete user props.
 
-    Parameters: job_id (str), cluster_name (str), keys (JSON-string of a list)
+    Parameters: job_id (str), cluster_name (str), keys (string or list of strings)
 
     Return: updated user props
     """
@@ -234,36 +227,29 @@ def route_user_props_delete():
         f"clockwork REST route: /jobs/user_props/delete - current_user_with_rest_auth={current_user_id}"
     )
 
+    if not request.is_json:
+        return jsonify("Expected a JSON request"), 400  # bad request
+
+    params = request.get_json()
+
     # Retrieve the requested job ID
-    job_id = request.values.get("job_id", None)
+    job_id = params.get("job_id", None)
     if job_id is None:
         return jsonify("Missing argument job_id."), 400  # bad request
 
     # Retrieve the requested cluster name
-    cluster_name = request.values.get("cluster_name", None)
+    cluster_name = params.get("cluster_name", None)
     if cluster_name is None:
         return jsonify("Missing argument cluster_name."), 400  # bad request
 
     # Retrieve the requested keys.
-    keys = request.values.get("keys", None)
+    keys = params.get("keys", None)
     if keys is None:
         return jsonify(f"Missing argument 'keys'."), 500
-    elif isinstance(keys, str):
-        try:
-            keys = json.loads(keys)
-        except Exception:
-            return jsonify("Failed to get `keys` dict."), 500
-    else:
+    if not isinstance(keys, (str, list)):
         return (
             jsonify(
-                f"Field 'keys' was not a string (encoding a json structure). {keys}"
-            ),
-            500,
-        )
-    if not isinstance(keys, list):
-        return (
-            jsonify(
-                f"Expected `keys` to be a list, instead it is of type {type(keys)}: {keys}."
+                f"Expected `keys` to be a string or list of strings, instead it is of type {type(keys)}: {keys}."
             ),
             500,
         )

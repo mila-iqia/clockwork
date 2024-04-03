@@ -60,7 +60,7 @@ class ClockworkToolsBaseClient:
         encoded_s = str(encoded_bytes, "utf-8")
         return {"Authorization": f"Basic {encoded_s}"}
 
-    def _request(self, endpoint, params, method="GET"):
+    def _request(self, endpoint, params, method="GET", send_json=False):
         """Helper method for REST API calls.
 
         Internal helper method to make the calls to the REST API endpoints
@@ -69,6 +69,9 @@ class ClockworkToolsBaseClient:
         Args:
             endpoint (str): The REST endpoint, omitting the server address.
             params (dict): Arguments to be provided to the REST endpoint.
+            send_json (bool): Optional. If True and if method is PUT,
+                then request will be sent as a JSON request.
+
 
         Returns:
             Depends on the call made.
@@ -86,9 +89,14 @@ class ClockworkToolsBaseClient:
                 complete_address, params=params, headers=self._get_headers()
             )
         elif method == "PUT":
-            response = requests.put(
-                complete_address, data=params, headers=self._get_headers()
-            )
+            if send_json:
+                headers = self._get_headers()
+                headers["Content-type"] = "application/json"
+                response = requests.put(complete_address, json=params, headers=headers)
+            else:
+                response = requests.put(
+                    complete_address, data=params, headers=self._get_headers()
+                )
 
         # Check code instead and raise exception if it's the wrong one.
         if response.status_code == 200:
@@ -186,14 +194,11 @@ class ClockworkToolsBaseClient:
             dict[any,any]: Returns the updated props.
         """
         endpoint = "api/v1/clusters/jobs/user_props/set"
-        params = {"job_id": job_id, "cluster_name": cluster_name}
-        # Due to current constraints, we have to pass "updates"
-        # as a string representing a structure in json.
-        params["updates"] = json.dumps(updates)
-        return self._request(endpoint, params, method="PUT")
+        params = {"job_id": job_id, "cluster_name": cluster_name, "updates": updates}
+        return self._request(endpoint, params, method="PUT", send_json=True)
 
     def delete_user_props(
-        self, job_id: str, cluster_name: str, keys: list
+        self, job_id: str, cluster_name: str, keys: str | list
     ) -> dict[str, any]:
         """REST call to api/v1/clusters/jobs/user_props/delete.
 
@@ -208,11 +213,8 @@ class ClockworkToolsBaseClient:
             dict[any,any]: Returns the updated props.
         """
         endpoint = "api/v1/clusters/jobs/user_props/delete"
-        params = {"job_id": job_id, "cluster_name": cluster_name}
-        # Due to current constraints, we have to pass "keys"
-        # as a string representing a structure in json.
-        params["keys"] = json.dumps(keys)
-        return self._request(endpoint, params, method="PUT")
+        params = {"job_id": job_id, "cluster_name": cluster_name, "keys": keys}
+        return self._request(endpoint, params, method="PUT", send_json=True)
 
     def jobs_user_dict_update(
         self, job_id: str = None, cluster_name: str = None, update_pairs: dict = {}
