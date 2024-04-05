@@ -60,7 +60,7 @@ class ClockworkToolsBaseClient:
         encoded_s = str(encoded_bytes, "utf-8")
         return {"Authorization": f"Basic {encoded_s}"}
 
-    def _request(self, endpoint, params, method="GET", send_json=False):
+    def _request(self, endpoint, params, method="GET", send_json=True):
         """Helper method for REST API calls.
 
         Internal helper method to make the calls to the REST API endpoints
@@ -195,7 +195,7 @@ class ClockworkToolsBaseClient:
         """
         endpoint = "api/v1/clusters/jobs/user_props/set"
         params = {"job_id": job_id, "cluster_name": cluster_name, "updates": updates}
-        return self._request(endpoint, params, method="PUT", send_json=True)
+        return self._request(endpoint, params, method="PUT")
 
     def delete_user_props(
         self, job_id: str, cluster_name: str, keys: str | list
@@ -214,7 +214,7 @@ class ClockworkToolsBaseClient:
         """
         endpoint = "api/v1/clusters/jobs/user_props/delete"
         params = {"job_id": job_id, "cluster_name": cluster_name, "keys": keys}
-        return self._request(endpoint, params, method="PUT", send_json=True)
+        return self._request(endpoint, params, method="PUT")
 
     def jobs_user_dict_update(
         self, job_id: str = None, cluster_name: str = None, update_pairs: dict = {}
@@ -253,7 +253,7 @@ class ClockworkToolsBaseClient:
         # Due to current constraints, we have to pass "update_pairs"
         # as a string representing a structure in json.
         params["update_pairs"] = json.dumps(update_pairs)
-        return self._request(endpoint, params, method="PUT")
+        return self._request(endpoint, params, method="PUT", send_json=False)
 
     def nodes_list(self, cluster_name: str = None) -> list[dict[str, any]]:
         """REST call to api/v1/clusters/nodes/list.
