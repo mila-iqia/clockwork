@@ -227,7 +227,19 @@ def test_jobs_search_columns(page: Page):
 
 def test_jobs_search_column_job_user_props(page: Page):
     # Login
-    page.goto(f"{BASE_URL}/login/testing?user_id=student00@mila.quebec")
+    page.goto(f"{BASE_URL}/login/testing?user_id=student01@mila.quebec")
+
+    # Change language in settings
+    page.goto(f"{BASE_URL}/settings/")
+    # Get language select.
+    select = page.locator("select#language_selection")
+    # Check default language is english.
+    expect(select).to_have_value("fr")
+    # Switch to French.
+    select.select_option("en")
+    # Check french is selected.
+    expect(select).to_have_value("en")
+
     # Check default jobs search columns.
     page.goto(f"{BASE_URL}/jobs/search")
     headers = page.locator("table#search_table thead tr th")

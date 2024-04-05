@@ -642,7 +642,7 @@ def test_filter_by_job_array(page: Page):
 
 def test_filter_by_job_user_props(page: Page):
     # Login
-    page.goto(f"{BASE_URL}/login/testing?user_id=student00@mila.quebec")
+    page.goto(f"{BASE_URL}/login/testing?user_id=student01@mila.quebec")
     # Go to settings.
     page.goto(f"{BASE_URL}/settings/")
     radio_job_user_props = page.locator("input#jobs_list_job_user_props_toggle")
