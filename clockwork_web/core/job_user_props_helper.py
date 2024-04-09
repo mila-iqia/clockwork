@@ -1,4 +1,4 @@
-from flask_login import current_user
+"""Internal functions to manage job-user props."""
 from ..db import get_db
 import json
 
@@ -8,17 +8,14 @@ import json
 MAX_PROPS_LENGTH = 2 * 1024 * 1024
 
 
-def get_user_props(
-    job_id: str, cluster_name: str, mila_email_username: str = None
-) -> dict:
+def get_user_props(job_id: str, cluster_name: str, mila_email_username: str) -> dict:
     """
     Get job-user props.
 
     Parameters:
         job_id                  ID of job for which we want to get user props.
         cluster_name            Name of cluster to which the job belongs.
-        mila_email_username     Optional email of user who sets the props we want to get.
-                                Default is current logged user.
+        mila_email_username     Email of user who sets the props we want to get.
 
     Returns:
         Dictionary of user-props, empty if no props were found.
@@ -31,7 +28,7 @@ def get_user_props(
 
 
 def set_user_props(
-    job_id: str, cluster_name: str, updates: dict, mila_email_username: str = None
+    job_id: str, cluster_name: str, updates: dict, mila_email_username: str
 ) -> dict:
     """
     Update job-user-props.
@@ -41,8 +38,7 @@ def set_user_props(
         cluster_name            Name of cluster to which the job belongs.
         updates                 Dictionary of props to add.
                                 Each key-value represents a prop.
-        mila_email_username     Optional email of user who wants to update his props.
-                                Default is current logged user.
+        mila_email_username     Email of user who wants to update his props.
 
     Returns:
         Dictionary of Updated job-user props.
@@ -70,7 +66,7 @@ def set_user_props(
             {
                 "job_id": job_id,
                 "cluster_name": str(cluster_name),
-                "mila_email_username": current_user.mila_email_username,
+                "mila_email_username": mila_email_username,
                 "props": new_props,
             }
         )
@@ -78,7 +74,7 @@ def set_user_props(
     return new_props
 
 
-def delete_user_props(job_id, cluster_name, key_or_keys, mila_email_username=None):
+def delete_user_props(job_id, cluster_name, key_or_keys, mila_email_username: str):
     """
     Delete some job-user props.
 
@@ -87,10 +83,9 @@ def delete_user_props(job_id, cluster_name, key_or_keys, mila_email_username=Non
         cluster_name            Name of cluster to which the job belongs.
         key_or_keys             Either a key or a sequence of keys,
                                 representing prop names to delete.
-        mila_email_username     Optional email of user who wants to delete props.
-                                Default is current logged user.
+        mila_email_username     Email of user who wants to delete props.
     """
-    # Parsekey_or_keys to get keys to delete.
+    # Parse key_or_keys to get keys to delete.
     if isinstance(key_or_keys, str):
         keys = [key_or_keys]
     else:
@@ -112,7 +107,7 @@ def delete_user_props(job_id, cluster_name, key_or_keys, mila_email_username=Non
 
 
 def _get_user_props_document(
-    job_id: str, cluster_name: str, mila_email_username: str = None
+    job_id: str, cluster_name: str, mila_email_username: str
 ) -> dict:
     """
     Get MongoDB document representing job-user props corresponding to given parameters.
@@ -120,8 +115,7 @@ def _get_user_props_document(
     Parameters:
         job_id                  ID of job for which we want to get user props.
         cluster_name            Name of cluster to which the job belongs.
-        mila_email_username     Optional email of user who sets the props we want to get.
-                                Default is current logged user.
+        mila_email_username     Email of user who sets the props we want to get.
 
     Returns:
         MongoDB document representing job-user props.
@@ -139,9 +133,7 @@ def _get_user_props_document(
             {
                 "job_id": job_id,
                 "cluster_name": str(cluster_name),
-                "mila_email_username": (
-                    mila_email_username or current_user.mila_email_username
-                ),
+                "mila_email_username": mila_email_username,
             }
         )
     )

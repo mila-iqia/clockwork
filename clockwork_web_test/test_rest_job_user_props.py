@@ -1,10 +1,9 @@
 import random
-import pytest
-import base64
+from clockwork_web.config import get_config
 
 
 def _get_test_user_props(fake_data):
-    email = "student01@mila.quebec"
+    email = get_config("clockwork.test.email")
     # Find an entry that's associated with the user that's currently logged in.
     # This becomes the ground truth against which we compare the retrieved user props.
     LD_candidates = [
@@ -38,28 +37,85 @@ def test_jobs_user_props_get(client, valid_rest_auth_headers, fake_data):
     assert props == original_props
 
 
+def test_jobs_user_props_get_unknown_cluster(
+    client, valid_rest_auth_headers, fake_data
+):
+    job_id, _, _ = _get_test_user_props(fake_data)
+    cluster_name = "unknown_cluster"
+    response = client.get(
+        f"/api/v1/clusters/jobs/user_props/get?cluster_name={cluster_name}&job_id={job_id}",
+        headers=valid_rest_auth_headers,
+    )
+    assert response.content_type == "application/json"
+    assert response.status_code == 200
+    props = response.get_json()
+    assert props == {}
+
+
+def test_jobs_user_props_get_unknown_job_id(client, valid_rest_auth_headers, fake_data):
+    _, cluster_name, _ = _get_test_user_props(fake_data)
+    job_id = "unknown_job_id"
+    response = client.get(
+        f"/api/v1/clusters/jobs/user_props/get?cluster_name={cluster_name}&job_id={job_id}",
+        headers=valid_rest_auth_headers,
+    )
+    assert response.content_type == "application/json"
+    assert response.status_code == 200
+    props = response.get_json()
+    assert props == {}
+
+
 def test_jobs_user_props_set(client, valid_rest_auth_headers, fake_data):
     job_id, cluster_name, original_props = _get_test_user_props(fake_data)
     assert "other name" not in original_props
+    assert "other name 2" not in original_props
     response = client.put(
         f"/api/v1/clusters/jobs/user_props/set",
         json={
             "job_id": job_id,
             "cluster_name": cluster_name,
-            "updates": {"other name": "other value"},
+            "updates": {"other name": "other value", "other name 2": "other value 2"},
         },
         headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
     assert response.status_code == 200
     props = response.get_json()
-    assert len(props) == len(original_props) + 1
-    assert props == {**original_props, "other name": "other value"}
+    assert len(props) == len(original_props) + 2
+    assert props == {
+        **original_props,
+        "other name": "other value",
+        "other name 2": "other value 2",
+    }
+
+    # Change value for existing prop 'other name`
+    response = client.put(
+        f"/api/v1/clusters/jobs/user_props/set",
+        json={
+            "job_id": job_id,
+            "cluster_name": cluster_name,
+            "updates": {"other name": "new value for prop 'other name'"},
+        },
+        headers=valid_rest_auth_headers,
+    )
+    assert response.content_type == "application/json"
+    assert response.status_code == 200
+    props = response.get_json()
+    assert len(props) == len(original_props) + 2
+    assert props == {
+        **original_props,
+        "other name": "new value for prop 'other name'",
+        "other name 2": "other value 2",
+    }
 
     # Back to default props
     client.put(
         f"/api/v1/clusters/jobs/user_props/delete",
-        json={"job_id": job_id, "cluster_name": cluster_name, "keys": ["other name"]},
+        json={
+            "job_id": job_id,
+            "cluster_name": cluster_name,
+            "keys": ["other name", "other name 2"],
+        },
         headers=valid_rest_auth_headers,
     )
     assert (
@@ -81,24 +137,66 @@ def test_jobs_user_props_delete(client, valid_rest_auth_headers, fake_data):
         json={
             "job_id": job_id,
             "cluster_name": cluster_name,
-            "updates": {"other name": "other value", "dino": "saurus"},
+            "updates": {
+                "other name": "other value",
+                "dino": "saurus",
+                "aa": "aa",
+                "bb": "bb",
+                "cc": "cc",
+            },
         },
         headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
     assert response.status_code == 200
     props = response.get_json()
-    assert len(props) == len(original_props) + 2
+    assert len(props) == len(original_props) + 5
     assert props == {
         **original_props,
         "other name": "other value",
         "dino": "saurus",
+        "aa": "aa",
+        "bb": "bb",
+        "cc": "cc",
     }
 
-    # Then delete some props.
+    # Delete a prop with keys as a list of 1 string.
     response = client.put(
         f"/api/v1/clusters/jobs/user_props/delete",
-        json={"job_id": job_id, "cluster_name": cluster_name, "keys": ["dino"]},
+        json={
+            "job_id": job_id,
+            "cluster_name": cluster_name,
+            "keys": ["dino"],
+        },
+        headers=valid_rest_auth_headers,
+    )
+    assert response.content_type == "application/json"
+    assert response.status_code == 200
+    assert response.get_json() == ""
+
+    response = client.get(
+        f"/api/v1/clusters/jobs/user_props/get?cluster_name={cluster_name}&job_id={job_id}",
+        headers=valid_rest_auth_headers,
+    )
+    assert response.status_code == 200
+    props = response.get_json()
+    assert len(props) == len(original_props) + 4
+    assert props == {
+        **original_props,
+        "other name": "other value",
+        "aa": "aa",
+        "bb": "bb",
+        "cc": "cc",
+    }
+
+    # Delete some props with keys as a list of strings, including 1 unknown prop.
+    response = client.put(
+        f"/api/v1/clusters/jobs/user_props/delete",
+        json={
+            "job_id": job_id,
+            "cluster_name": cluster_name,
+            "keys": ["aa", "bb", "unknown prop", "cc"],
+        },
         headers=valid_rest_auth_headers,
     )
     assert response.content_type == "application/json"
@@ -115,6 +213,7 @@ def test_jobs_user_props_delete(client, valid_rest_auth_headers, fake_data):
     assert props == {**original_props, "other name": "other value"}
 
     # Back to default props
+    # And delete a prop with keys as a string
     client.put(
         f"/api/v1/clusters/jobs/user_props/delete",
         json={"job_id": job_id, "cluster_name": cluster_name, "keys": "other name"},
