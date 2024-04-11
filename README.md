@@ -71,6 +71,8 @@ python3 scripts/store_fake_data_in_db.py
 python3 -m flask run --host="0.0.0.0"
 ```
 Navigate to `http://localhost:15000` on your computer.
+In order to access the contents and not be blocked by the landing page that requires SSO,
+you can access `http://127.0.0.1:15000/login/testing?user_id=student00@mila.quebec` instead.
 
 # Current branches
 (To be completed)
