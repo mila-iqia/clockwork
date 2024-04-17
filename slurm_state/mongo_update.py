@@ -2,7 +2,7 @@
 Insert elements extracted from the Slurm reports into the database.
 """
 
-import copy, json, os, time
+import copy, json, logging, os, time
 from pymongo import InsertOne, ReplaceOne, UpdateOne
 
 
@@ -35,9 +35,12 @@ def fetch_slurm_report(parser, report_path):
     assert ctx is not None, f"{cluster_name} not configured"
 
     with open(report_path, "r") as f:
-        for e in parser.parser(f):
-            e["cluster_name"] = cluster_name
-            yield e
+        try:
+            for e in parser.parser(f):
+                e["cluster_name"] = cluster_name
+                yield e
+        except Exception as e:
+            logging.warning(str(e))
 
 
 def slurm_job_to_clockwork_job(slurm_job: dict):
