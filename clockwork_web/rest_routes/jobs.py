@@ -27,6 +27,7 @@ from clockwork_web.core.job_user_props_helper import (
     get_user_props,
     set_user_props,
     delete_user_props,
+    HugeUserPropsError,
 )
 
 from flask import Blueprint
@@ -207,9 +208,11 @@ def route_user_props_set():
     try:
         props = set_user_props(job_id, cluster_name, updates, current_user_id)
         return jsonify(props)
-    except ValueError:
+    except HugeUserPropsError as inst:
         # If props size limit error occurs, return it as an HTTP 500 error.
-        return jsonify("Total props size limit exceeded (max. 2 Mbytes)."), 500
+        return jsonify(str(inst)), 500
+    except:
+        return jsonify("Failed to set user props."), 500
 
 
 @flask_api.route("/jobs/user_props/delete", methods=["PUT"])

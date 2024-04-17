@@ -8,6 +8,10 @@ import json
 MAX_PROPS_LENGTH = 2 * 1024 * 1024
 
 
+class HugeUserPropsError(ValueError):
+    """Exception raised when user props are too huge in database."""
+
+
 def get_user_props(job_id: str, cluster_name: str, mila_email_username: str) -> dict:
     """
     Get job-user props.
@@ -50,8 +54,8 @@ def set_user_props(
     new_props = previous_props.copy()
     new_props.update(updates)
     if _get_dict_size(new_props) > MAX_PROPS_LENGTH:
-        raise ValueError(
-            f"Too huge job-user props: {_get_megabytes(MAX_PROPS_LENGTH)} Mbytes "
+        raise HugeUserPropsError(
+            f"Too huge job-user props: maximum {_get_megabytes(MAX_PROPS_LENGTH)} Mbytes "
             f"(previous: {_get_megabytes(_get_dict_size(previous_props))} Mbytes, "
             f"updates: {_get_megabytes(_get_dict_size(updates))} Mbytes)"
         )

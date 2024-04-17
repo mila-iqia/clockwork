@@ -243,7 +243,7 @@ def test_size_limit_for_jobs_user_props_set(client, valid_rest_auth_headers, fak
     )
     assert response.content_type == "application/json"
     assert response.status_code == 500
-    assert response.get_json() == "Total props size limit exceeded (max. 2 Mbytes)."
+    assert response.get_json().startswith("Too huge job-user props: maximum 2.0 Mbytes")
 
     # Props should have not changed.
     response = client.get(
