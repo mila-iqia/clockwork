@@ -65,7 +65,7 @@ def set_user_props(
         db.insert_one(
             {
                 "job_id": job_id,
-                "cluster_name": str(cluster_name),
+                "cluster_name": cluster_name,
                 "mila_email_username": mila_email_username,
                 "props": new_props,
             }
@@ -132,7 +132,7 @@ def _get_user_props_document(
         mc["job_user_props"].find(
             {
                 "job_id": job_id,
-                "cluster_name": str(cluster_name),
+                "cluster_name": cluster_name,
                 "mila_email_username": mila_email_username,
             }
         )
