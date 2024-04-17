@@ -233,11 +233,11 @@ def test_jobs_search_column_job_user_props(page: Page):
     page.goto(f"{BASE_URL}/settings/")
     # Get language select.
     select = page.locator("select#language_selection")
-    # Check default language is english.
+    # Check default language is French.
     expect(select).to_have_value("fr")
-    # Switch to French.
+    # Switch to english.
     select.select_option("en")
-    # Check french is selected.
+    # Check english is selected.
     expect(select).to_have_value("en")
 
     # Check default jobs search columns.
