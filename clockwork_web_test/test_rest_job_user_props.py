@@ -1,5 +1,6 @@
 import random
 from clockwork_web.config import get_config
+from clockwork_web.core.job_user_props_helper import MAX_PROPS_LENGTH
 
 
 def _get_test_user_props(fake_data):
@@ -231,7 +232,7 @@ def test_jobs_user_props_delete(client, valid_rest_auth_headers, fake_data):
 def test_size_limit_for_jobs_user_props_set(client, valid_rest_auth_headers, fake_data):
     job_id, cluster_name, original_props = _get_test_user_props(fake_data)
     assert "other  name" not in original_props
-    huge_text = "x" * (2 * 1024 * 1024)
+    huge_text = "x" * MAX_PROPS_LENGTH
     response = client.put(
         f"/api/v1/clusters/jobs/user_props/set",
         json={
