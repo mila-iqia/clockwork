@@ -23,6 +23,12 @@ from clockwork_web.core.jobs_helper import (
     get_jobs,
 )
 from clockwork_web.core.utils import to_boolean, get_custom_array_from_request_args
+from clockwork_web.core.job_user_props_helper import (
+    get_user_props,
+    set_user_props,
+    delete_user_props,
+    HugeUserPropsError,
+)
 
 from flask import Blueprint
 
@@ -124,6 +130,136 @@ def route_api_v1_jobs_one():
 
     D_job = strip_artificial_fields_from_job(LD_jobs[0])
     return jsonify(D_job)
+
+
+@flask_api.route("/jobs/user_props/get")
+@authentication_required
+def route_user_props_get():
+    """
+    Endpoint to get user props.
+
+    Parameters: job_id (str), cluster_name (str)
+
+    Return: user props
+    """
+    current_user_id = g.current_user_with_rest_auth["mila_email_username"]
+    logging.info(
+        f"clockwork REST route: /jobs/user_props/get - current_user_with_rest_auth={current_user_id}"
+    )
+
+    # Retrieve the requested job ID
+    job_id = request.values.get("job_id", None)
+    if job_id is None:
+        return jsonify("Missing argument job_id."), 400  # bad request
+
+    # Retrieve the requested cluster name
+    cluster_name = request.values.get("cluster_name", None)
+    if cluster_name is None:
+        return jsonify("Missing argument cluster_name."), 400  # bad request
+
+    # Get props, using current_user_id as mila email username.
+    props = get_user_props(job_id, cluster_name, current_user_id)
+    return jsonify(props)
+
+
+@flask_api.route("/jobs/user_props/set", methods=["PUT"])
+@authentication_required
+def route_user_props_set():
+    """
+    Endpoint to set user props
+
+    Parameters: job_id (str), cluster_name (str), updates (dict)
+
+    Return: updated user props
+    """
+    current_user_id = g.current_user_with_rest_auth["mila_email_username"]
+    logging.info(
+        f"clockwork REST route: /jobs/user_props/set - current_user_with_rest_auth={current_user_id}"
+    )
+
+    if not request.is_json:
+        return jsonify("Expected a JSON request"), 400  # bad request
+
+    params = request.get_json()
+
+    # Retrieve the requested job ID
+    job_id = params.get("job_id", None)
+    if job_id is None:
+        return jsonify("Missing argument job_id."), 400  # bad request
+
+    # Retrieve the requested cluster name
+    cluster_name = params.get("cluster_name", None)
+    if cluster_name is None:
+        return jsonify("Missing argument cluster_name."), 400  # bad request
+
+    # Retrieve the requested updates.
+    updates = params.get("updates", None)
+    if updates is None:
+        return jsonify(f"Missing argument 'updates'."), 500
+    if not isinstance(updates, dict):
+        return (
+            jsonify(
+                f"Expected `updates` to be a dict, but instead it is of type {type(updates)}: {updates}."
+            ),
+            500,
+        )
+
+    # Set props, using current_user_id as mila email username.
+    try:
+        props = set_user_props(job_id, cluster_name, updates, current_user_id)
+        return jsonify(props)
+    except HugeUserPropsError as inst:
+        # If props size limit error occurs, return it as an HTTP 500 error.
+        return jsonify(str(inst)), 500
+    except:
+        return jsonify("Failed to set user props."), 500
+
+
+@flask_api.route("/jobs/user_props/delete", methods=["PUT"])
+@authentication_required
+def route_user_props_delete():
+    """
+    Endpoint to delete user props.
+
+    Parameters: job_id (str), cluster_name (str), keys (string or list of strings)
+
+    Return: updated user props
+    """
+    current_user_id = g.current_user_with_rest_auth["mila_email_username"]
+    logging.info(
+        f"clockwork REST route: /jobs/user_props/delete - current_user_with_rest_auth={current_user_id}"
+    )
+
+    if not request.is_json:
+        return jsonify("Expected a JSON request"), 400  # bad request
+
+    params = request.get_json()
+
+    # Retrieve the requested job ID
+    job_id = params.get("job_id", None)
+    if job_id is None:
+        return jsonify("Missing argument job_id."), 400  # bad request
+
+    # Retrieve the requested cluster name
+    cluster_name = params.get("cluster_name", None)
+    if cluster_name is None:
+        return jsonify("Missing argument cluster_name."), 400  # bad request
+
+    # Retrieve the requested keys.
+    keys = params.get("keys", None)
+    if keys is None:
+        return jsonify(f"Missing argument 'keys'."), 500
+    if not isinstance(keys, (str, list)):
+        return (
+            jsonify(
+                f"Expected `keys` to be a string or list of strings, instead it is of type {type(keys)}: {keys}."
+            ),
+            500,
+        )
+
+    # Delete props, using current_user_id as mila email username.
+    delete_user_props(job_id, cluster_name, keys, current_user_id)
+    return jsonify("")
 
 
 # Note that this whole `user_dict_update` thing needs to be rewritten

@@ -167,9 +167,7 @@ def get_filtered_and_paginated_jobs(
             mc["job_user_props"].find(
                 combine_all_mongodb_filters(
                     {
-                        "job_id": {
-                            "$in": [int(job["slurm"]["job_id"]) for job in LD_jobs]
-                        },
+                        "job_id": {"$in": [job["slurm"]["job_id"] for job in LD_jobs]},
                         "mila_email_username": current_user.mila_email_username,
                     }
                 )
@@ -190,7 +188,7 @@ def get_filtered_and_paginated_jobs(
             for job in LD_jobs:
                 key = (
                     current_user.mila_email_username,
-                    int(job["slurm"]["job_id"]),
+                    job["slurm"]["job_id"],
                     job["slurm"]["cluster_name"],
                 )
                 if key in user_props_map:
