@@ -47,6 +47,35 @@ def get_jobs_hardcoded_values():
     ]
 
 
+def get_job_user_props_hardcoded_values(fake_data: dict):
+    """
+    Return partially hardcoded data to be inserted as fake job user props.
+
+    This function will generate 5 job user props
+    associated to the 5 first jobs from fake data
+    edited by 2nd user available in fake data (i.e. `student01`)
+    """
+    mila_email_username = fake_data["users"][1]["mila_email_username"]
+    jobs = fake_data["jobs"][:5]
+    user_props = [
+        {"name": "je suis une user prop 1"},
+        {"name": "je suis une user prop 2"},
+        {"name": "je suis une user prop 3"},
+        {"name": "je suis une user prop 3", "name2": "je suis une user prop 4"},
+        {"name": "je suis une user prop 1"},
+    ]
+
+    return [
+        {
+            "mila_email_username": mila_email_username,
+            "job_id": job["slurm"]["job_id"],
+            "cluster_name": job["slurm"]["cluster_name"],
+            "props": props,
+        }
+        for job, props in zip(jobs, user_props)
+    ]
+
+
 def main(argv):
 
     my_parser = argparse.ArgumentParser()
@@ -76,6 +105,9 @@ def main(argv):
     # Insert the hardcoded data in the fake data json
     for job_to_insert in get_jobs_hardcoded_values():
         fake_data["jobs"].append(job_to_insert)
+
+    # Insert fake job user props
+    fake_data["job_user_props"] = get_job_user_props_hardcoded_values(fake_data)
 
     # Write the new fake data in the output file
     with open(output_file, "w") as f:

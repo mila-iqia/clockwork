@@ -51,19 +51,18 @@ for SUBFOLDER in ${CLOCKWORK_ROOT}/tmp/slurm_report/*; do
           --output_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sacct_anonymized
 
       # "job anonymized"  to  "jobs anonymized dump file"
-      ANONYMIZED_JOBS_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/job_anonymized_dump_file.json
-      python3 -m slurm_state.read_report_commit_to_db \
-          --cluster_name ${CLUSTER_NAME} \
-          --jobs_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sacct_anonymized \
-          --dump_file $ANONYMIZED_JOBS_FILE
-      ANONYMIZED_JOBS_FILES+=(${ANONYMIZED_JOBS_FILE})
-
       # "node anonymized"  to  "nodes anonymized dump file"
+      ANONYMIZED_JOBS_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/job_anonymized_dump_file.json
       ANONYMIZED_NODES_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/node_anonymized_dump_file.json
       python3 -m slurm_state.read_report_commit_to_db \
           --cluster_name ${CLUSTER_NAME} \
-          --nodes_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sinfo_anonymized \
-          --dump_file $ANONYMIZED_NODES_FILE
+          --from_existing_jobs_file \
+          --slurm_jobs_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sacct_anonymized \
+          --cw_jobs_file $ANONYMIZED_JOBS_FILE \
+          --from_existing_nodes_file \
+          --slurm_nodes_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sinfo_anonymized \
+          --cw_nodes_file $ANONYMIZED_NODES_FILE
+      ANONYMIZED_JOBS_FILES+=(${ANONYMIZED_JOBS_FILE})
       ANONYMIZED_NODES_FILES+=($ANONYMIZED_NODES_FILE)
     fi
   fi
