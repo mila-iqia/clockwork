@@ -146,6 +146,15 @@ def main_read_report_and_update_collection(
     clusters = get_all_clusters()
     assert cluster_name in clusters
 
+    # Retrieve Slurm version
+    # If a data file has been set as input, the Slurm version should
+    # be stored in it, else the parser will try to get the version
+    # through an SSH command
+    if from_file:
+        with open(report_file_path, "r") as infile:
+            version = json.load(infile)["meta"]["Slurm"]["version"]
+            parser_version = f"{version['major']}.{version['micro']}.{version['minor']}"
+
     # Check the input parameters
     assert entity in ["jobs", "nodes"]
 
@@ -154,7 +163,7 @@ def main_read_report_and_update_collection(
             "job_id"  # The id_key is used to determine how to retrieve the ID of a job
         )
         parser = JobParser(
-            cluster_name
+            cluster_name, slurm_version=parser_version
         )  # This parser is used to retrieve and format useful information from a sacct job
         from_slurm_to_clockwork = slurm_job_to_clockwork_job  # This function is used to translate a Slurm job (created through the parser) to a Clockwork job
     elif entity == "nodes":
@@ -162,7 +171,7 @@ def main_read_report_and_update_collection(
             "name"  # The id_key is used to determine how to retrieve the ID of a node
         )
         parser = NodeParser(
-            cluster_name
+            cluster_name, slurm_version=parser_version
         )  # This parser is used to retrieve and format useful information from a sacct node
         from_slurm_to_clockwork = slurm_node_to_clockwork_node  # This function is used to translate a Slurm node (created through the parser) to a Clockwork node
     else:
