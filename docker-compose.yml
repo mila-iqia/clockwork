@@ -1,5 +1,3 @@
-version: "3.7"
-
 # You need to set many environment variables for this to work.
 
 services:
