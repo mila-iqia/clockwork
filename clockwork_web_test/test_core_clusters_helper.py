@@ -30,7 +30,7 @@ def test_get_all_clusters():
             "display_order": 4,
             "status": {
                 "cluster_has_error": False,
-                "jobs_are_old": True,
+                "jobs_are_old": False,
             },
         },
         "cedar": {
@@ -50,7 +50,7 @@ def test_get_all_clusters():
             "display_order": 3,
             "status": {
                 "cluster_has_error": False,
-                "jobs_are_old": True,
+                "jobs_are_old": False,
             },
         },
         "graham": {
@@ -70,7 +70,7 @@ def test_get_all_clusters():
             "display_order": 5,
             "status": {
                 "cluster_has_error": False,
-                "jobs_are_old": True,
+                "jobs_are_old": False,
             },
         },
         "mila": {
@@ -85,7 +85,7 @@ def test_get_all_clusters():
             "display_order": 1,
             "status": {
                 "cluster_has_error": False,
-                "jobs_are_old": True,
+                "jobs_are_old": False,
             },
         },
         "narval": {
@@ -105,7 +105,7 @@ def test_get_all_clusters():
             "display_order": 2,
             "status": {
                 "cluster_has_error": False,
-                "jobs_are_old": True,
+                "jobs_are_old": False,
             },
         },
     }
