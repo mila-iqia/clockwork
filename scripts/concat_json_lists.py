@@ -24,11 +24,27 @@ def main(argv):
     args = my_parser.parse_args(argv[1:])
     print(args)
 
+    # In order to keep jobs and nodes from all our input sources,
+    # regardless of the repartition of the jobs and nodes by clusters,
+    # we divide the number we want to keep by the number of input
+    # sources we use, and keep this number of elements from each source.
+    kept_elements_nb = round(args.keep / len(args.inputs)) + 1
+    # Nota bene: as this number has to be an integer, we are not sure to
+    # have a perfect fraction of the requested number. Thus, we round up the
+    # result then add one: the surplus would then be withdrawn from the
+    # resulting data, but, unless we work with very little values (or a lot
+    # of input sources), it should not represent all the elements of any
+    # input source.
+
     L = []
+    # For each input file
     for input_path in args.inputs:
         with open(input_path, "r") as f:
             E = json.load(f)
-            L.extend(E)
+            # Get a part of the data
+            np.random.shuffle(E)
+            E = E[0:kept_elements_nb]
+        L.extend(E)
 
     if args.keep is not None:
         assert 0 < args.keep
