@@ -78,6 +78,12 @@ def test_job_no_user_props(page: Page, fake_data):
     props_table = page.locator("table#user_props_table")
     expect(props_table).to_have_count(0)
 
+    # Back to default settings
+    page.goto(f"{BASE_URL}/settings/")
+    select = page.locator("select#language_selection")
+    select.select_option("fr")
+    expect(select).to_have_value("fr")
+
 
 def test_job_with_user_props(page: Page, fake_data):
     mila_email_username = "student01@mila.quebec"
@@ -120,3 +126,9 @@ def test_job_with_user_props(page: Page, fake_data):
         expect(cols).to_have_count(2)
         expect(cols.nth(0)).to_contain_text(k)
         expect(cols.nth(1)).to_contain_text(str(v))
+
+    # Back to default settings
+    page.goto(f"{BASE_URL}/settings/")
+    select = page.locator("select#language_selection")
+    select.select_option("fr")
+    expect(select).to_have_value("fr")
