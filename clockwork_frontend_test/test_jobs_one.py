@@ -92,9 +92,7 @@ def test_job_with_user_props(page: Page, fake_data):
     # Check english is selected.
     expect(select).to_have_value("en")
 
-    job_id, _, user_props = _get_job_with_user_props(
-        fake_data, mila_email_username
-    )
+    job_id, _, user_props = _get_job_with_user_props(fake_data, mila_email_username)
     assert user_props
 
     # Go to job page
