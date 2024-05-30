@@ -15,7 +15,7 @@
 
 {% endblock %}
 {% block content %}
- 
+
     <div class="container">
         <div class="row">
             <div class="col-sm-12" id="changeme">
@@ -44,7 +44,7 @@
                             {% if k in ['batch_host'] and v != None %}
                                 <!-- TODO : Implement this link because it doesn't work now. -->
                                 <td><a href="/nodes/single_node/{{v}}"> {{v}} </a></td>
-                            
+
                             {% elif k == "cluster_name" %}
                                 <td><a href="/clusters/one?cluster_name={{v}}"> {{v}} </a></td>
 
@@ -78,6 +78,34 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+                <div class="row justify-content-between">
+                    <div class="col-8">
+                        <h2><strong>{{ gettext("Your props for job %(job_id)s", job_id=job_id) }}</strong></h2>
+                    </div>
+                </div>
+
+                {% if LP_job_user_props %}
+                    <p>{{ gettext("The array below displays the user props you defined for this job.") }}</p>
+                    <table class="table table-striped table-hover table-responsive" data-sortable id="user_props_table">
+                        <thead>
+                            <tr>
+                                <th>{{gettext("Prop key")}}</th>
+                                <th>{{ gettext("Prop value") }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for (k, v) in LP_job_user_props %}
+                        <tr>
+                            <td>{{k}}</td>
+                            <td>{{v}}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>{{ gettext("You have not defined any user prop for this job.") }}</p>
+                {% endif %}
             </div>
         </div>
     </div>
