@@ -7,6 +7,42 @@ import pytest
 from clockwork_web.core.jobs_helper import *
 from clockwork_web.db import get_db
 from clockwork_web.core.pagination_helper import get_pagination_values
+from clockwork_web.config import get_config
+
+
+def test_get_jobs_with_user_props(app, client, fake_data):
+    """Test that function get_jobs returns jobs with associated user props for test user email."""
+    email = get_config("clockwork.test.email")
+
+    # Map user props for test email with key (job_id, cluster_name)
+    job_key_to_user_props = {
+        (data["job_id"], data["cluster_name"]): data["props"]
+        for data in fake_data["job_user_props"]
+        if data["mila_email_username"] == email
+    }
+    assert job_key_to_user_props
+
+    # Log in to Clockwork as test email
+    login_response = client.get(f"/login/testing?user_id={email}")
+    assert login_response.status_code == 302  # Redirect
+
+    # Check user props
+    with app.app_context():
+        jobs, _ = get_jobs()
+        nb_jobs_with_props = 0
+        for job in jobs:
+            job_key = (job["slurm"]["job_id"], job["slurm"]["cluster_name"])
+            if job_key in job_key_to_user_props:
+                assert "job_user_props" in job
+                assert job["job_user_props"] == job_key_to_user_props[job_key]
+                nb_jobs_with_props += 1
+            else:
+                assert "job_user_props" not in job
+        assert nb_jobs_with_props == len(job_key_to_user_props)
+
+    # Log out from Clockwork
+    response_logout = client.get("/login/logout")
+    assert response_logout.status_code == 302  # Redirect
 
 
 @pytest.mark.parametrize(
