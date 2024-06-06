@@ -1,6 +1,6 @@
 from playwright.sync_api import Page, expect
 
-from clockwork_frontend_test.utils import BASE_URL
+from clockwork_frontend_test.utils import BASE_URL, get_fake_data, get_default_display_date
 
 
 # Expected dashboard table content for first columns (cluster, job ID, job name [:20], job state, submit time).
@@ -9,6 +9,32 @@ from clockwork_frontend_test.utils import BASE_URL
 # we get "UTC" in docker and "EST" outside. So, dates like "submit time" are not the same
 # when accessing server pages either inside or outside Docker.
 # For tests, we use dates inside Docker.
+
+# Retrieve data we are interested in from the fake data
+fake_data = get_fake_data()
+
+DASHBOARD_TABLE_CONTENT = []
+for job in fake_data["jobs"]:
+    if job["cw"]["mila_email_username"] == "student00@mila.quebec":
+        DASHBOARD_TABLE_CONTENT.append([
+            job["slurm"]["cluster_name"],
+            job["slurm"]["job_id"],
+            job["slurm"]["name"],
+            job["slurm"]["job_state"].lower(),
+            get_default_display_date(job["slurm"]["submit_time"]),
+            get_default_display_date(job["slurm"]["start_time"]),
+            get_default_display_date(job["slurm"]["end_time"])
+            # Then, there is the "Links" column: we don't add content yet,
+            # but here is a placeholder for future testing
+        ])
+
+# SORTED_CONTENT is saved between two clicks on the dashboard
+# This variable keeps its current state
+SORTED_CONTENT = DASHBOARD_TABLE_CONTENT
+
+"""
+Example of DASHBOARD_TABLE_CONTENT:
+
 DASHBOARD_TABLE_CONTENT = [
     ["graham", "213472", "somejobname_689441", "timeout", "2023/04/08 23:44"],
     ["mila", "914405", "somejobname_240391", "running", "2021/02/19 14:04"],
@@ -16,6 +42,7 @@ DASHBOARD_TABLE_CONTENT = [
     ["mila", "988661", "somejobname_989621", "cancelled", "2023/06/02 06:32"],
     ["mila", "688953", "somejobname_414417", "cancelled", "2023/05/29 01:33"],
 ]
+"""
 
 
 def test_login_and_logout(page: Page):
@@ -77,7 +104,8 @@ def test_dashboard_table_default_content(page: Page):
     expect(headers.nth(7)).to_contain_text("Links")
     # Check rows
     rows = table.locator("tbody tr")
-    expect(rows).to_have_count(5)
+    expect(rows).to_have_count(len(DASHBOARD_TABLE_CONTENT))
+
     for index_row, content_row in enumerate(DASHBOARD_TABLE_CONTENT):
         cols = rows.nth(index_row).locator("td")
         expect(cols).to_have_count(8)
@@ -117,23 +145,26 @@ def _check_dashboard_table_sorting(
 ):
     """Click on relevant header to sort dashboard table according to given parameters, then check sorting.
 
-    To check sorted table, we manually sort DASHBOARD_TABLE_CONTENT and use it as expected result.
+    To check sorted table, we manually sort SORTED_CONTENT (initially DASHBOARD_TABLE_CONTENT) and use it as expected result.
 
     NB:
     Dashboard table content is sorted by Javascript tool `Sortable`,
     which takes into account initial row order, especially if
     sorted column contains a same value many times.
-    So, to sort DASHBOARD_TABLE_CONTENT, we must use both sorted column and initial row order.
+    So, to sort SORTED_CONTENT, we must use both sorted column and initial row order.
     """
+    global SORTED_CONTENT
     # Create a temporary sortable content by adding initial row order at the end of each row,
     # then sort using column ID and row order (located in last column).
     sorted_content = sorted(
-        [row + [index_row] for index_row, row in enumerate(DASHBOARD_TABLE_CONTENT)],
+        [row + [index_row] for index_row, row in enumerate(SORTED_CONTENT)],
         key=lambda row: (row[column_id], row[-1]),
         reverse=reverse,
     )
+    
     # Remove last column (row order) to get only expected content.
     content = [row[:-1] for row in sorted_content]
+    SORTED_CONTENT = content
     # We assume DASHBOARD_TABLE_CONTENT is not initially sorted anyway.
     assert content != DASHBOARD_TABLE_CONTENT
     # Expected content is now ready for checking.
@@ -153,7 +184,7 @@ def _check_dashboard_table(page: Page, table_content: list):
     table = page.locator("table#dashboard_table")
     expect(table).to_have_count(1)
     rows = table.locator("tbody tr")
-    expect(rows).to_have_count(5)
+    expect(rows).to_have_count(len(DASHBOARD_TABLE_CONTENT))
     for index_row, content_row in enumerate(table_content):
         cols = rows.nth(index_row).locator("td")
         expect(cols).to_have_count(8)

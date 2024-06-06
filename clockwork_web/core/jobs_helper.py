@@ -437,6 +437,17 @@ def get_inferred_job_states(global_job_states):
     # Return the requested Slurm job states
     return requested_slurm_job_states
 
+def get_inferred_job_state(job_state):
+    """
+        Return the Clockwork job state corresponding to a
+        Slurm job state
+
+        Parameter:
+            job_state   The Slurm job state to convert
+
+        Returns the associated Clockwork job state
+    """
+    return job_state_to_aggregated[job_state.upper()]
 
 def get_jobs_properties_list_per_page():
     """
