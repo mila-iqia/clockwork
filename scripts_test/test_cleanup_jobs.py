@@ -6,7 +6,7 @@ from scripts_test.config import get_config
 from datetime import datetime, timedelta
 
 
-class DummyContext:
+class CleanupTestContext:
     DUMMY_DB_NAME = "testing_db_for_cleanup_1234"
     NB_JOBS = 100
 
@@ -53,13 +53,13 @@ class DummyContext:
 
 
 def test_keep_n_most_recent_jobs():
-    with DummyContext() as ctx:
+    with CleanupTestContext() as ctx:
         jobs = ctx.get_jobs()
 
         cleanup_jobs(["-n", "500"])
         assert jobs == ctx.get_jobs()
 
-        cleanup_jobs(["-n", str(DummyContext.NB_JOBS)])
+        cleanup_jobs(["-n", str(CleanupTestContext.NB_JOBS)])
         assert jobs == ctx.get_jobs()
 
         cleanup_jobs(["-n", "60"])
@@ -81,7 +81,7 @@ def test_keep_n_most_recent_jobs():
 
 @pytest.mark.parametrize("date_format", ["%Y-%m-%d-%H:%M:%S", "%Y-%m-%d"])
 def test_keep_jobs_after_a_date(date_format):
-    with DummyContext() as ctx:
+    with CleanupTestContext() as ctx:
         too_old_date = ctx.base_datetime - timedelta(days=1)
         inbound_date_1 = ctx.base_datetime + timedelta(days=15)
         inbound_date_2 = ctx.base_datetime + timedelta(days=60)
