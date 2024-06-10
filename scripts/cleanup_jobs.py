@@ -81,6 +81,8 @@ def keep_n_most_recent_jobs(n: int):
     filter_to_delete = {"_id": {"$in": [job["_id"] for job in jobs_to_delete]}}
     result = db_jobs.delete_many(filter_to_delete)
     nb_deleted_jobs = result.deleted_count
+    # Delete user props associated to deleted jobs
+    _delete_user_props(mc, jobs_to_delete)
 
     nb_remaining_jobs = db_jobs.count_documents({})
 
@@ -95,16 +97,49 @@ def keep_jobs_from_date(date: datetime):
     db_jobs = mc["jobs"]
     nb_total_jobs = db_jobs.count_documents({})
 
-    # Delete jobs
+    # Find jobs to delete
     # NB: Jobs that don't have `last_slurm_update` won't be found by this filter.
-    result = db_jobs.delete_many({"cw.last_slurm_update": {"$lt": date.timestamp()}})
+
+    jobs_to_delete = list(
+        db_jobs.find({"cw.last_slurm_update": {"$lt": date.timestamp()}})
+    )
+    if not jobs_to_delete:
+        print(f"No job found before {date}, nothing to do.")
+        return
+
+    # Delete jobs
+    filter_to_delete = {"_id": {"$in": [job["_id"] for job in jobs_to_delete]}}
+    result = db_jobs.delete_many(filter_to_delete)
     nb_deleted_jobs = result.deleted_count
+    # Delete user props associated to deleted jobs
+    _delete_user_props(mc, jobs_to_delete)
 
     nb_remaining_jobs = db_jobs.count_documents({})
 
     print(
         f"Jobs in database: initially {nb_total_jobs}, deleted {nb_deleted_jobs}, remaining {nb_remaining_jobs}"
     )
+
+
+def _delete_user_props(mc, jobs: list):
+    """Delete user props associated to given jobs."""
+    # Build filter.
+    # Use OR, to delete any of given jobs.
+    filter_jobs = {
+        "$or": [
+            # For each job, find user prop with same job ID and cluster name.
+            {
+                "$and": [
+                    {"job_id": job["slurm"]["job_id"]},
+                    {"cluster_name": job["slurm"]["cluster_name"]},
+                ]
+            }
+            for job in jobs
+        ]
+    }
+
+    result = mc["job_user_props"].delete_many(filter_jobs)
+    return result.deleted_count
 
 
 def _get_db():
