@@ -17,5 +17,7 @@ python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1
 
 echo Run tests
 pytest -vv clockwork_frontend_test
+#pytest -vv clockwork_frontend_test/test_jobs_search_for_student06.py
+#pytest -vv clockwork_frontend_test/test_jobs_search_for_student06.py::test_jobs_table_sorting_by_cluster
 
 echo Frontend tests done.
