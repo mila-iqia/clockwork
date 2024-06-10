@@ -1,4 +1,8 @@
-"""Script to clean-up jobs in database."""
+"""
+Script to clean-up jobs in database.
+
+To evaluate job status, we check job["slurm"]["slurm_last_update"].
+"""
 
 import argparse
 import sys
@@ -16,7 +20,7 @@ def main(arguments: list):
         type=int,
         help=(
             "Number of most recent jobs to keep. If specified, script will delete all older jobs until N jobs remain. "
-            "If there was initially less than N jobs in database, nothing will be deleted."
+            "If there were initially less than N jobs in database, nothing will be deleted."
         ),
     )
     group.add_argument(
@@ -65,12 +69,16 @@ def keep_n_most_recent_jobs(n: int):
         print(f"{nb_total_jobs} jobs in database, {n} to keep, nothing to do.")
         return
 
+    # Find jobs to delete.
+    # Sort jobs by slurm_last_update ascending
+    # and keep only first jobs, excluding n last jobs.
+    # NB: Jobs that don't have `last_slurm_update` will appear first in sorting.
     jobs_to_delete = list(
         db_jobs.find({}).sort([("cw.last_slurm_update", 1)]).limit(nb_total_jobs - n)
     )
     assert len(jobs_to_delete) == nb_total_jobs - n
+    # Delete jobs
     filter_to_delete = {"_id": {"$in": [job["_id"] for job in jobs_to_delete]}}
-
     result = db_jobs.delete_many(filter_to_delete)
     nb_deleted_jobs = result.deleted_count
 
@@ -87,6 +95,8 @@ def keep_jobs_from_date(date: datetime):
     db_jobs = mc["jobs"]
     nb_total_jobs = db_jobs.count_documents({})
 
+    # Delete jobs
+    # NB: Jobs that don't have `last_slurm_update` won't be found by this filter.
     result = db_jobs.delete_many({"cw.last_slurm_update": {"$lt": date.timestamp()}})
     nb_deleted_jobs = result.deleted_count
 
@@ -97,7 +107,14 @@ def keep_jobs_from_date(date: datetime):
     )
 
 
+def _get_db():
+    client = get_mongo_client()
+    mc = client[get_config("mongo.database_name")]
+    return mc
+
+
 def _debug_db_jobs():
+    """Debug function. Print job ID and `last_slurm_update` for each job in database."""
     mc = _get_db()
     db_jobs = mc["jobs"]
     jobs = list(db_jobs.find({}).sort([("cw.last_slurm_update", 1)]))
@@ -110,16 +127,11 @@ def _debug_db_jobs():
 
 
 def _fmt_last_slurm_update(job):
+    """Pretty print last_slurm_update (None if None, else as a date time)."""
     v = job["cw"].get("last_slurm_update")
     if v is None:
         return v
     return datetime.fromtimestamp(v)
-
-
-def _get_db():
-    client = get_mongo_client()
-    mc = client[get_config("mongo.database_name")]
-    return mc
 
 
 if __name__ == "__main__":
