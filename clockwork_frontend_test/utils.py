@@ -11,6 +11,7 @@ def get_fake_data():
     with open("test_common/fake_data.json", "r") as infile:
         return json.load(infile)
 
+
 def get_default_display_date(input_date):
     if input_date == None:
         return ""
@@ -18,4 +19,6 @@ def get_default_display_date(input_date):
         # If the timestamp is 0, does not display a time
         return ""
     else:
-        return datetime.fromtimestamp(input_date).strftime("%Y/%m/%d %H:%M") # The format is YYYY/MM/DD hh:mm
+        return datetime.fromtimestamp(input_date).strftime(
+            "%Y/%m/%d %H:%M"
+        )  # The format is YYYY/MM/DD hh:mm

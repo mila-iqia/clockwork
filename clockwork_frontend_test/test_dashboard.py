@@ -1,6 +1,10 @@
 from playwright.sync_api import Page, expect
 
-from clockwork_frontend_test.utils import BASE_URL, get_fake_data, get_default_display_date
+from clockwork_frontend_test.utils import (
+    BASE_URL,
+    get_fake_data,
+    get_default_display_date,
+)
 
 
 # Expected dashboard table content for first columns (cluster, job ID, job name [:20], job state, submit time).
@@ -16,17 +20,19 @@ fake_data = get_fake_data()
 DASHBOARD_TABLE_CONTENT = []
 for job in fake_data["jobs"]:
     if job["cw"]["mila_email_username"] == "student00@mila.quebec":
-        DASHBOARD_TABLE_CONTENT.append([
-            job["slurm"]["cluster_name"],
-            job["slurm"]["job_id"],
-            job["slurm"]["name"],
-            job["slurm"]["job_state"].lower(),
-            get_default_display_date(job["slurm"]["submit_time"]),
-            get_default_display_date(job["slurm"]["start_time"]),
-            get_default_display_date(job["slurm"]["end_time"])
-            # Then, there is the "Links" column: we don't add content yet,
-            # but here is a placeholder for future testing
-        ])
+        DASHBOARD_TABLE_CONTENT.append(
+            [
+                job["slurm"]["cluster_name"],
+                job["slurm"]["job_id"],
+                job["slurm"]["name"],
+                job["slurm"]["job_state"].lower(),
+                get_default_display_date(job["slurm"]["submit_time"]),
+                get_default_display_date(job["slurm"]["start_time"]),
+                get_default_display_date(job["slurm"]["end_time"])
+                # Then, there is the "Links" column: we don't add content yet,
+                # but here is a placeholder for future testing
+            ]
+        )
 
 # SORTED_CONTENT is saved between two clicks on the dashboard
 # This variable keeps its current state
@@ -161,7 +167,7 @@ def _check_dashboard_table_sorting(
         key=lambda row: (row[column_id], row[-1]),
         reverse=reverse,
     )
-    
+
     # Remove last column (row order) to get only expected content.
     content = [row[:-1] for row in sorted_content]
     SORTED_CONTENT = content
