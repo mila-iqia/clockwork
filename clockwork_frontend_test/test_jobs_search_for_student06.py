@@ -1,29 +1,40 @@
 from playwright.sync_api import Page, expect
 
-from clockwork_frontend_test.utils import BASE_URL
+from clockwork_frontend_test.utils import BASE_URL, get_fake_data
+from clockwork_web.core.jobs_helper import get_inferred_job_state
 
+current_username = "student06@mila.quebec"
+
+# Retrieve data we are interested in from the fake data
+fake_data = get_fake_data()
+
+# Sorts the jobs by submit time
+sorted_jobs = sorted(
+    fake_data["jobs"], key=lambda j: (-j["slurm"]["submit_time"], j["slurm"]["job_id"])
+)
+
+sorted_mila_jobs = []
+for job in sorted_jobs:
+    if (
+        job["slurm"]["cluster_name"] == "mila"
+    ):  # student06@mila.quebec has access to the Mila cluster only
+        sorted_mila_jobs.append(job)
+
+# Get all the jobs visible by student06 and format them for our tests
+MILA_JOBS = []
+for job in sorted_mila_jobs:
+    MILA_JOBS.append(
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+    )
 
 # Expected jobs table content for first columns (cluster, user (@mila.quebec), job ID).
-JOBS_SEARCH_DEFAULT_TABLE = [
-    ["mila", "student08 @mila.quebec", "159143"],
-    ["mila", "student11 @mila.quebec", "821519"],
-    ["mila", "student09 @mila.quebec", "587459"],
-    ["mila", "student06 @mila.quebec", "795002"],
-    ["mila", "student00 @mila.quebec", "988661"],
-    ["mila", "student16 @mila.quebec", "606872"],
-    ["mila", "student06 @mila.quebec", "462974"],
-    ["mila", "student06 @mila.quebec", "591707"],
-    ["mila", "student04 @mila.quebec", "895000"],
-    ["mila", "student04 @mila.quebec", "199032"],
-    ["mila", "student12 @mila.quebec", "658913"],
-    ["mila", "student00 @mila.quebec", "688953"],
-    ["mila", "student09 @mila.quebec", "6242"],
-    ["mila", "student05 @mila.quebec", "637504"],
-    ["mila", "student00 @mila.quebec", "914405"],
-    ["mila", "student15 @mila.quebec", "946069"],
-    ["mila", "student02 @mila.quebec", "195046"],
-    ["mila", "student06 @mila.quebec", "645674"],
-]
+JOBS_SEARCH_DEFAULT_TABLE = MILA_JOBS[:40]
 
 
 def _load_jobs_search_page(page: Page):
@@ -91,21 +102,19 @@ def test_filter_by_user_only_me(page: Page):
     _get_search_button(page).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"username=student06@mila.quebec"
+        f"username={current_username}"
         f"&cluster_name=mila"
         f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
         f"&nbr_items_per_page=40"
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
+    expected_results = [
+        job for job in MILA_JOBS if job[1] == current_username.replace("@", " @")
+    ][:40]
     _check_jobs_table(
         page,
-        [
-            ["mila", "student06 @mila.quebec", "795002"],
-            ["mila", "student06 @mila.quebec", "462974"],
-            ["mila", "student06 @mila.quebec", "591707"],
-            ["mila", "student06 @mila.quebec", "645674"],
-        ],
+        expected_results,
     )
 
     # Back to all users.
@@ -127,6 +136,8 @@ def test_filter_by_user_only_me(page: Page):
 
 
 def test_filter_by_user_other_user(page: Page):
+    searched_username = "student05@mila.quebec"
+
     _load_jobs_search_page(page)
     radio_button_other_user = page.locator("input#user_option_other")
     expect(radio_button_other_user).to_be_visible()
@@ -142,18 +153,20 @@ def test_filter_by_user_other_user(page: Page):
 
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"username=student05@mila.quebec"
+        f"username={searched_username}"
         f"&cluster_name=mila"
         f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
         f"&nbr_items_per_page=40"
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
+
+    expected_results = [
+        job for job in MILA_JOBS if job[1] == searched_username.replace("@", " @")
+    ][:40]
     _check_jobs_table(
         page,
-        [
-            ["mila", "student05 @mila.quebec", "637504"],
-        ],
+        expected_results,
     )
 
     # Back to all users.
@@ -193,7 +206,7 @@ def test_filter_by_cluster_except_one(page: Page):
         f"sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    # WHen no cluster is selected, table is not filtered.
+    # When no cluster is selected, table is not filtered.
     _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
 
     # As table is not filtered, cluster mila is already checked.
@@ -256,22 +269,21 @@ def test_filter_by_status_except_one(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
+
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_mila_jobs
+        if "RUNNING" != get_inferred_job_state(job["slurm"]["job_state"])
+    ][:40]
     _check_jobs_table(
         page,
-        [
-            ["mila", "student11 @mila.quebec", "821519"],
-            ["mila", "student09 @mila.quebec", "587459"],
-            ["mila", "student06 @mila.quebec", "795002"],
-            ["mila", "student00 @mila.quebec", "988661"],
-            ["mila", "student16 @mila.quebec", "606872"],
-            ["mila", "student06 @mila.quebec", "462974"],
-            ["mila", "student06 @mila.quebec", "591707"],
-            ["mila", "student04 @mila.quebec", "895000"],
-            ["mila", "student04 @mila.quebec", "199032"],
-            ["mila", "student12 @mila.quebec", "658913"],
-            ["mila", "student00 @mila.quebec", "688953"],
-            ["mila", "student09 @mila.quebec", "6242"],
-        ],
+        expected_results,
     )
 
     # Back to all statuses.
@@ -319,22 +331,22 @@ def test_filter_by_status_except_two(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
+
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_mila_jobs
+        if "PENDING" == get_inferred_job_state(job["slurm"]["job_state"])
+        or "FAILED" == get_inferred_job_state(job["slurm"]["job_state"])
+    ][:40]
     _check_jobs_table(
         page,
-        [
-            ["mila", "student11 @mila.quebec", "821519"],
-            ["mila", "student09 @mila.quebec", "587459"],
-            ["mila", "student06 @mila.quebec", "795002"],
-            ["mila", "student00 @mila.quebec", "988661"],
-            ["mila", "student16 @mila.quebec", "606872"],
-            ["mila", "student06 @mila.quebec", "462974"],
-            ["mila", "student06 @mila.quebec", "591707"],
-            ["mila", "student04 @mila.quebec", "895000"],
-            ["mila", "student04 @mila.quebec", "199032"],
-            ["mila", "student12 @mila.quebec", "658913"],
-            ["mila", "student00 @mila.quebec", "688953"],
-            ["mila", "student09 @mila.quebec", "6242"],
-        ],
+        expected_results,
     )
 
     # Back to all statuses.
@@ -388,13 +400,23 @@ def test_multiple_filters(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
+
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if job["cw"]["mila_email_username"] == "student06@mila.quebec"
+        and get_inferred_job_state(job["slurm"]["job_state"])
+        in ["COMPLETED", "PENDING", "FAILED"]
+    ][:40]
     _check_jobs_table(
         page,
-        [
-            ["mila", "student06 @mila.quebec", "795002"],
-            ["mila", "student06 @mila.quebec", "462974"],
-            ["mila", "student06 @mila.quebec", "591707"],
-        ],
+        expected_results,
     )
 
     # Reset all filters.
@@ -424,107 +446,54 @@ def test_multiple_filters(page: Page):
 
 def test_jobs_table_sorting_by_cluster(page: Page):
     _load_jobs_search_page(page)
-    expected_content = [
-        ["mila", "student08 @mila.quebec", "159143"],
-        ["mila", "student02 @mila.quebec", "195046"],
-        ["mila", "student04 @mila.quebec", "199032"],
-        ["mila", "student06 @mila.quebec", "462974"],
-        ["mila", "student09 @mila.quebec", "587459"],
-        ["mila", "student06 @mila.quebec", "591707"],
-        ["mila", "student16 @mila.quebec", "606872"],
-        ["mila", "student09 @mila.quebec", "6242"],
-        ["mila", "student05 @mila.quebec", "637504"],
-        ["mila", "student06 @mila.quebec", "645674"],
-        ["mila", "student12 @mila.quebec", "658913"],
-        ["mila", "student00 @mila.quebec", "688953"],
-        ["mila", "student06 @mila.quebec", "795002"],
-        ["mila", "student11 @mila.quebec", "821519"],
-        ["mila", "student04 @mila.quebec", "895000"],
-        ["mila", "student00 @mila.quebec", "914405"],
-        ["mila", "student15 @mila.quebec", "946069"],
-        ["mila", "student00 @mila.quebec", "988661"],
+
+    expected_results = [job for job in sorted(MILA_JOBS, key=lambda j: (j[0], j[2]))][
+        :40
     ]
-    _check_jobs_table_sorting(page, 0, "Cluster", "cluster_name", expected_content)
+    _check_jobs_table_sorting(page, 0, "Cluster", "cluster_name", expected_results)
 
 
 def test_jobs_table_sorting_by_job_id(page: Page):
     _load_jobs_search_page(page)
-    expected_content = [
-        ["mila", "student00 @mila.quebec", "988661"],
-        ["mila", "student15 @mila.quebec", "946069"],
-        ["mila", "student00 @mila.quebec", "914405"],
-        ["mila", "student04 @mila.quebec", "895000"],
-        ["mila", "student11 @mila.quebec", "821519"],
-        ["mila", "student06 @mila.quebec", "795002"],
-        ["mila", "student00 @mila.quebec", "688953"],
-        ["mila", "student12 @mila.quebec", "658913"],
-        ["mila", "student06 @mila.quebec", "645674"],
-        ["mila", "student05 @mila.quebec", "637504"],
-        ["mila", "student09 @mila.quebec", "6242"],
-        ["mila", "student16 @mila.quebec", "606872"],
-        ["mila", "student06 @mila.quebec", "591707"],
-        ["mila", "student09 @mila.quebec", "587459"],
-        ["mila", "student06 @mila.quebec", "462974"],
-        ["mila", "student04 @mila.quebec", "199032"],
-        ["mila", "student02 @mila.quebec", "195046"],
-        ["mila", "student08 @mila.quebec", "159143"],
-    ]
+    expected_results = [
+        job for job in sorted(MILA_JOBS, key=lambda j: (j[0], j[2]), reverse=True)
+    ][:40]
     _check_jobs_table_sorting(
-        page, 2, "Job ID", "job_id", expected_content, reverse=True
+        page, 2, "Job ID", "job_id", expected_results, reverse=True
     )
 
 
 def test_jobs_table_sorting_by_job_id_ascending(page: Page):
     _load_jobs_search_page(page)
-    expected_content = [
-        ["mila", "student08 @mila.quebec", "159143"],
-        ["mila", "student02 @mila.quebec", "195046"],
-        ["mila", "student04 @mila.quebec", "199032"],
-        ["mila", "student06 @mila.quebec", "462974"],
-        ["mila", "student09 @mila.quebec", "587459"],
-        ["mila", "student06 @mila.quebec", "591707"],
-        ["mila", "student16 @mila.quebec", "606872"],
-        ["mila", "student09 @mila.quebec", "6242"],
-        ["mila", "student05 @mila.quebec", "637504"],
-        ["mila", "student06 @mila.quebec", "645674"],
-        ["mila", "student12 @mila.quebec", "658913"],
-        ["mila", "student00 @mila.quebec", "688953"],
-        ["mila", "student06 @mila.quebec", "795002"],
-        ["mila", "student11 @mila.quebec", "821519"],
-        ["mila", "student04 @mila.quebec", "895000"],
-        ["mila", "student00 @mila.quebec", "914405"],
-        ["mila", "student15 @mila.quebec", "946069"],
-        ["mila", "student00 @mila.quebec", "988661"],
+    expected_results = [job for job in sorted(MILA_JOBS, key=lambda j: (j[0], j[2]))][
+        :40
     ]
     _check_jobs_table_sorting(
-        page, 2, "Job ID", "job_id", expected_content, double_click=True, reverse=False
+        page, 2, "Job ID", "job_id", expected_results, double_click=True, reverse=False
     )
 
 
 def test_jobs_table_sorting_by_end_time(page: Page):
     _load_jobs_search_page(page)
-    expected_content = [
-        ["mila", "student16 @mila.quebec", "606872"],
-        ["mila", "student06 @mila.quebec", "591707"],
-        ["mila", "student06 @mila.quebec", "462974"],
-        ["mila", "student11 @mila.quebec", "821519"],
-        ["mila", "student04 @mila.quebec", "199032"],
-        ["mila", "student12 @mila.quebec", "658913"],
-        ["mila", "student00 @mila.quebec", "688953"],
-        ["mila", "student06 @mila.quebec", "795002"],
-        ["mila", "student09 @mila.quebec", "587459"],
-        ["mila", "student04 @mila.quebec", "895000"],
-        ["mila", "student09 @mila.quebec", "6242"],
-        ["mila", "student00 @mila.quebec", "988661"],
-        ["mila", "student08 @mila.quebec", "159143"],
-        ["mila", "student02 @mila.quebec", "195046"],
-        ["mila", "student05 @mila.quebec", "637504"],
-        ["mila", "student06 @mila.quebec", "645674"],
-        ["mila", "student00 @mila.quebec", "914405"],
-        ["mila", "student15 @mila.quebec", "946069"],
-    ]
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted(
+            sorted_mila_jobs,
+            key=lambda j: (
+                0 if j["slurm"]["end_time"] is None else -j["slurm"]["end_time"],
+                j["slurm"]["job_id"],
+            ),
+        )
+    ][:40]
+
     _check_jobs_table_sorting(
-        page, 8, "End time", "end_time", expected_content, reverse=True
+        page, 8, "End time", "end_time", expected_results, reverse=True
     )
 
 
