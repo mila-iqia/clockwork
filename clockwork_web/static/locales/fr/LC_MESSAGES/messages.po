@@ -661,3 +661,27 @@ msgstr "Nombre de jobs"
 #~ msgid "Director"
 #~ msgstr "Directeur"
 
+#: clockwork_web/templates/single_job.html:84
+#, python-format
+msgid "Your props for job %(job_id)s"
+msgstr "Vos propriétés pour le job %(job_id)s"
+
+#: clockwork_web/templates/single_job.html:89
+#, python-format
+msgid "The array below displays the user props you defined for this job."
+msgstr "Le tableau ci-dessous affiche les propriétés que vous avez définies pour ce job."
+
+#: clockwork_web/templates/single_job.html:93
+#, python-format
+msgid "Prop key"
+msgstr "Nom de la propriété"
+
+#: clockwork_web/templates/single_job.html:94
+#, python-format
+msgid "Prop value"
+msgstr "Valeur de la propriété"
+
+#: clockwork_web/templates/single_job.html:107
+#, python-format
+msgid "You have not defined any user prop for this job."
+msgstr "Vous n'avez défini aucune propriété pour ce job."

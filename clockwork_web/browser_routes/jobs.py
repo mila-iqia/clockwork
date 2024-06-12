@@ -276,9 +276,19 @@ def route_one():
             "@"
         )[0]
 
+    # Get job user props and sort them alphabetically.
+    # NB: Currently, there is no constraint on prop value type,
+    # so it may be a basic type (e.g. str or int), or even an array.
+    # For simplification, we convert any value to its string representation.
+    LP_job_user_props = sorted(
+        ((k, str(v)) for k, v in D_job.get("job_user_props", {}).items()),
+        key=lambda e: e[0],
+    )
+
     return render_template_with_user_settings(
         "single_job.html",
         LP_single_job_slurm=LP_single_job_slurm,
+        LP_job_user_props=LP_job_user_props,
         D_single_job_cw=D_single_job_cw,
         job_id=job_ids[0],
         mila_email_username=current_user.mila_email_username,
