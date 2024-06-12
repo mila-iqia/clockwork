@@ -132,3 +132,59 @@ def test_job_with_user_props(page: Page, fake_data):
     select = page.locator("select#language_selection")
     select.select_option("fr")
     expect(select).to_have_value("fr")
+
+
+def test_job_no_user_props_fr(page: Page, fake_data):
+    mila_email_username = "student01@mila.quebec"
+    # Login
+    page.goto(f"{BASE_URL}/login/testing?user_id={mila_email_username}")
+
+    job = _get_job_without_user_props(fake_data, mila_email_username)
+    job_id = job["slurm"]["job_id"]
+    # Go to job page
+    page.goto(f"{BASE_URL}/jobs/one?job_id={job_id}")
+    # Check we are on job page
+    expect(page.locator("h1").get_by_text(f"Job {job_id}")).to_be_visible()
+    # Check user props section is well displayed
+    expect(page.get_by_text(f"Vos propriétés pour le job {job_id}")).to_be_visible()
+    # Check user props section does not contain any prop
+    expect(
+        page.get_by_text("Vous n'avez défini aucune propriété pour ce job.")
+    ).to_be_visible()
+    props_table = page.locator("table#user_props_table")
+    expect(props_table).to_have_count(0)
+
+
+def test_job_with_user_props_fr(page: Page, fake_data):
+    mila_email_username = "student01@mila.quebec"
+    # Login
+    page.goto(f"{BASE_URL}/login/testing?user_id={mila_email_username}")
+
+    job_id, _, user_props = _get_job_with_user_props(fake_data, mila_email_username)
+    assert user_props
+
+    # Go to job page
+    page.goto(f"{BASE_URL}/jobs/one?job_id={job_id}")
+    # Check we are on job page
+    expect(page.locator("h1").get_by_text(f"Job {job_id}")).to_be_visible()
+    expect(page.get_by_text(f"Vos propriétés pour le job {job_id}")).to_be_visible()
+    # Check we do have user props displayed
+    expect(
+        page.get_by_text(
+            "Le tableau ci-dessous affiche les propriétés que vous avez définies pour ce job."
+        )
+    ).to_be_visible()
+
+    # Check displayed user props
+
+    props_table = page.locator("table#user_props_table")
+    expect(props_table).to_have_count(1)
+    rows = props_table.locator("tbody tr")
+    expect(rows).to_have_count(len(user_props))
+
+    for i, (k, v) in enumerate(sorted(user_props.items(), key=lambda e: e[0])):
+        row = rows.nth(i)
+        cols = row.locator("td")
+        expect(cols).to_have_count(2)
+        expect(cols.nth(0)).to_contain_text(k)
+        expect(cols.nth(1)).to_contain_text(str(v))
