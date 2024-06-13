@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from scripts.cleanup_jobs import main as cleanup_jobs
 from scripts_test.config import get_config
 from datetime import datetime, timedelta
+from collections import Counter
 
 
 class CleanupTestContext:
@@ -22,12 +23,21 @@ class CleanupTestContext:
 
         base_datetime = datetime.now()
 
+        # Create fake users, intended to be checked when cleaning jobs per user.
+        fake_users = [
+            {"mila_email_username": "first_user_0@email.com"},
+            {"mila_email_username": "first_user_1@email.com"},
+        ]
         # Create fake jobs
         fake_jobs = [
             {
                 "slurm": {"job_id": str(i), "cluster_name": f"cluster_{i}"},
                 "cw": {
-                    "last_slurm_update": (base_datetime + timedelta(days=i)).timestamp()
+                    "last_slurm_update": (
+                        base_datetime + timedelta(days=i)
+                    ).timestamp(),
+                    # Associate first NB_JOBS / 4 Jobs to first_user_0 and other jobs to first_user_1
+                    "mila_email_username": f"first_user_{int(i >= self.NB_JOBS / 4)}@email.com",
                 },
             }
             for i in range(self.NB_JOBS)
@@ -54,8 +64,12 @@ class CleanupTestContext:
         del fake_jobs[0]["cw"]["last_slurm_update"]
         fake_jobs[1]["cw"]["last_slurm_update"] = None
 
+        db_users = mc["users"]
         db_jobs = mc["jobs"]
         db_user_props = mc["job_user_props"]
+
+        db_users.delete_many({})
+        db_users.insert_many(fake_users)
         db_jobs.delete_many({})
         db_jobs.insert_many(fake_jobs)
         db_user_props.delete_many({})
@@ -147,6 +161,86 @@ def test_keep_n_most_recent_jobs():
 
         cleanup_jobs(["-n", "0"])
         # With current code, "-n 0" will erase all jobs in database.
+        assert len(ctx.check_user_props()) == 0
+
+
+def test_keep_n_most_recent_jobs_per_user():
+    with CleanupTestContext() as ctx:
+        jobs = ctx.check_user_props()
+
+        # Check we indeed have 25 jobs for first_user_0 and 75 jobs for first_user_1
+        nb_jobs_per_user = Counter(job["cw"]["mila_email_username"] for job in jobs)
+        assert len(nb_jobs_per_user) == 2
+        count = nb_jobs_per_user.most_common()
+        assert count == [("first_user_1@email.com", 75), ("first_user_0@email.com", 25)]
+
+        cleanup_jobs(["-u", "100"])
+        # Nothing should happen
+        assert jobs == ctx.check_user_props()
+
+        cleanup_jobs(["-u", "75"])
+        # Nothing shoule happen
+        assert jobs == ctx.check_user_props()
+
+        cleanup_jobs(["-u", "74"])
+        # Nothing should happen for first_user_0 (25 => 25)
+        # 1 job (oldest one) should be deleted for first_user_1 (75 => 74)
+        current_jobs = ctx.check_user_props()
+        jobs_first_user_0 = current_jobs[:25]
+        jobs_first_user_1 = current_jobs[25:]
+        assert len(jobs_first_user_0) == 25
+        assert len(jobs_first_user_1) == 74
+        assert all(
+            job["cw"]["mila_email_username"] == "first_user_0@email.com"
+            for job in jobs_first_user_0
+        )
+        assert all(
+            job["cw"]["mila_email_username"] == "first_user_1@email.com"
+            for job in jobs_first_user_1
+        )
+        assert jobs[:25] == jobs_first_user_0
+        assert jobs[26:] == jobs_first_user_1
+
+        cleanup_jobs(["-u", "26"])
+        # Nothing should happen for first_user_0 (25 => 25)
+        # 74 - 26 jobs (oldest ones) should be deleted for first_user_1 (74 => 26)
+        current_jobs = ctx.check_user_props()
+        jobs_first_user_0 = current_jobs[:25]
+        jobs_first_user_1 = current_jobs[25:]
+        assert len(jobs_first_user_0) == 25
+        assert len(jobs_first_user_1) == 26
+        assert all(
+            job["cw"]["mila_email_username"] == "first_user_0@email.com"
+            for job in jobs_first_user_0
+        )
+        assert all(
+            job["cw"]["mila_email_username"] == "first_user_1@email.com"
+            for job in jobs_first_user_1
+        )
+        assert jobs[:25] == jobs_first_user_0
+        assert jobs[-26:] == jobs_first_user_1
+
+        cleanup_jobs(["-u", "17"])
+        # 25 - 17 jobs (oldest ones) should be deleted for first_user_0 (25 => 17)
+        # 26 - 17 jobs (oldest ones) should be deleted for first_user_1 (26 => 17)
+        current_jobs = ctx.check_user_props()
+        jobs_first_user_0 = current_jobs[:17]
+        jobs_first_user_1 = current_jobs[17:]
+        assert len(jobs_first_user_0) == 17
+        assert len(jobs_first_user_1) == 17
+        assert all(
+            job["cw"]["mila_email_username"] == "first_user_0@email.com"
+            for job in jobs_first_user_0
+        )
+        assert all(
+            job["cw"]["mila_email_username"] == "first_user_1@email.com"
+            for job in jobs_first_user_1
+        )
+        assert jobs[(25 - 17) : 25] == jobs_first_user_0
+        assert jobs[-17:] == jobs_first_user_1
+
+        cleanup_jobs(["-u", "0"])
+        # All jobs should be deleted
         assert len(ctx.check_user_props()) == 0
 
 

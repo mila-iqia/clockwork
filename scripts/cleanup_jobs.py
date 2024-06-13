@@ -20,7 +20,17 @@ def main(arguments: list):
         type=int,
         help=(
             "Number of most recent jobs to keep. If specified, script will delete all older jobs until N jobs remain. "
-            "If there were initially less than N jobs in database, nothing will be deleted."
+            "If there were initially at most N jobs in database, nothing will be deleted."
+        ),
+    )
+    group.add_argument(
+        "-u",
+        "--jobs-per-user",
+        type=int,
+        help=(
+            "Number of most recent jobs to keep **PER USER**. "
+            "If specified, script will delete all older jobs until N Jobss remain for each user. "
+            "If a user initially had at most N jobs, all its jobs will remain."
         ),
     )
     group.add_argument(
@@ -47,6 +57,8 @@ def main(arguments: list):
 
     if args.jobs is not None:
         keep_n_most_recent_jobs(args.jobs)
+    elif args.jobs_per_user is not None:
+        keep_n_most_recent_jobs_per_user(args.jobs_per_user)
     else:
         if args.date.count("-") == 2:
             date_format = "%Y-%m-%d"
@@ -78,6 +90,54 @@ def keep_n_most_recent_jobs(n: int):
     )
     assert len(jobs_to_delete) == nb_total_jobs - n
     # Delete jobs
+    filter_to_delete = {"_id": {"$in": [job["_id"] for job in jobs_to_delete]}}
+    result = db_jobs.delete_many(filter_to_delete)
+    nb_deleted_jobs = result.deleted_count
+    # Delete user props associated to deleted jobs
+    _delete_user_props(mc, jobs_to_delete)
+
+    nb_remaining_jobs = db_jobs.count_documents({})
+
+    print(
+        f"Jobs in database: initially {nb_total_jobs}, deleted {nb_deleted_jobs}, remaining {nb_remaining_jobs}"
+    )
+
+
+def keep_n_most_recent_jobs_per_user(n: int):
+    mc = _get_db()
+    db_jobs = mc["jobs"]
+    nb_total_jobs = db_jobs.count_documents({})
+
+    db_users = mc["users"]
+    nb_users = db_users.count_documents({})
+    print(f"Keeping {n} most recent jobs for each of {nb_users} users.")
+
+    jobs_to_delete = []
+    for user in db_users.find({}).sort([("mila_email_username", 1)]):
+        mila_email_username = user["mila_email_username"]
+        user_filter = {"cw.mila_email_username": mila_email_username}
+        nb_user_jobs = db_jobs.count_documents(user_filter)
+        if nb_user_jobs <= n:
+            # print(f"[{mila_email_username}] {nb_user_jobs} user jobs, nothing to do.")
+            continue
+
+        # Find user jobs to delete.
+        # Sort jobs by slurm_last_update ascending
+        # and keep only first jobs, excluding n last jobs.
+        # NB: Jobs that don't have `last_slurm_update` will appear first in sorting.
+        user_jobs_to_delete = list(
+            db_jobs.find(user_filter)
+            .sort([("cw.last_slurm_update", 1)])
+            .limit(nb_user_jobs - n)
+        )
+        assert len(user_jobs_to_delete) == nb_user_jobs - n
+        jobs_to_delete.extend(user_jobs_to_delete)
+        # print(f"[{mila_email_username}] {nb_user_jobs} user jobs, {len(user_jobs_to_delete)} to delete.")
+
+    if not jobs_to_delete:
+        print(f"Each user has at most {n} jobs, nothing to do.")
+        return
+
     filter_to_delete = {"_id": {"$in": [job["_id"] for job in jobs_to_delete]}}
     result = db_jobs.delete_many(filter_to_delete)
     nb_deleted_jobs = result.deleted_count
