@@ -1,50 +1,40 @@
 from playwright.sync_api import Page, expect
+from random import choice
 
-from clockwork_frontend_test.utils import BASE_URL
+from clockwork_frontend_test.utils import BASE_URL, get_fake_data
+from clockwork_web.core.jobs_helper import get_inferred_job_state
 
+# Retrieve data we are interested in from the fake data
+fake_data = get_fake_data()
+
+# Sorts the jobs by submit time
+sorted_jobs = sorted(
+    fake_data["jobs"], key=lambda j: (-j["slurm"]["submit_time"], j["slurm"]["job_id"])
+)
 
 # Expected jobs table content for first columns (cluster, user (@mila.quebec), job ID).
-JOBS_SEARCH_DEFAULT_TABLE = [
-    ["cedar", "student05 @mila.quebec", "162810"],
-    ["mila", "student08 @mila.quebec", "159143"],
-    ["mila", "student11 @mila.quebec", "821519"],
-    ["mila", "student09 @mila.quebec", "587459"],
-    ["mila", "student06 @mila.quebec", "795002"],
-    ["mila", "student00 @mila.quebec", "988661"],
-    ["mila", "student16 @mila.quebec", "606872"],
-    ["mila", "student06 @mila.quebec", "462974"],
-    ["mila", "student06 @mila.quebec", "591707"],
-    ["mila", "student04 @mila.quebec", "895000"],
-    ["mila", "student04 @mila.quebec", "199032"],
-    ["mila", "student12 @mila.quebec", "658913"],
-    ["mila", "student00 @mila.quebec", "688953"],
-    ["mila", "student09 @mila.quebec", "6242"],
-    ["graham", "student02 @mila.quebec", "176413"],
-    ["graham", "student15 @mila.quebec", "834395"],
-    ["graham", "student15 @mila.quebec", "154325"],
-    ["graham", "student08 @mila.quebec", "573157"],
-    ["graham", "student12 @mila.quebec", "613024"],
-    ["graham", "student18 @mila.quebec", "711192"],
-    ["graham", "student04 @mila.quebec", "755456"],
-    ["cedar", "student18 @mila.quebec", "671999"],
-    ["cedar", "student07 @mila.quebec", "474015"],
-    ["cedar", "student11 @mila.quebec", "357153"],
-    ["cedar", "student11 @mila.quebec", "739671"],
-    ["cedar", "student03 @mila.quebec", "914229"],
-    ["cedar", "student12 @mila.quebec", "395476"],
-    ["cedar", "student15 @mila.quebec", "330000"],
-    ["cedar", "student08 @mila.quebec", "709562"],
-    ["cedar", "student07 @mila.quebec", "42644"],
-    ["cedar", "student14 @mila.quebec", "528078"],
-    ["cedar", "student11 @mila.quebec", "91221"],
-    ["cedar", "student04 @mila.quebec", "239334"],
-    ["graham", "student02 @mila.quebec", "162069"],
-    ["graham", "student05 @mila.quebec", "340462"],
-    ["graham", "student04 @mila.quebec", "213258"],
-    ["graham", "student05 @mila.quebec", "374687"],
-    ["beluga", "student17 @mila.quebec", "647328"],
-    ["beluga", "student04 @mila.quebec", "822514"],
-    ["beluga", "student09 @mila.quebec", "498497"],
+JOBS_SEARCH_DEFAULT_TABLE = []
+for i in range(0, 40):
+    job = sorted_jobs[i]
+    JOBS_SEARCH_DEFAULT_TABLE.append(
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+    )
+
+ALL_JOBS = [
+    [
+        job["slurm"]["cluster_name"],
+        job["cw"]["mila_email_username"].replace("@", " @")
+        if job["cw"]["mila_email_username"] is not None
+        else "",
+        job["slurm"]["job_id"],
+    ]
+    for job in sorted_jobs
 ]
 
 
@@ -54,6 +44,14 @@ def _load_jobs_search_page(page: Page):
     page.goto(f"{BASE_URL}/login/testing?user_id=student00@mila.quebec")
     # Go to jobs/search page
     page.goto(f"{BASE_URL}/jobs/search")
+
+
+def _load_all_jobs_search_page(page: Page):
+    """Login and go to jobs search page."""
+    # Login
+    page.goto(f"{BASE_URL}/login/testing?user_id=student00@mila.quebec")
+    # Go to jobs/search page
+    page.goto(f"{BASE_URL}/jobs/search?nbr_items_per_page={len(sorted_jobs)}")
 
 
 def _check_jobs_table(page: Page, table_content: list):
@@ -104,6 +102,8 @@ def test_jobs_search_default(page: Page):
 
 
 def test_filter_by_user_only_me(page: Page):
+    current_username = "student00@mila.quebec"
+
     _load_jobs_search_page(page)
     radio_button_only_me = page.locator("input#user_option_only_me")
     expect(radio_button_only_me).to_be_visible()
@@ -113,22 +113,29 @@ def test_filter_by_user_only_me(page: Page):
     _get_search_button(page).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"username=student00@mila.quebec"
+        f"username={current_username}"
         f"&cluster_name=mila,narval,cedar,beluga,graham"
         f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
         f"&nbr_items_per_page=40"
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
+
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if job["cw"]["mila_email_username"] == current_username
+    ][:40]
+
     _check_jobs_table(
         page,
-        [
-            ["mila", "student00 @mila.quebec", "988661"],
-            ["mila", "student00 @mila.quebec", "688953"],
-            ["narval", "student00 @mila.quebec", "429092"],
-            ["graham", "student00 @mila.quebec", "213472"],
-            ["mila", "student00 @mila.quebec", "914405"],
-        ],
+        expected_results,
     )
 
     # Back to all users.
@@ -150,6 +157,8 @@ def test_filter_by_user_only_me(page: Page):
 
 
 def test_filter_by_user_other_user(page: Page):
+    searched_username = "student05@mila.quebec"
+
     _load_jobs_search_page(page)
     radio_button_other_user = page.locator("input#user_option_other")
     expect(radio_button_other_user).to_be_visible()
@@ -165,23 +174,29 @@ def test_filter_by_user_other_user(page: Page):
 
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"username=student05@mila.quebec"
+        f"username={searched_username}"
         f"&cluster_name=mila,narval,cedar,beluga,graham"
         f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
         f"&nbr_items_per_page=40"
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
+
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if job["cw"]["mila_email_username"] == searched_username
+    ][:40]
+
     _check_jobs_table(
         page,
-        [
-            ["cedar", "student05 @mila.quebec", "162810"],
-            ["graham", "student05 @mila.quebec", "340462"],
-            ["graham", "student05 @mila.quebec", "374687"],
-            ["narval", "student05 @mila.quebec", "256638"],
-            ["narval", "student05 @mila.quebec", "322466"],
-            ["mila", "student05 @mila.quebec", "637504"],
-        ],
+        expected_results,
     )
 
     # Back to all users.
@@ -221,51 +236,22 @@ def test_filter_by_cluster_except_one(page: Page):
         f"sort_by=submit_time"
         f"&sort_asc=-1"
     )
+
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if job["slurm"]["cluster_name"] != "mila"
+    ][:40]
     # Just check that first column (cluster) does not contain "mila".
     _check_jobs_table(
         page,
-        [
-            ["cedar"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["cedar"],
-            ["cedar"],
-            ["cedar"],
-            ["cedar"],
-            ["cedar"],
-            ["cedar"],
-            ["cedar"],
-            ["cedar"],
-            ["cedar"],
-            ["cedar"],
-            ["cedar"],
-            ["cedar"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-        ],
+        expected_results,
     )
 
     # Back to all clusters.
@@ -314,50 +300,22 @@ def test_filter_by_cluster_except_two(page: Page):
         f"&sort_asc=-1"
     )
     # Just check first column (cluster) does not contain neither "mila" nor "cedar".
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if job["slurm"]["cluster_name"] != "mila"
+        and job["slurm"]["cluster_name"] != "cedar"
+    ][:40]
+
     _check_jobs_table(
         page,
-        [
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["graham"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["beluga"],
-            ["narval"],
-            ["narval"],
-            ["narval"],
-            ["narval"],
-            ["narval"],
-            ["narval"],
-            ["narval"],
-            ["narval"],
-        ],
+        expected_results,
     )
 
     # Back to all clusters.
@@ -403,50 +361,22 @@ def test_filter_by_status_except_one(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
+
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if get_inferred_job_state(job["slurm"]["job_state"]) != "RUNNING"
+    ][:40]
+
     _check_jobs_table(
         page,
-        [
-            ["cedar", "student05 @mila.quebec", "162810"],
-            ["mila", "student11 @mila.quebec", "821519"],
-            ["mila", "student09 @mila.quebec", "587459"],
-            ["mila", "student06 @mila.quebec", "795002"],
-            ["mila", "student00 @mila.quebec", "988661"],
-            ["mila", "student16 @mila.quebec", "606872"],
-            ["mila", "student06 @mila.quebec", "462974"],
-            ["mila", "student06 @mila.quebec", "591707"],
-            ["mila", "student04 @mila.quebec", "895000"],
-            ["mila", "student04 @mila.quebec", "199032"],
-            ["mila", "student12 @mila.quebec", "658913"],
-            ["mila", "student00 @mila.quebec", "688953"],
-            ["mila", "student09 @mila.quebec", "6242"],
-            ["graham", "student02 @mila.quebec", "176413"],
-            ["graham", "student15 @mila.quebec", "834395"],
-            ["graham", "student15 @mila.quebec", "154325"],
-            ["graham", "student08 @mila.quebec", "573157"],
-            ["graham", "student12 @mila.quebec", "613024"],
-            ["graham", "student18 @mila.quebec", "711192"],
-            ["graham", "student04 @mila.quebec", "755456"],
-            ["cedar", "student18 @mila.quebec", "671999"],
-            ["cedar", "student07 @mila.quebec", "474015"],
-            ["cedar", "student11 @mila.quebec", "357153"],
-            ["cedar", "student11 @mila.quebec", "739671"],
-            ["graham", "student02 @mila.quebec", "162069"],
-            ["graham", "student05 @mila.quebec", "340462"],
-            ["graham", "student04 @mila.quebec", "213258"],
-            ["graham", "student05 @mila.quebec", "374687"],
-            ["beluga", "student17 @mila.quebec", "647328"],
-            ["beluga", "student04 @mila.quebec", "822514"],
-            ["beluga", "student09 @mila.quebec", "498497"],
-            ["beluga", "student07 @mila.quebec", "631744"],
-            ["beluga", "student16 @mila.quebec", "72805"],
-            ["beluga", "student16 @mila.quebec", "633149"],
-            ["beluga", "student02 @mila.quebec", "628692"],
-            ["beluga", "student17 @mila.quebec", "516434"],
-            ["beluga", "student13 @mila.quebec", "618134"],
-            ["beluga", "student02 @mila.quebec", "933740"],
-            ["beluga", "student02 @mila.quebec", "22299"],
-            ["beluga", "student16 @mila.quebec", "532606"],
-        ],
+        expected_results,
     )
 
     # Back to all statuses.
@@ -494,50 +424,23 @@ def test_filter_by_status_except_two(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
+
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if get_inferred_job_state(job["slurm"]["job_state"]) != "RUNNING"
+        and get_inferred_job_state(job["slurm"]["job_state"]) != "COMPLETED"
+    ][:40]
+
     _check_jobs_table(
         page,
-        [
-            ["cedar", "student05 @mila.quebec", "162810"],
-            ["mila", "student11 @mila.quebec", "821519"],
-            ["mila", "student09 @mila.quebec", "587459"],
-            ["mila", "student06 @mila.quebec", "795002"],
-            ["mila", "student00 @mila.quebec", "988661"],
-            ["mila", "student16 @mila.quebec", "606872"],
-            ["mila", "student06 @mila.quebec", "462974"],
-            ["mila", "student06 @mila.quebec", "591707"],
-            ["mila", "student04 @mila.quebec", "895000"],
-            ["mila", "student04 @mila.quebec", "199032"],
-            ["mila", "student12 @mila.quebec", "658913"],
-            ["mila", "student00 @mila.quebec", "688953"],
-            ["mila", "student09 @mila.quebec", "6242"],
-            ["graham", "student02 @mila.quebec", "176413"],
-            ["graham", "student15 @mila.quebec", "834395"],
-            ["graham", "student08 @mila.quebec", "573157"],
-            ["graham", "student12 @mila.quebec", "613024"],
-            ["graham", "student18 @mila.quebec", "711192"],
-            ["graham", "student04 @mila.quebec", "755456"],
-            ["cedar", "student18 @mila.quebec", "671999"],
-            ["cedar", "student07 @mila.quebec", "474015"],
-            ["cedar", "student11 @mila.quebec", "357153"],
-            ["cedar", "student11 @mila.quebec", "739671"],
-            ["graham", "student02 @mila.quebec", "162069"],
-            ["graham", "student04 @mila.quebec", "213258"],
-            ["graham", "student05 @mila.quebec", "374687"],
-            ["beluga", "student17 @mila.quebec", "647328"],
-            ["beluga", "student04 @mila.quebec", "822514"],
-            ["beluga", "student09 @mila.quebec", "498497"],
-            ["beluga", "student07 @mila.quebec", "631744"],
-            ["beluga", "student16 @mila.quebec", "72805"],
-            ["beluga", "student16 @mila.quebec", "633149"],
-            ["beluga", "student02 @mila.quebec", "628692"],
-            ["beluga", "student17 @mila.quebec", "516434"],
-            ["beluga", "student13 @mila.quebec", "618134"],
-            ["beluga", "student02 @mila.quebec", "933740"],
-            ["beluga", "student02 @mila.quebec", "22299"],
-            ["beluga", "student16 @mila.quebec", "532606"],
-            ["beluga", "student04 @mila.quebec", "761751"],
-            ["beluga", "student03 @mila.quebec", "911005"],
-        ],
+        expected_results,
     )
 
     # Back to all statuses.
@@ -591,7 +494,22 @@ def test_multiple_filters(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    _check_jobs_table(page, [["graham", "student00 @mila.quebec", "213472"]])
+
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if job["cw"]["mila_email_username"] == "student00@mila.quebec"
+        and job["slurm"]["cluster_name"] != "mila"
+        and get_inferred_job_state(job["slurm"]["job_state"]) != "PENDING"
+    ][:40]
+
+    _check_jobs_table(page, expected_results)
 
     # Reset all filters.
 
@@ -620,8 +538,28 @@ def test_multiple_filters(page: Page):
 
 
 def test_filter_by_job_array(page: Page):
-    _load_jobs_search_page(page)
-    job_id = page.get_by_text("834395")
+    # Define what we expect
+    for searched_job in sorted_jobs:
+        if searched_job["slurm"]["array_job_id"] != "0":
+            break
+    searched_array_job_id = searched_job["slurm"]["array_job_id"]
+
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if job["slurm"]["array_job_id"] == searched_array_job_id
+    ][:40]
+
+    # Go on the jobs search page and click on the job array
+    # (We display all jobs in order to be sure to have our searched job on the page)
+    _load_all_jobs_search_page(page)
+    job_id = page.get_by_text(searched_job["slurm"]["job_id"])
     expect(job_id).to_have_count(1)
     parent_row = page.locator("table#search_table tbody tr").filter(has=job_id)
     expect(parent_row).to_have_count(1)
@@ -629,51 +567,85 @@ def test_filter_by_job_array(page: Page):
     icon_job_array = cols.nth(3).locator("a")
     expect(icon_job_array).to_have_count(1)
     icon_job_array.click()
-    expect(page).to_have_url(f"{BASE_URL}/jobs/search?job_array=834395&page_num=1")
-    _check_jobs_table(page, [["graham", "student15 @mila.quebec", "834395"]])
+
+    # (In this check, the number of items per page is added because we used "_load_all_jobs_search_page",
+    # thus this number is maintained in the URL while clicking)
+    expect(page).to_have_url(
+        f"{BASE_URL}/jobs/search?nbr_items_per_page={len(sorted_jobs)}&job_array={searched_array_job_id}&page_num=1"
+    )
+
+    _check_jobs_table(page, expected_results)
 
     filter_reset = page.get_by_title("Reset filter by job array")
-    expect(filter_reset).to_contain_text("Job array 834395")
+    expect(filter_reset).to_contain_text(f"Job array {searched_array_job_id}")
     filter_reset.click()
 
-    expect(page).to_have_url(f"{BASE_URL}/jobs/search?job_array=None&page_num=1")
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+    expect(page).to_have_url(
+        f"{BASE_URL}/jobs/search?nbr_items_per_page={len(sorted_jobs)}&job_array=None&page_num=1"
+    )
+    _check_jobs_table(page, ALL_JOBS)
 
 
 def test_filter_by_job_user_props(page: Page):
+    current_user = "student01@mila.quebec"
+    prop_name = "name"
+    prop_content = "je suis une user prop 1"
+    related_jobs_ids = [
+        prop["job_id"]
+        for prop in fake_data["job_user_props"]
+        if prop_name in prop["props"].keys()
+        and prop["props"][prop_name] == prop_content
+    ]
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if job["slurm"]["job_id"] in related_jobs_ids
+    ][:40]
+
     # Login
-    page.goto(f"{BASE_URL}/login/testing?user_id=student01@mila.quebec")
-    # Go to settings.
+    page.goto(f"{BASE_URL}/login/testing?user_id={current_user}")
+    # Go to settings in order to allow the props display (hidden by default)
     page.goto(f"{BASE_URL}/settings/")
     radio_job_user_props = page.locator("input#jobs_list_job_user_props_toggle")
     expect(radio_job_user_props).to_be_checked(checked=False)
     # Check column job_user_props.
     radio_job_user_props.click()
     expect(radio_job_user_props).to_be_checked(checked=True)
-    # Back to jobs/search.
-    page.goto(f"{BASE_URL}/jobs/search")
 
-    job_id = page.get_by_text("795002")
+    # Back to jobs/search.
+    page.goto(
+        f"{BASE_URL}/jobs/search?" f"&nbr_items_per_page={len(sorted_jobs)}"
+    )  # We display all the jobs on the page
+
+    # Get one job of the array and click on its user prop link
+    # We retrieve one job from the jobs presenting the prop
+    job_id = page.get_by_text(choice(related_jobs_ids))
     expect(job_id).to_have_count(1)
     parent_row = page.locator("table#search_table tbody tr").filter(has=job_id)
     expect(parent_row).to_have_count(1)
     cols = parent_row.locator("td")
     link_job_user_prop = cols.nth(4).locator("a")
     expect(link_job_user_prop).to_have_count(1)
-    expect(link_job_user_prop).to_contain_text("name je suis une user prop 1")
+    expect(link_job_user_prop).to_contain_text(f"{prop_name} {prop_content}")
     link_job_user_prop.click()
+
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"user_prop_name=name"
-        f"&user_prop_content=je+suis+une+user+prop+1"
+        f"nbr_items_per_page={len(sorted_jobs)}"  # Because we displayed all the jobs previously, so that this parameter stays in the URL
+        f"&user_prop_name={prop_name}"
+        f"&user_prop_content={prop_content.replace(' ', '+')}"
         f"&page_num=1"
     )
+
     _check_jobs_table(
         page,
-        [
-            ["mila", "student06 @mila.quebec", "795002"],
-            ["graham", "student12 @mila.quebec", "613024"],
-        ],
+        expected_results,
     )
 
     filter_reset = page.get_by_title("Reset filter by job user prop")
@@ -681,9 +653,9 @@ def test_filter_by_job_user_props(page: Page):
     filter_reset.click()
 
     expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?user_prop_name=&user_prop_content=&page_num=1"
+        f"{BASE_URL}/jobs/search?nbr_items_per_page={len(sorted_jobs)}&user_prop_name=&user_prop_content=&page_num=1"
     )
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+    _check_jobs_table(page, ALL_JOBS)
 
     # Back to default settings.
     page.goto(f"{BASE_URL}/settings/")
@@ -696,94 +668,35 @@ def test_filter_by_job_user_props(page: Page):
 def test_jobs_table_sorting_by_cluster(page: Page):
     _load_jobs_search_page(page)
     expected_content = [
-        ["beluga", "student02 @mila.quebec", "197775"],
-        ["beluga", "student15 @mila.quebec", "217623"],
-        ["beluga", "student02 @mila.quebec", "22299"],
-        ["beluga", "student14 @mila.quebec", "237447"],
-        ["beluga", "student18 @mila.quebec", "325922"],
-        ["beluga", "student19 @mila.quebec", "411175"],
-        ["beluga", "student09 @mila.quebec", "498497"],
-        ["beluga", "student17 @mila.quebec", "516434"],
-        ["beluga", "student16 @mila.quebec", "532606"],
-        ["beluga", "student07 @mila.quebec", "587367"],
-        ["beluga", "student13 @mila.quebec", "618134"],
-        ["beluga", "student02 @mila.quebec", "628692"],
-        ["beluga", "student07 @mila.quebec", "631744"],
-        ["beluga", "student16 @mila.quebec", "633149"],
-        ["beluga", "student17 @mila.quebec", "647328"],
-        ["beluga", "student16 @mila.quebec", "72805"],
-        ["beluga", "student04 @mila.quebec", "744881"],
-        ["beluga", "student04 @mila.quebec", "761751"],
-        ["beluga", "student15 @mila.quebec", "807865"],
-        ["beluga", "student04 @mila.quebec", "822514"],
-        ["beluga", "student03 @mila.quebec", "911005"],
-        ["beluga", "student02 @mila.quebec", "933740"],
-        ["cedar", "student05 @mila.quebec", "162810"],
-        ["cedar", "student04 @mila.quebec", "239334"],
-        ["cedar", "student15 @mila.quebec", "330000"],
-        ["cedar", "student11 @mila.quebec", "357153"],
-        ["cedar", "student12 @mila.quebec", "395476"],
-        ["cedar", "student07 @mila.quebec", "42644"],
-        ["cedar", "student07 @mila.quebec", "474015"],
-        ["cedar", "student14 @mila.quebec", "528078"],
-        ["cedar", "student18 @mila.quebec", "671999"],
-        ["cedar", "student08 @mila.quebec", "709562"],
-        ["cedar", "student11 @mila.quebec", "739671"],
-        ["cedar", "student11 @mila.quebec", "91221"],
-        ["cedar", "student03 @mila.quebec", "914229"],
-        ["graham", "student15 @mila.quebec", "154325"],
-        ["graham", "student02 @mila.quebec", "162069"],
-        ["graham", "student02 @mila.quebec", "176413"],
-        ["graham", "student16 @mila.quebec", "210984"],
-        ["graham", "student04 @mila.quebec", "213258"],
-    ]
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted(
+            fake_data["jobs"],
+            key=lambda j: (j["slurm"]["cluster_name"], j["slurm"]["job_id"]),
+        )
+    ][:40]
     _check_jobs_table_sorting(page, 0, "Cluster", "cluster_name", expected_content)
 
 
 def test_jobs_table_sorting_by_job_id(page: Page):
-    _load_jobs_search_page(page)
     expected_content = [
-        ["mila", "student00 @mila.quebec", "988661"],
-        ["mila", "student15 @mila.quebec", "946069"],
-        ["beluga", "student02 @mila.quebec", "933740"],
-        ["mila", "student00 @mila.quebec", "914405"],
-        ["cedar", "student03 @mila.quebec", "914229"],
-        ["cedar", "student11 @mila.quebec", "91221"],
-        ["beluga", "student03 @mila.quebec", "911005"],
-        ["mila", "student04 @mila.quebec", "895000"],
-        ["narval", "student17 @mila.quebec", "894480"],
-        ["narval", "student10 @mila.quebec", "879054"],
-        ["narval", "student15 @mila.quebec", "834677"],
-        ["graham", "student15 @mila.quebec", "834395"],
-        ["narval", "student19 @mila.quebec", "833046"],
-        ["beluga", "student04 @mila.quebec", "822514"],
-        ["mila", "student11 @mila.quebec", "821519"],
-        ["graham", "student03 @mila.quebec", "8172"],
-        ["beluga", "student15 @mila.quebec", "807865"],
-        ["mila", "student06 @mila.quebec", "795002"],
-        ["beluga", "student04 @mila.quebec", "761751"],
-        ["narval", "student02 @mila.quebec", "760618"],
-        ["graham", "student04 @mila.quebec", "755456"],
-        ["narval", "student16 @mila.quebec", "748262"],
-        ["beluga", "student04 @mila.quebec", "744881"],
-        ["cedar", "student11 @mila.quebec", "739671"],
-        ["beluga", "student16 @mila.quebec", "72805"],
-        ["graham", "student18 @mila.quebec", "711192"],
-        ["cedar", "student08 @mila.quebec", "709562"],
-        ["mila", "student00 @mila.quebec", "688953"],
-        ["cedar", "student18 @mila.quebec", "671999"],
-        ["narval", "student15 @mila.quebec", "66711"],
-        ["mila", "student12 @mila.quebec", "658913"],
-        ["beluga", "student17 @mila.quebec", "647328"],
-        ["mila", "student06 @mila.quebec", "645674"],
-        ["mila", "student05 @mila.quebec", "637504"],
-        ["beluga", "student16 @mila.quebec", "633149"],
-        ["beluga", "student07 @mila.quebec", "631744"],
-        ["beluga", "student02 @mila.quebec", "628692"],
-        ["mila", "student09 @mila.quebec", "6242"],
-        ["beluga", "student13 @mila.quebec", "618134"],
-        ["graham", "student12 @mila.quebec", "613024"],
-    ]
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted(
+            fake_data["jobs"], key=lambda j: j["slurm"]["job_id"], reverse=True
+        )
+    ][:40]
+    _load_jobs_search_page(page)
     _check_jobs_table_sorting(
         page, 2, "Job ID", "job_id", expected_content, reverse=True
     )
@@ -792,47 +705,15 @@ def test_jobs_table_sorting_by_job_id(page: Page):
 def test_jobs_table_sorting_by_job_id_ascending(page: Page):
     _load_jobs_search_page(page)
     expected_content = [
-        ["narval", "student18 @mila.quebec", "102417"],
-        ["narval", "student15 @mila.quebec", "136607"],
-        ["narval", "student14 @mila.quebec", "149540"],
-        ["graham", "student15 @mila.quebec", "154325"],
-        ["mila", "student08 @mila.quebec", "159143"],
-        ["graham", "student02 @mila.quebec", "162069"],
-        ["cedar", "student05 @mila.quebec", "162810"],
-        ["graham", "student02 @mila.quebec", "176413"],
-        ["mila", "student02 @mila.quebec", "195046"],
-        ["beluga", "student02 @mila.quebec", "197775"],
-        ["mila", "student04 @mila.quebec", "199032"],
-        ["narval", "student14 @mila.quebec", "202674"],
-        ["narval", "student08 @mila.quebec", "206969"],
-        ["graham", "student16 @mila.quebec", "210984"],
-        ["graham", "student04 @mila.quebec", "213258"],
-        ["graham", "student00 @mila.quebec", "213472"],
-        ["narval", "student10 @mila.quebec", "216586"],
-        ["beluga", "student15 @mila.quebec", "217623"],
-        ["narval", "student16 @mila.quebec", "220838"],
-        ["beluga", "student02 @mila.quebec", "22299"],
-        ["beluga", "student14 @mila.quebec", "237447"],
-        ["cedar", "student04 @mila.quebec", "239334"],
-        ["narval", "student05 @mila.quebec", "256638"],
-        ["graham", "student14 @mila.quebec", "260380"],
-        ["narval", "student11 @mila.quebec", "281405"],
-        ["graham", "", "284357"],
-        ["narval", "student07 @mila.quebec", "285203"],
-        ["graham", "student04 @mila.quebec", "295441"],
-        ["narval", "student05 @mila.quebec", "322466"],
-        ["beluga", "student18 @mila.quebec", "325922"],
-        ["cedar", "student15 @mila.quebec", "330000"],
-        ["graham", "student05 @mila.quebec", "340462"],
-        ["narval", "student03 @mila.quebec", "350633"],
-        ["cedar", "student11 @mila.quebec", "357153"],
-        ["graham", "student05 @mila.quebec", "374687"],
-        ["narval", "student09 @mila.quebec", "385631"],
-        ["cedar", "student12 @mila.quebec", "395476"],
-        ["graham", "student01 @mila.quebec", "401253"],
-        ["beluga", "student19 @mila.quebec", "411175"],
-        ["graham", "student17 @mila.quebec", "412365"],
-    ]
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted(fake_data["jobs"], key=lambda j: j["slurm"]["job_id"])
+    ][:40]
     _check_jobs_table_sorting(
         page, 2, "Job ID", "job_id", expected_content, double_click=True, reverse=False
     )
@@ -841,49 +722,24 @@ def test_jobs_table_sorting_by_job_id_ascending(page: Page):
 def test_jobs_table_sorting_by_end_time(page: Page):
     _load_jobs_search_page(page)
     expected_content = [
-        ["cedar", "student18 @mila.quebec", "671999"],
-        ["graham", "student01 @mila.quebec", "401253"],
-        ["graham", "student17 @mila.quebec", "462729"],
-        ["beluga", "student18 @mila.quebec", "325922"],
-        ["mila", "student16 @mila.quebec", "606872"],
-        ["graham", "student05 @mila.quebec", "340462"],
-        ["graham", "student00 @mila.quebec", "213472"],
-        ["graham", "student17 @mila.quebec", "412365"],
-        ["graham", "student15 @mila.quebec", "834395"],
-        ["mila", "student06 @mila.quebec", "591707"],
-        ["mila", "student06 @mila.quebec", "462974"],
-        ["mila", "student11 @mila.quebec", "821519"],
-        ["mila", "student04 @mila.quebec", "199032"],
-        ["mila", "student12 @mila.quebec", "658913"],
-        ["mila", "student00 @mila.quebec", "688953"],
-        ["mila", "student06 @mila.quebec", "795002"],
-        ["mila", "student09 @mila.quebec", "587459"],
-        ["mila", "student04 @mila.quebec", "895000"],
-        ["mila", "student09 @mila.quebec", "6242"],
-        ["cedar", "student05 @mila.quebec", "162810"],
-        ["graham", "student08 @mila.quebec", "573157"],
-        ["graham", "student15 @mila.quebec", "154325"],
-        ["mila", "student00 @mila.quebec", "988661"],
-        ["narval", "student18 @mila.quebec", "102417"],
-        ["narval", "student15 @mila.quebec", "136607"],
-        ["narval", "student14 @mila.quebec", "149540"],
-        ["mila", "student08 @mila.quebec", "159143"],
-        ["graham", "student02 @mila.quebec", "162069"],
-        ["graham", "student02 @mila.quebec", "176413"],
-        ["mila", "student02 @mila.quebec", "195046"],
-        ["beluga", "student02 @mila.quebec", "197775"],
-        ["narval", "student14 @mila.quebec", "202674"],
-        ["narval", "student08 @mila.quebec", "206969"],
-        ["graham", "student16 @mila.quebec", "210984"],
-        ["graham", "student04 @mila.quebec", "213258"],
-        ["narval", "student10 @mila.quebec", "216586"],
-        ["beluga", "student15 @mila.quebec", "217623"],
-        ["narval", "student16 @mila.quebec", "220838"],
-        ["beluga", "student02 @mila.quebec", "22299"],
-        ["beluga", "student14 @mila.quebec", "237447"],
-    ]
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted(
+            fake_data["jobs"],
+            key=lambda j: (
+                0 if j["slurm"]["end_time"] is None else -j["slurm"]["end_time"],
+                j["slurm"]["job_id"],
+            ),
+        )
+    ][:40]
+
     _check_jobs_table_sorting(
-        page, 8, "End time", "end_time", expected_content, reverse=True
+        page, 8, "End time", "end_time", expected_content[:40], reverse=True
     )
 
 

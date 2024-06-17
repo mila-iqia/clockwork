@@ -17,6 +17,8 @@ def get_jobs_hardcoded_values():
         {
             "slurm": {
                 "job_id": "284357",
+                "array_job_id": "0",
+                "array_task_id": "None",
                 "name": "somejobname_143485",
                 "cc_account_username": "ccuser01",
                 "uid": 10001,

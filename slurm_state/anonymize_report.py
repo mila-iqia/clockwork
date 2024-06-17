@@ -381,7 +381,7 @@ def main(argv):
                         # If the requested number of entities in the output file
                         # is reached, stop the loop
                         nbr_processed = nbr_processed + 1
-                        if args.keep and (args.keep <= nbr_processed - 1):
+                        if args.keep and (args.keep <= nbr_processed):
                             break
 
                 else:

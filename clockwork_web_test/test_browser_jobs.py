@@ -615,7 +615,7 @@ def test_route_search(
             print("Did not find job that SHOULD be there:")
             _find(job_id)
 
-    assert found_ids == expected_ids
+    assert sorted(found_ids) == sorted(expected_ids)
 
     # Log out from Clockwork
     response_logout = client.get("/login/logout")

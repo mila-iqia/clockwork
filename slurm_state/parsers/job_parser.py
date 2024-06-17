@@ -58,16 +58,18 @@ class JobParser(SlurmParser):
 
     def parser(self, f):
         """ """
-        if re.search(r"^22\..*$", self.slurm_version):
-            return self.parser_v22_and_23(f)
+        if re.search(r"^21\..*$", self.slurm_version):
+            return self.parser_v21_v22_and_23(f)
+        elif re.search(r"^22\..*$", self.slurm_version):
+            return self.parser_v21_v22_and_23(f)
         elif re.search(r"^23\..*$", self.slurm_version):
-            return self.parser_v22_and_23(f)
+            return self.parser_v21_v22_and_23(f)
         else:
             raise Exception(
                 f'The {self.entity} parser is not implemented for the Slurm version "{self.slurm_version}".'
             )
 
-    def parser_v22_and_23(self, f):
+    def parser_v21_v22_and_23(self, f):
         JOB_FIELD_MAP = {
             "account": copy,
             "array": rename_and_stringify_subitems(
