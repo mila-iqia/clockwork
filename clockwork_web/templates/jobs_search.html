@@ -201,12 +201,14 @@
                             {% if (web_settings | check_web_settings_column_display(page_name, "job_user_props")) %}
                                 <td>
                                     {% for D_user_prop_name, D_user_prop_content in D_job.get('job_user_props', {}).items() %}
+                                    {% if D_user_prop_name not in ("comet_hyperlink", "wandb_hyperlink") %}
                                     <p>
                                     <a href="{{ modify_query(user_prop_name=D_user_prop_name, user_prop_content=D_user_prop_content, page_num=1) }}" title="Filter by job-user prop &quot;{{D_user_prop_name}}&quot;: &quot;{{D_user_prop_content}}&quot;">
                                         <strong>{{ D_user_prop_name }}</strong><br/>
                                         {{ D_user_prop_content }}
                                     </a>
                                     </p>
+                                    {% endif %}
                                     {% endfor %}
                                 </td>
                             {% endif %}
@@ -274,6 +276,27 @@
                                         {# Other link (here, it is a placeholder with no condition) #}
                                         <!-- this is a placeholder -->
                                         <a href='' data-bs-toggle='tooltip' data-bs-placement='right' title='Link to another place'><i class='fa-solid fa-link-horizontal'></i></a>
+                                    {% endif %}
+                                    {# Links from user props are set by current user, so they should be visible if available #}
+                                    {% if "comet_hyperlink" in D_job.get("job_user_props", {}) %}
+                                    <a href='{{ D_job["job_user_props"]["comet_hyperlink"] }}'
+                                       target="_blank"
+                                       class='hyperlink-user-prop comet_hyperlink'
+                                       data-bs-toggle='tooltip'
+                                       data-bs-placement='right'
+                                       title='Comet link'>
+                                        COMET
+                                    </a>
+                                    {% endif %}
+                                    {% if "wandb_hyperlink" in D_job.get("job_user_props", {}) %}
+                                    <a href='{{ D_job["job_user_props"]["wandb_hyperlink"] }}'
+                                       target="_blank"
+                                       class='hyperlink-user-prop wandb_hyperlink'
+                                       data-bs-toggle='tooltip'
+                                       data-bs-placement='right'
+                                       title='W&B link'>
+                                        W&B
+                                    </a>
                                     {% endif %}
                                 </td>
                             {% endif %}

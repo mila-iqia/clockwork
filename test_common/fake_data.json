@@ -6043,7 +6043,8 @@
       "job_id": "308858",
       "cluster_name": "beluga",
       "props": {
-        "name": "je suis une user prop 1"
+          "comet_hyperlink": "https://comet.example.com",
+          "wandb_hyperlink": "https://wandb.example.com/?job=thisjob"
       }
     }
   ]
