@@ -1,3 +1,4 @@
+import pytest
 from playwright.sync_api import Page, expect
 from random import choice
 
@@ -656,6 +657,67 @@ def test_filter_by_job_user_props(page: Page):
         f"{BASE_URL}/jobs/search?nbr_items_per_page={len(sorted_jobs)}&user_prop_name=&user_prop_content=&page_num=1"
     )
     _check_jobs_table(page, ALL_JOBS)
+
+    # Back to default settings.
+    page.goto(f"{BASE_URL}/settings/")
+    radio_job_user_props = page.locator("input#jobs_list_job_user_props_toggle")
+    expect(radio_job_user_props).to_be_checked(checked=True)
+    radio_job_user_props.click()
+    expect(radio_job_user_props).to_be_checked(checked=False)
+
+
+@pytest.mark.parametrize(
+    "prop_name,title",
+    (("comet_hyperlink", "Comet link"), ("wandb_hyperlink", "W&B link")),
+)
+def test_special_user_props(page: Page, prop_name: str, title: str):
+    current_user = "student01@mila.quebec"
+    related_jobs_ids = [
+        prop["job_id"]
+        for prop in fake_data["job_user_props"]
+        if prop_name in prop["props"].keys()
+    ]
+    expected_results = [
+        [
+            job["slurm"]["cluster_name"],
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else "",
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if job["slurm"]["job_id"] in related_jobs_ids
+    ][:40]
+    assert expected_results
+
+    # Login
+    page.goto(f"{BASE_URL}/login/testing?user_id={current_user}")
+    # Go to settings in order to allow the props display (hidden by default)
+    page.goto(f"{BASE_URL}/settings/")
+    radio_job_user_props = page.locator("input#jobs_list_job_user_props_toggle")
+    expect(radio_job_user_props).to_be_checked(checked=False)
+    # Check column job_user_props.
+    radio_job_user_props.click()
+    expect(radio_job_user_props).to_be_checked(checked=True)
+
+    # Back to jobs/search.
+    page.goto(
+        f"{BASE_URL}/jobs/search?" f"&nbr_items_per_page={len(sorted_jobs)}"
+    )  # We display all the jobs on the page
+
+    job_id = page.get_by_text(choice(related_jobs_ids))
+    expect(job_id).to_have_count(1)
+    parent_row = page.locator("table#search_table tbody tr").filter(has=job_id)
+    expect(parent_row).to_have_count(1)
+    cols = parent_row.locator("td")
+    expect(cols).to_have_count(11)
+    # For this job, user props col should be empty
+    assert not cols.nth(4).text_content().strip()
+    # Check links col
+    link = cols.nth(10).locator(f"a.{prop_name}")
+    expect(link).to_have_count(1)
+    assert link.get_attribute("href").startswith("https://")
+    assert link.get_attribute("target") == "_blank"
 
     # Back to default settings.
     page.goto(f"{BASE_URL}/settings/")

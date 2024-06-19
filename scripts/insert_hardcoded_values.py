@@ -64,7 +64,10 @@ def get_job_user_props_hardcoded_values(fake_data: dict):
         {"name": "je suis une user prop 2"},
         {"name": "je suis une user prop 3"},
         {"name": "je suis une user prop 3", "name2": "je suis une user prop 4"},
-        {"name": "je suis une user prop 1"},
+        {
+            "comet_hyperlink": "https://comet.example.com",
+            "wandb_hyperlink": "https://wandb.example.com/?job=thisjob",
+        },
     ]
 
     return [
