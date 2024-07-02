@@ -60,9 +60,6 @@ class CleanupTestContext:
             }
             for i, fake_job in enumerate(fake_jobs)
         ]
-        # Unset `last_slurm_update` for 2 first jobs.
-        del fake_jobs[0]["cw"]["last_slurm_update"]
-        fake_jobs[1]["cw"]["last_slurm_update"] = None
 
         db_users = mc["users"]
         db_jobs = mc["jobs"]
@@ -263,20 +260,17 @@ def test_keep_jobs_after_a_date(date_format):
         assert jobs == ctx.check_user_props()
 
         cleanup_jobs(["-d", _fmt_date(inbound_date_1)])
-        # In database, 2 jobs don't have last_slurm_update,
-        # so these jobs should never be deleted under `-d` argument.
         remaining_jobs = ctx.check_user_props()
-        assert len(remaining_jobs) == 100 - (15 - 2)
-        assert jobs[:2] + jobs[15:] == remaining_jobs
+        assert len(remaining_jobs) == 100 - 15
+        assert jobs[15:] == remaining_jobs
 
         cleanup_jobs(["-d", _fmt_date(inbound_date_2)])
         remaining_jobs = ctx.check_user_props()
-        assert len(remaining_jobs) == 100 - (60 - 2)
-        assert jobs[:2] + jobs[60:] == remaining_jobs
+        assert len(remaining_jobs) == 100 - 60
+        assert jobs[60:] == remaining_jobs
 
         cleanup_jobs(["-d", _fmt_date(new_date)])
         # With a date more recent than latest job,
-        # all jobs should be deleted, excluding jobs that don't have last_slurm_update.
+        # all jobs should be deleted.
         remaining_jobs = ctx.check_user_props()
-        assert len(remaining_jobs) == 2
-        assert jobs[:2] == remaining_jobs
+        assert len(remaining_jobs) == 0

@@ -84,7 +84,6 @@ def keep_n_most_recent_jobs(n: int):
     # Find jobs to delete.
     # Sort jobs by slurm_last_update ascending
     # and keep only first jobs, excluding n last jobs.
-    # NB: Jobs that don't have `last_slurm_update` will appear first in sorting.
     jobs_to_delete = list(
         db_jobs.find({}).sort([("cw.last_slurm_update", 1)]).limit(nb_total_jobs - n)
     )
@@ -124,7 +123,6 @@ def keep_n_most_recent_jobs_per_user(n: int):
         # Find user jobs to delete.
         # Sort jobs by slurm_last_update ascending
         # and keep only first jobs, excluding n last jobs.
-        # NB: Jobs that don't have `last_slurm_update` will appear first in sorting.
         user_jobs_to_delete = list(
             db_jobs.find(user_filter)
             .sort([("cw.last_slurm_update", 1)])
@@ -158,7 +156,6 @@ def keep_jobs_from_date(date: datetime):
     nb_total_jobs = db_jobs.count_documents({})
 
     # Find jobs to delete
-    # NB: Jobs that don't have `last_slurm_update` won't be found by this filter.
 
     jobs_to_delete = list(
         db_jobs.find({"cw.last_slurm_update": {"$lt": date.timestamp()}})
