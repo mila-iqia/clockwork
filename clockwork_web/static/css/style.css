@@ -11857,4 +11857,5 @@ table.table-striped td.links a.hyperlink-user-prop {
     color: white;
     font-weight: bold;
     padding: 2px 5px 2px 5px;
+    border-radius: 6px;
 }
