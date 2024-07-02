@@ -668,7 +668,7 @@ def test_filter_by_job_user_props(page: Page):
 
 @pytest.mark.parametrize(
     "prop_name,title",
-    (("comet_hyperlink", "Comet link"), ("wandb_hyperlink", "W&B link")),
+    (("comet_hyperlink", "Comet link"), ("wandb_hyperlink", "WANDB link")),
 )
 def test_special_user_props(page: Page, prop_name: str, title: str):
     current_user = "student01@mila.quebec"
