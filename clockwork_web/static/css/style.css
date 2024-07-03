@@ -11850,3 +11850,12 @@ ul.pagination li:first-child span, ul.pagination li:last-child span {
 }
 
 /*# sourceMappingURL=style.css.map */
+
+table.table-striped td.links a.hyperlink-user-prop {
+    display: inline-block;
+    background-color: rgb(84, 171, 180);
+    color: white;
+    font-weight: bold;
+    padding: 2px 5px 2px 5px;
+    border-radius: 6px;
+}
