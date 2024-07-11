@@ -17,7 +17,7 @@ to connect to REST endpoints.
 
 .. qrefflask:: clockwork_web.main:app
    :undoc-static:
-   :endpoints: rest_jobs.route_api_v1_jobs_list, rest_jobs.route_api_v1_jobs_one, rest_jobs.route_api_v1_jobs_user_dict_update, rest_nodes.route_api_v1_nodes_list, rest_nodes.route_api_v1_nodes_one, rest_nodes.route_api_v1_nodes_one_gpu, rest_gpu.route_api_v1_gpu_one, rest_gpu.route_api_v1_gpu_list
+   :endpoints: rest_jobs.route_api_v1_jobs_list, rest_jobs.route_api_v1_jobs_one, rest_nodes.route_api_v1_nodes_list, rest_nodes.route_api_v1_nodes_one, rest_nodes.route_api_v1_nodes_one_gpu, rest_gpu.route_api_v1_gpu_one, rest_gpu.route_api_v1_gpu_list
 
 Accessible in browser authenticated with session cookie
 -------------------------------------------------------
