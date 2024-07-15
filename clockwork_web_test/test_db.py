@@ -18,7 +18,7 @@ def test_insert_and_retrieve(app):
         mc["jobs"].delete_many({"slurm.job_id": job_id, "slurm.cluster_name": "mila"})
 
         mc["jobs"].insert_one(
-            {"slurm": {"cluster_name": "mila", "job_id": job_id}, "cw": {}, "user": {}}
+            {"slurm": {"cluster_name": "mila", "job_id": job_id}, "cw": {}}
         )
         L = list(
             mc["jobs"].find({"slurm.job_id": job_id, "slurm.cluster_name": "mila"})

@@ -154,7 +154,6 @@ def test_slurm_job_to_clockwork_job():
         "cw": {
             "mila_email_username": None,
         },
-        "user": {},
     }
 
 

@@ -183,7 +183,7 @@ def route_one():
     because we had troubles using the templates correctly with dicts.
 
     Besides, it's unclear what we're supposed to do with the extra
-    "cw" and "user" fields when it comes to displaying them as html.
+    "cw" fields when it comes to displaying them as html.
     See CW-82.
 
     .. :quickref: list one Slurm job as formatted html

@@ -44,7 +44,6 @@ def get_jobs_hardcoded_values():
                 "cluster_name": "graham",
             },
             "cw": {"mila_email_username": None},
-            "user": {},
         }
     ]
 

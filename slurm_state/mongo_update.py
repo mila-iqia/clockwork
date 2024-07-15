@@ -46,7 +46,7 @@ def fetch_slurm_report(parser, report_path):
 def slurm_job_to_clockwork_job(slurm_job: dict):
     """
     Takes the components returned from the slurm reports,
-    and turns it into a dict with 3 subcomponents.
+    and turns it into a dict with 2 subcomponents.
     That can later be committed to mongodb in the format
     that clockwork expects.
     """
@@ -55,7 +55,6 @@ def slurm_job_to_clockwork_job(slurm_job: dict):
         "cw": {
             "mila_email_username": None,
         },
-        "user": {},
     }
     return clockwork_job
 
@@ -362,7 +361,7 @@ def get_jobs_updates_and_insertions(
         # which is a thing that D_job_sc wouldn't have.
 
         D_job_new = {}
-        for k in ["cw", "slurm", "user"]:
+        for k in ["cw", "slurm"]:
             D_job_new[k] = D_job_db.get(k, {}) | D_job_sacct.get(k, {})
         # Add these field each time an entry is updated
         now = time.time()

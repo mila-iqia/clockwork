@@ -55,11 +55,10 @@ jobs
                 "cw": {
                     "cc_account_username": "ccuser01",
                     "mila_cluster_username": null,
-                    "mila_email_username": null},
-                "user": {}
+                    "mila_email_username": null}
             },
-            {"slurm": {}, "cw": {}, "user": {}},
-            {"slurm": {}, "cw": {}, "user": {}},
+            {"slurm": {}, "cw": {}},
+            {"slurm": {}, "cw": {}},
         ]
 
    :query user: (optional) any of the 3 kinds of usernames
@@ -121,8 +120,7 @@ jobs
             "cw": {
                 "cc_account_username": null,
                 "mila_cluster_username": "milauser12",
-                "mila_email_username": null},
-            "user": {}
+                "mila_email_username": null}
         }
 
     :query job_id: string containing the job_id as defined by Slurm
