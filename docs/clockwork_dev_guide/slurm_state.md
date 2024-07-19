@@ -30,9 +30,6 @@ Job and node entries both contain a "slurm" component based
 on the data that we read from Slurm.
 They also contain a "cw" component that Clockwork uses
 to store extra information.
-Jobs entries have an extra "user" component that can be
-modified by the owner of the job. It is a dictionary
-whose keys can be set and read.
 
 ### Jobs format
 
@@ -64,8 +61,7 @@ Jobs are stored in the database in the following format:
         "cc_account_username": "ccuser02",
         "mila_cluster_username": null,
         "mila_email_username": null
-    },
-    "user": {}
+    }
 }
 ```
 

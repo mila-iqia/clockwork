@@ -55,11 +55,10 @@ jobs
                 "cw": {
                     "cc_account_username": "ccuser01",
                     "mila_cluster_username": null,
-                    "mila_email_username": null},
-                "user": {}
+                    "mila_email_username": null}
             },
-            {"slurm": {}, "cw": {}, "user": {}},
-            {"slurm": {}, "cw": {}, "user": {}},
+            {"slurm": {}, "cw": {}},
+            {"slurm": {}, "cw": {}},
         ]
 
    :query user: (optional) any of the 3 kinds of usernames
@@ -121,8 +120,7 @@ jobs
             "cw": {
                 "cc_account_username": null,
                 "mila_cluster_username": "milauser12",
-                "mila_email_username": null},
-            "user": {}
+                "mila_email_username": null}
         }
 
     :query job_id: string containing the job_id as defined by Slurm
@@ -132,55 +130,6 @@ jobs
     :statuscode 400: missing `job_id`
     :statuscode 401: bad authorization
     :statuscode 500: more than one entries were found
-
-
-.. http:put:: /api/v1/cluster/jobs/user_dict_update
-
-    Update the "user" portion of a job entry in the database.
-    This can be used to build a lot of functionality on top of Clockwork
-    and it does not conflict with the attributes read from Slurm.
-
-    A user can only affect the "user" dict on jobs that they own.
-    This means that the server will validate that the user issuing
-    the call, as identified by the `Authorization` header, is the owner
-    of the job being described uniquely by the arguments `job_id` and
-    `cluster_name`.
-
-    A dict `update_pairs` argument is required and its key-values
-    will be merged with the target entry from the database.
-
-    On a succesful call, the value returned is the new updated
-    user dict (not the complete job entry).
-
-   **Example request**:
-
-   .. sourcecode:: http
-
-        PUT /api/v1/cluster/jobs/user_dict_update
-        Host: clockwork.mila.quebec
-        Accept: application/json
-
-   **Example response**:
-
-   .. sourcecode:: http
-
-        HTTP/1.1 200 OK
-        Content-Type: application/json
-
-        {
-            "train_loss": 0.20,
-            "valid_loss": 0.30,
-            "nbr_dinosaurs": 10
-        }
-
-   :query job_id: string containing the job_id as defined by Slurm
-   :query cluster_name: (optional) "mila" or any cluster name from Compute Canada
-   :query update_pairs: dict with key-values to update in the database
-   :reqheader Authorization: bearer token to authenticate
-   :statuscode 200: success
-   :statuscode 400: missing `job_id`
-   :statuscode 401: bad authorization
-   :statuscode 500: more than one entries were found
 
 
 nodes

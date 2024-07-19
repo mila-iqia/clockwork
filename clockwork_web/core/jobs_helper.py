@@ -339,20 +339,6 @@ def get_jobs(
     )
 
 
-def update_job_user_dict(mongodb_filter: dict, new_user_dict: dict):
-    """
-    This is a step that happens after every checks have been made.
-    It's the "now we actually do it" part of the sequence of operations.
-
-    `mongodb_filter` is to identify a job uniquely
-    `new_user_dict` is the value to replace the "user" field with
-    """
-    mc = get_db()[current_app.config["MONGODB_DATABASE_NAME"]]
-    return mc["jobs"].update_one(
-        mongodb_filter, {"$set": {"user": new_user_dict}}, upsert=False
-    )
-
-
 def strip_artificial_fields_from_job(D_job):
     # Returns a copy. Does not mutate the original.
     fields_to_remove = ["_id"]
