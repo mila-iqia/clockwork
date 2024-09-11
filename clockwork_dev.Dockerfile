@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.11-slim-bookworm
 
 RUN mkdir /clockwork
 # Create folder required by Playwright to install browsers,
