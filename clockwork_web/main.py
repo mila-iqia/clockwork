@@ -37,7 +37,7 @@ register_config("flask.testing", False, validator=boolean)
 register_config("flask.login_disabled", False, validator=boolean)
 
 register_config("sentry.dsn", "", validator=string)
-register_config("sentry.dns", "", validator=string)
+register_config("sentry.dns", "", validator=string)  # deprecated because typo
 register_config("sentry.traces_sample_rate", 1.0, validator=anything)
 
 LOGGING_LEVEL_MAPPING = dict(
