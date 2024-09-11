@@ -138,10 +138,10 @@ if get_config("logging.otel") != "":
     logger_provider = LoggerProvider(
         resource=Resource.create(
             {
-             "service.name": "clockwork",
-             "service.instance.id": os.uname().nodename,
+                "service.name": "clockwork",
+                "service.instance.id": os.uname().nodename,
             }
-         ),
+        ),
     )
     set_logger_provider(logger_provider)
 
