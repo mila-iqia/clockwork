@@ -36,6 +36,7 @@ the login, we set the user to be "mario" or something like that.
 register_config("flask.testing", False, validator=boolean)
 register_config("flask.login_disabled", False, validator=boolean)
 
+register_config("sentry.dsn", "", validator=string)
 register_config("sentry.dns", "", validator=string)
 register_config("sentry.traces_sample_rate", 1.0, validator=anything)
 
@@ -149,8 +150,10 @@ if get_config("logging.otel") != "":
     handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
     logger.addHandler(handler)
 
-sentry_dns = get_config("sentry.dns")
-if sentry_dns:
+sentry_dsn = get_config("sentry.dsn")
+if not sentry_dsn:
+    sentry_dsn = get_config("sentry.dns")  # Old typo
+if sentry_dsn:
     # Not sure about how sentry works, but it probably does
     # some behind-the-scenes things before the flask components
     # are loaded. It's not clear to me if we really need to ensure
@@ -162,7 +165,7 @@ if sentry_dns:
     from sentry_sdk.integrations.flask import FlaskIntegration
 
     sentry_sdk.init(
-        dsn=sentry_dns,
+        dsn=sentry_dsn,
         integrations=[
             FlaskIntegration(),
         ],
@@ -171,10 +174,10 @@ if sentry_dns:
         # We recommend having a lower value in production.
         traces_sample_rate=get_config("sentry.traces_sample_rate"),
     )
-    logging.info("Loaded sentry logging at %s.", sentry_dns)
+    logging.info("Loaded sentry logging at %s.", sentry_dsn)
 else:
     logging.info(
-        "Not loading sentry because the sentry.dns config is empty or is missing."
+        "Not loading sentry because the sentry.dsn config is empty or is missing."
     )
 
 
