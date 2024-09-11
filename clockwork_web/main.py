@@ -64,6 +64,7 @@ register_config(
 )
 
 register_config("logging.journald", False, validator=boolean)
+register_config("logging.otel", "", validator=string)
 
 logger = logging.getLogger()
 
@@ -125,6 +126,28 @@ if get_config("logging.journald"):
     logger.addHandler(JournalHandler())
     logging.info("Logging to journald")
 
+
+if get_config("logging.otel") != "":
+    from opentelemetry._logs import set_logger_provider
+    from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
+    from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+    from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
+    from opentelemetry.sdk.resources import Resource
+
+    logger_provider = LoggerProvider(
+        resource=Resource.create(
+            {
+             "service.name": "clockwork",
+             "service.instance.id": os.uname().nodename,
+            }
+         ),
+    )
+    set_logger_provider(logger_provider)
+
+    otlp_exporter = OTLPLogExporter(endpoint=get_config("logging.otel"), insecure=True)
+    logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_exporter))
+    handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
+    logger.addHandler(handler)
 
 sentry_dns = get_config("sentry.dns")
 if sentry_dns:
