@@ -2,8 +2,8 @@ Flask==3.0.0
 flask-babel==4.0.0
 Flask-Login @ git+https://github.com/maxcountryman/flask-login.git@2204b4eee7b215977ba5a1bf85e2061f7fa65e20
 oauthlib==3.2.2
-pymongo==4.5.0
-requests==2.31.0
-sentry-sdk==1.32.0
+pymongo==4.6.3
+requests==2.32.3
+sentry-sdk==2.14.0
 toml==0.10.2
-Werkzeug==3.0.1
+Werkzeug==3.0.4
