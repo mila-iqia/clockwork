@@ -36,7 +36,8 @@ the login, we set the user to be "mario" or something like that.
 register_config("flask.testing", False, validator=boolean)
 register_config("flask.login_disabled", False, validator=boolean)
 
-register_config("sentry.dns", "", validator=string)
+register_config("sentry.dsn", "", validator=string)
+register_config("sentry.dns", "", validator=string)  # deprecated because typo
 register_config("sentry.traces_sample_rate", 1.0, validator=anything)
 
 LOGGING_LEVEL_MAPPING = dict(
@@ -64,6 +65,7 @@ register_config(
 )
 
 register_config("logging.journald", False, validator=boolean)
+register_config("logging.otel", "", validator=string)
 
 logger = logging.getLogger()
 
@@ -126,8 +128,32 @@ if get_config("logging.journald"):
     logging.info("Logging to journald")
 
 
-sentry_dns = get_config("sentry.dns")
-if sentry_dns:
+if get_config("logging.otel") != "":
+    from opentelemetry._logs import set_logger_provider
+    from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
+    from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+    from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
+    from opentelemetry.sdk.resources import Resource
+
+    logger_provider = LoggerProvider(
+        resource=Resource.create(
+            {
+                "service.name": "clockwork",
+                "service.instance.id": os.uname().nodename,
+            }
+        ),
+    )
+    set_logger_provider(logger_provider)
+
+    otlp_exporter = OTLPLogExporter(endpoint=get_config("logging.otel"), insecure=True)
+    logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_exporter))
+    handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
+    logger.addHandler(handler)
+
+sentry_dsn = get_config("sentry.dsn")
+if not sentry_dsn:
+    sentry_dsn = get_config("sentry.dns")  # Old typo
+if sentry_dsn:
     # Not sure about how sentry works, but it probably does
     # some behind-the-scenes things before the flask components
     # are loaded. It's not clear to me if we really need to ensure
@@ -139,7 +165,7 @@ if sentry_dns:
     from sentry_sdk.integrations.flask import FlaskIntegration
 
     sentry_sdk.init(
-        dsn=sentry_dns,
+        dsn=sentry_dsn,
         integrations=[
             FlaskIntegration(),
         ],
@@ -148,10 +174,10 @@ if sentry_dns:
         # We recommend having a lower value in production.
         traces_sample_rate=get_config("sentry.traces_sample_rate"),
     )
-    logging.info("Loaded sentry logging at %s.", sentry_dns)
+    logging.info("Loaded sentry logging at %s.", sentry_dsn)
 else:
     logging.info(
-        "Not loading sentry because the sentry.dns config is empty or is missing."
+        "Not loading sentry because the sentry.dsn config is empty or is missing."
     )
 
 

@@ -46,6 +46,8 @@ Used:
 ```bash
 # for main project
 python3 -m pip install flask flask-login numpy pymongo oauthlib coverage black ldap3 toml
+# if you want to OTLP log exporter
+python3 -m pip opentelemetry-sdk opentelemetry-exporter-otlp
 # for docs
 python3 -m pip install sphinx myst_parser sphinx_rtd_theme sphinxcontrib.httpdomain
 ```
