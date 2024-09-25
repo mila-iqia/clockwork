@@ -149,6 +149,8 @@ def main_read_report_and_update_collection(
     # If a data file has been set as input, the Slurm version should
     # be stored in it, else the parser will try to get the version
     # through an SSH command
+    # Initialize the parser version
+    parser_version = None
     if from_file:
         with open(report_file_path, "r") as infile:
             version = json.load(infile)["meta"]["Slurm"]["version"]
