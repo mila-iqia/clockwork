@@ -202,6 +202,14 @@ def get_filtered_and_paginated_jobs(
         # If want_count is False, nbr_total_jobs is None
         nbr_total_jobs = None
 
+    # This handles the different format of jobs states we retrieve, through the different Slurm version
+    for job in LD_jobs:
+        if (
+            isinstance(job["slurm"]["job_state"], list)
+            and len(job["slurm"]["job_state"]) > 0
+        ):
+            job["slurm"]["job_state"] = job["slurm"]["job_state"][0]
+
     # Return the retrieved jobs and the number of unpagined jobs (if requested)
     return (LD_jobs, nbr_total_jobs)
 
