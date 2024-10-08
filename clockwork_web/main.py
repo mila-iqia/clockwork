@@ -145,7 +145,7 @@ if get_config("logging.otel") != "":
     )
     set_logger_provider(logger_provider)
 
-    otlp_exporter = OTLPLogExporter(endpoint=get_config("logging.otel"), insecure=True)
+    otlp_exporter = OTLPLogExporter(endpoint=get_config("logging.otel"))
     logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_exporter))
     handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
     logger.addHandler(handler)
