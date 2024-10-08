@@ -28,10 +28,10 @@ def test_get_all_clusters():
             "official_documentation": "https://docs.alliancecan.ca/wiki/B%C3%A9luga",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#beluga",
             "display_order": 4,
-            #"status": {
+            # "status": {
             #    "cluster_has_error": False,
             #    "jobs_are_old": True,
-            #},
+            # },
         },
         "cedar": {
             "organization": "Digital Research Alliance of Canada",
@@ -48,10 +48,10 @@ def test_get_all_clusters():
             "official_documentation": "https://docs.alliancecan.ca/wiki/Cedar",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#cedar",
             "display_order": 3,
-            #"status": {
+            # "status": {
             #    "cluster_has_error": False,
             #    "jobs_are_old": True,
-            #},
+            # },
         },
         "graham": {
             "organization": "Digital Research Alliance of Canada",
@@ -68,10 +68,10 @@ def test_get_all_clusters():
             "official_documentation": "https://docs.alliancecan.ca/wiki/Graham",
             "mila_documentation": "https://docs.mila.quebec/Extra_compute.html#graham",
             "display_order": 5,
-            #"status": {
+            # "status": {
             #    "cluster_has_error": False,
             #    "jobs_are_old": True,
-            #},
+            # },
         },
         "mila": {
             "organization": "Mila",
@@ -83,10 +83,10 @@ def test_get_all_clusters():
             "official_documentation": "https://docs.mila.quebec/Information.html",
             "mila_documentation": False,
             "display_order": 1,
-            #"status": {
+            # "status": {
             #    "cluster_has_error": False,
             #    "jobs_are_old": True,
-            #},
+            # },
         },
         "narval": {
             "organization": "Digital Research Alliance of Canada",
@@ -103,10 +103,10 @@ def test_get_all_clusters():
             "official_documentation": "https://docs.alliancecan.ca/wiki/Narval",
             "mila_documentation": False,
             "display_order": 2,
-            #"status": {
+            # "status": {
             #    "cluster_has_error": False,
             #    "jobs_are_old": True,
-            #},
+            # },
         },
     }
 
