@@ -574,9 +574,9 @@ def render_template_with_user_settings(template_name_or_list, **context):
         The template rendered by Flask, and containing the web_settings of the
         current user
     """
-    context[
-        "web_settings"
-    ] = current_user.get_web_settings()  # used for templates (old way)
+    context["web_settings"] = (
+        current_user.get_web_settings()
+    )  # used for templates (old way)
     # used for the actual `web_settings` variable from "base.html" (prompted by GEN-160)
     context["web_settings_json_str"] = json.dumps(context["web_settings"])
 
@@ -591,6 +591,7 @@ def render_template_with_user_settings(template_name_or_list, **context):
     )
 
     # Get cluster status (if jobs are old and cluster has error).
+    """
     for cluster_name in context["clusters"]:
         # Cluster error cannot yet be checked, so
         # cluster_has_error is always False for now.
@@ -599,6 +600,7 @@ def render_template_with_user_settings(template_name_or_list, **context):
             "jobs_are_old": _jobs_are_old(cluster_name),
             "cluster_has_error": cluster_has_error,
         }
+    """
 
     return render_template(template_name_or_list, **context)
 
