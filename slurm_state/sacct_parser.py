@@ -158,9 +158,9 @@ def extract_tres_data(k, v, res):
         {"sacct_name": "requested", "cw_name": "tres_requested"},
     ]
     for tres_subdict_name in tres_subdict_names:
-        res[tres_subdict_name["cw_name"]] = (
-            {}
-        )  # Initialize the "tres_allocated" and the "tres_requested" subdicts
+        res[
+            tres_subdict_name["cw_name"]
+        ] = {}  # Initialize the "tres_allocated" and the "tres_requested" subdicts
         for tres_subdict in v[tres_subdict_name["sacct_name"]]:
             tres_key = get_tres_key(
                 tres_subdict["type"], tres_subdict["name"]
