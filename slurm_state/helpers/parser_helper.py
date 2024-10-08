@@ -70,7 +70,7 @@ def zero_to_null(v):
         The converted values
     """
     # If a value of v equals 0, transform it to None
-    for (v_k, v_v) in v.items():
+    for v_k, v_v in v.items():
         if v_v == 0:
             v[v_k] = None
     # Return v

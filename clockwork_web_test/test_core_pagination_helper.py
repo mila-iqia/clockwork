@@ -40,6 +40,7 @@ from clockwork_web.core.users_helper import (
 
 # When user is None
 
+
 # When user is None and page_num of wrong type
 @pytest.mark.parametrize(
     "page_num,nbr_items_per_page",
@@ -420,6 +421,7 @@ def test_get_pagination_none_user_positive_value_positive_value(
 
 # When user is unknown
 
+
 # When user is unknown and page_num of wrong type
 @pytest.mark.parametrize(
     "page_num,nbr_items_per_page",
@@ -799,6 +801,7 @@ def test_get_pagination_unknown_user_positive_value_positive_value(
 
 
 # When user is known
+
 
 # When user is known and page_num of wrong type
 @pytest.mark.parametrize(

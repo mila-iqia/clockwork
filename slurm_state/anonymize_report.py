@@ -96,7 +96,7 @@ def anonymize_node(D_raw_node: dict, D_cluster_account: dict):
     D_anonymized_node = {}
 
     # For each element of the raw node, anonymize, don't modify or ignore the information
-    for (k, v) in D_raw_node.items():
+    for k, v in D_raw_node.items():
         if k == "name":
             # A new name is created from the actual name and the cluster on which the node is
             D_anonymized_node[k] = get_machine_name(
@@ -186,7 +186,7 @@ def anonymize_job(D_raw_job: dict, D_cluster_account: dict):
     D_anonymized_job = {}
 
     # For each element of the raw job, anonymize, don't modify or ignore the information
-    for (k, v) in D_raw_job.items():
+    for k, v in D_raw_job.items():
         if k == "job_id":
             # The job ID and the JobArray ID have a precedence relation, thus both are set here
 
@@ -356,7 +356,7 @@ def main(argv):
             output_data = {}
             # Load the sacct or sinfo data
             input_data = json.load(f_in)
-            for (k, v) in input_data.items():
+            for k, v in input_data.items():
                 if k == "nodes" or k == "jobs":
                     # Initialize an empty jobs or nodes list. The jobs and nodes
                     # will then be anonymized before be added to that list.

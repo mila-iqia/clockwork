@@ -2,6 +2,7 @@
 The sacct parser is used to convert jobs retrieved through a sacct command on a cluster
 to jobs in the format used by Clockwork.
 """
+
 import json, os
 
 # Imports related to sacct call
@@ -68,7 +69,7 @@ def zero_to_null(v):
         The converted values
     """
     # If a value of v equals 0, transform it to None
-    for (v_k, v_v) in v.items():
+    for v_k, v_v in v.items():
         if v_v == 0:
             v[v_k] = None
     # Return v

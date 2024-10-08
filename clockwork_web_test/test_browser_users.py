@@ -1,6 +1,7 @@
 """
 Tests fort the clockwork_web.browser_routes.users functions.
 """
+
 import pytest
 
 

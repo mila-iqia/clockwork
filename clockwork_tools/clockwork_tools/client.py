@@ -127,7 +127,7 @@ class ClockworkToolsBaseClient:
         """
         endpoint = "api/v1/clusters/jobs/list"
         params = {}
-        for (k, a) in [
+        for k, a in [
             ("username", username),
             ("relative_time", relative_time),
             ("cluster_name", cluster_name),
@@ -154,7 +154,7 @@ class ClockworkToolsBaseClient:
         """
         endpoint = "api/v1/clusters/jobs/one"
         params = {}
-        for (k, a) in [
+        for k, a in [
             ("job_id", job_id),
             ("cluster_name", cluster_name),
         ]:
@@ -231,7 +231,7 @@ class ClockworkToolsBaseClient:
         """
         endpoint = "api/v1/clusters/nodes/list"
         params = {}
-        for (k, a) in [
+        for k, a in [
             ("cluster_name", cluster_name),
         ]:
             if a is not None:
@@ -258,7 +258,7 @@ class ClockworkToolsBaseClient:
         """
         endpoint = "api/v1/clusters/nodes/one"
         params = {}
-        for (k, a) in [
+        for k, a in [
             ("node_name", node_name),
             ("cluster_name", cluster_name),
         ]:
@@ -337,7 +337,7 @@ class ClockworkToolsClient(ClockworkToolsBaseClient):
         preparing arguments to pass to a request in the parent class.
         """
         params = {}
-        for (k, a) in kwargs.items():
+        for k, a in kwargs.items():
             if a is not None:
                 params[k] = a
             elif target_self and k in self.this_specific_slurm_job_params:

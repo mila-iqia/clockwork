@@ -79,7 +79,7 @@ def test_get_nodes_with_filter(mtclient, fake_data, cluster_name):
     )
 
     # compare all the dicts one by one
-    for (D_node, D_original_node) in zip(LD_nodes, LD_original_nodes):
+    for D_node, D_original_node in zip(LD_nodes, LD_original_nodes):
         for k1 in D_original_node:
             assert k1 in ["slurm", "cw"]
             assert k1 in D_node, f"{D_node.keys()}"

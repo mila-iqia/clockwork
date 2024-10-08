@@ -591,6 +591,7 @@ def render_template_with_user_settings(template_name_or_list, **context):
     )
 
     # Get cluster status (if jobs are old and cluster has error).
+    """
     for cluster_name in context["clusters"]:
         # Cluster error cannot yet be checked, so
         # cluster_has_error is always False for now.
@@ -599,6 +600,7 @@ def render_template_with_user_settings(template_name_or_list, **context):
             "jobs_are_old": _jobs_are_old(cluster_name),
             "cluster_has_error": cluster_has_error,
         }
+    """
 
     return render_template(template_name_or_list, **context)
 

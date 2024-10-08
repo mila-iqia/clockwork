@@ -1,6 +1,7 @@
 """
 Browser routes dealing with the "cluster" entity
 """
+
 import logging
 
 from flask import Blueprint, request

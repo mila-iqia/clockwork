@@ -163,9 +163,9 @@ def test_client_side_user_updates():
             "mila_cluster_gid": "%d" % (1500000000 + i),
             "display_name": name.upper(),  # whatever
             "status": "enabled" if random.random() > 0.5 else "disabled",
-            "clockwork_api_key": None
-            if random.random() > 0.5
-            else str(random.random()),
+            "clockwork_api_key": (
+                None if random.random() > 0.5 else str(random.random())
+            ),
             "cc_account_username": None if random.random() > 0.5 else ("cc_" + name),
         }
         for (i, name) in enumerate(
