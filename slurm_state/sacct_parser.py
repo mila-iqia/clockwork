@@ -2,6 +2,7 @@
 The sacct parser is used to convert jobs retrieved through a sacct command on a cluster
 to jobs in the format used by Clockwork.
 """
+
 import json, os
 
 # Imports related to sacct call
@@ -68,7 +69,7 @@ def zero_to_null(v):
         The converted values
     """
     # If a value of v equals 0, transform it to None
-    for (v_k, v_v) in v.items():
+    for v_k, v_v in v.items():
         if v_v == 0:
             v[v_k] = None
     # Return v
@@ -157,9 +158,9 @@ def extract_tres_data(k, v, res):
         {"sacct_name": "requested", "cw_name": "tres_requested"},
     ]
     for tres_subdict_name in tres_subdict_names:
-        res[
-            tres_subdict_name["cw_name"]
-        ] = {}  # Initialize the "tres_allocated" and the "tres_requested" subdicts
+        res[tres_subdict_name["cw_name"]] = (
+            {}
+        )  # Initialize the "tres_allocated" and the "tres_requested" subdicts
         for tres_subdict in v[tres_subdict_name["sacct_name"]]:
             tres_key = get_tres_key(
                 tres_subdict["type"], tres_subdict["name"]

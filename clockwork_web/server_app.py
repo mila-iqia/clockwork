@@ -3,7 +3,6 @@ Instantiates the Flask app an wires up all the routes
 in the right place.
 """
 
-
 # export FLASK_RUN_PORT=5555
 # export FLASK_DEBUG=1
 # export FLASK_APP=main.py
@@ -62,7 +61,7 @@ def create_app(extra_config: dict):
     app = Flask(__name__)
     app.secret_key = get_config("flask.secret_key")
 
-    for (k, v) in extra_config.items():
+    for k, v in extra_config.items():
         app.config[k] = v
 
     app.register_blueprint(nodes_routes_flask_api, url_prefix="/nodes")

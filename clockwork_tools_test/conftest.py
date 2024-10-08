@@ -20,7 +20,7 @@ def config():
         "email": os.environ["clockwork_tools_test_EMAIL"],
         "clockwork_api_key": os.environ["clockwork_tools_test_CLOCKWORK_API_KEY"],
     }
-    for (k, v) in config.items():
+    for k, v in config.items():
         assert v, f"Missing value in environment for clockwork_tools configuration {k}."
     return config
 

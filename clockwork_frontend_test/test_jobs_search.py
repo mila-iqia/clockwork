@@ -20,9 +20,11 @@ for i in range(0, 40):
     JOBS_SEARCH_DEFAULT_TABLE.append(
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
     )
@@ -30,9 +32,11 @@ for i in range(0, 40):
 ALL_JOBS = [
     [
         job["slurm"]["cluster_name"],
-        job["cw"]["mila_email_username"].replace("@", " @")
-        if job["cw"]["mila_email_username"] is not None
-        else "",
+        (
+            job["cw"]["mila_email_username"].replace("@", " @")
+            if job["cw"]["mila_email_username"] is not None
+            else ""
+        ),
         job["slurm"]["job_id"],
     ]
     for job in sorted_jobs
@@ -125,9 +129,11 @@ def test_filter_by_user_only_me(page: Page):
     expected_results = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
@@ -186,9 +192,11 @@ def test_filter_by_user_other_user(page: Page):
     expected_results = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
@@ -241,9 +249,11 @@ def test_filter_by_cluster_except_one(page: Page):
     expected_results = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
@@ -304,9 +314,11 @@ def test_filter_by_cluster_except_two(page: Page):
     expected_results = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
@@ -366,9 +378,11 @@ def test_filter_by_status_except_one(page: Page):
     expected_results = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
@@ -429,9 +443,11 @@ def test_filter_by_status_except_two(page: Page):
     expected_results = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
@@ -499,9 +515,11 @@ def test_multiple_filters(page: Page):
     expected_results = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
@@ -548,9 +566,11 @@ def test_filter_by_job_array(page: Page):
     expected_results = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
@@ -600,9 +620,11 @@ def test_filter_by_job_user_props(page: Page):
     expected_results = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
@@ -680,9 +702,11 @@ def test_special_user_props(page: Page, prop_name: str, title: str):
     expected_results = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
@@ -732,9 +756,11 @@ def test_jobs_table_sorting_by_cluster(page: Page):
     expected_content = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted(
@@ -749,9 +775,11 @@ def test_jobs_table_sorting_by_job_id(page: Page):
     expected_content = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted(
@@ -769,9 +797,11 @@ def test_jobs_table_sorting_by_job_id_ascending(page: Page):
     expected_content = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted(fake_data["jobs"], key=lambda j: j["slurm"]["job_id"])
@@ -786,9 +816,11 @@ def test_jobs_table_sorting_by_end_time(page: Page):
     expected_content = [
         [
             job["slurm"]["cluster_name"],
-            job["cw"]["mila_email_username"].replace("@", " @")
-            if job["cw"]["mila_email_username"] is not None
-            else "",
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
             job["slurm"]["job_id"],
         ]
         for job in sorted(

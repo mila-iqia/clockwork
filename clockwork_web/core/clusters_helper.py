@@ -1,6 +1,7 @@
 """
 Helper function regarding the clusters.
 """
+
 # Import the functions from clockwork_web.config
 from clockwork_web.config import get_config, register_config
 

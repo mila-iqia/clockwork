@@ -28,7 +28,7 @@ for job in fake_data["jobs"]:
                 job["slurm"]["job_state"].lower(),
                 get_default_display_date(job["slurm"]["submit_time"]),
                 get_default_display_date(job["slurm"]["start_time"]),
-                get_default_display_date(job["slurm"]["end_time"])
+                get_default_display_date(job["slurm"]["end_time"]),
                 # Then, there is the "Links" column: we don't add content yet,
                 # but here is a placeholder for future testing
             ]

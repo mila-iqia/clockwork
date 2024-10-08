@@ -25,12 +25,16 @@ def process_user(D_sarc_user):
         "mila_cluster_uid": D_sarc_user["mila_ldap"]["mila_cluster_uid"],
         "mila_cluster_gid": D_sarc_user["mila_ldap"]["mila_cluster_gid"],
         "status": "enabled" if D_sarc_user["mila"]["active"] else "disabled",
-        "cc_account_username": D_sarc_user["drac_members"]["username"]
-        if D_sarc_user["drac_members"] is not None
-        else None,
-        "cc_account_ccri": D_sarc_user["drac_members"]["ccri"]
-        if D_sarc_user["drac_members"] is not None
-        else None,
+        "cc_account_username": (
+            D_sarc_user["drac_members"]["username"]
+            if D_sarc_user["drac_members"] is not None
+            else None
+        ),
+        "cc_account_ccri": (
+            D_sarc_user["drac_members"]["ccri"]
+            if D_sarc_user["drac_members"] is not None
+            else None
+        ),
     }
     return user
 

@@ -1,4 +1,5 @@
 """Internal functions to manage job-user props."""
+
 from ..db import get_db
 import json
 

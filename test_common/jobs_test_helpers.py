@@ -15,7 +15,6 @@ html pages, which are not necessarily meant to display all
 the information.
 """
 
-
 import random
 import time
 import copy
@@ -162,7 +161,7 @@ def helper_jobs_list_with_filter(fake_data, cluster_name):
         # matching elements in the same order
         LD_jobs = list(sorted(LD_jobs, key=lambda D_job: D_job["slurm"]["job_id"]))
         # compare all the dicts one by one
-        for (D_job, D_original_job) in zip(LD_jobs, LD_original_jobs):
+        for D_job, D_original_job in zip(LD_jobs, LD_original_jobs):
             for k1 in D_original_job:
                 assert k1 in ["slurm", "cw", "job_user_props"]
                 assert D_job[k1] == D_original_job[k1]

@@ -23,7 +23,7 @@ def main(argv):
 
     D_results = {}
     output_path = argv[1]
-    for (k, v_path) in zip(argv[2::2], argv[3::2]):
+    for k, v_path in zip(argv[2::2], argv[3::2]):
         print((k, v_path))
         with open(v_path, "r") as f:
             v = json.load(f)

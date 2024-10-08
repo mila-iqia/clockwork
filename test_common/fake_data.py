@@ -2,7 +2,6 @@
 Utilities to prepare fake data for tests.
 """
 
-
 import pytest
 import os
 import json
@@ -105,7 +104,7 @@ def populate_fake_data(db_insertion_point, json_file=None, mutate=False):
             copy_e.pop("props")
             db_insertion_point["job_user_props"].delete_many(copy_e)
 
-        for (k, sub, id_field) in [
+        for k, sub, id_field in [
             ("jobs", "slurm", "job_id"),
             ("nodes", "slurm", "name"),
         ]:
@@ -193,7 +192,7 @@ def mutate_some_job_status(data):
 
     nodes = data["nodes"]
 
-    for (i, job) in enumerate(data["jobs"]):
+    for i, job in enumerate(data["jobs"]):
         slurm = job["slurm"]
         job_state = L_status[i % len(L_status)]
         slurm["job_state"] = job_state

@@ -8,6 +8,7 @@ CLOCKWORK_EMAIL='<your-email>' CLOCKWORK_API_KEY='<your-api-key>' locust -f scri
 
 Locust documentation: https://docs.locust.io/en/stable/index.html
 """
+
 import json
 
 import base64
