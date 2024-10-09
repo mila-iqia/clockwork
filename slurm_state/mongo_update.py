@@ -39,8 +39,8 @@ def fetch_slurm_report(parser, report_path):
             for e in parser.parser(f):
                 e["cluster_name"] = cluster_name
                 yield e
-        except Exception as e:
-            logging.warning(str(e))
+        except Exception as err:
+            logging.warning(str(err))
 
 
 def slurm_job_to_clockwork_job(slurm_job: dict):
