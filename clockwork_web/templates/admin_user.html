@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="title float-start">
+                    <i class="fa-solid fa-user"></i>
+                    <h1>
+                        <a href="{{ url_for('admin.panel') }}">{{ gettext("Administration panel") }}</a> /
+                        <a href="{{ url_for('admin.users') }}">{{ gettext("Users") }}</a> /
+                        {{ D_user["mila_email_username"] }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        {% if user_edit_status %}
+        <div class="row mb-4 text-center">
+            <h3><strong>{{ user_edit_status }}</strong></h3>
+        </div>
+        {% endif %}
+
+        <form method="post">
+            <div class="row mb-4">
+                <table class="table table-striped table-hover table-responsive table-jobs">
+                    <tbody>
+                        <tr>
+                            <td>{{ gettext("Mila cluster ID") }}</td>
+                            <td>
+                                <input type="text" name="mila_cluster_username" value="{{ D_user['mila_cluster_username'] }}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{{ gettext("DRAC cluster ID") }}</td>
+                            <td>
+                                <input type="text" name="cc_account_username" value="{{ D_user['cc_account_username'] }}"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row mb-4">
+                <button type="submit" class="btn btn-turquoise">{{ gettext("Save") }}</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
