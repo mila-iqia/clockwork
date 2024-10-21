@@ -42,7 +42,7 @@
                     <tr>
                         <td>{{ D_user["mila_email_username"] }}</td>
                         {% for cluster_username_field in D_clusters_usernames_fields %}
-                            <td>{{ D_user[cluster_username_field] }}</td>
+                            <td>{{ D_user[cluster_username_field] or "" }}</td>
                         {% endfor %}
                         <td>
                             <a class="btn btn-turquoise"

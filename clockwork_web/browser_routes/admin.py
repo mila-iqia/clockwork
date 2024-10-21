@@ -168,11 +168,13 @@ def user():
         update_needed = False
         new_usernames = {}
         for cluster_username_field in D_clusters_usernames_fields:
-            old_username = D_user[cluster_username_field] or ""
+            old_username = D_user[cluster_username_field]
 
-            new_username = request.form[cluster_username_field].strip()
+            # NB: An empty-string is interpreted as None.
+            # This allows to set a username to None,
+            # as username may be None in users db.
+            new_username = request.form[cluster_username_field].strip() or None
             update_needed = update_needed or new_username != old_username
-            # NB: this allows new_username to be an empty string.
             new_usernames[cluster_username_field] = new_username
 
         if update_needed:
