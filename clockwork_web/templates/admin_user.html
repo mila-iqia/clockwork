@@ -50,11 +50,20 @@
                                 <input type="text" name="cc_account_username" value="{{ D_user['cc_account_username'] }}"/>
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                <a class="btn btn-turquoise" href="{{url_for('admin.users')}}">
+                                    {{ gettext("Cancel") }}
+                                </a>
+                            </td>
+                            <td>
+                                <button type="submit" class="btn btn-turquoise">
+                                    {{ gettext("Save") }}
+                                </button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
-            </div>
-            <div class="row mb-4">
-                <button type="submit" class="btn btn-turquoise">{{ gettext("Save") }}</button>
             </div>
         </form>
     </div>
