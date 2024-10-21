@@ -3,6 +3,7 @@ from slurm_state.config import get_config
 from playwright.sync_api import Page, expect
 
 from clockwork_frontend_test.utils import BASE_URL
+from clockwork_web.core.users_helper import get_account_fields
 
 
 class UsersFactory:
@@ -64,6 +65,43 @@ def test_admin_access_for_admin(page: Page):
 
     # Back to default language
     if lang != "en":
+        page.goto(f"{BASE_URL}/settings/")
+        select = page.locator("select#language_selection")
+        select.select_option(lang)
+        expect(select).to_have_value(lang)
+
+
+def test_admin_access_for_admin_french(page: Page):
+    users_factory = UsersFactory()
+    admin_user = users_factory.get_an_admin_user()
+    admin_email = admin_user["mila_email_username"]
+    random_user = users_factory.get_a_non_admin_user(exclude=admin_email)
+    # login
+    page.goto(f"{BASE_URL}/login/testing?user_id={admin_email}")
+    # Go to settings to set language to english if necessary.
+    page.goto(f"{BASE_URL}/settings/")
+    # Get language select.
+    select = page.locator("select#language_selection")
+    # Switch to French.
+    lang = select.input_value()
+    if lang != "fr":
+        select.select_option("fr")
+        # Check english is selected.
+        expect(select).to_have_value("fr")
+
+    page.goto(f"{BASE_URL}/admin/panel")
+    expect(page.get_by_text("Panneau d'administration")).to_have_count(1)
+    page.goto(f"{BASE_URL}/admin/users")
+    expect(page.get_by_text("Panneau d'administration / Utilisateurs")).to_have_count(1)
+    page.goto(f"{BASE_URL}/admin/user?username={random_user['mila_email_username']}")
+    expect(
+        page.get_by_text(
+            f"Panneau d'administration / Utilisateurs / {random_user['mila_email_username']}"
+        )
+    ).to_have_count(1)
+
+    # Back to default language
+    if lang != "fr":
         page.goto(f"{BASE_URL}/settings/")
         select = page.locator("select#language_selection")
         select.select_option(lang)
@@ -156,33 +194,30 @@ def test_admin_pages(page: Page):
     expect(row).to_have_count(1)
     columns = row.locator("td")
     user_email = columns.nth(0).text_content().strip()
-    user_mila_cluster_id = columns.nth(1).text_content().strip()
-    user_drac_cluster_id = columns.nth(2).text_content().strip()
-    user_edit_button = columns.nth(3).locator("a")
+    user_edit_button = columns.last.locator("a")
     assert user_email.endswith("@mila.quebec")
-    assert user_mila_cluster_id
-    assert user_drac_cluster_id
-    assert user_mila_cluster_id != user_drac_cluster_id
     expect(user_edit_button).to_have_text("edit")
 
     # Go to edition page for selected user
     user_edit_button.click()
     expect(new_page).to_have_url(f"{BASE_URL}/admin/user?username={user_email}")
 
-    # Check default input values on edition page
-    inputs = new_page.locator("table input")
-    input_mila_cluster_id = inputs.nth(0)
-    input_drac_cluster_id = inputs.nth(1)
-    expect(input_mila_cluster_id).to_have_attribute("name", "mila_cluster_username")
-    expect(input_mila_cluster_id).to_have_value(user_mila_cluster_id)
-    expect(input_drac_cluster_id).to_have_attribute("name", "cc_account_username")
-    expect(input_drac_cluster_id).to_have_value(user_drac_cluster_id)
+    # Get default usernames
+    account_fields = get_account_fields()
+    old_usernames = {}
+    for user_field in account_fields:
+        user_input = new_page.locator(f"form table input[name={user_field}]")
+        expect(user_input).to_have_count(1)
+        old_usernames[user_field] = user_input.input_value()
 
     # Edit user
-    new_user_mila_cluster_id = f"{user_mila_cluster_id}_new_mila"
-    new_user_drac_cluster_id = f"{user_drac_cluster_id}_new_drac"
-    input_mila_cluster_id.fill(new_user_mila_cluster_id)
-    input_drac_cluster_id.fill(new_user_drac_cluster_id)
+    new_usernames = {
+        user_field: f"{username}_new" for user_field, username in old_usernames.items()
+    }
+    for user_field in account_fields:
+        new_page.locator(f"form table input[name={user_field}]").fill(
+            new_usernames[user_field]
+        )
     # Submit form
     button_submit = new_page.locator("button", has_text="Save")
     expect(button_submit).to_have_count(1)
@@ -191,39 +226,29 @@ def test_admin_pages(page: Page):
     expect(new_page.get_by_text("User successfully updated.")).to_have_count(1)
 
     # Check new input values
-    inputs = new_page.locator("table input")
-    input_mila_cluster_id = inputs.nth(0)
-    input_drac_cluster_id = inputs.nth(1)
-    expect(input_mila_cluster_id).to_have_attribute("name", "mila_cluster_username")
-    expect(input_mila_cluster_id).to_have_value(new_user_mila_cluster_id)
-    expect(input_drac_cluster_id).to_have_attribute("name", "cc_account_username")
-    expect(input_drac_cluster_id).to_have_value(new_user_drac_cluster_id)
+    for user_field in account_fields:
+        user_input = new_page.locator(f"form table input[name={user_field}]")
+        expect(user_input).to_have_value(new_usernames[user_field])
 
     # Edit user back to default values
-    input_mila_cluster_id.fill(user_mila_cluster_id)
-    input_drac_cluster_id.fill(user_drac_cluster_id)
+    for user_field in account_fields:
+        new_page.locator(f"form table input[name={user_field}]").fill(
+            old_usernames[user_field]
+        )
     new_page.locator("button", has_text="Save").click()
     expect(new_page).to_have_url(f"{BASE_URL}/admin/user?username={user_email}")
     expect(new_page.get_by_text("User successfully updated.")).to_have_count(1)
-    inputs = new_page.locator("table input")
-    input_mila_cluster_id = inputs.nth(0)
-    input_drac_cluster_id = inputs.nth(1)
-    expect(input_mila_cluster_id).to_have_attribute("name", "mila_cluster_username")
-    expect(input_mila_cluster_id).to_have_value(user_mila_cluster_id)
-    expect(input_drac_cluster_id).to_have_attribute("name", "cc_account_username")
-    expect(input_drac_cluster_id).to_have_value(user_drac_cluster_id)
+    for user_field in account_fields:
+        user_input = new_page.locator(f"form table input[name={user_field}]")
+        expect(user_input).to_have_value(old_usernames[user_field])
 
     # Check what happens when submitting form with default values
     new_page.locator("button", has_text="Save").click()
     expect(new_page).to_have_url(f"{BASE_URL}/admin/user?username={user_email}")
-    expect(new_page.get_by_text("No changes for this user.")).to_have_count(1)
-    inputs = new_page.locator("table input")
-    input_mila_cluster_id = inputs.nth(0)
-    input_drac_cluster_id = inputs.nth(1)
-    expect(input_mila_cluster_id).to_have_attribute("name", "mila_cluster_username")
-    expect(input_mila_cluster_id).to_have_value(user_mila_cluster_id)
-    expect(input_drac_cluster_id).to_have_attribute("name", "cc_account_username")
-    expect(input_drac_cluster_id).to_have_value(user_drac_cluster_id)
+    expect(new_page.get_by_text("No change for this user.")).to_have_count(1)
+    for user_field in account_fields:
+        user_input = new_page.locator(f"form table input[name={user_field}]")
+        expect(user_input).to_have_value(old_usernames[user_field])
 
     # Back to default language
     if lang != "en":
