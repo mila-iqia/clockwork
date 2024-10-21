@@ -41,7 +41,7 @@
                         {% for cluster_username_field in D_clusters_usernames_fields %}
                         <tr>
                             <td>
-                                {{ cluster_username_field }}
+                                {{ gettext(cluster_username_field) }}
                             </td>
                             <td>
                                 <input type="text" name="{{ cluster_username_field }}" value="{{ D_user[cluster_username_field] or '' }}"/>

@@ -150,7 +150,8 @@ def user():
         return (
             render_template_with_user_settings(
                 "error.html",
-                error_msg=gettext(f"Cannot find username: {mila_email_username}"),
+                error_msg=gettext("Cannot find username: %(username)s")
+                % {"username": mila_email_username},
                 previous_request_args=previous_request_args,
             ),
             400,  # Bad Request
@@ -184,9 +185,9 @@ def user():
             )
             for cluster_username_field in D_clusters_usernames_fields:
                 D_user[cluster_username_field] = new_usernames[cluster_username_field]
-            user_edit_status = "User successfully updated."
+            user_edit_status = gettext("User successfully updated.")
         else:
-            user_edit_status = "No change for this user."
+            user_edit_status = gettext("No change for this user.")
 
     return render_template_with_user_settings(
         "admin_user.html",
