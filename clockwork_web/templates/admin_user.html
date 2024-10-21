@@ -38,6 +38,17 @@
             <div class="row mb-4">
                 <table class="table table-striped table-hover table-responsive table-jobs">
                     <tbody>
+                        {% for cluster_username_field in D_clusters_usernames_fields %}
+                        <tr>
+                            <td>
+                                {{ cluster_username_field }}
+                            </td>
+                            <td>
+                                <input type="text" name="{{ cluster_username_field }}" value="{{ D_user[cluster_username_field] }}"/>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <!--
                         <tr>
                             <td>{{ gettext("Mila cluster ID") }}</td>
                             <td>
@@ -50,6 +61,7 @@
                                 <input type="text" name="cc_account_username" value="{{ D_user['cc_account_username'] }}"/>
                             </td>
                         </tr>
+                        -->
                     </tbody>
                 </table>
             </div>

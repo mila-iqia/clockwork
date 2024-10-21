@@ -32,6 +32,7 @@ from flask_babel import gettext
 # this is what allows the factorization into many files.
 from flask import Blueprint
 
+from clockwork_web.core.clusters_helper import get_account_fields
 from clockwork_web.core.utils import to_boolean, get_custom_array_from_request_args
 from clockwork_web.core.users_helper import (
     render_template_with_user_settings,
@@ -96,11 +97,15 @@ def users():
     # Get users
     LD_users = sorted(get_users(), key=lambda user: user["mila_email_username"])
 
+    # Get the different clusters fields
+    D_clusters_usernames_fields = get_account_fields()
+
     return render_template_with_user_settings(
         "admin_users.html",
         mila_email_username=current_user.mila_email_username,
         previous_request_args=previous_request_args,
         LD_users=LD_users,
+        D_clusters_usernames_fields = D_clusters_usernames_fields
     )
 
 
@@ -153,20 +158,49 @@ def user():
 
     (D_user,) = D_users
 
+    # Get the different clusters fields
+    D_clusters_usernames_fields = get_account_fields()
+
+    # Edition form
     user_edit_status = ""
     if request.method == "POST":
         # Handle edition form
-        old_mila_cluster_username = D_user["mila_cluster_username"]
-        old_cc_account_username = D_user["cc_account_username"]
-        new_mila_cluster_username = request.form["mila_cluster_username"].strip()
-        new_cc_account_username = request.form["cc_account_username"].strip()
+        update_needed = False
+        old_usernames = {}
+        new_usernames = {}
+        for cluster_username_field in D_clusters_usernames_fields:
+            old_username = D_user[cluster_username_field]
+            old_usernames[cluster_username_field] = old_username
+            # old_mila_cluster_username = D_user["mila_cluster_username"]
+            # old_cc_account_username = D_user["cc_account_username"]
 
-        if not new_mila_cluster_username:
-            new_mila_cluster_username = old_mila_cluster_username
+            new_username = request.form[cluster_username_field].strip()
+            if new_username:
+                new_usernames[cluster_username_field] = new_username
+                update_needed = True
+                #new_mila_cluster_username = request.form["mila_cluster_username"].strip()
+                #new_cc_account_username = request.form["cc_account_username"].strip()
+            else:
+                new_usernames[cluster_username_field] = old_username
+            #if not new_mila_cluster_username:
+            #    new_mila_cluster_username = old_mila_cluster_username
 
-        if not new_cc_account_username:
-            new_cc_account_username = old_cc_account_username
+            #if not new_cc_account_username:
+            #    new_cc_account_username = old_cc_account_username
 
+        if update_needed:
+            users_collection.update_one(
+                {"mila_email_username": D_user["mila_email_username"]},
+                {
+                    "$set": new_usernames
+                }
+            )
+            for cluster_username_field in D_clusters_usernames_fields:
+                D_user[cluster_username_field] = new_usernames[cluster_username_field]
+            user_edit_status = "User successfully updated."
+        else:
+            user_edit_status = "No change for this user."
+        """
         if (
             new_mila_cluster_username != old_mila_cluster_username
             or new_cc_account_username != old_cc_account_username
@@ -185,6 +219,7 @@ def user():
             user_edit_status = "User successfully updated."
         else:
             user_edit_status = "No changes for this user."
+        """
 
     return render_template_with_user_settings(
         "admin_user.html",
@@ -192,4 +227,5 @@ def user():
         previous_request_args=previous_request_args,
         D_user=D_user,
         user_edit_status=user_edit_status,
+        D_clusters_usernames_fields=D_clusters_usernames_fields
     )
