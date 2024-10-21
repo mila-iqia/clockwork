@@ -105,7 +105,7 @@ def users():
         mila_email_username=current_user.mila_email_username,
         previous_request_args=previous_request_args,
         LD_users=LD_users,
-        D_clusters_usernames_fields = D_clusters_usernames_fields
+        D_clusters_usernames_fields=D_clusters_usernames_fields,
     )
 
 
@@ -166,60 +166,25 @@ def user():
     if request.method == "POST":
         # Handle edition form
         update_needed = False
-        old_usernames = {}
         new_usernames = {}
         for cluster_username_field in D_clusters_usernames_fields:
-            old_username = D_user[cluster_username_field]
-            old_usernames[cluster_username_field] = old_username
-            # old_mila_cluster_username = D_user["mila_cluster_username"]
-            # old_cc_account_username = D_user["cc_account_username"]
+            old_username = D_user[cluster_username_field] or ""
 
             new_username = request.form[cluster_username_field].strip()
-            if new_username:
-                new_usernames[cluster_username_field] = new_username
-                update_needed = True
-                #new_mila_cluster_username = request.form["mila_cluster_username"].strip()
-                #new_cc_account_username = request.form["cc_account_username"].strip()
-            else:
-                new_usernames[cluster_username_field] = old_username
-            #if not new_mila_cluster_username:
-            #    new_mila_cluster_username = old_mila_cluster_username
-
-            #if not new_cc_account_username:
-            #    new_cc_account_username = old_cc_account_username
+            update_needed = update_needed or new_username != old_username
+            # NB: this allows new_username to be an empty string.
+            new_usernames[cluster_username_field] = new_username
 
         if update_needed:
             users_collection.update_one(
                 {"mila_email_username": D_user["mila_email_username"]},
-                {
-                    "$set": new_usernames
-                }
+                {"$set": new_usernames},
             )
             for cluster_username_field in D_clusters_usernames_fields:
                 D_user[cluster_username_field] = new_usernames[cluster_username_field]
             user_edit_status = "User successfully updated."
         else:
             user_edit_status = "No change for this user."
-        """
-        if (
-            new_mila_cluster_username != old_mila_cluster_username
-            or new_cc_account_username != old_cc_account_username
-        ):
-            users_collection.update_one(
-                {"mila_email_username": D_user["mila_email_username"]},
-                {
-                    "$set": {
-                        "mila_cluster_username": new_mila_cluster_username,
-                        "cc_account_username": new_cc_account_username,
-                    }
-                },
-            )
-            D_user["mila_cluster_username"] = new_mila_cluster_username
-            D_user["cc_account_username"] = new_cc_account_username
-            user_edit_status = "User successfully updated."
-        else:
-            user_edit_status = "No changes for this user."
-        """
 
     return render_template_with_user_settings(
         "admin_user.html",
@@ -227,5 +192,5 @@ def user():
         previous_request_args=previous_request_args,
         D_user=D_user,
         user_edit_status=user_edit_status,
-        D_clusters_usernames_fields=D_clusters_usernames_fields
+        D_clusters_usernames_fields=D_clusters_usernames_fields,
     )
