@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %} {{note_title}} {% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        {{extra_css}}
+    </style>
+    <script>
+        {% autoescape false %}
+        {{extra_js}}
+        {% endautoescape %}
+
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="title float-start">
+                    <i class="fa-solid fa-user"></i>
+                    <h1>
+                        <a href="{{ url_for('admin.panel') }}">{{ gettext("Administration panel") }}</a> /
+                        {{ gettext("Users") }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table table-striped table-hover table-responsive table-jobs">
+                <thead>
+                    <tr>
+                        <th>{{ gettext("User (@mila.quebec)") }}</th>
+                        {% for cluster_username_field in D_clusters_usernames_fields %}
+                        <th>{{ gettext(cluster_username_field) }}</th>
+                        {% endfor %}
+                        <th>{{ gettext("Actions") }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for D_user in LD_users %}
+                    <tr>
+                        <td>{{ D_user["mila_email_username"] }}</td>
+                        {% for cluster_username_field in D_clusters_usernames_fields %}
+                            <td>{{ D_user[cluster_username_field] or "" }}</td>
+                        {% endfor %}
+                        <td>
+                            <a class="btn btn-turquoise"
+                               href="{{url_for('admin.user', username=D_user['mila_email_username'])}}">
+                                {{ gettext("edit") }}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

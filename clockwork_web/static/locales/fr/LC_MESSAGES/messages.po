@@ -386,6 +386,7 @@ msgstr "Liens"
 #: clockwork_web/templates/jobs_search.html:145
 #: clockwork_web/templates/settings.html:253
 #: clockwork_web/templates/settings.html:289
+#: clockwork_web/templates/admin_users.html:37
 msgid "Actions"
 msgstr "Actions"
 
@@ -685,3 +686,47 @@ msgstr "Valeur de la propriété"
 #, python-format
 msgid "You have not defined any user prop for this job."
 msgstr "Vous n'avez défini aucune propriété pour ce job."
+
+#: clockwork_web/browser_routes/admin.py:153
+msgid "Cannot find username: %(username)s"
+msgstr "Utilisateur introuvable: %(username)s"
+
+#: clockwork_web/browser_routes/admin.py:188
+msgid "User successfully updated."
+msgstr "Utilisateur mis à jour."
+
+#: clockwork_web/browser_routes/admin.py:190
+msgid "No change for this user."
+msgstr "Pas de changements pour cet utilisateur."
+
+#: clockwork_web/templates/admin_panel.html:22
+msgid "Administration panel"
+msgstr "Panneau d'administration"
+
+#: clockwork_web/templates/admin_panel.html:29
+msgid "Manage users"
+msgstr "Gérer les utilisateurs"
+
+#: clockwork_web/templates/admin_user.html:24
+msgid "Users"
+msgstr "Utilisateurs"
+
+#: clockwork_web/templates/admin_user.html:58
+msgid "Cancel"
+msgstr "Annuler"
+
+#: clockwork_web/templates/admin_user.html:61
+msgid "Save"
+msgstr "Enregistrer"
+
+#: clockwork_web/templates/admin_user.html:44
+msgid "mila_cluster_username"
+msgstr "ID sur le cluster Mila"
+
+#: clockwork_web/templates/admin_user.html:44
+msgid "cc_account_username"
+msgstr "ID sur les clusters DRAC"
+
+#: clockwork_web/templates/admin_users.html:50
+msgid "edit"
+msgstr "modifier"

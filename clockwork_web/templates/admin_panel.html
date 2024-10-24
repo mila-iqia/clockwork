@@ -14,8 +14,21 @@
 
 {% endblock %}
 {% block content %}
-<div class="cc_subheader_banner">
-    <h1>Hello, admin world !</h1>
-    This page is a placeholder.
-</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="title float-start">
+                    <i class="fa-solid fa-user"></i>
+                    <h1>{{ gettext("Administration panel") }}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <a class="btn btn-turquoise" href="{{url_for('admin.users')}}">
+                    {{ gettext("Manage users") }}
+                </a>
+            </div>
+        </div>
+    </div>
 {% endblock %}
