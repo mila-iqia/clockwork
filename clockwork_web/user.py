@@ -115,7 +115,6 @@ class User(UserMixin):
         except:
             return None
 
-        
         # This is not an error from which we expect to be able to recover gracefully.
         # It could happen if you copied data from your database directly
         # using an external script, and ended up with many instances of your users.

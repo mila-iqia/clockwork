@@ -574,9 +574,9 @@ def render_template_with_user_settings(template_name_or_list, **context):
         The template rendered by Flask, and containing the web_settings of the
         current user
     """
-    context[
-        "web_settings"
-    ] = current_user.get_web_settings()  # used for templates (old way)
+    context["web_settings"] = (
+        current_user.get_web_settings()
+    )  # used for templates (old way)
     # used for the actual `web_settings` variable from "base.html" (prompted by GEN-160)
     context["web_settings_json_str"] = json.dumps(context["web_settings"])
 
