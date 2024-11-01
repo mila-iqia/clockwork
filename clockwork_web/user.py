@@ -110,7 +110,12 @@ class User(UserMixin):
 
         mc = get_db()
 
-        L = list(mc["users"].find({"mila_email_username": mila_email_username}))
+        try:
+            L = list(mc["users"].find({"mila_email_username": mila_email_username}))
+        except:
+            return None
+
+        
         # This is not an error from which we expect to be able to recover gracefully.
         # It could happen if you copied data from your database directly
         # using an external script, and ended up with many instances of your users.
