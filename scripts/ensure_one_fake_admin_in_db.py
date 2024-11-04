@@ -2,6 +2,7 @@
 Helper script to make sure testing db contains at least 1 admin user.
 Used for frontend admin tests.
 """
+
 from slurm_state.mongo_client import get_mongo_client
 from slurm_state.config import get_config
 
