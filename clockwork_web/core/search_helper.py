@@ -108,7 +108,7 @@ def search_request(user, args, force_pagination=True):
 
     # Call a helper to retrieve the jobs
     (jobs, nbr_total_jobs) = get_jobs(
-        username=query.username,
+        username=query.username if user.is_admin() else user.mila_email_username,
         cluster_names=query.cluster_name,
         job_states=query.job_state,
         job_ids=query.job_ids,
