@@ -44,17 +44,17 @@ def modify_timestamps(data):
     This function updates the timestamps in order to simulate jobs which have
     been launched more recently than they were.
     """
-    # Retrieve the most recent timestamp (ie its end_time)
-    most_recent_timestamp = data["jobs"][0]["slurm"]["end_time"]
-    # most_recent_timestamp = min(job["slurm"]["end_time"] for job in data["jobs"])
+    # Retrieve a recent timestamp (the submit_time of the first job)
+    recent_timestamp = data["jobs"][0]["slurm"]["submit_time"]
+
     for job in data["jobs"]:
-        new_end_time = job["slurm"]["end_time"]
-        if new_end_time:
-            if new_end_time > most_recent_timestamp:
-                most_recent_timestamp = new_end_time
+        new_submit_time = job["slurm"]["submit_time"]
+        if new_submit_time:
+            if new_submit_time > recent_timestamp:
+                recent_timestamp = new_submit_time
 
     # Retrieve the time interval between this timestamp and now
-    time_delta = datetime.now().timestamp() - most_recent_timestamp
+    time_delta = datetime.now().timestamp() - recent_timestamp
 
     # Substract it to the timestamps of the jobs
     for job in data["jobs"]:
@@ -64,6 +64,13 @@ def modify_timestamps(data):
             job["slurm"]["start_time"] += time_delta
         if job["slurm"]["end_time"]:
             job["slurm"]["end_time"] += time_delta
+        if "last_slurm_update" in job["cw"] and job["cw"]["last_slurm_update"]:
+            job["cw"]["last_slurm_update"] += time_delta
+        if (
+            "last_slurm_update_by_sacct" in job["cw"]
+            and job["cw"]["last_slurm_update_by_sacct"]
+        ):
+            job["cw"]["last_slurm_update_by_sacct"] += time_delta
 
 
 def main(argv):
