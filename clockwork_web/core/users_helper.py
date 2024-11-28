@@ -581,7 +581,12 @@ def render_template_with_user_settings(template_name_or_list, **context):
     context["web_settings_json_str"] = json.dumps(context["web_settings"])
 
     # Send the clusters infos to the template
-    context["clusters"] = get_all_clusters()
+    # NB: get_all_clusters() seems to return the clusters dict itself
+    # from config, not a copy. So, any modification on clusters dict
+    # returned by this function will be propagated into config.
+    # As we don't want this behaviour here, we will make a copy
+    # of each cluster dict.
+    context["clusters"] = {k: v.copy() for k, v in get_all_clusters().items()}
     # List clusters available for connected user,
     # or set an empty list for anon user.
     context["user_clusters"] = (
