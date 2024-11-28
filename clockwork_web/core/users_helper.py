@@ -581,7 +581,12 @@ def render_template_with_user_settings(template_name_or_list, **context):
     context["web_settings_json_str"] = json.dumps(context["web_settings"])
 
     # Send the clusters infos to the template
-    context["clusters"] = get_all_clusters()
+    # NB: get_all_clusters() seems to return the clusters dict itself
+    # from config, not a copy. So, any modification on clusters dict
+    # returned by this function will be propagated into config.
+    # As we don't want this behaviour here, we will make a copy
+    # of each cluster dict.
+    context["clusters"] = {k: v.copy() for k, v in get_all_clusters().items()}
     # List clusters available for connected user,
     # or set an empty list for anon user.
     context["user_clusters"] = (
@@ -591,40 +596,28 @@ def render_template_with_user_settings(template_name_or_list, **context):
     )
 
     # Get cluster status (if jobs are old and cluster has error).
-    """
     for cluster_name in context["clusters"]:
-        # Cluster error cannot yet be checked, so
-        # cluster_has_error is always False for now.
-        cluster_has_error = False
-        context["clusters"][cluster_name]["status"] = {
-            "jobs_are_old": _jobs_are_old(cluster_name),
-            "cluster_has_error": cluster_has_error,
-        }
-    """
+        context["clusters"][cluster_name]["status"] = _get_cluster_status(cluster_name)
 
     return render_template(template_name_or_list, **context)
 
 
-def _jobs_are_old(cluster_name):
-    """Return True if last slurm update in given cluster is older than 2 days."""
-    jobs_are_old = False
+def _get_cluster_status(cluster_name):
+    """
+    Get cluster status from DB collection `cluster_status`.
 
-    mongodb_filter = {"slurm.cluster_name": cluster_name}
+    Collection should be updated from an independent script
+    (`scripts/update_clusters_status.py`) regularly.
+    """
     mc = get_db()
-    job_with_max_cw_last_slurm_update = list(
-        mc["jobs"].find(mongodb_filter).sort([("cw.last_slurm_update", -1)]).limit(1)
-    )
-
-    if job_with_max_cw_last_slurm_update:
-        (job,) = job_with_max_cw_last_slurm_update
-        if "last_slurm_update" in job["cw"]:
-            most_recent_job_edition = job["cw"]["last_slurm_update"]
-            current_timestamp = datetime.now().timestamp()
-            elapsed_time = timedelta(
-                seconds=current_timestamp - most_recent_job_edition
-            )
-            # Let's say the latest jobs edition must not be older than max_delay.
-            max_delay = timedelta(days=2)
-            jobs_are_old = elapsed_time > max_delay
-
-    return jobs_are_old
+    statuses = list(mc["cluster_status"].find({"cluster_name": cluster_name}))
+    if statuses:
+        # Status found
+        (status,) = statuses
+        return status
+    else:
+        # No status found, return default values
+        return {
+            "jobs_are_old": False,
+            "cluster_has_error": False,
+        }
