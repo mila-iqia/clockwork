@@ -232,17 +232,17 @@
 														<i class="fa-solid fa-file-lines" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Grafana cluster link') }}"></i>
 													</a>
 													<!-- cluster status -->
-													<!--
-													{# if D_cluster['status']['jobs_are_old'] #}
+													{% if D_cluster['status']['jobs_are_old'] %}
 														<span class="cluster-info cluster-warning">
 															<i class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Possible stale jobs. Most recent update was more than 30 days ago') }}"></i>
 														</span>
-														
-													{# else #}
+
+													{% else %}
 														<span class="cluster-info cluster-good">
 															<i class="fa-solid fa-ballot-check" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('Latest update to jobs is relatively recent (at most 30 days ago)') }}"></i>
 														</span>
-													{# endif #}
+													{% endif %}
+													<!-- `cluster_has_error` not yet updated, thus still not displayed
 													{# if D_cluster['status']['cluster_has_error'] #}
 														<span class="cluster-info cluster-error">
 															<i class="fa-solid fa-octagon-exclamation" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ gettext('A cluster error occurred recently') }}"></i>
