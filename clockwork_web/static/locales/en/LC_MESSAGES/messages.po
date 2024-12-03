@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-10-12 09:33-0400\n"
+"POT-Creation-Date: 2024-12-03 15:43-0500\n"
 "PO-Revision-Date: 2022-07-14 15:23-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -18,11 +18,695 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
 
+#: clockwork_web/user.py:167
+msgid "could not modify api key"
+msgstr ""
 
-#: clockwork_web/templates/admin_user.html:44
-msgid "mila_cluster_username"
+#: clockwork_web/user.py:180
+msgid "could not modify update key"
+msgstr ""
+
+#: clockwork_web/browser_routes/admin.py:55
+msgid "Authorization error."
+msgstr ""
+
+#: clockwork_web/browser_routes/admin.py:139
+#: clockwork_web/browser_routes/users.py:44
+msgid "Missing argument username."
+msgstr ""
+
+#: clockwork_web/browser_routes/admin.py:153
+#, python-format
+msgid "Cannot find username: %(username)s"
+msgstr ""
+
+#: clockwork_web/browser_routes/admin.py:188
+msgid "User successfully updated."
+msgstr ""
+
+#: clockwork_web/browser_routes/admin.py:190
+msgid "No change for this user."
+msgstr ""
+
+#: clockwork_web/browser_routes/clusters.py:63
+msgid "This cluster is not known."
+msgstr ""
+
+#: clockwork_web/browser_routes/clusters.py:75
+msgid "You don't have access to the requested cluster."
+msgstr ""
+
+#: clockwork_web/browser_routes/clusters.py:116
+msgid "The argument cluster_name is missing."
+msgstr ""
+
+#: clockwork_web/browser_routes/gpu.py:74
+msgid "Missing argument gpu_name."
+msgstr ""
+
+#: clockwork_web/browser_routes/jobs.py:227
+msgid "Missing argument job_id."
+msgstr ""
+
+#: clockwork_web/browser_routes/jobs.py:237
+msgid "Too many job_ids have been requested."
+msgstr ""
+
+#: clockwork_web/browser_routes/jobs.py:250
+#, python-format
+msgid "Found no job with job_id %(expected_job_id)s."
+msgstr ""
+
+#: clockwork_web/browser_routes/jobs.py:258
+msgid "Found %(len_LD_jobs) jobs with job_id %(job_id)."
+msgstr ""
+
+#: clockwork_web/browser_routes/nodes.py:187
+msgid "Node not found"
+msgstr ""
+
+#: clockwork_web/browser_routes/nodes.py:196
+msgid "Found more than one matching node"
+msgstr ""
+
+#: clockwork_web/browser_routes/nodes.py:212
+msgid "(missing node name)"
+msgstr ""
+
+#: clockwork_web/browser_routes/settings.py:146
+msgid "Invalid choice for number of items to display per page."
+msgstr ""
+
+#: clockwork_web/browser_routes/settings.py:158
+msgid "Missing argument, or wrong format: nbr_items_per_page."
+msgstr ""
+
+#: clockwork_web/browser_routes/settings.py:265
+#: clockwork_web/browser_routes/settings.py:334
+msgid "The provided page name is unexpected."
+msgstr ""
+
+#: clockwork_web/browser_routes/settings.py:275
+#: clockwork_web/browser_routes/settings.py:344
+msgid "The provided column name is unexpected for this page."
+msgstr ""
+
+#: clockwork_web/browser_routes/settings.py:423
+msgid "The requested language is unknown."
+msgstr ""
+
+#: clockwork_web/browser_routes/settings.py:434
+msgid "Missing argument, or wrong format: language."
+msgstr ""
+
+#: clockwork_web/browser_routes/settings.py:492
+msgid "The requested date_format is unknown."
+msgstr ""
+
+#: clockwork_web/browser_routes/settings.py:503
+msgid "Missing argument, or wrong format: date_format."
+msgstr ""
+
+#: clockwork_web/browser_routes/settings.py:563
+msgid "The requested time_format is unknown."
+msgstr ""
+
+#: clockwork_web/browser_routes/settings.py:574
+msgid "Missing argument, or wrong format: time_format."
+msgstr ""
+
+#: clockwork_web/browser_routes/users.py:75
+msgid "The requested user has not been found."
+msgstr ""
+
+#: clockwork_web/core/users_helper.py:126
+msgid "The setting has been updated."
+msgstr ""
+
+#: clockwork_web/core/users_helper.py:130
+msgid "An error occurred."
+msgstr ""
+
+#: clockwork_web/core/users_helper.py:133
+msgid "The provided value is not expected for this setting."
+msgstr ""
+
+#: clockwork_web/core/users_helper.py:216
+msgid "The provided value is not expected for this setting"
+msgstr ""
+
+#: clockwork_web/core/users_helper.py:245
+msgid "The setting has been reset to its default value."
+msgstr ""
+
+#: clockwork_web/templates/admin_panel.html:22
+#: clockwork_web/templates/admin_user.html:23
+#: clockwork_web/templates/admin_users.html:23
+msgid "Administration panel"
+msgstr ""
+
+#: clockwork_web/templates/admin_panel.html:29
+msgid "Manage users"
+msgstr ""
+
+#: clockwork_web/templates/admin_user.html:24
+#: clockwork_web/templates/admin_users.html:24
+msgid "Users"
+msgstr ""
+
+#: clockwork_web/templates/admin_user.html:58
+msgid "Cancel"
+msgstr ""
+
+#: clockwork_web/templates/admin_user.html:61
+msgid "Save"
+msgstr ""
+
+#: clockwork_web/templates/admin_users.html:33
+#: clockwork_web/templates/jobs_search.html:90
+#: clockwork_web/templates/settings.html:279
+msgid "User (@mila.quebec)"
+msgstr ""
+
+#: clockwork_web/templates/admin_users.html:37
+#: clockwork_web/templates/dashboard.html:108
+#: clockwork_web/templates/jobs_search.html:149
+#: clockwork_web/templates/settings.html:252
+#: clockwork_web/templates/settings.html:289
+msgid "Actions"
+msgstr ""
+
+#: clockwork_web/templates/admin_users.html:50
+msgid "edit"
+msgstr ""
+
+#: clockwork_web/templates/base.html:57
+msgid "Alpha version!"
+msgstr ""
+
+#: clockwork_web/templates/base.html:58
+msgid ""
+"Clockwork is currently in active development. Feel free to report bugs "
+"using the <a href='#'>feedback form</a>."
+msgstr ""
+
+#: clockwork_web/templates/base.html:82 clockwork_web/templates/base.html:92
+msgid "Dashboard"
+msgstr ""
+
+#: clockwork_web/templates/base.html:83
+msgid "Jobs"
+msgstr ""
+
+#: clockwork_web/templates/base.html:85
+msgid "Clusters"
+msgstr ""
+
+#: clockwork_web/templates/base.html:86
+msgid "Settings"
+msgstr ""
+
+#: clockwork_web/templates/base.html:89
+msgid "External"
+msgstr ""
+
+#: clockwork_web/templates/base.html:93 clockwork_web/templates/base.html:96
+msgid "Documentation"
+msgstr ""
+
+#: clockwork_web/templates/base.html:99
+msgid "Admin"
+msgstr ""
+
+#: clockwork_web/templates/base.html:116
+msgid "Logged in as"
+msgstr ""
+
+#: clockwork_web/templates/base.html:117
+msgid "Logout?"
+msgstr ""
+
+#: clockwork_web/templates/base.html:138
+msgid "SEARCH"
+msgstr ""
+
+#: clockwork_web/templates/base.html:153
+msgid "Filter by user"
+msgstr ""
+
+#: clockwork_web/templates/base.html:171
+msgid "All users"
+msgstr ""
+
+#: clockwork_web/templates/base.html:187
+msgid "Only me"
+msgstr ""
+
+#: clockwork_web/templates/base.html:197 clockwork_web/templates/base.html:203
+msgid "Other user..."
+msgstr ""
+
+#: clockwork_web/templates/base.html:214
+msgid "Filter by cluster"
+msgstr ""
+
+#: clockwork_web/templates/base.html:223
+msgid "Cluster documentation"
+msgstr ""
+
+#: clockwork_web/templates/base.html:227
+msgid "No documentation available"
+msgstr ""
+
+#: clockwork_web/templates/base.html:232
+msgid "Grafana cluster link"
+msgstr ""
+
+#: clockwork_web/templates/base.html:237
+msgid "Possible stale jobs. Most recent update was more than 2 days ago"
+msgstr ""
+
+#: clockwork_web/templates/base.html:242
+msgid "Latest update to jobs is relatively recent (at most 30 days ago)"
+msgstr ""
+
+#: clockwork_web/templates/base.html:248
+msgid "A cluster error occurred recently"
+msgstr ""
+
+#: clockwork_web/templates/base.html:252
+msgid "No recent cluster error"
+msgstr ""
+
+#: clockwork_web/templates/base.html:279
+msgid "Filter by status"
+msgstr ""
+
+#: clockwork_web/templates/base.html:357
+msgid "Run search"
+msgstr ""
+
+#: clockwork_web/templates/base.html:380
+msgid "Feedback and bug reports"
+msgstr ""
+
+#: clockwork_web/templates/base.html:380
+msgid "Privacy policy"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:25
+#, python-format
+msgid "%(cluster_name)s cluster"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:37
+msgid "Global information"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:42
+msgid "Organization"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:48
+msgid "Timezone"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:54
+msgid "More information"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:59
+msgid "See the official documentation"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:65
+msgid "See additional Mila documentation"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:73
+msgid "Display all the jobs on this cluster"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:74
+msgid "Display all the nodes of this cluster"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:89
+msgid "Annual allocation"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:117
+msgid "Jobs status"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:122
+msgid "Oldest job update"
+msgstr ""
+
+#: clockwork_web/templates/cluster.html:133
+msgid "Latest job update"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:76
+#: clockwork_web/templates/jobs_search.html:83
+#: clockwork_web/templates/settings.html:244
+#: clockwork_web/templates/settings.html:278
+msgid "Cluster"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:80
+#: clockwork_web/templates/jobs_search.html:97
+#: clockwork_web/templates/settings.html:245
+#: clockwork_web/templates/settings.html:280
+msgid "Job ID"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:84
+#: clockwork_web/templates/jobs_search.html:112
+#: clockwork_web/templates/settings.html:246
+#: clockwork_web/templates/settings.html:283
+msgid "Job name [:20]"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:88
+#: clockwork_web/templates/jobs_search.html:119
+#: clockwork_web/templates/settings.html:247
+#: clockwork_web/templates/settings.html:284
+msgid "Job state"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:92
+#: clockwork_web/templates/jobs_search.html:126
+#: clockwork_web/templates/settings.html:248
+#: clockwork_web/templates/settings.html:285
+msgid "Submit time"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:96
+#: clockwork_web/templates/jobs_search.html:133
+#: clockwork_web/templates/settings.html:249
+#: clockwork_web/templates/settings.html:286
+msgid "Start time"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:100
+#: clockwork_web/templates/jobs_search.html:140
+#: clockwork_web/templates/settings.html:250
+#: clockwork_web/templates/settings.html:287
+msgid "End time"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:104
+#: clockwork_web/templates/jobs_search.html:145
+#: clockwork_web/templates/settings.html:251
+#: clockwork_web/templates/settings.html:288
+msgid "Links"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:129
+msgid "Welcome back"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:129
+msgid "You currently have:"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:141
+msgid "Completed jobs"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:150
+msgid "Running jobs"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:159
+msgid "Pending jobs"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:168
+msgid "Stalled jobs"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:173
+msgid "See all jobs"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:185
+msgid "YOUR JOBS"
+msgstr ""
+
+#: clockwork_web/templates/dashboard.html:185
+msgid "This list will auto-refresh!"
+msgstr ""
+
+#: clockwork_web/templates/error.html:38
+msgid "HTTP response code"
+msgstr ""
+
+#: clockwork_web/templates/error.html:40
+msgid "An error occurred!"
+msgstr ""
+
+#: clockwork_web/templates/gpu.html:24
+msgid "GPUs"
+msgstr ""
+
+#: clockwork_web/templates/gpu.html:39
+msgid "GPU name"
+msgstr ""
+
+#: clockwork_web/templates/gpu.html:40
+msgid "Vendor"
+msgstr ""
+
+#: clockwork_web/templates/gpu.html:41
+msgid "RAM"
+msgstr ""
+
+#: clockwork_web/templates/jobs.html:24
+msgid "jobs"
+msgstr ""
+
+#: clockwork_web/templates/jobs.html:36
+msgid "cluster"
+msgstr ""
+
+#: clockwork_web/templates/jobs.html:37
+msgid "user"
+msgstr ""
+
+#: clockwork_web/templates/jobs.html:38
+msgid "job_id"
+msgstr ""
+
+#: clockwork_web/templates/jobs.html:39
+msgid "job name [:20]"
+msgstr ""
+
+#: clockwork_web/templates/jobs.html:40
+msgid "job_state"
+msgstr ""
+
+#: clockwork_web/templates/jobs.html:41
+msgid "start time"
+msgstr ""
+
+#: clockwork_web/templates/jobs.html:42
+msgid "end time"
+msgstr ""
+
+#: clockwork_web/templates/nodes.html:25
+msgid "Nodes"
+msgstr ""
+
+#: clockwork_web/templates/nodes.html:35
+#, fuzzy
+msgid "cluster_name"
 msgstr "Mila cluster ID"
 
-#: clockwork_web/templates/admin_user.html:44
-msgid "cc_account_username"
-msgstr "DRAC cluster ID"
+#: clockwork_web/templates/nodes.html:36
+msgid "name"
+msgstr ""
+
+#: clockwork_web/templates/nodes.html:37
+msgid "alloc_tres"
+msgstr ""
+
+#: clockwork_web/templates/nodes.html:38
+msgid "cfg_tres"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:98
+#, python-format
+msgid "User settings %(mila_email_username)s"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:110
+#: clockwork_web/templates/settings.html:124
+msgid "CLOCKWORK_API_KEY:"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:120
+msgid "change key"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:127
+msgid ""
+"No Clockwork API key has been associated to your account; to get one, "
+"click below."
+msgstr ""
+
+#: clockwork_web/templates/settings.html:128
+msgid "Get a API key"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:139
+msgid "Run this command to register your account:"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:148
+msgid "Dark mode"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:160
+msgid "Language"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:174
+msgid "Number of items displayed per page"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:182
+msgid "Time formatting"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:188
+#: clockwork_web/templates/settings.html:190
+msgid "In words (2 months ago)"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:194
+#: clockwork_web/templates/settings.html:196
+msgid "Unix timestamp (1667503950)"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:239
+msgid "Visible columns in dashboard table"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:273
+msgid "Visible columns in search table"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:281
+msgid "Job array"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:282
+msgid "Job-user props"
+msgstr ""
+
+#: clockwork_web/templates/settings.html:311
+msgid "Settings will apply on page reload."
+msgstr ""
+
+#: clockwork_web/templates/single_gpu.html:39
+msgid "key"
+msgstr ""
+
+#: clockwork_web/templates/single_gpu.html:40
+msgid "value"
+msgstr ""
+
+#: clockwork_web/templates/single_job.html:26
+#, python-format
+msgid "Single job %(job_id)s"
+msgstr ""
+
+#: clockwork_web/templates/single_job.html:32
+msgid "The array below displays the Slurm elements describing the job."
+msgstr ""
+
+#: clockwork_web/templates/single_job.html:36
+#: clockwork_web/templates/single_node.html:35
+msgid "Key"
+msgstr ""
+
+#: clockwork_web/templates/single_job.html:37
+#: clockwork_web/templates/single_node.html:36
+msgid "Value"
+msgstr ""
+
+#: clockwork_web/templates/single_job.html:84
+#, python-format
+msgid "Your props for job %(job_id)s"
+msgstr ""
+
+#: clockwork_web/templates/single_job.html:89
+msgid "The array below displays the user props you defined for this job."
+msgstr ""
+
+#: clockwork_web/templates/single_job.html:93
+msgid "Prop key"
+msgstr ""
+
+#: clockwork_web/templates/single_job.html:94
+msgid "Prop value"
+msgstr ""
+
+#: clockwork_web/templates/single_job.html:107
+msgid "You have not defined any user prop for this job."
+msgstr ""
+
+#: clockwork_web/templates/single_node.html:24
+#, python-format
+msgid "Single node %(node_name)s"
+msgstr ""
+
+#: clockwork_web/templates/single_node.html:29
+msgid "The array below displays the Slurm elements describing the node."
+msgstr ""
+
+#: clockwork_web/templates/single_user.html:40
+msgid "Accounts"
+msgstr ""
+
+#: clockwork_web/templates/single_user.html:47
+msgid "Used on clusters:"
+msgstr ""
+
+#: clockwork_web/templates/single_user.html:56
+msgid "See this user's jobs"
+msgstr ""
+
+#: clockwork_web/templates/status.html:25
+msgid "Status"
+msgstr ""
+
+#: clockwork_web/templates/status.html:36
+msgid "Users status"
+msgstr ""
+
+#: clockwork_web/templates/status.html:41
+msgid "Number of users in database"
+msgstr ""
+
+#: clockwork_web/templates/status.html:45
+msgid "Number of enabled users"
+msgstr ""
+
+#: clockwork_web/templates/status.html:49
+msgid "Number of users that have accounts matched to a DRAC account"
+msgstr ""
+
+#: clockwork_web/templates/status.html:63
+msgid "Clusters status"
+msgstr ""
+
+#: clockwork_web/templates/status.html:74
+msgid "Number of jobs"
+msgstr ""
+
+#~ msgid "cc_account_username"
+#~ msgstr "DRAC cluster ID"
+
