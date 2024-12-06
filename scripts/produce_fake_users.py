@@ -53,6 +53,10 @@ def get_predefined_fake_users(N=20):
         # This is useful for testing permissions.
         cc_account_username = "ccuser%0.2d" % n if not n % 20 == 6 else None
 
+        # One out of 20 of the users will be an admin
+        # (actually matching student02 in 20 first users).
+        admin_rights = {"admin_access": True} if n % 20 == 2 else {}
+
         D_user = {
             "mila_email_username": "student%0.2d@mila.quebec" % n,
             "status": status,
@@ -73,6 +77,7 @@ def get_predefined_fake_users(N=20):
                 "dark_mode": False,
                 "language": "en" if (n % 2 == 0) else "fr",
             },
+            **admin_rights,
         }
 
         if cc_account_username is not None:
