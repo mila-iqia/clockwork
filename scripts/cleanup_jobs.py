@@ -6,7 +6,7 @@ To evaluate job status, we check job["slurm"]["slurm_last_update"].
 
 import argparse
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from slurm_state.mongo_client import get_mongo_client
 from slurm_state.config import get_config
 
@@ -42,6 +42,15 @@ def main(arguments: list):
             "If specified, script will delete all jobs older than given date."
         ),
     )
+    group.add_argument(
+        "-t",
+        "--days",
+        type=int,
+        help=(
+            "Time (in days) of older job to keep. "
+            "If specified, script will delete all jobs updated before latest <--days> days."
+        ),
+    )
     parser.add_argument(
         "--debug",
         action="store_true",
@@ -59,6 +68,10 @@ def main(arguments: list):
         keep_n_most_recent_jobs(args.jobs)
     elif args.jobs_per_user is not None:
         keep_n_most_recent_jobs_per_user(args.jobs_per_user)
+    elif args.days is not None:
+        print(f"Keeping jobs updated in latest {args.days} days.")
+        older_date = datetime.now() - timedelta(days=args.days)
+        keep_jobs_from_date(older_date)
     else:
         if args.date.count("-") == 2:
             date_format = "%Y-%m-%d"
@@ -150,7 +163,7 @@ def keep_n_most_recent_jobs_per_user(n: int):
 
 
 def keep_jobs_from_date(date: datetime):
-    print(f"Keeping jobs starting from: {date}")
+    print(f"Keeping jobs updated since: {date}")
     mc = _get_db()
     db_jobs = mc["jobs"]
     nb_total_jobs = db_jobs.count_documents({})
@@ -161,7 +174,7 @@ def keep_jobs_from_date(date: datetime):
         db_jobs.find({"cw.last_slurm_update": {"$lt": date.timestamp()}})
     )
     if not jobs_to_delete:
-        print(f"No job found before {date}, nothing to do.")
+        print(f"No job updated before {date}, nothing to do.")
         return
 
     # Delete jobs

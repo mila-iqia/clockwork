@@ -21,7 +21,9 @@ class CleanupTestContext:
         client = MongoClient(get_config("mongo.connection_string"))
         mc = client[db_name]
 
-        base_datetime = datetime.now()
+        base_datetime = datetime(
+            year=2020, month=1, day=1, hour=0, minute=0, second=0, microsecond=0
+        )
 
         # Create fake users, intended to be checked when cleaning jobs per user.
         fake_users = [
@@ -270,6 +272,43 @@ def test_keep_jobs_after_a_date(date_format):
         assert jobs[60:] == remaining_jobs
 
         cleanup_jobs(["-d", _fmt_date(new_date)])
+        # With a date more recent than latest job,
+        # all jobs should be deleted.
+        remaining_jobs = ctx.check_user_props()
+        assert len(remaining_jobs) == 0
+
+
+@pytest.mark.freeze_time("2024-01-01 00:00:00")
+def test_keep_jobs_after_a_time():
+    with CleanupTestContext() as ctx:
+        too_old_date = ctx.base_datetime - timedelta(days=1)
+        inbound_date_1 = ctx.base_datetime + timedelta(days=15)
+        inbound_date_2 = ctx.base_datetime + timedelta(days=60)
+        new_date = ctx.base_datetime + timedelta(days=ctx.NB_JOBS)
+
+        current_date = datetime.now()
+        too_old_time = (current_date - too_old_date).days
+        inbound_time_1 = (current_date - inbound_date_1).days
+        inbound_time_2 = (current_date - inbound_date_2).days
+        new_time = (current_date - new_date).days
+
+        jobs = ctx.check_user_props()
+
+        cleanup_jobs(["-t", str(too_old_time)])
+        # Date is too old, so no job should be deleted
+        assert jobs == ctx.check_user_props()
+
+        cleanup_jobs(["--days", str(inbound_time_1)])
+        remaining_jobs = ctx.check_user_props()
+        assert len(remaining_jobs) == 100 - 15
+        assert jobs[15:] == remaining_jobs
+
+        cleanup_jobs(["-t", str(inbound_time_2)])
+        remaining_jobs = ctx.check_user_props()
+        assert len(remaining_jobs) == 100 - 60
+        assert jobs[60:] == remaining_jobs
+
+        cleanup_jobs(["-t", str(new_time)])
         # With a date more recent than latest job,
         # all jobs should be deleted.
         remaining_jobs = ctx.check_user_props()
