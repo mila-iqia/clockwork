@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import sys
+import random
 
 
 def get_jobs_hardcoded_values():
@@ -80,6 +81,33 @@ def get_job_user_props_hardcoded_values(fake_data: dict):
     ]
 
 
+def ensure_admin_users(fake_data: dict):
+    """Make sure there is at least 1 fake admin."""
+    users = fake_data["users"]
+    admin_users = [user for user in users if user.get("admin_access", False)]
+    if not admin_users and users:
+        users[0]["admin_access"] = True
+        assert [user for user in fake_data["users"] if user.get("admin_access", False)]
+
+
+def ensure_job_arrays(fake_data: dict):
+    """Make sure some fake jobs belong to valid job arrays."""
+    jobs_with_array_id = [
+        job for job in fake_data["jobs"] if job["slurm"]["array_job_id"] != "0"
+    ]
+    if not jobs_with_array_id:
+        # No yet jobs in valid job arrays.
+        # Add 2 jobs to 2 separate job arrays.
+        nb_fake_jobs = len(fake_data["jobs"])
+        assert nb_fake_jobs >= 2
+        id_job_1 = random.randint(0, nb_fake_jobs)
+        id_job_2 = (id_job_1 + 1) % nb_fake_jobs
+        fake_data["jobs"][id_job_1]["slurm"]["array_job_id"] = "1234"
+        fake_data["jobs"][id_job_2]["slurm"]["array_job_id"] = "5678"
+
+    assert [job for job in fake_data["jobs"] if job["slurm"]["array_job_id"] != "0"]
+
+
 def main(argv):
 
     my_parser = argparse.ArgumentParser()
@@ -112,6 +140,12 @@ def main(argv):
 
     # Insert fake job user props
     fake_data["job_user_props"] = get_job_user_props_hardcoded_values(fake_data)
+
+    # Make sure there are some admin users
+    ensure_admin_users(fake_data)
+
+    # Make sure some jobs are in valid job arrays
+    ensure_job_arrays(fake_data)
 
     # Write the new fake data in the output file
     with open(output_file, "w") as f:
