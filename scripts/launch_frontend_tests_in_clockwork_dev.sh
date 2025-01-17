@@ -6,9 +6,6 @@ playwright install chromium
 echo Store fake data
 python3 scripts/store_fake_data_in_db.py
 
-echo Ensure at least 1 fake admin user
-python3 scripts/ensure_one_fake_admin_in_db.py
-
 echo Launch clockwork web server in background
 python3 -m flask run --host="0.0.0.0" &
 

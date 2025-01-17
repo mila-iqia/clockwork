@@ -59,11 +59,13 @@ def _load_all_jobs_search_page(page: Page):
     page.goto(f"{BASE_URL}/jobs/search?nbr_items_per_page={len(sorted_jobs)}")
 
 
-def _check_jobs_table(page: Page, table_content: list):
+def _check_jobs_table(page: Page, table_content: list, expect_content=True):
     """Check jobs table contains expected table content.
 
     table_content is a list or rows, each row is a list of texts expected in related columns.
     """
+    if expect_content:
+        assert table_content
     table = page.locator("table#search_table")
     expect(table).to_have_count(1)
     rows = table.locator("tbody tr")
@@ -528,7 +530,7 @@ def test_multiple_filters(page: Page):
         and get_inferred_job_state(job["slurm"]["job_state"]) != "PENDING"
     ][:40]
 
-    _check_jobs_table(page, expected_results)
+    _check_jobs_table(page, expected_results, expect_content=False)
 
     # Reset all filters.
 
@@ -561,6 +563,8 @@ def test_filter_by_job_array(page: Page):
     for searched_job in sorted_jobs:
         if searched_job["slurm"]["array_job_id"] != "0":
             break
+    else:
+        raise AssertionError("No job found with a valid array_job_id")
     searched_array_job_id = searched_job["slurm"]["array_job_id"]
 
     expected_results = [

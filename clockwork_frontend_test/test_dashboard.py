@@ -23,7 +23,9 @@ for job in fake_data["jobs"]:
         DASHBOARD_TABLE_CONTENT.append(
             [
                 job["slurm"]["cluster_name"],
-                job["slurm"]["job_id"],
+                int(
+                    job["slurm"]["job_id"]
+                ),  # job ID is currently handled as a numeric value
                 job["slurm"]["name"],
                 job["slurm"]["job_state"].lower(),
                 get_default_display_date(job["slurm"]["submit_time"]),
@@ -116,7 +118,7 @@ def test_dashboard_table_default_content(page: Page):
         cols = rows.nth(index_row).locator("td")
         expect(cols).to_have_count(8)
         for index_col, content_col in enumerate(content_row):
-            expect(cols.nth(index_col)).to_contain_text(content_col)
+            expect(cols.nth(index_col)).to_contain_text(str(content_col))
 
 
 def test_dashboard_table_sorting(page: Page):
@@ -195,4 +197,4 @@ def _check_dashboard_table(page: Page, table_content: list):
         cols = rows.nth(index_row).locator("td")
         expect(cols).to_have_count(8)
         for index_col, content_col in enumerate(content_row):
-            expect(cols.nth(index_col)).to_contain_text(content_col)
+            expect(cols.nth(index_col)).to_contain_text(str(content_col))
