@@ -11,8 +11,7 @@
         "nbr_items_per_page": 40,
         "dark_mode": false,
         "language": "en"
-      },
-      "admin_access": true
+      }
     },
     {
       "mila_email_username": "student01@mila.quebec",
