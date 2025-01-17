@@ -1,0 +1,4 @@
+# As this folder is used to generate test data,
+# Git could ignore everything here, except README file.
+*
+!README.md
