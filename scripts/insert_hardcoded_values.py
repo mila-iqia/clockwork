@@ -81,15 +81,6 @@ def get_job_user_props_hardcoded_values(fake_data: dict):
     ]
 
 
-def ensure_admin_users(fake_data: dict):
-    """Make sure there is at least 1 fake admin."""
-    users = fake_data["users"]
-    admin_users = [user for user in users if user.get("admin_access", False)]
-    if not admin_users and users:
-        users[0]["admin_access"] = True
-        assert [user for user in fake_data["users"] if user.get("admin_access", False)]
-
-
 def ensure_job_arrays(fake_data: dict):
     """Make sure some fake jobs belong to valid job arrays."""
     jobs_with_array_id = [
@@ -140,9 +131,6 @@ def main(argv):
 
     # Insert fake job user props
     fake_data["job_user_props"] = get_job_user_props_hardcoded_values(fake_data)
-
-    # Make sure there are some admin users
-    ensure_admin_users(fake_data)
 
     # Make sure some jobs are in valid job arrays
     ensure_job_arrays(fake_data)

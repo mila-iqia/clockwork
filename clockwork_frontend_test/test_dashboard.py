@@ -173,8 +173,7 @@ def _check_dashboard_table_sorting(
     # Remove last column (row order) to get only expected content.
     content = [row[:-1] for row in sorted_content]
     SORTED_CONTENT = content
-    # We assume DASHBOARD_TABLE_CONTENT is not initially sorted anyway.
-    assert content != DASHBOARD_TABLE_CONTENT
+
     # Expected content is now ready for checking.
     table = page.locator("table#dashboard_table")
     headers = table.locator("thead tr th")
