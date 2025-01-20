@@ -92,6 +92,7 @@ class EntityParser:
             for line in stdout:
                 outfile.write(line)
 
+
 class IdentityParser(EntityParser):
     def __init__(self, entity, cluster_name):
         self.entity = entity

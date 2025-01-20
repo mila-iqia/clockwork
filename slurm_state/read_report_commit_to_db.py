@@ -62,7 +62,7 @@ def main(argv):
     parser.add_argument(
         "--from_existing_cw_nodes_file",
         action=argparse.BooleanOptionalAction,
-        help="Whether or not the nodes are retrieved from a file containing CW nodes entities; in which case the nodes list is just added to the result."
+        help="Whether or not the nodes are retrieved from a file containing CW nodes entities; in which case the nodes list is just added to the result.",
     )
 
     parser.add_argument(
@@ -88,7 +88,9 @@ def main(argv):
 
     # Check the args
     if args.from_existing_slurm_nodes_file and args.from_existing_cw_nodes_file:
-        raise argparse.ArgumentError("The arguments from_existing_slurm_nodes_file and from_existing_cw_nodes_file can not be both true at once.")
+        raise argparse.ArgumentError(
+            "The arguments from_existing_slurm_nodes_file and from_existing_cw_nodes_file can not be both true at once."
+        )
 
     # Get the database instance
     client = get_mongo_client()

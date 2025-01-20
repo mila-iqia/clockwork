@@ -208,7 +208,7 @@ def test_jobs_with_both_pagination_options(
     # An admin can access all clusters
     for user in fake_data["users"]:
         if "admin_access" in user and user["admin_access"]:
-            current_user_id = user["mila_email_username"]  
+            current_user_id = user["mila_email_username"]
     assert current_user_id
 
     # Log in to Clockwork
@@ -320,7 +320,7 @@ def test_jobs_with_nbr_items_per_page_pagination_option(
     # An admin can access all clusters
     for user in fake_data["users"]:
         if "admin_access" in user and user["admin_access"]:
-            current_user_id = user["mila_email_username"]  
+            current_user_id = user["mila_email_username"]
     assert current_user_id
 
     # Log in to Clockwork

@@ -162,8 +162,12 @@ def main_read_report_and_update_collection(
                 elif "slurm" in infile_data["meta"]:
                     version = infile_data["meta"]["slurm"]["version"]
                 else:
-                    raise Exception(f'"Slurm" or "slurm" not found in data["meta"] for file {report_file_path}')
-                parser_version = f"{version['major']}.{version['micro']}.{version['minor']}"
+                    raise Exception(
+                        f'"Slurm" or "slurm" not found in data["meta"] for file {report_file_path}'
+                    )
+                parser_version = (
+                    f"{version['major']}.{version['micro']}.{version['minor']}"
+                )
 
     # Check the input parameters
     assert entity in ["jobs", "nodes"]
@@ -176,12 +180,10 @@ def main_read_report_and_update_collection(
             cluster_name=cluster_name, slurm_version=parser_version
         )  # This parser is used to retrieve and format useful information from a sacct job
         from_slurm_to_clockwork = slurm_job_to_clockwork_job  # This function is used to translate a Slurm job (created through the parser) to a Clockwork job
-    
+
     elif entity == "nodes":
         if from_file in ["slurm", None]:
-            id_key = (
-                "name"  # The id_key is used to determine how to retrieve the ID of a node
-            )
+            id_key = "name"  # The id_key is used to determine how to retrieve the ID of a node
             parser = NodeParser(
                 cluster_name=cluster_name, slurm_version=parser_version
             )  # This parser is used to retrieve and format useful information from a sacct node
@@ -189,7 +191,7 @@ def main_read_report_and_update_collection(
         elif from_file == "cw":
             parser = IdentityParser(entity=entity, cluster_name=cluster_name)
             from_slurm_to_clockwork = lambda x: x
-    
+
     else:
         # Raise an error because it should not happen
         raise ValueError(
