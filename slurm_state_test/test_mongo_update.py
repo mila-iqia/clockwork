@@ -263,7 +263,7 @@ def test_main_read_nodes_and_update_collection():
         None,
         "mila",
         "slurm_state_test/files/sinfo_1",
-        from_file=True,
+        from_file="slurm",
     )
 
     assert db.test_nodes.count_documents({}) == 2
@@ -274,7 +274,7 @@ def test_main_read_nodes_and_update_collection():
         None,
         "mila",
         "slurm_state_test/files/sinfo_2",
-        from_file=True,
+        from_file="slurm",
     )
 
     assert db.test_nodes.count_documents({}) == 3

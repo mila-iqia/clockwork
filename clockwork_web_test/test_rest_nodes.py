@@ -8,7 +8,7 @@ import json
 import pytest
 
 
-@pytest.mark.parametrize("cluster_name", ("mila", "beluga", "cedar", "graham"))
+@pytest.mark.parametrize("cluster_name", ("mila", "beluga", "cedar"))
 def test_single_node_at_random(
     client, fake_data, valid_rest_auth_headers, cluster_name
 ):

@@ -205,7 +205,11 @@ def test_jobs_with_both_pagination_options(
         nbr_items_per_page  The number of jobs we want to display per page
     """
     # Define the user we want to use for this test
-    current_user_id = "student00@mila.quebec"  # Can access all clusters
+    # An admin can access all clusters
+    for user in fake_data["users"]:
+        if "admin_access" in user and user["admin_access"]:
+            current_user_id = user["mila_email_username"]  
+    assert current_user_id
 
     # Log in to Clockwork
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
@@ -215,10 +219,10 @@ def test_jobs_with_both_pagination_options(
     sorted_all_jobs = sorted(
         fake_data["jobs"],
         key=lambda d: (
-            d["slurm"]["submit_time"],
-            -int(d["slurm"]["job_id"]),
+            -d["slurm"]["submit_time"],
+            d["slurm"]["job_id"],
         ),  # These are the default values for the sorting
-        reverse=True,
+        reverse=False,
     )
 
     # Get the response
@@ -313,7 +317,11 @@ def test_jobs_with_nbr_items_per_page_pagination_option(
         nbr_items_per_page  The number of jobs we want to display per page
     """
     # Define the user we want to use for this test
-    current_user_id = "student00@mila.quebec"  # Can access all clusters
+    # An admin can access all clusters
+    for user in fake_data["users"]:
+        if "admin_access" in user and user["admin_access"]:
+            current_user_id = user["mila_email_username"]  
+    assert current_user_id
 
     # Log in to Clockwork
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
@@ -323,10 +331,10 @@ def test_jobs_with_nbr_items_per_page_pagination_option(
     sorted_all_jobs = sorted(
         fake_data["jobs"],
         key=lambda d: (
-            d["slurm"]["submit_time"],
-            -int(d["slurm"]["job_id"]),
+            -d["slurm"]["submit_time"],
+            d["slurm"]["job_id"],
         ),  # This is the default sorting option
-        reverse=True,
+        reverse=False,
     )
 
     # Get the response
