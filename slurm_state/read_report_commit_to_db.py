@@ -27,7 +27,7 @@ def main(argv):
 
     parser.add_argument(
         "--slurm_jobs_file",
-        help="The Slurm jobs file. Could be used as an input file if the option --from_existing_jobs_file is given. Otherwise, this file is generated from a sacct command.",
+        help="The Slurm jobs file. Could be used as an input file if the option --from_existing_cw_jobs_file is given. Otherwise, this file is generated from a sacct command.",
     )
 
     parser.add_argument(
@@ -37,7 +37,7 @@ def main(argv):
     )
 
     parser.add_argument(
-        "--from_existing_jobs_file",
+        "--from_existing_slurm_jobs_file",
         action=argparse.BooleanOptionalAction,
         help="Whether or not the jobs are retrieved from a file instead of a sacct command.",
     )
@@ -45,7 +45,7 @@ def main(argv):
     parser.add_argument(
         "--slurm_nodes_file",
         required=False,
-        help="The Slurm nodes file. Could be used as an input file if the option --from_existing_nodes_file is given. Otherwise, this file is generated from a sinfo command.",
+        help="Path to dump the Clockwork nodes. If None, no Clockwork nodes file is written. If the option --from_existing_cw_nodes_file is true, this file is not an output file but an input file. It will not be rewritten, but the nodes list is reused as such.",
     )
 
     parser.add_argument(
@@ -54,9 +54,15 @@ def main(argv):
     )
 
     parser.add_argument(
-        "--from_existing_nodes_file",
+        "--from_existing_slurm_nodes_file",
         action=argparse.BooleanOptionalAction,
-        help="Whether or not the nodes are retrieved from a file instead of a sinfo command.",
+        help="Whether or not the nodes are retrieved from a file generated from Slurm instead rather than a direct sinfo command.",
+    )
+
+    parser.add_argument(
+        "--from_existing_cw_nodes_file",
+        action=argparse.BooleanOptionalAction,
+        help="Whether or not the nodes are retrieved from a file containing CW nodes entities; in which case the nodes list is just added to the result."
     )
 
     parser.add_argument(
@@ -80,6 +86,10 @@ def main(argv):
     args = parser.parse_args(argv[1:])
     collection_name = args.mongodb_collection
 
+    # Check the args
+    if args.from_existing_slurm_nodes_file and args.from_existing_cw_nodes_file:
+        raise argparse.ArgumentError("The arguments from_existing_slurm_nodes_file and from_existing_cw_nodes_file can not be both true at once.")
+
     # Get the database instance
     client = get_mongo_client()
 
@@ -96,13 +106,17 @@ def main(argv):
             name="job_id_and_cluster_name",
         )
 
+    input_jobs_file_type = None
+    if args.from_existing_slurm_jobs_file:
+        input_jobs_file_type = "slurm"
+
     main_read_report_and_update_collection(
         "jobs",
         jobs_collection,
         client[collection_name]["users"],
         args.cluster_name,
-        args.slurm_jobs_file,
-        from_file=args.from_existing_jobs_file,
+        args.cw_jobs_file if input_jobs_file_type == "cw" else args.slurm_jobs_file,
+        from_file=input_jobs_file_type,
         want_commit_to_db=args.store_in_db,
         dump_file=args.cw_jobs_file,
     )
@@ -118,15 +132,23 @@ def main(argv):
             name="name_and_cluster_name",
         )
 
+    input_nodes_file_type = None
+    dump_file = args.cw_nodes_file
+    if args.from_existing_slurm_nodes_file:
+        input_nodes_file_type = "slurm"
+    elif args.from_existing_cw_nodes_file:
+        input_nodes_file_type = "cw"
+        dump_file = None
+
     main_read_report_and_update_collection(
         "nodes",
         nodes_collection,
         None,
         args.cluster_name,
-        args.slurm_nodes_file,
-        from_file=args.from_existing_nodes_file,
+        args.cw_nodes_file if input_nodes_file_type == "cw" else args.slurm_nodes_file,
+        from_file=input_nodes_file_type,
         want_commit_to_db=args.store_in_db,
-        dump_file=args.cw_nodes_file,
+        dump_file=dump_file,
     )
 
 

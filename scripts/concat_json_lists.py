@@ -28,7 +28,10 @@ def main(argv):
     # regardless of the repartition of the jobs and nodes by clusters,
     # we divide the number we want to keep by the number of input
     # sources we use, and keep this number of elements from each source.
-    kept_elements_nb = round(args.keep / len(args.inputs)) + 1
+    if args.keep is not None:
+        kept_elements_nb = round(args.keep / len(args.inputs)) + 1
+    else:
+        kept_elements_nb = None
     # Nota bene: as this number has to be an integer, we are not sure to
     # have a perfect fraction of the requested number. Thus, we round up the
     # result then add one: the surplus would then be withdrawn from the
@@ -44,6 +47,8 @@ def main(argv):
             # Get a part of the data
             np.random.shuffle(E)
             E = E[0:kept_elements_nb]
+            if kept_elements_nb is not None:
+                E = E[0:kept_elements_nb]
         L.extend(E)
 
     if args.keep is not None:

@@ -12,6 +12,7 @@ from slurm_state.helpers.clusters_helper import get_all_clusters
 # Import parser classes
 from slurm_state.parsers.job_parser import JobParser
 from slurm_state.parsers.node_parser import NodeParser
+from slurm_state.parsers.entity_parser import IdentityParser
 
 
 def pprint_bulk_result(result):
@@ -118,7 +119,7 @@ def main_read_report_and_update_collection(
     users_collection,
     cluster_name,
     report_file_path,
-    from_file=False,
+    from_file=None,
     want_commit_to_db=True,
     dump_file="",
 ):
@@ -133,8 +134,8 @@ def main_read_report_and_update_collection(
         cluster_name        Name of the cluster we are working on
         report_file_path    Path to the report from which the jobs or nodes information is extracted. This report is generated through
                             the command sacct for the jobs, or sinfo for the nodes. If None, a new report is generated.
-        from_file           Boolean indicating whether or not the jobs or nodes are extracted from a Slurm file. If True, the input file
-                            is report_file_path. If False, the file is generated at the report_file_path path.
+        from_file           Value contained in ["cw", "slurm", None] indicating whether the jobs or nodes are extracted from a Slurm file, a CW file (ie JSON file presenting a list of the entities formatted as used in Clockwork) or from no file. If "cw" or "slurm", the input file
+                            is report_file_path. If None, the file is generated at the report_file_path path.
         want_commit_to_db   Boolean indicating whether or not the jobs or nodes are stored in the database. Default is True
         dump_file           String containing the path to the file in which we want to dump the data. Default is "", which means nothing is stored in an output file
     """
@@ -153,8 +154,16 @@ def main_read_report_and_update_collection(
     parser_version = None
     if from_file:
         with open(report_file_path, "r") as infile:
-            version = json.load(infile)["meta"]["Slurm"]["version"]
-            parser_version = f"{version['major']}.{version['micro']}.{version['minor']}"
+            infile_data = json.load(infile)
+
+            if from_file == "slurm":
+                if "Slurm" in infile_data["meta"]:
+                    version = infile_data["meta"]["Slurm"]["version"]
+                elif "slurm" in infile_data["meta"]:
+                    version = infile_data["meta"]["slurm"]["version"]
+                else:
+                    raise Exception(f'"Slurm" or "slurm" not found in data["meta"] for file {report_file_path}')
+                parser_version = f"{version['major']}.{version['micro']}.{version['minor']}"
 
     # Check the input parameters
     assert entity in ["jobs", "nodes"]
@@ -164,17 +173,23 @@ def main_read_report_and_update_collection(
             "job_id"  # The id_key is used to determine how to retrieve the ID of a job
         )
         parser = JobParser(
-            cluster_name, slurm_version=parser_version
+            cluster_name=cluster_name, slurm_version=parser_version
         )  # This parser is used to retrieve and format useful information from a sacct job
         from_slurm_to_clockwork = slurm_job_to_clockwork_job  # This function is used to translate a Slurm job (created through the parser) to a Clockwork job
+    
     elif entity == "nodes":
-        id_key = (
-            "name"  # The id_key is used to determine how to retrieve the ID of a node
-        )
-        parser = NodeParser(
-            cluster_name, slurm_version=parser_version
-        )  # This parser is used to retrieve and format useful information from a sacct node
-        from_slurm_to_clockwork = slurm_node_to_clockwork_node  # This function is used to translate a Slurm node (created through the parser) to a Clockwork node
+        if from_file in ["slurm", None]:
+            id_key = (
+                "name"  # The id_key is used to determine how to retrieve the ID of a node
+            )
+            parser = NodeParser(
+                cluster_name=cluster_name, slurm_version=parser_version
+            )  # This parser is used to retrieve and format useful information from a sacct node
+            from_slurm_to_clockwork = slurm_node_to_clockwork_node  # This function is used to translate a Slurm node (created through the parser) to a Clockwork node
+        elif from_file == "cw":
+            parser = IdentityParser(entity=entity, cluster_name=cluster_name)
+            from_slurm_to_clockwork = lambda x: x
+    
     else:
         # Raise an error because it should not happen
         raise ValueError(
