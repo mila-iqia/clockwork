@@ -20,6 +20,10 @@ fake_data = get_fake_data()
 DASHBOARD_TABLE_CONTENT = []
 for job in fake_data["jobs"]:
     if job["cw"]["mila_email_username"] == "student00@mila.quebec":
+        # This element could be an array of states, or a simple string.
+        # For now, each array we encountered contained only one element.
+        job_states = job["slurm"]["job_state"]
+
         DASHBOARD_TABLE_CONTENT.append(
             [
                 job["slurm"]["cluster_name"],
@@ -27,7 +31,9 @@ for job in fake_data["jobs"]:
                     job["slurm"]["job_id"]
                 ),  # job ID is currently handled as a numeric value
                 job["slurm"]["name"],
-                job["slurm"]["job_state"].lower(),
+                job_states[0].lower()
+                if isinstance(job_states, list)
+                else job_states.lower(),
                 get_default_display_date(job["slurm"]["submit_time"]),
                 get_default_display_date(job["slurm"]["start_time"]),
                 get_default_display_date(job["slurm"]["end_time"]),
