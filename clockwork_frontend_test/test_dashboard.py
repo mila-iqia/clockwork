@@ -186,10 +186,10 @@ def _check_dashboard_table_sorting(
     header = headers.nth(column_id)
     expect(header).to_contain_text(column_text)
     header.click()
-    _check_dashboard_table(page, content)
+    _check_dashboard_table(page, content, column_id=column_id)
 
 
-def _check_dashboard_table(page: Page, table_content: list):
+def _check_dashboard_table(page: Page, table_content: list, column_id: int = None):
     """Check dashboard table contains expected table content.
 
     table_content is a list or rows, each row is a list of texts expected in related columns.
@@ -201,5 +201,9 @@ def _check_dashboard_table(page: Page, table_content: list):
     for index_row, content_row in enumerate(table_content):
         cols = rows.nth(index_row).locator("td")
         expect(cols).to_have_count(8)
-        for index_col, content_col in enumerate(content_row):
-            expect(cols.nth(index_col)).to_contain_text(str(content_col))
+        if column_id is None:
+            for index_col, content_col in enumerate(content_row):
+                expect(cols.nth(index_col)).to_contain_text(str(content_col))
+        else:
+            expect(cols.nth(column_id)).to_contain_text(str(content_row[column_id]))
+                

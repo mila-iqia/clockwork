@@ -3,7 +3,7 @@ from playwright.sync_api import Page, expect
 from random import choice
 
 from clockwork_frontend_test.utils import BASE_URL, get_fake_data
-from clockwork_web.core.jobs_helper import get_inferred_job_state
+from clockwork_web.core.jobs_helper import get_inferred_job_state, get_str_job_state
 
 # Retrieve data we are interested in from the fake data
 fake_data = get_fake_data()
@@ -388,7 +388,7 @@ def test_filter_by_status_except_one(page: Page):
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
-        if get_inferred_job_state(job["slurm"]["job_state"]) != "RUNNING"
+        if get_inferred_job_state(get_str_job_state(job["slurm"]["job_state"])) != "RUNNING"
     ][:40]
 
     _check_jobs_table(

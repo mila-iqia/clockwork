@@ -51,7 +51,18 @@ def get_filter_after_end_time(end_time):
                 {"slurm.end_time": None},
             ]
         }
-
+    
+def get_str_job_state(job_state):
+    """
+    Handle the different job state formats we retrieve accross the different Slurm versions
+    """
+    if (
+        isinstance(job_state, list)
+        and len(job_state) > 0
+    ):
+        return job_state[0]
+    
+    return job_state
 
 def combine_all_mongodb_filters(*mongodb_filters):
     """
@@ -442,7 +453,7 @@ def get_inferred_job_state(job_state):
 
     Returns the associated Clockwork job state
     """
-    return job_state_to_aggregated[job_state.upper()]
+    return job_state_to_aggregated[get_str_job_state(job_state).upper()]
 
 
 def get_jobs_properties_list_per_page():
