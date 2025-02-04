@@ -50,7 +50,7 @@ def test_nb_items_per_page(page: Page):
     fake_data = get_fake_data()
     nb_jobs = len(fake_data["jobs"])
     # Check how should the table nav look
-    nb_pages = math.floor(nb_jobs/nb_jobs_per_page)+1
+    nb_pages = math.floor(nb_jobs / nb_jobs_per_page) + 1
 
     # Check we have X pages in table nav.
     def _check_nav_table(nb_pages):
@@ -94,7 +94,7 @@ def test_nb_items_per_page(page: Page):
     expect(rows).to_have_count(25)
 
     nb_jobs_per_page = 25
-    nb_pages = math.floor(nb_jobs/nb_jobs_per_page)+1
+    nb_pages = math.floor(nb_jobs / nb_jobs_per_page) + 1
     _check_nav_table(nb_pages)
 
     # Move back to 40 jobs per page.

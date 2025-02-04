@@ -206,4 +206,3 @@ def _check_dashboard_table(page: Page, table_content: list, column_id: int = Non
                 expect(cols.nth(index_col)).to_contain_text(str(content_col))
         else:
             expect(cols.nth(column_id)).to_contain_text(str(content_row[column_id]))
-                

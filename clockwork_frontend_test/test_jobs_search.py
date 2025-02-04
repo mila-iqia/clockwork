@@ -388,7 +388,8 @@ def test_filter_by_status_except_one(page: Page):
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
-        if get_inferred_job_state(get_str_job_state(job["slurm"]["job_state"])) != "RUNNING"
+        if get_inferred_job_state(get_str_job_state(job["slurm"]["job_state"]))
+        != "RUNNING"
     ][:40]
 
     _check_jobs_table(
