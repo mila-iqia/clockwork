@@ -41,6 +41,29 @@ def invalid_config_00():
 
 
 @pytest.fixture
+def admin_config(fake_data):
+    """
+    The configuration for an admin, who can access all jobs
+    """
+    for user in fake_data["users"]:
+        if (
+            "admin_access" in user and user["admin_access"]
+        ):  # Fake data should always contain an admin
+            email = user["mila_email_username"]
+            clockwork_api_key = user["clockwork_api_key"]
+            break
+
+    config = {
+        "host": os.environ["clockwork_tools_test_HOST"],
+        "port": os.environ["clockwork_tools_test_PORT"],
+        "email": email,
+        "clockwork_api_key": clockwork_api_key,
+    }
+
+    return config
+
+
+@pytest.fixture
 def invalid_config_01():
     """
     A bad configuration used to make sure that rest endpoints are protected properly.
@@ -79,6 +102,11 @@ def db_with_fake_data():
 @pytest.fixture
 def mtclient(config, db_with_fake_data):
     return clockwork_tools.client.ClockworkToolsClient(**config)
+
+
+@pytest.fixture
+def mtclient_admin(admin_config, db_with_fake_data):
+    return clockwork_tools.client.ClockworkToolsClient(**admin_config)
 
 
 @pytest.fixture

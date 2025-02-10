@@ -101,6 +101,9 @@ class User(UserMixin):
     def get_id(self):
         return self.mila_email_username
 
+    def is_admin(self):
+        return self.admin_access
+
     @staticmethod
     def get(mila_email_username: str):
         """
