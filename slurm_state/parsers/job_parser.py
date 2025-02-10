@@ -13,17 +13,17 @@ from slurm_state.helpers.parser_helper import (
     zero_to_null,
 )
 
-from slurm_state.parsers.slurm_parser import SlurmParser
+from slurm_state.parsers.entity_parser import EntityParser
 
 # Common imports
 import json, re
 
 
-class JobParser(SlurmParser):
+class JobParser(EntityParser):
     """ """
 
     def __init__(self, cluster_name, slurm_version=None):
-        super().__init__("jobs", "sacct", cluster_name, slurm_version=slurm_version)
+        super().__init__("jobs", cluster_name, "sacct", slurm_version=slurm_version)
 
     def generate_report(self, file_name):
 

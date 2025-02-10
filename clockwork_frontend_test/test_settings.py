@@ -1,6 +1,7 @@
 from playwright.sync_api import Page, expect
+import math
 
-from clockwork_frontend_test.utils import BASE_URL
+from clockwork_frontend_test.utils import BASE_URL, get_fake_data
 
 
 def test_languages(page: Page):
@@ -42,17 +43,41 @@ def test_nb_items_per_page(page: Page):
     page.goto(f"{BASE_URL}/jobs/search")
     # Check we have 40 rows by default in table.
     rows = page.locator("table#search_table tbody tr")
-    expect(rows).to_have_count(40)
-    # Check we have 3 pages in table nav.
-    nav_elements = page.locator("nav.table_nav ul.pagination li.page-item")
-    expect(nav_elements).to_have_count(6)
-    expect(nav_elements.nth(0)).to_have_class("page-item first")
-    expect(nav_elements.nth(1)).to_have_class("page-item current")
-    expect(nav_elements.nth(1)).to_have_text("1")
-    expect(nav_elements.nth(2)).to_have_text("2")
-    expect(nav_elements.nth(3)).to_have_text("3")
-    expect(nav_elements.nth(4)).to_have_class("page-item last")
-    expect(nav_elements.nth(5)).to_have_class("page-item last")
+    nb_jobs_per_page = 40
+    expect(rows).to_have_count(nb_jobs_per_page)
+
+    # Get the number of jobs to display
+    fake_data = get_fake_data()
+    nb_jobs = len(fake_data["jobs"])
+    # Check how should the table nav look
+    nb_pages = math.floor(nb_jobs / nb_jobs_per_page) + 1
+
+    # Check we have X pages in table nav.
+    def _check_nav_table(nb_pages):
+        if nb_pages < 4:
+            nav_elements = page.locator("nav.table_nav ul.pagination li.page-item")
+            expect(nav_elements).to_have_count(6)
+            expect(nav_elements.nth(0)).to_have_class("page-item first")
+            expect(nav_elements.nth(1)).to_have_class("page-item current")
+            expect(nav_elements.nth(1)).to_have_text("1")
+            expect(nav_elements.nth(2)).to_have_text("2")
+            expect(nav_elements.nth(3)).to_have_text("3")
+            expect(nav_elements.nth(4)).to_have_class("page-item last")
+            expect(nav_elements.nth(5)).to_have_class("page-item last")
+        else:
+            nav_elements = page.locator("nav.table_nav ul.pagination li")
+            expect(nav_elements).to_have_count(8)
+            expect(nav_elements.nth(0)).to_have_class("page-item first")
+            expect(nav_elements.nth(1)).to_have_class("page-item current")
+            expect(nav_elements.nth(1)).to_have_text("1")
+            expect(nav_elements.nth(2)).to_have_text("2")
+            expect(nav_elements.nth(3)).to_have_text("3")
+            expect(nav_elements.nth(4)).to_have_text("4")
+            expect(nav_elements.nth(5)).to_have_text("...")
+            expect(nav_elements.nth(6)).to_have_class("page-item last")
+            expect(nav_elements.nth(7)).to_have_class("page-item last")
+
+    _check_nav_table(nb_pages)
 
     # Go to settings.
     page.goto(f"{BASE_URL}/settings/")
@@ -67,17 +92,10 @@ def test_nb_items_per_page(page: Page):
     page.goto(f"{BASE_URL}/jobs/search")
     rows = page.locator("table#search_table tbody tr")
     expect(rows).to_have_count(25)
-    nav_elements = page.locator("nav.table_nav ul.pagination li")
-    expect(nav_elements).to_have_count(8)
-    expect(nav_elements.nth(0)).to_have_class("page-item first")
-    expect(nav_elements.nth(1)).to_have_class("page-item current")
-    expect(nav_elements.nth(1)).to_have_text("1")
-    expect(nav_elements.nth(2)).to_have_text("2")
-    expect(nav_elements.nth(3)).to_have_text("3")
-    expect(nav_elements.nth(4)).to_have_text("4")
-    expect(nav_elements.nth(5)).to_have_text("...")
-    expect(nav_elements.nth(6)).to_have_class("page-item last")
-    expect(nav_elements.nth(7)).to_have_class("page-item last")
+
+    nb_jobs_per_page = 25
+    nb_pages = math.floor(nb_jobs / nb_jobs_per_page) + 1
+    _check_nav_table(nb_pages)
 
     # Move back to 40 jobs per page.
     page.goto(f"{BASE_URL}/settings/")

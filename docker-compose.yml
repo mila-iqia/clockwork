@@ -90,6 +90,7 @@ services:
       - ./clockwork_tools_test:/clockwork/clockwork_tools_test
       - ./clockwork_web:/clockwork/clockwork_web
       - ./clockwork_web_test:/clockwork/clockwork_web_test
+      - ./slurm_report:/clockwork/tmp/slurm_report
       - ./slurm_state:/clockwork/slurm_state
       - ./slurm_state_test:/clockwork/slurm_state_test
       - ./scripts:/clockwork/scripts

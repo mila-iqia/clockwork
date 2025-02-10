@@ -20,6 +20,10 @@ fake_data = get_fake_data()
 DASHBOARD_TABLE_CONTENT = []
 for job in fake_data["jobs"]:
     if job["cw"]["mila_email_username"] == "student00@mila.quebec":
+        # This element could be an array of states, or a simple string.
+        # For now, each array we encountered contained only one element.
+        job_states = job["slurm"]["job_state"]
+
         DASHBOARD_TABLE_CONTENT.append(
             [
                 job["slurm"]["cluster_name"],
@@ -27,7 +31,9 @@ for job in fake_data["jobs"]:
                     job["slurm"]["job_id"]
                 ),  # job ID is currently handled as a numeric value
                 job["slurm"]["name"],
-                job["slurm"]["job_state"].lower(),
+                job_states[0].lower()
+                if isinstance(job_states, list)
+                else job_states.lower(),
                 get_default_display_date(job["slurm"]["submit_time"]),
                 get_default_display_date(job["slurm"]["start_time"]),
                 get_default_display_date(job["slurm"]["end_time"]),
@@ -180,10 +186,10 @@ def _check_dashboard_table_sorting(
     header = headers.nth(column_id)
     expect(header).to_contain_text(column_text)
     header.click()
-    _check_dashboard_table(page, content)
+    _check_dashboard_table(page, content, column_id=column_id)
 
 
-def _check_dashboard_table(page: Page, table_content: list):
+def _check_dashboard_table(page: Page, table_content: list, column_id: int = None):
     """Check dashboard table contains expected table content.
 
     table_content is a list or rows, each row is a list of texts expected in related columns.
@@ -195,5 +201,8 @@ def _check_dashboard_table(page: Page, table_content: list):
     for index_row, content_row in enumerate(table_content):
         cols = rows.nth(index_row).locator("td")
         expect(cols).to_have_count(8)
-        for index_col, content_col in enumerate(content_row):
-            expect(cols.nth(index_col)).to_contain_text(str(content_col))
+        if column_id is None:
+            for index_col, content_col in enumerate(content_row):
+                expect(cols.nth(index_col)).to_contain_text(str(content_col))
+        else:
+            expect(cols.nth(column_id)).to_contain_text(str(content_row[column_id]))

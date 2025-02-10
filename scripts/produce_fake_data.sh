@@ -53,13 +53,17 @@ for SUBFOLDER in ${CLOCKWORK_ROOT}/tmp/slurm_report/*; do
       # "job anonymized"  to  "jobs anonymized dump file"
       # "node anonymized"  to  "nodes anonymized dump file"
       ANONYMIZED_JOBS_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/job_anonymized_dump_file.json
+: <<COMMENT
+      # Nodes parsing is not up to date anymore. I cheat by using old anonymized file.
       ANONYMIZED_NODES_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/node_anonymized_dump_file.json
+COMMENT
+      ANONYMIZED_NODES_FILE=${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/hardcoded_values/nodes.json
       python3 -m slurm_state.read_report_commit_to_db \
           --cluster_name ${CLUSTER_NAME} \
-          --from_existing_jobs_file \
+          --from_existing_slurm_jobs_file \
           --slurm_jobs_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sacct_anonymized \
           --cw_jobs_file $ANONYMIZED_JOBS_FILE \
-          --from_existing_nodes_file \
+          --from_existing_cw_nodes_file \
           --slurm_nodes_file ${CLOCKWORK_ROOT}/tmp/slurm_report/${CLUSTER_NAME}/sinfo_anonymized \
           --cw_nodes_file $ANONYMIZED_NODES_FILE
       ANONYMIZED_JOBS_FILES+=(${ANONYMIZED_JOBS_FILE})
@@ -68,11 +72,11 @@ for SUBFOLDER in ${CLOCKWORK_ROOT}/tmp/slurm_report/*; do
   fi
 done
 
-python3 concat_json_lists.py --keep 100 \
+python3 concat_json_lists.py \
     --inputs ${ANONYMIZED_JOBS_FILES[@]} \
     --output ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_jobs_anonymized.json
 
-python3 concat_json_lists.py --keep 100 \
+python3 concat_json_lists.py \
     --inputs ${ANONYMIZED_NODES_FILES[@]} \
     --output ${CLOCKWORK_ROOT}/tmp/slurm_report/subset_100_nodes_anonymized.json
 
