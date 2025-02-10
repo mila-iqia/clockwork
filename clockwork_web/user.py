@@ -352,3 +352,6 @@ class AnonUser(AnonymousUserMixin):
             A dictionary presenting the default web settings.
         """
         return self.web_settings
+
+    def is_admin(self):
+        return False
