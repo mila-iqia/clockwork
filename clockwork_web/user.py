@@ -101,6 +101,9 @@ class User(UserMixin):
     def get_id(self):
         return self.mila_email_username
 
+    def is_admin(self):
+        return self.admin_access
+
     @staticmethod
     def get(mila_email_username: str):
         """
@@ -349,3 +352,6 @@ class AnonUser(AnonymousUserMixin):
             A dictionary presenting the default web settings.
         """
         return self.web_settings
+
+    def is_admin(self):
+        return False

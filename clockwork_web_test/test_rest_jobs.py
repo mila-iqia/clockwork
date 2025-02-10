@@ -30,7 +30,9 @@ from test_common.jobs_test_helpers import (
 
 
 @pytest.mark.parametrize("cluster_name", ("mila", "beluga", "cedar", "graham"))
-def test_single_job_at_random(client, fake_data, valid_rest_auth_headers, cluster_name):
+def test_single_job_at_random(
+    client, fake_data, valid_admin_rest_auth_headers, cluster_name
+):
     """
     Make a request to the REST API endpoint /api/v1/clusters/jobs/one.
 
@@ -44,7 +46,7 @@ def test_single_job_at_random(client, fake_data, valid_rest_auth_headers, cluste
 
     response = client.get(
         f"/api/v1/clusters/jobs/one?job_id={job_id}",
-        headers=valid_rest_auth_headers,
+        headers=valid_admin_rest_auth_headers,
     )
     assert "application/json" in response.content_type
     D_job = response.json
@@ -68,19 +70,18 @@ def test_single_job_missing(client, fake_data, valid_rest_auth_headers):
     validator(D_job)
 
 
-def test_single_job_no_id(client, valid_rest_auth_headers):
-    response = client.get("/api/v1/clusters/jobs/one", headers=valid_rest_auth_headers)
+def test_single_job_no_id(client, valid_admin_rest_auth_headers):
+    response = client.get(
+        "/api/v1/clusters/jobs/one", headers=valid_admin_rest_auth_headers
+    )
     assert response.status_code == 400
 
 
-def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_headers):
+def test_list_jobs_for_a_given_random_user(
+    client, fake_data, valid_admin_rest_auth_headers
+):
     """
     Make a request to the REST API endpoint /api/v1/clusters/jobs/list.
-
-    Note that the users for whom we list the jobs is probably not
-    going to be the user encoded in the auth_headers, which we get
-    from the configuration variables "clockwork.test.email"
-    and "clockwork.test.api_key".
 
     We pick a user at random from our fake_data, and we see if we
     can list the jobs for that user.
@@ -90,7 +91,7 @@ def test_list_jobs_for_a_given_random_user(client, fake_data, valid_rest_auth_he
 
     response = client.get(
         f"/api/v1/clusters/jobs/list?username={username}",
-        headers=valid_rest_auth_headers,
+        headers=valid_admin_rest_auth_headers,
     )
     assert response.content_type == "application/json"
     LD_jobs = response.get_json()
@@ -117,7 +118,7 @@ def test_api_list_invalid_username(client, valid_rest_auth_headers, username):
     "cluster_name", ("mila", "cedar", "graham", "beluga", "sephiroth")
 )
 def test_jobs_list_with_filter(
-    client, fake_data, valid_rest_auth_headers, cluster_name
+    client, fake_data, valid_admin_rest_auth_headers, cluster_name
 ):
     """
     Test the `jobs_list` command. This is just to make sure that the filtering works
@@ -128,7 +129,7 @@ def test_jobs_list_with_filter(
     validator = helper_jobs_list_with_filter(fake_data, cluster_name=cluster_name)
     response = client.get(
         f"/api/v1/clusters/jobs/list?cluster_name={cluster_name}",
-        headers=valid_rest_auth_headers,
+        headers=valid_admin_rest_auth_headers,
     )
     assert response.content_type == "application/json"
     assert response.status_code == 200
