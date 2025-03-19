@@ -59,17 +59,17 @@ class JobParser(EntityParser):
     def parser(self, f):
         """ """
         if re.search(r"^21\..*$", self.slurm_version):
-            return self.parser_v21_v22_and_23(f)
+            return self.parser_v21_and_v22(f)
         elif re.search(r"^22\..*$", self.slurm_version):
-            return self.parser_v21_v22_and_23(f)
+            return self.parser_v21_and_v22(f)
         elif re.search(r"^23\..*$", self.slurm_version):
-            return self.parser_v21_v22_and_23(f)
+            return self.parser_v23(f)
         else:
             raise Exception(
                 f'The {self.entity} parser is not implemented for the Slurm version "{self.slurm_version}".'
             )
 
-    def parser_v21_v22_and_23(self, f):
+    def parser_v21_and_v22(self, f):
         JOB_FIELD_MAP = {
             "account": copy,
             "array": rename_and_stringify_subitems(
@@ -119,3 +119,61 @@ class JobParser(EntityParser):
                 # If no translator has been provided: ignore the field
 
             yield res_entity
+
+    def parser_v23(self, f):
+        JOB_FIELD_MAP = {
+            "account": copy,
+            "array": rename_and_stringify_subitems(
+                {"job_id": "array_job_id", "task_id": "array_task_id"}
+            ),
+            "cluster": rename("cluster_name"),
+            "exit_code": join_subitems(":", "exit_code"),
+            "job_id": copy_and_stringify,
+            "name": copy,
+            "nodes": copy,
+            "partition": copy,
+            "state": self.retrieve_job_state({"current": "job_state"}),
+            "time": translate_with_value_modification(
+                zero_to_null,
+                rename_subitems,
+                subitem_dict={
+                    "limit": "time_limit",
+                    "submission": "submit_time",
+                    "start": "start_time",
+                    "end": "end_time",
+                },
+            ),
+            "tres": extract_tres_data,
+            "user": rename("username"),
+            "working_directory": copy,
+        }
+
+        # Load the JSON file generated using the Slurm command
+        # (At this point, slurm_data is a hierarchical structure of dictionaries and lists)
+        slurm_data = json.load(f)
+
+        slurm_entities = slurm_data[self.entity]
+
+        for slurm_entity in slurm_entities:
+            res_entity = (
+                dict()
+            )  # Initialize the dictionary which will store the newly formatted Slurm data
+
+            for k, v in slurm_entity.items():
+                # We will use a handler mapping to translate this
+                translator = JOB_FIELD_MAP.get(k, None)
+
+                if translator is not None:
+                    # Translate using the translator retrieved from the fields map
+                    translator(k, v, res_entity)
+
+                # If no translator has been provided: ignore the field
+
+            yield res_entity
+
+    def retrieve_job_state(self, subitem_dict):
+        def get_job_state(k, v, res):
+            for subitem, name in subitem_dict.items():
+                res[name] = v[subitem][0]
+
+        return get_job_state
