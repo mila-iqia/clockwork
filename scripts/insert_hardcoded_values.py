@@ -55,10 +55,11 @@ def get_job_user_props_hardcoded_values(fake_data: dict):
 
     This function will generate 5 job user props
     associated to the 5 first jobs from fake data
-    edited by 2nd user available in fake data (i.e. `student01`)
+    # edited by 2nd user available in fake data (i.e. `student01`)
+    edited by the user who owns the job
     """
-    mila_email_username = fake_data["users"][1]["mila_email_username"]
-    jobs = fake_data["jobs"][:5]
+    full_props = []
+
     user_props = [
         {"name": "je suis une user prop 1"},
         {"name": "je suis une user prop 2"},
@@ -70,15 +71,33 @@ def get_job_user_props_hardcoded_values(fake_data: dict):
         },
     ]
 
-    return [
+    i = 0
+    for job in fake_data["jobs"][:4]:
+        full_props.append(
+            {
+                "mila_email_username": job["cw"]["mila_email_username"],
+                "job_id": job["slurm"]["job_id"],
+                "cluster_name": job["slurm"]["cluster_name"],
+                "props": user_props[i],
+            }
+        )
+        i += 1
+
+    # Assert that student01 has at least one user prop
+    for job in fake_data["jobs"]:
+        if job["cw"]["mila_email_username"] == "student01@mila.quebec":
+            break
+
+    full_props.append(
         {
-            "mila_email_username": mila_email_username,
+            "mila_email_username": job["cw"]["mila_email_username"],
             "job_id": job["slurm"]["job_id"],
             "cluster_name": job["slurm"]["cluster_name"],
-            "props": props,
+            "props": user_props[i],
         }
-        for job, props in zip(jobs, user_props)
-    ]
+    )
+
+    return full_props
 
 
 def ensure_job_arrays(fake_data: dict):

@@ -3,10 +3,23 @@ from playwright.sync_api import Page, expect
 from random import choice
 
 from clockwork_frontend_test.utils import BASE_URL, get_fake_data
-from clockwork_web.core.jobs_helper import get_inferred_job_state, get_str_job_state
+from clockwork_web.core.jobs_helper import get_inferred_job_state
 
 # Retrieve data we are interested in from the fake data
 fake_data = get_fake_data()
+
+# Retrieve an admin from the fake_data
+ADMIN_USERNAME = ""
+NON_ADMIN_USERNAME = ""
+for user in fake_data["users"]:
+    if "admin_access" in user and user["admin_access"]:
+        ADMIN_USERNAME = user["mila_email_username"]
+
+    else:
+        NON_ADMIN_USERNAME = user["mila_email_username"]
+
+    if ADMIN_USERNAME != "" and NON_ADMIN_USERNAME != "":
+        break
 
 # Sorts the jobs by submit time
 sorted_jobs = sorted(
@@ -43,29 +56,54 @@ ALL_JOBS = [
 ]
 
 
-def _load_jobs_search_page(page: Page):
+def _get_user_jobs_search_default_table(username):
+    """
+    Retrieve the 40 last submitted jobs of a specific user.
+
+    Parameters:
+        username:   The mail of the user, used as an ID
+
+    Return:
+        A list containing the 40 last submitted jobs of a specific user
+    """
+
+    return [
+        [
+            job["slurm"]["cluster_name"],
+            (
+                job["cw"]["mila_email_username"].replace("@", " @")
+                if job["cw"]["mila_email_username"] is not None
+                else ""
+            ),
+            job["slurm"]["job_id"],
+        ]
+        for job in sorted_jobs
+        if job["cw"]["mila_email_username"] == username
+    ][:40]
+
+
+def _load_jobs_search_page(page: Page, username: str):
     """Login and go to jobs search page."""
     # Login
-    page.goto(f"{BASE_URL}/login/testing?user_id=student00@mila.quebec")
+    page.goto(f"{BASE_URL}/login/testing?user_id={username}")
+    
     # Go to jobs/search page
     page.goto(f"{BASE_URL}/jobs/search")
 
 
-def _load_all_jobs_search_page(page: Page):
+def _load_all_jobs_search_page(page: Page, username: str):
     """Login and go to jobs search page."""
     # Login
-    page.goto(f"{BASE_URL}/login/testing?user_id=student00@mila.quebec")
+    page.goto(f"{BASE_URL}/login/testing?user_id={username}")
     # Go to jobs/search page
     page.goto(f"{BASE_URL}/jobs/search?nbr_items_per_page={len(sorted_jobs)}")
 
 
-def _check_jobs_table(page: Page, table_content: list, expect_content=True):
+def _check_jobs_table(page: Page, table_content: list):
     """Check jobs table contains expected table content.
 
     table_content is a list or rows, each row is a list of texts expected in related columns.
     """
-    if expect_content:
-        assert table_content
     table = page.locator("table#search_table")
     expect(table).to_have_count(1)
     rows = table.locator("tbody tr")
@@ -85,9 +123,19 @@ def _get_search_button(page: Page):
     return search_button
 
 
-def test_jobs_search_default(page: Page):
+@pytest.mark.parametrize(
+    "username,expected_results",
+    (
+        (
+            "student00@mila.quebec",
+            _get_user_jobs_search_default_table("student00@mila.quebec"),
+        ),  # A non-admin user can only see his/her own jobs
+        (ADMIN_USERNAME, JOBS_SEARCH_DEFAULT_TABLE),  # An admin can see all the jobs
+    ),
+)
+def test_jobs_search_default(page: Page, username, expected_results):
     """Test default table content in jobs/search page."""
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=username)
     # Check table
     table = page.locator("table#search_table")
     expect(table).to_be_visible()
@@ -104,14 +152,30 @@ def test_jobs_search_default(page: Page):
     expect(headers.nth(7)).to_contain_text("Start time")
     expect(headers.nth(8)).to_contain_text("End time")
     expect(headers.nth(9)).to_contain_text("Links")
+
     # Check table content
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+    _check_jobs_table(page, expected_results)
 
 
-def test_filter_by_user_only_me(page: Page):
-    current_username = "student00@mila.quebec"
-
-    _load_jobs_search_page(page)
+@pytest.mark.parametrize(
+    "username,expected_restricted_results, expected_all_results",
+    (
+        (
+            "student00@mila.quebec",
+            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            _get_user_jobs_search_default_table("student00@mila.quebec"),
+        ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
+        (
+            ADMIN_USERNAME,
+            _get_user_jobs_search_default_table(ADMIN_USERNAME),
+            JOBS_SEARCH_DEFAULT_TABLE,
+        ),  # An admin can see all the jobs, so this is the test we are looking for here
+    ),
+)
+def test_filter_by_user_only_me(
+    page: Page, username, expected_restricted_results, expected_all_results
+):
+    _load_jobs_search_page(page, username=username)
     radio_button_only_me = page.locator("input#user_option_only_me")
     expect(radio_button_only_me).to_be_visible()
     expect(radio_button_only_me).to_be_checked(checked=False)
@@ -120,7 +184,7 @@ def test_filter_by_user_only_me(page: Page):
     _get_search_button(page).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"username={current_username}"
+        f"username={username}"
         f"&cluster_name=mila,narval,cedar,beluga,graham"
         f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
         f"&nbr_items_per_page=40"
@@ -128,23 +192,9 @@ def test_filter_by_user_only_me(page: Page):
         f"&sort_asc=-1"
     )
 
-    expected_results = [
-        [
-            job["slurm"]["cluster_name"],
-            (
-                job["cw"]["mila_email_username"].replace("@", " @")
-                if job["cw"]["mila_email_username"] is not None
-                else ""
-            ),
-            job["slurm"]["job_id"],
-        ]
-        for job in sorted_jobs
-        if job["cw"]["mila_email_username"] == current_username
-    ][:40]
-
     _check_jobs_table(
         page,
-        expected_results,
+        expected_restricted_results,
     )
 
     # Back to all users.
@@ -162,13 +212,35 @@ def test_filter_by_user_only_me(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+    _check_jobs_table(page, expected_all_results)
 
 
-def test_filter_by_user_other_user(page: Page):
-    searched_username = "student05@mila.quebec"
+@pytest.mark.parametrize(
+    "username, searched_username, expected_restricted_results, expected_all_results",
+    (
+        (
+            "student00@mila.quebec",
+            "student05@mila.quebec",
+            [],
+            _get_user_jobs_search_default_table("student00@mila.quebec"),
+        ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
+        (
+            ADMIN_USERNAME,
+            "student00@mila.quebec",
+            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            JOBS_SEARCH_DEFAULT_TABLE,
+        ),  # An admin can see all the jobs, so this is the test we are looking for here
+    ),
+)
+def test_filter_by_user_other_user(
+    page: Page,
+    username,
+    searched_username,
+    expected_restricted_results,
+    expected_all_results,
+):
 
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=username)
     radio_button_other_user = page.locator("input#user_option_other")
     expect(radio_button_other_user).to_be_visible()
     expect(radio_button_other_user).to_be_checked(checked=False)
@@ -177,7 +249,7 @@ def test_filter_by_user_other_user(page: Page):
 
     input_other_user = page.locator("input#user_option_other_textarea")
     expect(input_other_user).to_be_visible()
-    input_other_user.type("student05")
+    input_other_user.type(searched_username.split("@")[0])
 
     _get_search_button(page).click()
 
@@ -191,23 +263,9 @@ def test_filter_by_user_other_user(page: Page):
         f"&sort_asc=-1"
     )
 
-    expected_results = [
-        [
-            job["slurm"]["cluster_name"],
-            (
-                job["cw"]["mila_email_username"].replace("@", " @")
-                if job["cw"]["mila_email_username"] is not None
-                else ""
-            ),
-            job["slurm"]["job_id"],
-        ]
-        for job in sorted_jobs
-        if job["cw"]["mila_email_username"] == searched_username
-    ][:40]
-
     _check_jobs_table(
         page,
-        expected_results,
+        expected_restricted_results,
     )
 
     # Back to all users.
@@ -225,12 +283,25 @@ def test_filter_by_user_other_user(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+    _check_jobs_table(page, expected_all_results)
 
 
-def test_filter_by_cluster_except_one(page: Page):
+@pytest.mark.parametrize(
+    "username, all_clusters_jobs",
+    (
+        (
+            "student00@mila.quebec",
+            _get_user_jobs_search_default_table("student00@mila.quebec"),
+        ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
+        (
+            ADMIN_USERNAME,
+            JOBS_SEARCH_DEFAULT_TABLE,
+        ),  # An admin can see all the jobs, so this is the test we are looking for here
+    ),
+)
+def test_filter_by_cluster_except_one(page: Page, username, all_clusters_jobs):
     # Ignore cluster mila
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=username)
     check_box_cluster_mila = page.locator("input#cluster_toggle_lever_mila")
     expect(check_box_cluster_mila).to_be_visible()
     expect(check_box_cluster_mila).to_have_attribute("type", "checkbox")
@@ -248,19 +319,7 @@ def test_filter_by_cluster_except_one(page: Page):
         f"&sort_asc=-1"
     )
 
-    expected_results = [
-        [
-            job["slurm"]["cluster_name"],
-            (
-                job["cw"]["mila_email_username"].replace("@", " @")
-                if job["cw"]["mila_email_username"] is not None
-                else ""
-            ),
-            job["slurm"]["job_id"],
-        ]
-        for job in sorted_jobs
-        if job["slurm"]["cluster_name"] != "mila"
-    ][:40]
+    expected_results = [job for job in all_clusters_jobs if job[0] != "mila"][:40]
     # Just check that first column (cluster) does not contain "mila".
     _check_jobs_table(
         page,
@@ -282,12 +341,25 @@ def test_filter_by_cluster_except_one(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+    _check_jobs_table(page, all_clusters_jobs)
 
 
-def test_filter_by_cluster_except_two(page: Page):
+@pytest.mark.parametrize(
+    "username, all_clusters_jobs",
+    (
+        (
+            "student00@mila.quebec",
+            _get_user_jobs_search_default_table("student00@mila.quebec"),
+        ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
+        (
+            ADMIN_USERNAME,
+            JOBS_SEARCH_DEFAULT_TABLE,
+        ),  # An admin can see all the jobs, so this is the test we are looking for here
+    ),
+)
+def test_filter_by_cluster_except_two(page: Page, username, all_clusters_jobs):
     # Ignore clusters mila and cedar.
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=username)
     check_box_cluster_mila = page.locator("input#cluster_toggle_lever_mila")
     check_box_cluster_cedar = page.locator("input#cluster_toggle_lever_cedar")
     expect(check_box_cluster_mila).to_be_visible()
@@ -314,18 +386,7 @@ def test_filter_by_cluster_except_two(page: Page):
     )
     # Just check first column (cluster) does not contain neither "mila" nor "cedar".
     expected_results = [
-        [
-            job["slurm"]["cluster_name"],
-            (
-                job["cw"]["mila_email_username"].replace("@", " @")
-                if job["cw"]["mila_email_username"] is not None
-                else ""
-            ),
-            job["slurm"]["job_id"],
-        ]
-        for job in sorted_jobs
-        if job["slurm"]["cluster_name"] != "mila"
-        and job["slurm"]["cluster_name"] != "cedar"
+        job for job in all_clusters_jobs if job[0] != "mila" and job[0] != "cedar"
     ][:40]
 
     _check_jobs_table(
@@ -354,12 +415,29 @@ def test_filter_by_cluster_except_two(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+    _check_jobs_table(page, all_clusters_jobs)
 
 
-def test_filter_by_status_except_one(page: Page):
+@pytest.mark.parametrize(
+    "username, restrict_jobs, all_status_jobs",
+    (
+        (
+            "student00@mila.quebec",
+            True,
+            _get_user_jobs_search_default_table("student00@mila.quebec"),
+        ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
+        (
+            ADMIN_USERNAME,
+            False,
+            JOBS_SEARCH_DEFAULT_TABLE,
+        ),  # An admin can see all the jobs, so this is the test we are looking for here
+    ),
+)
+def test_filter_by_status_except_one(
+    page: Page, username, restrict_jobs, all_status_jobs
+):
     # Ignore status running.
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=username)
     check_box_status_running = page.locator("input#status_toggle_lever_running")
     expect(check_box_status_running).to_be_visible()
     expect(check_box_status_running).to_have_attribute("type", "checkbox")
@@ -377,6 +455,11 @@ def test_filter_by_status_except_one(page: Page):
         f"&sort_asc=-1"
     )
 
+    if restrict_jobs:
+        restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
+    else:
+        restriction_condition = True
+
     expected_results = [
         [
             job["slurm"]["cluster_name"],
@@ -388,8 +471,8 @@ def test_filter_by_status_except_one(page: Page):
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
-        if get_inferred_job_state(get_str_job_state(job["slurm"]["job_state"]))
-        != "RUNNING"
+        if (get_inferred_job_state(job["slurm"]["job_state"]) != "RUNNING")
+        and restriction_condition(job)
     ][:40]
 
     _check_jobs_table(
@@ -412,12 +495,29 @@ def test_filter_by_status_except_one(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+    _check_jobs_table(page, all_status_jobs)
 
 
-def test_filter_by_status_except_two(page: Page):
+@pytest.mark.parametrize(
+    "username, restrict_jobs, all_status_jobs",
+    (
+        (
+            "student00@mila.quebec",
+            True,
+            _get_user_jobs_search_default_table("student00@mila.quebec"),
+        ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
+        (
+            ADMIN_USERNAME,
+            False,
+            JOBS_SEARCH_DEFAULT_TABLE,
+        ),  # An admin can see all the jobs, so this is the test we are looking for here
+    ),
+)
+def test_filter_by_status_except_two(
+    page: Page, username, restrict_jobs, all_status_jobs
+):
     # Ignore statuses running and completed.
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=username)
     check_box_status_running = page.locator("input#status_toggle_lever_running")
     check_box_status_completed = page.locator("input#status_toggle_lever_completed")
     expect(check_box_status_running).to_be_visible()
@@ -443,6 +543,11 @@ def test_filter_by_status_except_two(page: Page):
         f"&sort_asc=-1"
     )
 
+    if restrict_jobs:
+        restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
+    else:
+        restriction_condition = True
+
     expected_results = [
         [
             job["slurm"]["cluster_name"],
@@ -456,6 +561,7 @@ def test_filter_by_status_except_two(page: Page):
         for job in sorted_jobs
         if get_inferred_job_state(job["slurm"]["job_state"]) != "RUNNING"
         and get_inferred_job_state(job["slurm"]["job_state"]) != "COMPLETED"
+        and restriction_condition(job)
     ][:40]
 
     _check_jobs_table(
@@ -485,12 +591,27 @@ def test_filter_by_status_except_two(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+    _check_jobs_table(page, all_status_jobs)
 
 
-def test_multiple_filters(page: Page):
+@pytest.mark.parametrize(
+    "username, restrict_jobs, all_base_jobs",
+    (
+        (
+            "student00@mila.quebec",
+            True,
+            _get_user_jobs_search_default_table("student00@mila.quebec"),
+        ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
+        (
+            ADMIN_USERNAME,
+            False,
+            JOBS_SEARCH_DEFAULT_TABLE,
+        ),  # An admin can see all the jobs, so this is the test we are looking for here
+    ),
+)
+def test_multiple_filters(page: Page, username, restrict_jobs, all_base_jobs):
     # Only current user, and ignore cluster mila and status pending.
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=username)
     radio_button_only_me = page.locator("input#user_option_only_me")
     radio_button_only_me.click()
     expect(radio_button_only_me).to_be_checked(checked=True)
@@ -507,13 +628,18 @@ def test_multiple_filters(page: Page):
 
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"username=student00@mila.quebec"
+        f"username={username}"
         f"&cluster_name=narval,cedar,beluga,graham"
         f"&aggregated_job_state=COMPLETED,RUNNING,FAILED"
         f"&nbr_items_per_page=40"
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
+
+    if restrict_jobs:
+        restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
+    else:
+        restriction_condition = True
 
     expected_results = [
         [
@@ -526,12 +652,13 @@ def test_multiple_filters(page: Page):
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
-        if job["cw"]["mila_email_username"] == "student00@mila.quebec"
+        if job["cw"]["mila_email_username"] == username
         and job["slurm"]["cluster_name"] != "mila"
         and get_inferred_job_state(job["slurm"]["job_state"]) != "PENDING"
+        and restriction_condition(job)
     ][:40]
 
-    _check_jobs_table(page, expected_results, expect_content=False)
+    _check_jobs_table(page, expected_results)
 
     # Reset all filters.
 
@@ -556,17 +683,27 @@ def test_multiple_filters(page: Page):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
+    _check_jobs_table(page, all_base_jobs)
 
 
-def test_filter_by_job_array(page: Page):
+@pytest.mark.parametrize(
+    "username, restrict_jobs, all_base_jobs",
+    ((ADMIN_USERNAME, False, ALL_JOBS),),
+)
+def test_filter_by_job_array(page: Page, username, restrict_jobs, all_base_jobs):
     # Define what we expect
     for searched_job in sorted_jobs:
-        if searched_job["slurm"]["array_job_id"] != "0":
+
+        if searched_job["slurm"]["array_job_id"] != "0" and searched_job["slurm"][
+            "job_id"
+        ] in [job[2] for job in all_base_jobs]:
             break
-    else:
-        raise AssertionError("No job found with a valid array_job_id")
     searched_array_job_id = searched_job["slurm"]["array_job_id"]
+
+    if restrict_jobs:
+        restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
+    else:
+        restriction_condition = True
 
     expected_results = [
         [
@@ -580,11 +717,12 @@ def test_filter_by_job_array(page: Page):
         ]
         for job in sorted_jobs
         if job["slurm"]["array_job_id"] == searched_array_job_id
+        and restriction_condition
     ][:40]
 
     # Go on the jobs search page and click on the job array
     # (We display all jobs in order to be sure to have our searched job on the page)
-    _load_all_jobs_search_page(page)
+    _load_all_jobs_search_page(page, username=username)
     job_id = page.get_by_text(searched_job["slurm"]["job_id"])
     expect(job_id).to_have_count(1)
     parent_row = page.locator("table#search_table tbody tr").filter(has=job_id)
@@ -597,7 +735,7 @@ def test_filter_by_job_array(page: Page):
     # (In this check, the number of items per page is added because we used "_load_all_jobs_search_page",
     # thus this number is maintained in the URL while clicking)
     expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?nbr_items_per_page={len(sorted_jobs)}&job_array={searched_array_job_id}&page_num=1"
+        f"{BASE_URL}/jobs/search?nbr_items_per_page={len(all_base_jobs)}&job_array={searched_array_job_id}&page_num=1"
     )
 
     _check_jobs_table(page, expected_results)
@@ -607,13 +745,16 @@ def test_filter_by_job_array(page: Page):
     filter_reset.click()
 
     expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?nbr_items_per_page={len(sorted_jobs)}&job_array=None&page_num=1"
+        f"{BASE_URL}/jobs/search?nbr_items_per_page={len(all_base_jobs)}&job_array=None&page_num=1"
     )
-    _check_jobs_table(page, ALL_JOBS)
+    _check_jobs_table(page, all_base_jobs)
 
 
 def test_filter_by_job_user_props(page: Page):
-    current_user = "student01@mila.quebec"
+    current_user = fake_data["jobs"][0]["cw"]["mila_email_username"]
+    all_base_jobs = _get_user_jobs_search_default_table(current_user)
+    restrict_jobs = True
+
     prop_name = "name"
     prop_content = "je suis une user prop 1"
     related_jobs_ids = [
@@ -622,6 +763,12 @@ def test_filter_by_job_user_props(page: Page):
         if prop_name in prop["props"].keys()
         and prop["props"][prop_name] == prop_content
     ]
+
+    if restrict_jobs:
+        restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
+    else:
+        restriction_condition = True
+
     expected_results = [
         [
             job["slurm"]["cluster_name"],
@@ -633,7 +780,7 @@ def test_filter_by_job_user_props(page: Page):
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
-        if job["slurm"]["job_id"] in related_jobs_ids
+        if job["slurm"]["job_id"] in related_jobs_ids and restriction_condition
     ][:40]
 
     # Login
@@ -683,7 +830,7 @@ def test_filter_by_job_user_props(page: Page):
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?nbr_items_per_page={len(sorted_jobs)}&user_prop_name=&user_prop_content=&page_num=1"
     )
-    _check_jobs_table(page, ALL_JOBS)
+    _check_jobs_table(page, all_base_jobs)
 
     # Back to default settings.
     page.goto(f"{BASE_URL}/settings/")
@@ -698,7 +845,7 @@ def test_filter_by_job_user_props(page: Page):
     (("comet_hyperlink", "Comet link"), ("wandb_hyperlink", "WANDB link")),
 )
 def test_special_user_props(page: Page, prop_name: str, title: str):
-    current_user = "student01@mila.quebec"
+    current_user = "student02@mila.quebec"
     related_jobs_ids = [
         prop["job_id"]
         for prop in fake_data["job_user_props"]
@@ -716,6 +863,7 @@ def test_special_user_props(page: Page, prop_name: str, title: str):
         ]
         for job in sorted_jobs
         if job["slurm"]["job_id"] in related_jobs_ids
+        and job["cw"]["mila_email_username"] == current_user
     ][:40]
     assert expected_results
 
@@ -757,7 +905,7 @@ def test_special_user_props(page: Page, prop_name: str, title: str):
 
 
 def test_jobs_table_sorting_by_cluster(page: Page):
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=ADMIN_USERNAME)
     expected_content = [
         [
             job["slurm"]["cluster_name"],
@@ -791,14 +939,14 @@ def test_jobs_table_sorting_by_job_id(page: Page):
             fake_data["jobs"], key=lambda j: j["slurm"]["job_id"], reverse=True
         )
     ][:40]
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=ADMIN_USERNAME)
     _check_jobs_table_sorting(
         page, 2, "Job ID", "job_id", expected_content, reverse=True
     )
 
 
 def test_jobs_table_sorting_by_job_id_ascending(page: Page):
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=ADMIN_USERNAME)
     expected_content = [
         [
             job["slurm"]["cluster_name"],
@@ -817,7 +965,7 @@ def test_jobs_table_sorting_by_job_id_ascending(page: Page):
 
 
 def test_jobs_table_sorting_by_end_time(page: Page):
-    _load_jobs_search_page(page)
+    _load_jobs_search_page(page, username=ADMIN_USERNAME)
     expected_content = [
         [
             job["slurm"]["cluster_name"],
@@ -862,11 +1010,9 @@ def _check_jobs_table_sorting(
         header = headers.nth(column_id).locator("a")
         expect(header).to_contain_text(column_text)
         header.click()
-        # page.wait_for_url(f"{BASE_URL}/jobs/search?sort_by={column_name}&sort_asc={-1 if reverse_value else 1}")
         expect(page).to_have_url(
             f"{BASE_URL}/jobs/search?sort_by={column_name}&sort_asc={-1 if reverse_value else 1}"
         )
-    # _print_table(page, column_id)
     _check_jobs_table(page, expected)
 
 
@@ -887,4 +1033,3 @@ def _print_table(page: Page, column_id: int, nb_columns=None):
         for j in range(nb_columns):
             row_content.append(cols.nth(j).text_content().strip(" \r\n\t"))
         content.append(row_content)
-    print(content)

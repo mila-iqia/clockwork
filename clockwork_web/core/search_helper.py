@@ -107,12 +107,14 @@ def search_request(user, args, force_pagination=True):
     query = parse_search_request(user, args, force_pagination=force_pagination)
 
     username = None
-    if not user.is_admin() and query.username != user.get_id():
-        return (query, [], 0)  # A non-admin user can not see other user's jobs
+    if not user.is_admin() and query.username and query.username != user.get_id():
+        return (query, [], 0)
 
     # Call a helper to retrieve the jobs
     (jobs, nbr_total_jobs) = get_jobs(
-        username=query.username if user.is_admin() else user.mila_email_username,
+        username=query.username
+        if user.is_admin()
+        else user.mila_email_username,  # A non-admin user can not see other user's jobs
         cluster_names=query.cluster_name,
         job_states=query.job_state,
         job_ids=query.job_ids,

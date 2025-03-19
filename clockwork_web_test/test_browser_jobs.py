@@ -18,14 +18,9 @@ import random
 import json
 import re
 import pytest
-from clockwork_web.core.jobs_helper import get_inferred_job_states
+from clockwork_web.core.jobs_helper import get_inferred_job_states, get_str_job_state
 
-from test_common.jobs_test_helpers import (
-    helper_single_job_missing,
-    helper_single_job_at_random,
-    helper_list_jobs_for_a_given_random_user,
-    helper_jobs_list_with_filter,
-)
+from test_common.jobs_test_helpers import helper_list_jobs_for_a_given_random_user
 from clockwork_web.core.pagination_helper import get_pagination_values
 from clockwork_web.core.users_helper import (
     get_default_setting_value,
@@ -73,7 +68,6 @@ def test_single_job(client, fake_data):
     we get when requesting "/jobs/one/<job_id>".
     """
     # Log in to Clockwork as an admin (who can access all jobs on all clusters)
-    print(f"Login URL: /login/testing?user_id={ADMIN_USER}")
     login_response = client.get(f"/login/testing?user_id={ADMIN_USER}")
     assert login_response.status_code == 302  # Redirect
 
@@ -502,36 +496,64 @@ def test_route_search(
         sorting_key = lambda d: (
             # `d["cw"]["mila_email_username"] or ""` returns `""` if the value of `d["cw"]["mila_email_username"]` is `None`
             # This is done because `None` is not comparable to the strings
-            d["cw"]["mila_email_username"] or "",
-            sort_asc * int(d["slurm"]["job_id"]),
+            d["cw"]["mila_email_username"]
+            or ""
         )
     elif sort_by == "job_id":
-        sorting_key = lambda d: (d["slurm"]["job_id"])
+        sorting_key = lambda d: d["slurm"]["job_id"]
     elif sort_by in ["submit_time", "start_time", "end_time"]:
         sorting_key = lambda d: (
             # `d["slurm"][sort_by] or 0` returns `0` if the value of `d["slurm"][sort_by]` is `None`
             # This is done because `None` is not comparable to timestamps
-            d["slurm"][sort_by] or 0,  # time.time(),
-            sort_asc * int(d["slurm"]["job_id"]),
+            d["slurm"][sort_by]
+            or 0  # time.time(),
         )
     else:
         sorting_key = lambda d: (
             # `d["slurm"][sort_by] or ""` returns `""` if the value of `d["slurm"][sort_by]` is `None`
             # This is done because in order to make this default value comparable to the other
             # fields (which should be strings in this else condition)
-            d["slurm"][sort_by] or "",
-            sort_asc * int(d["slurm"]["job_id"]),
+            d["slurm"][sort_by]
+            or ""
         )
 
     # Sort the jobs contained in the fake data by the sorting field, then by job id
     sorted_all_jobs = sorted(fake_data["jobs"], key=sorting_key, reverse=sort_asc == -1)
 
+    # We emulate the database sorting (for two equal value, the job ID is sorted alphabetically)
+    if sort_by != "job_id":  # because jobs IDs are unique
+        L_sorted_all_jobs = []
+        previous_value = None
+        tmp = []
+
+        for job in sorted_all_jobs:
+
+            if sort_by == "user":
+                sorted_value = job["cw"]["mila_email_username"] or ""
+            elif sort_by in ["submit_time", "start_time", "end_time"]:
+                sorted_value = job["slurm"][sort_by] or 0
+            else:
+                sorted_value = job["slurm"][sort_by] or ""
+
+            if sorted_value != previous_value:
+                L_sorted_all_jobs.extend(
+                    sorted(tmp.copy(), key=lambda j: j["slurm"]["job_id"])
+                )
+                previous_value = sorted_value
+                tmp = [job]
+            else:
+                tmp.append(job)
+
+        L_sorted_all_jobs.extend(sorted(tmp.copy(), key=lambda j: j["slurm"]["job_id"]))
+    else:
+        L_sorted_all_jobs = sorted_all_jobs.copy()
+
     # For each job, determine if it could be expected (before applying the pagination)
-    for D_job in sorted_all_jobs:
+    for D_job in L_sorted_all_jobs:
         # Retrieve the values we may want to test
         retrieved_username = D_job["cw"]["mila_email_username"]
         retrieved_cluster_name = D_job["slurm"]["cluster_name"]
-        retrieved_job_state = D_job["slurm"]["job_state"]
+        retrieved_job_state = get_str_job_state(D_job["slurm"]["job_state"])
 
         # Define the tests which will determine if the job is taken into account or not
         if User.get(current_user_id).is_admin():
@@ -581,7 +603,7 @@ def test_route_search(
 
     # Retrieve the results
     response = client.get(request_line)
-
+    
     ###
     # Apply the pagination
     ###
@@ -601,14 +623,12 @@ def test_route_search(
     expected_ids = [x["slurm"]["job_id"] for x in expected_jobs]
     found_ids = re.findall(pattern="job_id=([0-9]+)", string=body_text)
 
+    def _find(job_id):
+        for job in fake_data["jobs"]:
+            if job["slurm"]["job_id"] == job_id:
+                return job
+
     if found_ids != expected_ids:
-
-        def _find(job_id):
-            for job in fake_data["jobs"]:
-                if job["slurm"]["job_id"] == job_id:
-                    pprint(job)
-                    return
-
         for job_id in set(found_ids) - set(expected_ids):
             print("Found job that should NOT be there:")
             _find(job_id)
