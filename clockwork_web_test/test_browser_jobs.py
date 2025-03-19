@@ -603,7 +603,7 @@ def test_route_search(
 
     # Retrieve the results
     response = client.get(request_line)
-    
+
     ###
     # Apply the pagination
     ###

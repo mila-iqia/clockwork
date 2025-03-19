@@ -86,7 +86,7 @@ def _load_jobs_search_page(page: Page, username: str):
     """Login and go to jobs search page."""
     # Login
     page.goto(f"{BASE_URL}/login/testing?user_id={username}")
-    
+
     # Go to jobs/search page
     page.goto(f"{BASE_URL}/jobs/search")
 
