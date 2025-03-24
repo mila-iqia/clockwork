@@ -2,7 +2,12 @@ import pytest
 from playwright.sync_api import Page, expect
 from random import choice
 
-from clockwork_frontend_test.utils import BASE_URL, get_fake_data
+from clockwork_frontend_test.utils import (
+    BASE_URL,
+    get_fake_data,
+    get_user_jobs_search_default_table,
+    get_language,
+)
 from clockwork_web.core.jobs_helper import get_inferred_job_state
 
 # Retrieve data we are interested in from the fake data
@@ -56,32 +61,6 @@ ALL_JOBS = [
 ]
 
 
-def _get_user_jobs_search_default_table(username):
-    """
-    Retrieve the 40 last submitted jobs of a specific user.
-
-    Parameters:
-        username:   The mail of the user, used as an ID
-
-    Return:
-        A list containing the 40 last submitted jobs of a specific user
-    """
-
-    return [
-        [
-            job["slurm"]["cluster_name"],
-            (
-                job["cw"]["mila_email_username"].replace("@", " @")
-                if job["cw"]["mila_email_username"] is not None
-                else ""
-            ),
-            job["slurm"]["job_id"],
-        ]
-        for job in sorted_jobs
-        if job["cw"]["mila_email_username"] == username
-    ][:40]
-
-
 def _load_jobs_search_page(page: Page, username: str):
     """Login and go to jobs search page."""
     # Login
@@ -115,9 +94,13 @@ def _check_jobs_table(page: Page, table_content: list):
             expect(cols.nth(index_col)).to_contain_text(content_col)
 
 
-def _get_search_button(page: Page):
+def _get_search_button(page: Page, username):
     """Get search button in jobs search page."""
-    search_button = page.get_by_text("Run search")
+    user_language = get_language(username)
+    if user_language == "fr":
+        search_button = page.get_by_text("Lancer la recherche")
+    else:
+        search_button = page.get_by_text("Run search")
     expect(search_button).to_be_visible()
     expect(search_button).to_have_attribute("type", "submit")
     return search_button
@@ -128,7 +111,7 @@ def _get_search_button(page: Page):
     (
         (
             "student00@mila.quebec",
-            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            get_user_jobs_search_default_table("student00@mila.quebec"),
         ),  # A non-admin user can only see his/her own jobs
         (ADMIN_USERNAME, JOBS_SEARCH_DEFAULT_TABLE),  # An admin can see all the jobs
     ),
@@ -162,12 +145,12 @@ def test_jobs_search_default(page: Page, username, expected_results):
     (
         (
             "student00@mila.quebec",
-            _get_user_jobs_search_default_table("student00@mila.quebec"),
-            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            get_user_jobs_search_default_table("student00@mila.quebec"),
+            get_user_jobs_search_default_table("student00@mila.quebec"),
         ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
         (
             ADMIN_USERNAME,
-            _get_user_jobs_search_default_table(ADMIN_USERNAME),
+            get_user_jobs_search_default_table(ADMIN_USERNAME),
             JOBS_SEARCH_DEFAULT_TABLE,
         ),  # An admin can see all the jobs, so this is the test we are looking for here
     ),
@@ -181,7 +164,7 @@ def test_filter_by_user_only_me(
     expect(radio_button_only_me).to_be_checked(checked=False)
     radio_button_only_me.click()
     expect(radio_button_only_me).to_be_checked(checked=True)
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"username={username}"
@@ -203,7 +186,7 @@ def test_filter_by_user_only_me(
     expect(radio_button_all_users).to_be_checked(checked=False)
     radio_button_all_users.click()
     expect(radio_button_all_users).to_be_checked(checked=True)
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=mila,narval,cedar,beluga,graham"
@@ -219,15 +202,15 @@ def test_filter_by_user_only_me(
     "username, searched_username, expected_restricted_results, expected_all_results",
     (
         (
-            "student00@mila.quebec",
+            NON_ADMIN_USERNAME,
             "student05@mila.quebec",
             [],
-            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
         ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
         (
             ADMIN_USERNAME,
-            "student00@mila.quebec",
-            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            NON_ADMIN_USERNAME,
+            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
             JOBS_SEARCH_DEFAULT_TABLE,
         ),  # An admin can see all the jobs, so this is the test we are looking for here
     ),
@@ -251,7 +234,7 @@ def test_filter_by_user_other_user(
     expect(input_other_user).to_be_visible()
     input_other_user.type(searched_username.split("@")[0])
 
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
 
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
@@ -274,7 +257,7 @@ def test_filter_by_user_other_user(
     expect(radio_button_all_users).to_be_checked(checked=False)
     radio_button_all_users.click()
     expect(radio_button_all_users).to_be_checked(checked=True)
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=mila,narval,cedar,beluga,graham"
@@ -287,19 +270,21 @@ def test_filter_by_user_other_user(
 
 
 @pytest.mark.parametrize(
-    "username, all_clusters_jobs",
+    "username, all_jobs, default_table",
     (
         (
-            "student00@mila.quebec",
-            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            NON_ADMIN_USERNAME,
+            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
+            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
         ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
         (
             ADMIN_USERNAME,
+            ALL_JOBS,
             JOBS_SEARCH_DEFAULT_TABLE,
         ),  # An admin can see all the jobs, so this is the test we are looking for here
     ),
 )
-def test_filter_by_cluster_except_one(page: Page, username, all_clusters_jobs):
+def test_filter_by_cluster_except_one(page: Page, username, all_jobs, default_table):
     # Ignore cluster mila
     _load_jobs_search_page(page, username=username)
     check_box_cluster_mila = page.locator("input#cluster_toggle_lever_mila")
@@ -309,7 +294,7 @@ def test_filter_by_cluster_except_one(page: Page, username, all_clusters_jobs):
     check_box_cluster_mila.click()
     expect(check_box_cluster_mila).to_be_checked(checked=False)
 
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=narval,cedar,beluga,graham"
@@ -319,7 +304,7 @@ def test_filter_by_cluster_except_one(page: Page, username, all_clusters_jobs):
         f"&sort_asc=-1"
     )
 
-    expected_results = [job for job in all_clusters_jobs if job[0] != "mila"][:40]
+    expected_results = [job for job in all_jobs if job[0] != "mila"][:40]
     # Just check that first column (cluster) does not contain "mila".
     _check_jobs_table(
         page,
@@ -332,7 +317,7 @@ def test_filter_by_cluster_except_one(page: Page, username, all_clusters_jobs):
     expect(check_box_cluster_mila_2).to_be_checked(checked=False)
     check_box_cluster_mila_2.click()
     expect(check_box_cluster_mila_2).to_be_checked(checked=True)
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=mila,narval,cedar,beluga,graham"
@@ -341,23 +326,25 @@ def test_filter_by_cluster_except_one(page: Page, username, all_clusters_jobs):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    _check_jobs_table(page, all_clusters_jobs)
+    _check_jobs_table(page, default_table)
 
 
 @pytest.mark.parametrize(
-    "username, all_clusters_jobs",
+    "username, all_jobs, default_table",
     (
         (
-            "student00@mila.quebec",
-            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            NON_ADMIN_USERNAME,
+            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
+            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
         ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
         (
             ADMIN_USERNAME,
+            ALL_JOBS,
             JOBS_SEARCH_DEFAULT_TABLE,
         ),  # An admin can see all the jobs, so this is the test we are looking for here
     ),
 )
-def test_filter_by_cluster_except_two(page: Page, username, all_clusters_jobs):
+def test_filter_by_cluster_except_two(page: Page, username, all_jobs, default_table):
     # Ignore clusters mila and cedar.
     _load_jobs_search_page(page, username=username)
     check_box_cluster_mila = page.locator("input#cluster_toggle_lever_mila")
@@ -375,7 +362,7 @@ def test_filter_by_cluster_except_two(page: Page, username, all_clusters_jobs):
     check_box_cluster_cedar.click()
     expect(check_box_cluster_cedar).to_be_checked(checked=False)
 
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=narval,beluga,graham"
@@ -386,7 +373,7 @@ def test_filter_by_cluster_except_two(page: Page, username, all_clusters_jobs):
     )
     # Just check first column (cluster) does not contain neither "mila" nor "cedar".
     expected_results = [
-        job for job in all_clusters_jobs if job[0] != "mila" and job[0] != "cedar"
+        job for job in all_jobs if job[0] != "mila" and job[0] != "cedar"
     ][:40]
 
     _check_jobs_table(
@@ -406,7 +393,7 @@ def test_filter_by_cluster_except_two(page: Page, username, all_clusters_jobs):
     check_box_cluster_cedar_2.click()
     expect(check_box_cluster_cedar_2).to_be_checked(checked=True)
 
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=mila,narval,cedar,beluga,graham"
@@ -415,16 +402,16 @@ def test_filter_by_cluster_except_two(page: Page, username, all_clusters_jobs):
         f"&sort_by=submit_time"
         f"&sort_asc=-1"
     )
-    _check_jobs_table(page, all_clusters_jobs)
+    _check_jobs_table(page, default_table)
 
 
 @pytest.mark.parametrize(
     "username, restrict_jobs, all_status_jobs",
     (
         (
-            "student00@mila.quebec",
+            NON_ADMIN_USERNAME,
             True,
-            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
         ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
         (
             ADMIN_USERNAME,
@@ -445,7 +432,7 @@ def test_filter_by_status_except_one(
     check_box_status_running.click()
     expect(check_box_status_running).to_be_checked(checked=False)
 
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=mila,narval,cedar,beluga,graham"
@@ -458,7 +445,7 @@ def test_filter_by_status_except_one(
     if restrict_jobs:
         restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
     else:
-        restriction_condition = True
+        restriction_condition = lambda job: True
 
     expected_results = [
         [
@@ -486,7 +473,7 @@ def test_filter_by_status_except_one(
     expect(check_box_status_running_2).to_be_checked(checked=False)
     check_box_status_running_2.click()
     expect(check_box_status_running_2).to_be_checked(checked=True)
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=mila,narval,cedar,beluga,graham"
@@ -502,9 +489,9 @@ def test_filter_by_status_except_one(
     "username, restrict_jobs, all_status_jobs",
     (
         (
-            "student00@mila.quebec",
+            NON_ADMIN_USERNAME,
             True,
-            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
         ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
         (
             ADMIN_USERNAME,
@@ -533,7 +520,7 @@ def test_filter_by_status_except_two(
     check_box_status_completed.click()
     expect(check_box_status_completed).to_be_checked(checked=False)
 
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=mila,narval,cedar,beluga,graham"
@@ -546,7 +533,7 @@ def test_filter_by_status_except_two(
     if restrict_jobs:
         restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
     else:
-        restriction_condition = True
+        restriction_condition = lambda job: True
 
     expected_results = [
         [
@@ -582,7 +569,7 @@ def test_filter_by_status_except_two(
     check_box_status_completed_2.click()
     expect(check_box_status_completed_2).to_be_checked(checked=True)
 
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=mila,narval,cedar,beluga,graham"
@@ -598,9 +585,9 @@ def test_filter_by_status_except_two(
     "username, restrict_jobs, all_base_jobs",
     (
         (
-            "student00@mila.quebec",
+            NON_ADMIN_USERNAME,
             True,
-            _get_user_jobs_search_default_table("student00@mila.quebec"),
+            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
         ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
         (
             ADMIN_USERNAME,
@@ -624,7 +611,7 @@ def test_multiple_filters(page: Page, username, restrict_jobs, all_base_jobs):
     check_box_status_pending.click()
     expect(check_box_status_pending).to_be_checked(checked=False)
 
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
 
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
@@ -639,7 +626,7 @@ def test_multiple_filters(page: Page, username, restrict_jobs, all_base_jobs):
     if restrict_jobs:
         restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
     else:
-        restriction_condition = True
+        restriction_condition = lambda job: True
 
     expected_results = [
         [
@@ -674,7 +661,7 @@ def test_multiple_filters(page: Page, username, restrict_jobs, all_base_jobs):
     check_box_status_pending_2.click()
     expect(check_box_status_pending_2).to_be_checked(checked=True)
 
-    _get_search_button(page).click()
+    _get_search_button(page, username).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
         f"cluster_name=mila,narval,cedar,beluga,graham"
@@ -703,7 +690,7 @@ def test_filter_by_job_array(page: Page, username, restrict_jobs, all_base_jobs)
     if restrict_jobs:
         restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
     else:
-        restriction_condition = True
+        restriction_condition = lambda job: True
 
     expected_results = [
         [
@@ -752,7 +739,7 @@ def test_filter_by_job_array(page: Page, username, restrict_jobs, all_base_jobs)
 
 def test_filter_by_job_user_props(page: Page):
     current_user = fake_data["jobs"][0]["cw"]["mila_email_username"]
-    all_base_jobs = _get_user_jobs_search_default_table(current_user)
+    all_base_jobs = get_user_jobs_search_default_table(current_user)
     restrict_jobs = True
 
     prop_name = "name"
@@ -767,7 +754,7 @@ def test_filter_by_job_user_props(page: Page):
     if restrict_jobs:
         restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
     else:
-        restriction_condition = True
+        restriction_condition = lambda job: True
 
     expected_results = [
         [
@@ -845,7 +832,7 @@ def test_filter_by_job_user_props(page: Page):
     (("comet_hyperlink", "Comet link"), ("wandb_hyperlink", "WANDB link")),
 )
 def test_special_user_props(page: Page, prop_name: str, title: str):
-    current_user = "student02@mila.quebec"
+    current_user = "student01@mila.quebec"  # We know for sure that student01 has at least one user prop
     related_jobs_ids = [
         prop["job_id"]
         for prop in fake_data["job_user_props"]
