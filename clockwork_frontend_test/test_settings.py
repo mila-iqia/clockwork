@@ -1,7 +1,7 @@
 from playwright.sync_api import Page, expect
 import math
 
-from clockwork_frontend_test.utils import BASE_URL, get_fake_data
+from clockwork_frontend_test.utils import BASE_URL, get_fake_data, get_admin_username
 
 
 def test_languages(page: Page):
@@ -38,7 +38,9 @@ def test_languages(page: Page):
 
 def test_nb_items_per_page(page: Page):
     # Login
-    page.goto(f"{BASE_URL}/login/testing?user_id=student00@mila.quebec")
+    page.goto(
+        f"{BASE_URL}/login/testing?user_id={get_admin_username()}"
+    )  # An admin sees all the jobs (ie more than 40)
     # Go to jobs/search page
     page.goto(f"{BASE_URL}/jobs/search")
     # Check we have 40 rows by default in table.

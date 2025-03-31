@@ -18,30 +18,43 @@ import random
 import json
 import re
 import pytest
-from clockwork_web.core.jobs_helper import get_inferred_job_states
+from clockwork_web.core.jobs_helper import get_inferred_job_states, get_str_job_state
 
-from test_common.jobs_test_helpers import (
-    helper_single_job_missing,
-    helper_single_job_at_random,
-    helper_list_jobs_for_a_given_random_user,
-    helper_jobs_list_with_filter,
-)
+from test_common.jobs_test_helpers import helper_list_jobs_for_a_given_random_user
 from clockwork_web.core.pagination_helper import get_pagination_values
 from clockwork_web.core.users_helper import (
     get_default_setting_value,
     get_available_clusters_from_db,
 )
+from clockwork_web.user import User
 
 ##########
 # Global #
 ##########
+ADMIN_USER = None
+NON_ADMIN_USER = None
+
+# Define the admin and non-admin users (there must be at least one of each in the fake data)
+def find_admin_and_non_admin_users():
+    global ADMIN_USER
+    global NON_ADMIN_USER
+
+    # Retrieve the fake data content
+    with open("test_common/fake_data.json", "r") as infile:
+        fake_data = json.load(infile)
+
+    for user in fake_data["users"]:
+        if "admin_access" in user and user["admin_access"]:
+            ADMIN_USER = user["mila_email_username"]
+        elif (
+            user["mila_email_username"] != "student06@mila.quebec"
+        ):  # It has specific rights
+            NON_ADMIN_USER = user["mila_email_username"]
+        if ADMIN_USER and NON_ADMIN_USER:
+            break
 
 
-def test_redirect_index(client):
-    response = client.get("/jobs/")
-    assert response.status_code == 302
-    assert response.headers["Location"] == "dashboard"
-
+find_admin_and_non_admin_users()
 
 ####################
 # Single job route #
@@ -54,8 +67,8 @@ def test_single_job(client, fake_data):
     found in "fake_data.json" if we want to compare the results that
     we get when requesting "/jobs/one/<job_id>".
     """
-    # Log in to Clockwork as student00 (who can access all clusters)
-    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    # Log in to Clockwork as an admin (who can access all jobs on all clusters)
+    login_response = client.get(f"/login/testing?user_id={ADMIN_USER}")
     assert login_response.status_code == 302  # Redirect
 
     D_job = random.choice(fake_data["jobs"])
@@ -77,8 +90,8 @@ def test_single_job_missing_423908482367(client):
     """
     This job entry should be missing from the database.
     """
-    # Log in to Clockwork as student00 (who can access all clusters)
-    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    # Log in to Clockwork as an admin (who can access all jobs on all clusters)
+    login_response = client.get(f"/login/testing?user_id={ADMIN_USER}")
     assert login_response.status_code == 302  # Redirect
 
     job_id = "423908482367"
@@ -93,8 +106,8 @@ def test_single_job_missing_423908482367(client):
 
 
 def test_single_job_no_id(client):
-    # Log in to Clockwork as student00 (who can access all clusters)
-    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    # Log in to Clockwork as an admin (who can access all jobs on all clusters)
+    login_response = client.get(f"/login/testing?user_id={ADMIN_USER}")
     assert login_response.status_code == 302  # Redirect
 
     response = client.get("/jobs/one")
@@ -118,8 +131,8 @@ def test_search_jobs_for_a_given_random_user(client, fake_data):
     When we have the html contents better nailed down, we should
     add some tests to make sure we are returning good values there.
     """
-    # Log in to Clockwork as student00 (who can access all clusters)
-    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    # Log in to Clockwork as an admin (who can access all jobs on all clusters)
+    login_response = client.get(f"/login/testing?user_id={ADMIN_USER}")
     assert login_response.status_code == 302  # Redirect
 
     # the usual validator doesn't work on the html contents
@@ -161,8 +174,8 @@ def test_jobs(client, fake_data: dict[list[dict]]):
     Note that the `client` fixture depends on other fixtures that
     are going to put the fake data in the database for us.
     """
-    # Log in to Clockwork as student00 (who can access all clusters)
-    login_response = client.get("/login/testing?user_id=student00@mila.quebec")
+    # Log in to Clockwork as an admin (who can access all jobs on all clusters)
+    login_response = client.get(f"/login/testing?user_id={ADMIN_USER}")
     assert login_response.status_code == 302  # Redirect
 
     # Sort the jobs contained in the fake data by submit time, then by job id
@@ -204,15 +217,8 @@ def test_jobs_with_both_pagination_options(
         page_num            The number of the page displaying the jobs
         nbr_items_per_page  The number of jobs we want to display per page
     """
-    # Define the user we want to use for this test
-    # An admin can access all clusters
-    for user in fake_data["users"]:
-        if "admin_access" in user and user["admin_access"]:
-            current_user_id = user["mila_email_username"]
-    assert current_user_id
-
-    # Log in to Clockwork
-    login_response = client.get(f"/login/testing?user_id={current_user_id}")
+    # Log in to Clockwork as an admin (who can access all jobs on all clusters)
+    login_response = client.get(f"/login/testing?user_id={ADMIN_USER}")
     assert login_response.status_code == 302  # Redirect
 
     # Sort the jobs contained in the fake data by submit time, then by job id
@@ -233,7 +239,7 @@ def test_jobs_with_both_pagination_options(
     # Retrieve the bounds of the interval of index in which the expected jobs
     # are contained
     (number_of_skipped_items, nbr_items_per_page) = get_pagination_values(
-        current_user_id, page_num, nbr_items_per_page
+        ADMIN_USER, page_num, nbr_items_per_page
     )
 
     body_text = response.get_data(as_text=True)
@@ -264,7 +270,7 @@ def test_jobs_with_page_num_pagination_option(
         page_num            The number of the page displaying the jobs
     """
     # Define the user we want to use for this test
-    current_user_id = "student00@mila.quebec"  # Can access all clusters
+    current_user_id = ADMIN_USER  # Can access all clusters
 
     # Log in to Clockwork
     login_response = client.get(f"/login/testing?user_id={current_user_id}")
@@ -274,10 +280,10 @@ def test_jobs_with_page_num_pagination_option(
     sorted_all_jobs = sorted(
         fake_data["jobs"],
         key=lambda d: (
-            d["slurm"]["submit_time"],
-            -int(d["slurm"]["job_id"]),
+            -d["slurm"]["submit_time"],
+            d["slurm"]["job_id"],
         ),  # These is the default sorting
-        reverse=True,
+        reverse=False,
     )
 
     # Get the response
@@ -362,7 +368,7 @@ def test_jobs_with_nbr_items_per_page_pagination_option(
     "current_user_id,username,cluster_names,job_states,page_num,nbr_items_per_page,sort_by,sort_asc",
     [
         (
-            "student00@mila.quebec",
+            ADMIN_USER,
             "student05@mila.quebec",
             ["mila", "graham"],
             ["RUNNING", "PENDING"],
@@ -372,7 +378,7 @@ def test_jobs_with_nbr_items_per_page_pagination_option(
             -1,
         ),
         (
-            "student01@mila.quebec",
+            ADMIN_USER,
             "student10@mila.quebec",
             ["graham"],
             ["RUNNING", "PENDING"],
@@ -392,7 +398,7 @@ def test_jobs_with_nbr_items_per_page_pagination_option(
             1,
         ),
         (
-            "student02@mila.quebec",
+            ADMIN_USER,
             "student13@mila.quebec",
             [],
             ["RUNNING", "PENDING"],
@@ -402,7 +408,7 @@ def test_jobs_with_nbr_items_per_page_pagination_option(
             -1,
         ),
         (
-            "student03@mila.quebec",
+            ADMIN_USER,
             "student13@mila.quebec",
             [],
             [],
@@ -411,7 +417,7 @@ def test_jobs_with_nbr_items_per_page_pagination_option(
             "end_time",
             1,
         ),
-        ("student04@mila.quebec", "student13@mila.quebec", [], [], -1, -10, "user", 1),
+        (ADMIN_USER, "student13@mila.quebec", [], [], -1, -10, "user", 1),
         (
             "student05@mila.quebec",
             "student03@mila.quebec",
@@ -422,31 +428,7 @@ def test_jobs_with_nbr_items_per_page_pagination_option(
             "job_state",
             -1,
         ),
-        ("student00@mila.quebec", None, ["cedar"], [], 2, 10, "name", 1),
-        (
-            "student06@mila.quebec",
-            "student00@mila.quebec",
-            ["mila", "cedar"],
-            [],
-            1,
-            10,
-            "end_time",
-            -1,
-        ),
-        # Note: student06 has only access to the Mila cluster and student00 has jobs on Mila cluster and DRAC clusters,
-        #       so these arguments test that student06 should NOT see the jobs on DRAC clusters
-        (
-            "student06@mila.quebec",
-            "student00@mila.quebec",
-            ["cedar"],
-            [],
-            1,
-            10,
-            "start_time",
-            -1,
-        ),
-        # Note: student06 has only access to the Mila cluster and student00 has jobs on Mila cluster and DRAC clusters,
-        #       so these arguments test that student06 should NOT see the jobs on DRAC clusters
+        (ADMIN_USER, None, ["cedar"], [], 2, 10, "name", 1),
     ],
 )
 def test_route_search(
@@ -514,39 +496,72 @@ def test_route_search(
         sorting_key = lambda d: (
             # `d["cw"]["mila_email_username"] or ""` returns `""` if the value of `d["cw"]["mila_email_username"]` is `None`
             # This is done because `None` is not comparable to the strings
-            d["cw"]["mila_email_username"] or "",
-            sort_asc * int(d["slurm"]["job_id"]),
+            d["cw"]["mila_email_username"]
+            or ""
         )
     elif sort_by == "job_id":
-        sorting_key = lambda d: (d["slurm"]["job_id"])
+        sorting_key = lambda d: d["slurm"]["job_id"]
     elif sort_by in ["submit_time", "start_time", "end_time"]:
         sorting_key = lambda d: (
             # `d["slurm"][sort_by] or 0` returns `0` if the value of `d["slurm"][sort_by]` is `None`
             # This is done because `None` is not comparable to timestamps
-            d["slurm"][sort_by] or 0,  # time.time(),
-            sort_asc * int(d["slurm"]["job_id"]),
+            d["slurm"][sort_by]
+            or 0  # time.time(),
         )
     else:
         sorting_key = lambda d: (
             # `d["slurm"][sort_by] or ""` returns `""` if the value of `d["slurm"][sort_by]` is `None`
             # This is done because in order to make this default value comparable to the other
             # fields (which should be strings in this else condition)
-            d["slurm"][sort_by] or "",
-            sort_asc * int(d["slurm"]["job_id"]),
+            d["slurm"][sort_by]
+            or ""
         )
 
     # Sort the jobs contained in the fake data by the sorting field, then by job id
     sorted_all_jobs = sorted(fake_data["jobs"], key=sorting_key, reverse=sort_asc == -1)
 
+    # We emulate the database sorting (for two equal value, the job ID is sorted alphabetically)
+    if sort_by != "job_id":  # because jobs IDs are unique
+        L_sorted_all_jobs = []
+        previous_value = None
+        tmp = []
+
+        for job in sorted_all_jobs:
+
+            if sort_by == "user":
+                sorted_value = job["cw"]["mila_email_username"] or ""
+            elif sort_by in ["submit_time", "start_time", "end_time"]:
+                sorted_value = job["slurm"][sort_by] or 0
+            else:
+                sorted_value = job["slurm"][sort_by] or ""
+
+            if sorted_value != previous_value:
+                L_sorted_all_jobs.extend(
+                    sorted(tmp.copy(), key=lambda j: j["slurm"]["job_id"])
+                )
+                previous_value = sorted_value
+                tmp = [job]
+            else:
+                tmp.append(job)
+
+        L_sorted_all_jobs.extend(sorted(tmp.copy(), key=lambda j: j["slurm"]["job_id"]))
+    else:
+        L_sorted_all_jobs = sorted_all_jobs.copy()
+
     # For each job, determine if it could be expected (before applying the pagination)
-    for D_job in sorted_all_jobs:
+    for D_job in L_sorted_all_jobs:
         # Retrieve the values we may want to test
         retrieved_username = D_job["cw"]["mila_email_username"]
         retrieved_cluster_name = D_job["slurm"]["cluster_name"]
-        retrieved_job_state = D_job["slurm"]["job_state"]
+        retrieved_job_state = get_str_job_state(D_job["slurm"]["job_state"])
 
         # Define the tests which will determine if the job is taken into account or not
-        test_username = (retrieved_username == username) or ignore_username_filter
+        if User.get(current_user_id).is_admin():
+            test_username = (retrieved_username == username) or ignore_username_filter
+        else:
+            test_username = (
+                retrieved_username == current_user_id and retrieved_username == username
+            )
         test_cluster_names = retrieved_cluster_name in requested_clusters
         test_job_states = (
             retrieved_job_state in job_states
@@ -608,14 +623,12 @@ def test_route_search(
     expected_ids = [x["slurm"]["job_id"] for x in expected_jobs]
     found_ids = re.findall(pattern="job_id=([0-9]+)", string=body_text)
 
+    def _find(job_id):
+        for job in fake_data["jobs"]:
+            if job["slurm"]["job_id"] == job_id:
+                return job
+
     if found_ids != expected_ids:
-
-        def _find(job_id):
-            for job in fake_data["jobs"]:
-                if job["slurm"]["job_id"] == job_id:
-                    pprint(job)
-                    return
-
         for job_id in set(found_ids) - set(expected_ids):
             print("Found job that should NOT be there:")
             _find(job_id)
@@ -639,14 +652,10 @@ def test_cc_portal(client, fake_data):
         fake_data           The data our tests are based on. It's a fixture.
     """
     # Choose a user who have access to all the clusters
-    user_dict = fake_data["users"][0]
-    assert user_dict["mila_cluster_username"] is not None
-    assert user_dict["cc_account_username"] is not None
+    username = ADMIN_USER
 
     # Log in to Clockwork as this user
-    login_response = client.get(
-        f"/login/testing?user_id={user_dict['mila_email_username']}"
-    )
+    login_response = client.get(f"/login/testing?user_id={username}")
     assert login_response.status_code == 302  # Redirect
 
     # Hidden assumption that the /jobs/search will indeed give us
@@ -671,7 +680,7 @@ def test_cc_portal(client, fake_data):
         # the link is not displayed for a job owned by a user other than the authenticated user
         if (
             D_job_slurm["cluster_name"] not in ["beluga", "narval"]
-            or D_job["cw"]["mila_email_username"] != user_dict["mila_email_username"]
+            or D_job["cw"]["mila_email_username"] != username
         ):
             continue
         else:

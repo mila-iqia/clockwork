@@ -112,8 +112,15 @@ def route_api_v1_jobs_one():
     if len(cluster_names) < 1:
         return jsonify({}), 200
 
+    # If the current user is not an admin, we only retrieve his/her jobs
+    username = None
+    if not current_user.is_admin():
+        username = current_user.mila_email_username
+
     # Set up the filters and retrieve the expected job
-    (LD_jobs, _) = get_jobs(job_ids=[job_id], cluster_names=cluster_names)
+    (LD_jobs, _) = get_jobs(
+        username=username, job_ids=[job_id], cluster_names=cluster_names
+    )
 
     if len(LD_jobs) == 0:
         # Not a great when missing the value we want, but it's an acceptable answer.

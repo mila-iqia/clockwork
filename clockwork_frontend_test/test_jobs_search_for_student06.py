@@ -1,6 +1,10 @@
 from playwright.sync_api import Page, expect
 
-from clockwork_frontend_test.utils import BASE_URL, get_fake_data
+from clockwork_frontend_test.utils import (
+    BASE_URL,
+    get_fake_data,
+    get_user_jobs_search_default_table,
+)
 from clockwork_web.core.jobs_helper import get_inferred_job_state, get_str_job_state
 
 current_username = "student06@mila.quebec"
@@ -16,14 +20,15 @@ sorted_jobs = sorted(
 sorted_mila_jobs = []
 for job in sorted_jobs:
     if (
-        job["slurm"]["cluster_name"] == "mila"
-    ):  # student06@mila.quebec has access to the Mila cluster only
+        job["cw"]["mila_email_username"] == current_username
+    ):  # student06@mila.quebec has access to his own jobs only
         sorted_mila_jobs.append(job)
 
+
 # Get all the jobs visible by student06 and format them for our tests
-MILA_JOBS = []
+AVAILABLE_MILA_JOBS = []
 for job in sorted_mila_jobs:
-    MILA_JOBS.append(
+    AVAILABLE_MILA_JOBS.append(
         [
             job["slurm"]["cluster_name"],
             (
@@ -36,7 +41,9 @@ for job in sorted_mila_jobs:
     )
 
 # Expected jobs table content for first columns (cluster, user (@mila.quebec), job ID).
-JOBS_SEARCH_DEFAULT_TABLE = MILA_JOBS[:40]
+JOBS_SEARCH_DEFAULT_TABLE = get_user_jobs_search_default_table("student06@mila.quebec")[
+    :40
+]
 
 
 def _load_jobs_search_page(page: Page):
@@ -112,7 +119,9 @@ def test_filter_by_user_only_me(page: Page):
         f"&sort_asc=-1"
     )
     expected_results = [
-        job for job in MILA_JOBS if job[1] == current_username.replace("@", " @")
+        job
+        for job in AVAILABLE_MILA_JOBS
+        if job[1] == current_username.replace("@", " @")
     ][:40]
     _check_jobs_table(
         page,
@@ -163,9 +172,7 @@ def test_filter_by_user_other_user(page: Page):
         f"&sort_asc=-1"
     )
 
-    expected_results = [
-        job for job in MILA_JOBS if job[1] == searched_username.replace("@", " @")
-    ][:40]
+    expected_results = []  # A non-admin user can not see other's jobs
     _check_jobs_table(
         page,
         expected_results,
@@ -456,16 +463,17 @@ def test_multiple_filters(page: Page):
 def test_jobs_table_sorting_by_cluster(page: Page):
     _load_jobs_search_page(page)
 
-    expected_results = [job for job in sorted(MILA_JOBS, key=lambda j: (j[0], j[2]))][
-        :40
-    ]
+    expected_results = [
+        job for job in sorted(AVAILABLE_MILA_JOBS, key=lambda j: (j[0], j[2]))
+    ][:40]
     _check_jobs_table_sorting(page, 0, "Cluster", "cluster_name", expected_results)
 
 
 def test_jobs_table_sorting_by_job_id(page: Page):
     _load_jobs_search_page(page)
     expected_results = [
-        job for job in sorted(MILA_JOBS, key=lambda j: (j[0], j[2]), reverse=True)
+        job
+        for job in sorted(AVAILABLE_MILA_JOBS, key=lambda j: (j[0], j[2]), reverse=True)
     ][:40]
     _check_jobs_table_sorting(
         page, 2, "Job ID", "job_id", expected_results, reverse=True
@@ -474,9 +482,9 @@ def test_jobs_table_sorting_by_job_id(page: Page):
 
 def test_jobs_table_sorting_by_job_id_ascending(page: Page):
     _load_jobs_search_page(page)
-    expected_results = [job for job in sorted(MILA_JOBS, key=lambda j: (j[0], j[2]))][
-        :40
-    ]
+    expected_results = [
+        job for job in sorted(AVAILABLE_MILA_JOBS, key=lambda j: (j[0], j[2]))
+    ][:40]
     _check_jobs_table_sorting(
         page, 2, "Job ID", "job_id", expected_results, double_click=True, reverse=False
     )

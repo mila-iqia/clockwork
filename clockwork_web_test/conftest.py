@@ -100,6 +100,19 @@ def valid_rest_auth_headers():
 
 
 @pytest.fixture
+def valid_admin_rest_auth_headers(fake_data):
+    for user in fake_data["users"]:
+        if "admin_access" in user and user["admin_access"]:
+            username = user["mila_email_username"]
+            api_key = user["clockwork_api_key"]
+
+    s = f"{username}:{api_key}"
+    encoded_bytes = base64.b64encode(s.encode("utf-8"))
+    encoded_s = str(encoded_bytes, "utf-8")
+    return {"Authorization": f"Basic {encoded_s}"}
+
+
+@pytest.fixture
 def known_user(app, fake_data):
     # Assert that the users of the fake data exist and are not empty
     assert "users" in fake_data and len(fake_data["users"]) > 0
