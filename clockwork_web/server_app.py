@@ -18,6 +18,8 @@ from flask import Flask, redirect, url_for, session, request
 from flask_login import current_user, LoginManager
 from flask_babel import Babel
 from werkzeug.exceptions import HTTPException
+
+# Import the routes
 from .browser_routes.nodes import flask_api as nodes_routes_flask_api
 from .browser_routes.jobs import flask_api as jobs_routes_flask_api
 from .browser_routes.gpu import flask_api as gpu_routes_flask_api
@@ -226,7 +228,7 @@ def create_app(extra_config: dict):
                             the web interface display.
             page_name       The name of the page on which we should display or not the
                             job properties requested by the user in its preferences. For now,
-                            the values "dashboard" or "jobs_list" are expected
+                            only the value "jobs_list" is expected
             column_name     The column showing a specific job property, to display or not regarding
                             the preferences of the user.
 

@@ -34,6 +34,7 @@ from clockwork_web.user import User
 ADMIN_USER = None
 NON_ADMIN_USER = None
 
+
 # Define the admin and non-admin users (there must be at least one of each in the fake data)
 def find_admin_and_non_admin_users():
     global ADMIN_USER

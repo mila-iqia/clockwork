@@ -457,25 +457,13 @@ def get_inferred_job_state(job_state):
 
 def get_jobs_properties_list_per_page():
     """
-    Get the list of the displayable jobs properties for the dashboard
-    and the jobs list page.
+    Get the list of the displayable jobs properties for the jobs list page.
 
     Returns
         A dictionary associating a list of jobs properties names
-        to a page name (here "dashboard" or "jobs_list")
+        to a page name (here "jobs_list" is the only possible page)
     """
     return {
-        "dashboard": [
-            "clusters",
-            "job_id",
-            "job_name",
-            "job_state",
-            "start_time",
-            "submit_time",
-            "end_time",
-            "links",
-            "actions",
-        ],
         "jobs_list": [
             "clusters",
             "user",
@@ -489,7 +477,7 @@ def get_jobs_properties_list_per_page():
             "end_time",
             "links",
             "actions",
-        ],
+        ]
     }
 
 

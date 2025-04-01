@@ -87,9 +87,6 @@ class User(UserMixin):
                 del web_settings[k]
         self.web_settings = get_default_web_settings_values() | web_settings
         # Force column "actions" to not be displayed in job tables.
-        self.web_settings.setdefault("column_display", {}).setdefault("dashboard", {})[
-            "actions"
-        ] = False
         self.web_settings.setdefault("column_display", {}).setdefault("jobs_list", {})[
             "actions"
         ] = False
@@ -215,7 +212,7 @@ class User(UserMixin):
 
     def settings_column_display_enable(self, page_name, column_name):
         """
-        Enable the display of a specific column on the "dashboard" or "jobs list" page
+        Enable the display of a specific column on the "jobs list" page
         for a User.
 
         Parameters:
@@ -231,7 +228,7 @@ class User(UserMixin):
 
     def settings_column_display_disable(self, page_name, column_name):
         """
-        Disable the display of a specific column on the "dashboard" or "jobs list" page
+        Disable the display of a specific column on the "jobs list" page
         for a User.
 
         Parameters:

@@ -236,10 +236,10 @@ def route_unset_dark_mode():
 @login_required
 def route_set_column_display():
     """
-    Set to true the fact that a specific column is shown on the web page "dashboard"
-    or "jobs list" (regarding the value of the parameter "page").
+    Set to true the fact that a specific column is shown on the web page identified by the parameter "page"
+    (for now, the only possible value is "jobs_list").
 
-    .. :quickref: enable the display of a job element on the dashboard or on the jobs list
+    .. :quickref: enable the display of a job element on the jobs list
     """
     logging.info(
         f"clockwork browser route: /settings/web/column/set - current_user={current_user.mila_email_username}"
@@ -305,10 +305,10 @@ def route_set_column_display():
 @login_required
 def route_unset_column_display():
     """
-    Set to false the fact that a specific column is shown on the web page "dashboard"
-    or "jobs list" (regarding the value of the parameter "page").
+    Set to false the fact that a specific column is shown on the web page identified by the value of "page"
+    (for now, the only possible value of the parameter "page" is "jobs_list").
 
-    .. :quickref: enable the display of a job element on the dashboard or on the jobs list
+    .. :quickref: enable the display of a job element on the jobs list
     """
     logging.info(
         f"clockwork browser route: /settings/web/column/unset - current_user={current_user.mila_email_username}"

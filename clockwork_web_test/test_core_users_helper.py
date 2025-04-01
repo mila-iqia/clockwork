@@ -232,7 +232,7 @@ def test_set_web_setting_set_dark_mode(app, client, known_user):
     "setting_key,setting_value",
     [
         ("settingdoesnotexist", 3),
-        ("column_display.dashboard.not_a_column", True),
+        ("column_display.jobs_list.not_a_column", True),
         ("column_display.not_a_page.job_id", False),
     ],
 )
@@ -265,8 +265,8 @@ def test_is_correct_type_for_web_setting_with_unexpected_web_setting(
         ("time_format", 4986.57),
         ("time_format", False),
         ("time_format", "notacorrecttimeformat"),
-        ("column_display.dashboard.job_id", 45),
-        ("column_display.dashboard.job_id", "not a string expected"),
+        ("column_display.jobs_list.job_id", 45),
+        ("column_display.jobs_list.job_id", "not a string expected"),
     ],
 )
 def test_is_correct_type_for_web_setting_with_incorrect_value_type(
@@ -296,8 +296,8 @@ def test_is_correct_type_for_web_setting_with_incorrect_value_type(
         ("date_format", "YYYY/MM/DD"),
         ("time_format", "24h"),
         ("time_format", "AM/PM"),
-        ("column_display.dashboard.job_id", True),
-        ("column_display.dashboard.job_id", False),
+        ("column_display.jobs_list.job_id", True),
+        ("column_display.jobs_list.job_id", False),
     ],
 )
 def test_is_correct_type_for_web_setting_success(setting_key, setting_value):
@@ -827,7 +827,7 @@ def test_set_time_format_success(app, client, known_user, valid_time_format):
             "not_an_expected_page",
             "job_id",
         ),  # Unexpected page, "correct" column (as long as we consider this correct, as an undefined page implies no associated expected column)
-        ("dashboard", "not_an_expected_column"),  # Correct page, unexpected column
+        ("jobs_list", "not_an_expected_column"),  # Correct page, unexpected column
         (
             None,
             "job_id",
@@ -873,7 +873,7 @@ def test_enable_column_display_bad_request(
     assert response_logout.status_code == 302  # Redirect
 
 
-@pytest.mark.parametrize("page_name,column_name", [("dashboard", "start_time")])
+@pytest.mark.parametrize("page_name,column_name", [("jobs_list", "start_time")])
 def test_enable_column_display_success(app, client, known_user, page_name, column_name):
     """
     Test the function enable_column_display when the operation is successful
@@ -925,7 +925,7 @@ def test_enable_column_display_success(app, client, known_user, page_name, colum
             "not_an_expected_page",
             "job_id",
         ),  # Unexpected page, "correct" column (as long as we consider this correct, as an undefined page implies no associated expected column)
-        ("dashboard", "not_an_expected_column"),  # Correct page, unexpected column
+        ("jobs_list", "not_an_expected_column"),  # Correct page, unexpected column
         (
             None,
             "job_id",
@@ -969,7 +969,7 @@ def test_disable_column_display_bad_request(
     assert response_logout.status_code == 302  # Redirect
 
 
-@pytest.mark.parametrize("page_name,column_name", [("dashboard", "start_time")])
+@pytest.mark.parametrize("page_name,column_name", [("jobs_list", "start_time")])
 def test_disable_column_display_success(
     app, client, known_user, page_name, column_name
 ):

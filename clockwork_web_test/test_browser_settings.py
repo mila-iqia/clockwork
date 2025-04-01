@@ -272,7 +272,7 @@ def test_settings_set_time_format_success(client, known_user, time_format):
             "not_an_expected_page",
             "job_id",
         ),  # Unexpected page, "correct" column (as long as we consider this correct, as an undefined page implies no associated expected column)
-        ("dashboard", "not_an_expected_column"),  # Correct page, unexpected column
+        ("jobs_list", "not_an_expected_column"),  # Correct page, unexpected column
         (
             None,
             "job_id",
@@ -318,7 +318,7 @@ def test_settings_set_column_display_bad_request(client, page_name, column_name)
             "not_an_expected_page",
             "job_id",
         ),  # Unexpected page, "correct" column (as long as we consider this correct, as an undefined page implies no associated expected column)
-        ("dashboard", "not_an_expected_column"),  # Correct page, unexpected column
+        ("jobs_list", "not_an_expected_column"),  # Correct page, unexpected column
         (
             None,
             "job_id",
