@@ -1,20 +1,9 @@
-from pprint import pprint
-import re
-import os
-import json
-import requests
-import time
 import logging
-from collections import defaultdict
 
 # Use of "Markup" described there to avoid Flask escaping it when passing to a template.
 # https://stackoverflow.com/questions/3206344/passing-html-to-template-using-flask-jinja2
 from markupsafe import Markup
-from flask import Flask, Response, url_for, request, redirect, make_response
-from flask import request, send_file
-from flask import jsonify
-from werkzeug.utils import secure_filename
-from werkzeug.wsgi import FileWrapper
+from flask import jsonify, request, redirect
 
 # https://flask.palletsprojects.com/en/1.1.x/appcontext/
 from flask import g
@@ -38,13 +27,8 @@ from clockwork_web.core.users_helper import render_template_with_user_settings
 flask_api = Blueprint("jobs", __name__)
 
 from clockwork_web.core.jobs_helper import (
-    get_filter_after_end_time,
-    get_filter_cluster_name,
-    get_filter_job_id,
-    combine_all_mongodb_filters,
     strip_artificial_fields_from_job,
     get_jobs,
-    get_inferred_job_states,
 )
 from clockwork_web.core.pagination_helper import get_pagination_values
 
@@ -53,12 +37,12 @@ from clockwork_web.core.pagination_helper import get_pagination_values
 @login_required
 def route_index():
     """
-    Not implemented, but this will be the new name for the jobs.html with interactions.
+    This page redirects to the "Jobs search" page
     """
     logging.info(
         f"clockwork browser route: /jobs/ - current_user={current_user.mila_email_username}"
     )
-    return redirect("dashboard")
+    return redirect("search")
 
 
 @flask_api.route("/search")
@@ -128,8 +112,7 @@ def route_search():
         current_user,
         request.args,
         # The default pagination parameters are different whether or not a JSON response is requested.
-        # This is because we are using `want_json=True` along with no pagination arguments for a special
-        # case when we want to retrieve all the jobs in the dashboard for a given user.
+        # This is because we might want to use `want_json=True` along with no pagination arguments.
         # There is a certain notion with `want_json` that we are retrieving the data for the purposes
         # of listing them exhaustively, and not just for displaying them with scroll bars in some HTML page.
         force_pagination=not want_json,
@@ -293,20 +276,4 @@ def route_one():
         job_id=job_ids[0],
         mila_email_username=current_user.mila_email_username,
         previous_request_args=previous_request_args,
-    )
-
-
-@flask_api.route("/dashboard")
-@login_required
-def route_dashboard():
-    """
-    Displays the list of the current user's jobs.
-    """
-    logging.info(
-        f"clockwork browser route: /jobs/dashboard - current_user={current_user.mila_email_username}"
-    )
-
-    return render_template_with_user_settings(
-        "dashboard.html",
-        mila_email_username=current_user.mila_email_username,
     )

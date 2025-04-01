@@ -59,10 +59,10 @@ function disable_dark_mode() {
 function enable_column(page_name, column_name) {
   /*
       Contact the server in order to show the corresponding column on the given page
-      ("jobs_list" or "dashboard").
+      (for now, the only possible page name is "jobs_list").
 
       Parameters:
-      page_name	It can get the values "dashboard" or "jobs_list".
+      page_name	It can only get the value "jobs_list".
                 It identifies the page where the column should or
                 should not appear
       column_name			Name identifying the column to display or not on
@@ -93,10 +93,10 @@ function enable_column(page_name, column_name) {
 function disable_column(page_name, column_name) {
   /*
       Contact the server in order to hide the corresponding column on the given page
-      ("jobs_list" or "dashboard").
+      (for now, the page name can only be"jobs_list").
 
       Parameters:
-      page_name	It can get the values "dashboard" or "jobs_list".
+      page_name	It can only get the value "jobs_list".
                 It identifies the page where the column should or
                 should not appear
       column_name			Name identifying the column to display or not on

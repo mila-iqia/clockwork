@@ -21,19 +21,17 @@ def test_languages(page: Page):
     select.select_option("fr")
     # Check french is selected.
     expect(select).to_have_value("fr")
-    # Go to dashboard page and check language. Should be French.
-    page.goto(f"{BASE_URL}/jobs/dashboard")
-    header_title = page.locator("#formBlock > .container .title.float-start h1")
-    expect(header_title).to_contain_text("Bienvenue student00 !")
+    # Go to jobs search page and check language. Should be French.
+    page.goto(f"{BASE_URL}/jobs/search")
+    expect(page.get_by_text("Lancer la recherche")).to_be_visible()
 
     # Move back to english (necessary to not interfere with other tests)
     page.goto(f"{BASE_URL}/settings/")
     select = page.locator("select#language_selection")
     select.select_option("en")
     expect(select).to_have_value("en")
-    page.goto(f"{BASE_URL}/jobs/dashboard")
-    header_title = page.locator("#formBlock > .container .title.float-start h1")
-    expect(header_title).to_contain_text("Welcome back student00 !")
+    page.goto(f"{BASE_URL}/jobs/search")
+    expect(page.get_by_text("Search")).to_be_visible()
 
 
 def test_nb_items_per_page(page: Page):
@@ -107,67 +105,6 @@ def test_nb_items_per_page(page: Page):
     page.goto(f"{BASE_URL}/jobs/search")
     rows = page.locator("table#search_table tbody tr")
     expect(rows).to_have_count(40)
-
-
-def test_dashboard_columns(page: Page):
-    # Login
-    page.goto(f"{BASE_URL}/login/testing?user_id=student00@mila.quebec")
-    # Check default dashboard columns.
-    headers = page.locator("table#dashboard_table thead tr th")
-    expect(headers).to_have_count(8)
-    expect(headers.nth(0)).to_contain_text("Cluster")
-    expect(headers.nth(1)).to_contain_text("Job ID")
-    expect(headers.nth(2)).to_contain_text("Job name [:20]")
-    expect(headers.nth(3)).to_contain_text("Job state")
-    expect(headers.nth(4)).to_contain_text("Submit time")
-    expect(headers.nth(5)).to_contain_text("Start time")
-    expect(headers.nth(6)).to_contain_text("End time")
-    expect(headers.nth(7)).to_contain_text("Links")
-
-    # Go to settings.
-    page.goto(f"{BASE_URL}/settings/")
-    radio_job_id = page.locator("input#dashboard_job_id_toggle")
-    radio_submit_time = page.locator("input#dashboard_submit_time_toggle")
-    expect(radio_job_id).to_be_checked(checked=True)
-    expect(radio_submit_time).to_be_checked(checked=True)
-    # Uncheck columns job ID and submit time.
-    radio_job_id.click()
-    radio_submit_time.click()
-    expect(radio_job_id).to_be_checked(checked=False)
-    expect(radio_submit_time).to_be_checked(checked=False)
-
-    # Check columns are indeed not displayed in dashboard.
-    page.goto(f"{BASE_URL}/jobs/dashboard")
-    headers = page.locator("table#dashboard_table thead tr th")
-    expect(headers).to_have_count(6)
-    expect(headers.nth(0)).to_contain_text("Cluster")
-    expect(headers.nth(1)).to_contain_text("Job name [:20]")
-    expect(headers.nth(2)).to_contain_text("Job state")
-    expect(headers.nth(3)).to_contain_text("Start time")
-    expect(headers.nth(4)).to_contain_text("End time")
-    expect(headers.nth(5)).to_contain_text("Links")
-
-    # Back to default settings (re-check columns job ID and submit time).
-    page.goto(f"{BASE_URL}/settings/")
-    radio_job_id = page.locator("input#dashboard_job_id_toggle")
-    radio_submit_time = page.locator("input#dashboard_submit_time_toggle")
-    expect(radio_job_id).to_be_checked(checked=False)
-    expect(radio_submit_time).to_be_checked(checked=False)
-    radio_job_id.click()
-    radio_submit_time.click()
-    expect(radio_job_id).to_be_checked(checked=True)
-    expect(radio_submit_time).to_be_checked(checked=True)
-    page.goto(f"{BASE_URL}/jobs/dashboard")
-    headers = page.locator("table#dashboard_table thead tr th")
-    expect(headers).to_have_count(8)
-    expect(headers.nth(0)).to_contain_text("Cluster")
-    expect(headers.nth(1)).to_contain_text("Job ID")
-    expect(headers.nth(2)).to_contain_text("Job name [:20]")
-    expect(headers.nth(3)).to_contain_text("Job state")
-    expect(headers.nth(4)).to_contain_text("Submit time")
-    expect(headers.nth(5)).to_contain_text("Start time")
-    expect(headers.nth(6)).to_contain_text("End time")
-    expect(headers.nth(7)).to_contain_text("Links")
 
 
 def test_jobs_search_columns(page: Page):

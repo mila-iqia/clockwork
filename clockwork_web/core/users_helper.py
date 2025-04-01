@@ -161,7 +161,7 @@ def is_correct_type_for_web_setting(setting_key, setting_value):
             return web_settings_types[setting_key] == bool
 
     else:
-        m = re.match(r"^column_display\.(dashboard|jobs_list)\.(.+)", setting_key)
+        m = re.match(r"^column_display\.jobs_list\.(.+)", setting_key)
         if m:
             # If the web setting is related to the display of a job property on a specific page
             # Check if the job property is consistent
@@ -456,7 +456,7 @@ def disable_dark_mode(mila_email_username):
 
 def enable_column_display(mila_email_username, page_name, column_name):
     """
-    Enable the display of a specific column on the "dashboard" or "jobs list" page
+    Enable the display of a specific column on the "jobs list" page
     for a User.
 
     Parameters:
@@ -479,7 +479,7 @@ def enable_column_display(mila_email_username, page_name, column_name):
 
 def disable_column_display(mila_email_username, page_name, column_name):
     """
-    Disable the display of a specific column on the "dashboard" or "jobs list" page
+    Disable the display of a specific column on "jobs list" page
     for a User.
 
     Parameters:
@@ -574,9 +574,9 @@ def render_template_with_user_settings(template_name_or_list, **context):
         The template rendered by Flask, and containing the web_settings of the
         current user
     """
-    context[
-        "web_settings"
-    ] = current_user.get_web_settings()  # used for templates (old way)
+    context["web_settings"] = (
+        current_user.get_web_settings()
+    )  # used for templates (old way)
     # used for the actual `web_settings` variable from "base.html" (prompted by GEN-160)
     context["web_settings_json_str"] = json.dumps(context["web_settings"])
 

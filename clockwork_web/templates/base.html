@@ -79,7 +79,6 @@
 						    </button>
 							<div class="collapse navbar-collapse" id="navbarSupportedContent">
 								<ul class="navbar-nav mb-2 mb-lg-0">
-									<li class="nav-item"><a class="nav-link" href="{{url_for('index')}}"><i class="fa-solid fa-gauge"></i>{{ gettext("Dashboard") }}</a></li>
 									<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_search')}}"><i class="fa-solid fa-list-check"></i>{{ gettext("Jobs") }}</a></li>
 									<!-- Temporarily hidden
 										<li class="nav-item"><a class="nav-link" href="{{url_for('jobs.route_index')}}"><i class="fa-solid fa-circle-nodes"></i>{{ gettext("Clusters") }}</a></li>-->
@@ -126,7 +125,7 @@
 		</div>
 
 		{% block form %}
-		{% if request.path != '/jobs/dashboard' and current_user.is_authenticated %}
+		{% if current_user.is_authenticated %}
 			<!-- Search jobs form -->
 			<div id="formBlock">
 				<div class="search_button formCollapse {{ 'collapse' if request.path != '/jobs/search' }} {{ 'show' if request.path == '/jobs/search' }}" id="mainCollapse">
