@@ -41,15 +41,13 @@ for job in sorted_mila_jobs:
     )
 
 # Expected jobs table content for first columns (cluster, user (@mila.quebec), job ID).
-JOBS_SEARCH_DEFAULT_TABLE = get_user_jobs_search_default_table("student06@mila.quebec")[
-    :40
-]
+JOBS_SEARCH_DEFAULT_TABLE = get_user_jobs_search_default_table(current_username)[:40]
 
 
 def _load_jobs_search_page(page: Page):
     """Login with student06 and go to jobs search page."""
     # Login
-    page.goto(f"{BASE_URL}/login/testing?user_id=student06@mila.quebec")
+    page.goto(f"{BASE_URL}/login/testing?user_id={current_username}")
     # Go to jobs/search page
     page.goto(f"{BASE_URL}/jobs/search")
 
@@ -101,101 +99,6 @@ def test_jobs_search_default(page: Page):
     _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
 
 
-def test_filter_by_user_only_me(page: Page):
-    _load_jobs_search_page(page)
-    radio_button_only_me = page.locator("input#user_option_only_me")
-    expect(radio_button_only_me).to_be_visible()
-    expect(radio_button_only_me).to_be_checked(checked=False)
-    radio_button_only_me.click()
-    expect(radio_button_only_me).to_be_checked(checked=True)
-    _get_search_button(page).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"username={current_username}"
-        f"&cluster_name=mila"
-        f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
-        f"&nbr_items_per_page=40"
-        f"&sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
-    expected_results = [
-        job
-        for job in AVAILABLE_MILA_JOBS
-        if job[1] == current_username.replace("@", " @")
-    ][:40]
-    _check_jobs_table(
-        page,
-        expected_results,
-    )
-
-    # Back to all users.
-    radio_button_all_users = page.locator("input#user_option_all")
-    expect(radio_button_all_users).to_be_visible()
-    expect(radio_button_all_users).to_be_checked(checked=False)
-    radio_button_all_users.click()
-    expect(radio_button_all_users).to_be_checked(checked=True)
-    _get_search_button(page).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila"
-        f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
-        f"&nbr_items_per_page=40"
-        f"&sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
-
-
-def test_filter_by_user_other_user(page: Page):
-    searched_username = "student05@mila.quebec"
-
-    _load_jobs_search_page(page)
-    radio_button_other_user = page.locator("input#user_option_other")
-    expect(radio_button_other_user).to_be_visible()
-    expect(radio_button_other_user).to_be_checked(checked=False)
-    radio_button_other_user.click()
-    expect(radio_button_other_user).to_be_checked(checked=True)
-
-    input_other_user = page.locator("input#user_option_other_textarea")
-    expect(input_other_user).to_be_visible()
-    input_other_user.type("student05")
-
-    _get_search_button(page).click()
-
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"username={searched_username}"
-        f"&cluster_name=mila"
-        f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
-        f"&nbr_items_per_page=40"
-        f"&sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
-
-    expected_results = []  # A non-admin user can not see other's jobs
-    _check_jobs_table(
-        page,
-        expected_results,
-    )
-
-    # Back to all users.
-    radio_button_all_users = page.locator("input#user_option_all")
-    expect(radio_button_all_users).to_be_visible()
-    expect(radio_button_all_users).to_be_checked(checked=False)
-    radio_button_all_users.click()
-    expect(radio_button_all_users).to_be_checked(checked=True)
-    _get_search_button(page).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila"
-        f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
-        f"&nbr_items_per_page=40"
-        f"&sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
-    _check_jobs_table(page, JOBS_SEARCH_DEFAULT_TABLE)
-
-
 def test_filter_by_cluster_except_one(page: Page):
     # Ignore cluster mila
     _load_jobs_search_page(page)
@@ -209,7 +112,8 @@ def test_filter_by_cluster_except_one(page: Page):
     _get_search_button(page).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"cluster_name="
+        f"username={current_username}"
+        f"&cluster_name="
         f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
         f"&nbr_items_per_page=40&"
         f"sort_by=submit_time"
@@ -246,7 +150,8 @@ def test_filter_by_cluster_except_two(page: Page):
     # Table is not filtered.
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"cluster_name="
+        f"username={current_username}"
+        f"&cluster_name="
         f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
         f"&nbr_items_per_page=40&"
         f"sort_by=submit_time"
@@ -272,7 +177,8 @@ def test_filter_by_status_except_one(page: Page):
     _get_search_button(page).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila"
+        f"username={current_username}"
+        f"&cluster_name=mila"
         f"&aggregated_job_state=COMPLETED,PENDING,FAILED"
         f"&nbr_items_per_page=40"
         f"&sort_by=submit_time"
@@ -307,7 +213,8 @@ def test_filter_by_status_except_one(page: Page):
     _get_search_button(page).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila"
+        f"username={current_username}"
+        f"&cluster_name=mila"
         f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
         f"&nbr_items_per_page=40"
         f"&sort_by=submit_time"
@@ -337,7 +244,8 @@ def test_filter_by_status_except_two(page: Page):
     _get_search_button(page).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila"
+        f"username={current_username}"
+        f"&cluster_name=mila"
         f"&aggregated_job_state=PENDING,FAILED"
         f"&nbr_items_per_page=40"
         f"&sort_by=submit_time"
@@ -379,7 +287,8 @@ def test_filter_by_status_except_two(page: Page):
     _get_search_button(page).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila"
+        f"username={current_username}"
+        f"&cluster_name=mila"
         f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
         f"&nbr_items_per_page=40"
         f"&sort_by=submit_time"
@@ -391,10 +300,6 @@ def test_filter_by_status_except_two(page: Page):
 def test_multiple_filters(page: Page):
     # Only current user, and ignore cluster mila and status running.
     _load_jobs_search_page(page)
-    radio_button_only_me = page.locator("input#user_option_only_me")
-    radio_button_only_me.click()
-    expect(radio_button_only_me).to_be_checked(checked=True)
-
     check_box_cluster_mila = page.locator("input#cluster_toggle_lever_mila")
     check_box_cluster_mila.click()
     expect(check_box_cluster_mila).to_be_checked(checked=False)
@@ -407,7 +312,7 @@ def test_multiple_filters(page: Page):
 
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"username=student06@mila.quebec"
+        f"username={current_username}"
         f"&cluster_name="
         f"&aggregated_job_state=COMPLETED,PENDING,FAILED"
         f"&nbr_items_per_page=40"
@@ -426,7 +331,7 @@ def test_multiple_filters(page: Page):
             job["slurm"]["job_id"],
         ]
         for job in sorted_jobs
-        if job["cw"]["mila_email_username"] == "student06@mila.quebec"
+        if job["cw"]["mila_email_username"] == current_username
         and get_inferred_job_state(get_str_job_state(job["slurm"]["job_state"]))
         in ["COMPLETED", "PENDING", "FAILED"]
     ][:40]
@@ -436,10 +341,6 @@ def test_multiple_filters(page: Page):
     )
 
     # Reset all filters.
-
-    radio_button_all_users = page.locator("input#user_option_all")
-    radio_button_all_users.click()
-    expect(radio_button_all_users).to_be_checked(checked=True)
 
     check_box_cluster_mila_2 = page.locator("input#cluster_toggle_lever_mila")
     expect(check_box_cluster_mila_2).to_be_checked(checked=True)
@@ -451,7 +352,8 @@ def test_multiple_filters(page: Page):
     _get_search_button(page).click()
     expect(page).to_have_url(
         f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila"
+        f"username={current_username}"
+        f"&cluster_name=mila"
         f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
         f"&nbr_items_per_page=40"
         f"&sort_by=submit_time"

@@ -62,6 +62,16 @@ def get_admin_username():
             return user["mila_email_username"]
 
 
+def is_admin(username):
+    """
+    Check in the fake data if a user is an admin
+    """
+    for user in get_fake_data()["users"]:
+        if user["mila_email_username"] == username:
+            return "admin_access" in user and user["admin_access"]
+    return False
+
+
 def get_language(username):
     """
     Retrieve the language of a user
