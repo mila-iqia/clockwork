@@ -7,6 +7,7 @@ from clockwork_frontend_test.utils import (
     get_fake_data,
     get_user_jobs_search_default_table,
     get_language,
+    is_admin,
 )
 from clockwork_web.core.jobs_helper import get_inferred_job_state
 
@@ -144,11 +145,6 @@ def test_jobs_search_default(page: Page, username, expected_results):
     "username,expected_restricted_results, expected_all_results",
     (
         (
-            "student00@mila.quebec",
-            get_user_jobs_search_default_table("student00@mila.quebec"),
-            get_user_jobs_search_default_table("student00@mila.quebec"),
-        ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
-        (
             ADMIN_USERNAME,
             get_user_jobs_search_default_table(ADMIN_USERNAME),
             JOBS_SEARCH_DEFAULT_TABLE,
@@ -201,12 +197,6 @@ def test_filter_by_user_only_me(
 @pytest.mark.parametrize(
     "username, searched_username, expected_restricted_results, expected_all_results",
     (
-        (
-            NON_ADMIN_USERNAME,
-            "student05@mila.quebec",
-            [],
-            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
-        ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
         (
             ADMIN_USERNAME,
             NON_ADMIN_USERNAME,
@@ -295,14 +285,25 @@ def test_filter_by_cluster_except_one(page: Page, username, all_jobs, default_ta
     expect(check_box_cluster_mila).to_be_checked(checked=False)
 
     _get_search_button(page, username).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"cluster_name=narval,cedar,beluga,graham"
-        f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
-        f"&nbr_items_per_page=40&"
-        f"sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
+    if is_admin(username):
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"cluster_name=narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40&"
+            f"sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
+    else:
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"username={username}"
+            f"&cluster_name=narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40&"
+            f"sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
 
     expected_results = [job for job in all_jobs if job[0] != "mila"][:40]
     # Just check that first column (cluster) does not contain "mila".
@@ -318,14 +319,25 @@ def test_filter_by_cluster_except_one(page: Page, username, all_jobs, default_ta
     check_box_cluster_mila_2.click()
     expect(check_box_cluster_mila_2).to_be_checked(checked=True)
     _get_search_button(page, username).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila,narval,cedar,beluga,graham"
-        f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
-        f"&nbr_items_per_page=40"
-        f"&sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
+    if is_admin(username):
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
+    else:
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"username={username}"
+            f"&cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
     _check_jobs_table(page, default_table)
 
 
@@ -363,14 +375,25 @@ def test_filter_by_cluster_except_two(page: Page, username, all_jobs, default_ta
     expect(check_box_cluster_cedar).to_be_checked(checked=False)
 
     _get_search_button(page, username).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"cluster_name=narval,beluga,graham"
-        f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
-        f"&nbr_items_per_page=40&"
-        f"sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
+    if is_admin(username):
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"cluster_name=narval,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40&"
+            f"sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
+    else:
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"username={username}"
+            f"&cluster_name=narval,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40&"
+            f"sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
     # Just check first column (cluster) does not contain neither "mila" nor "cedar".
     expected_results = [
         job for job in all_jobs if job[0] != "mila" and job[0] != "cedar"
@@ -394,14 +417,25 @@ def test_filter_by_cluster_except_two(page: Page, username, all_jobs, default_ta
     expect(check_box_cluster_cedar_2).to_be_checked(checked=True)
 
     _get_search_button(page, username).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila,narval,cedar,beluga,graham"
-        f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
-        f"&nbr_items_per_page=40"
-        f"&sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
+    if is_admin(username):
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
+    else:
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"username={username}"
+            f"&cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
     _check_jobs_table(page, default_table)
 
 
@@ -433,14 +467,25 @@ def test_filter_by_status_except_one(
     expect(check_box_status_running).to_be_checked(checked=False)
 
     _get_search_button(page, username).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila,narval,cedar,beluga,graham"
-        f"&aggregated_job_state=COMPLETED,PENDING,FAILED"
-        f"&nbr_items_per_page=40"
-        f"&sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
+    if is_admin(username):
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
+    else:
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"username={username}"
+            f"&cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
 
     if restrict_jobs:
         restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
@@ -474,14 +519,26 @@ def test_filter_by_status_except_one(
     check_box_status_running_2.click()
     expect(check_box_status_running_2).to_be_checked(checked=True)
     _get_search_button(page, username).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila,narval,cedar,beluga,graham"
-        f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
-        f"&nbr_items_per_page=40"
-        f"&sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
+
+    if is_admin(username):
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
+    else:
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"username={username}"
+            f"&cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
     _check_jobs_table(page, all_status_jobs)
 
 
@@ -521,14 +578,25 @@ def test_filter_by_status_except_two(
     expect(check_box_status_completed).to_be_checked(checked=False)
 
     _get_search_button(page, username).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila,narval,cedar,beluga,graham"
-        f"&aggregated_job_state=PENDING,FAILED"
-        f"&nbr_items_per_page=40"
-        f"&sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
+    if is_admin(username):
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
+    else:
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"username={username}"
+            f"&cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
 
     if restrict_jobs:
         restriction_condition = lambda job: job["cw"]["mila_email_username"] == username
@@ -570,25 +638,31 @@ def test_filter_by_status_except_two(
     expect(check_box_status_completed_2).to_be_checked(checked=True)
 
     _get_search_button(page, username).click()
-    expect(page).to_have_url(
-        f"{BASE_URL}/jobs/search?"
-        f"cluster_name=mila,narval,cedar,beluga,graham"
-        f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
-        f"&nbr_items_per_page=40"
-        f"&sort_by=submit_time"
-        f"&sort_asc=-1"
-    )
+    if is_admin(username):
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
+    else:
+        expect(page).to_have_url(
+            f"{BASE_URL}/jobs/search?"
+            f"username={username}"
+            f"&cluster_name=mila,narval,cedar,beluga,graham"
+            f"&aggregated_job_state=COMPLETED,RUNNING,PENDING,FAILED"
+            f"&nbr_items_per_page=40"
+            f"&sort_by=submit_time"
+            f"&sort_asc=-1"
+        )
     _check_jobs_table(page, all_status_jobs)
 
 
 @pytest.mark.parametrize(
     "username, restrict_jobs, all_base_jobs",
     (
-        (
-            NON_ADMIN_USERNAME,
-            True,
-            get_user_jobs_search_default_table(NON_ADMIN_USERNAME),
-        ),  # A non-admin user can only see his/her own jobs, so it is normally irrelevant, but just in case...
         (
             ADMIN_USERNAME,
             False,
