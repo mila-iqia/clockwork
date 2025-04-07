@@ -8,6 +8,7 @@ from scripts_test.config import get_config
 import string
 import random
 
+random.seed(42)
 
 def test_database_update_users():
     """
