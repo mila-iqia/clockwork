@@ -7,7 +7,6 @@ from slurm_state.config import (
     string,
     optional_string,
     string_list,
-    integer,
     timezone,
     SubdictValidator,
     register_config,
@@ -57,14 +56,8 @@ def _load_clusters_from_config():
     clusters_valid.add_field("timezone", timezone)
 
     # SSH connection and data fetching variables
-    clusters_valid.add_field("remote_user", optional_string)
     clusters_valid.add_field("remote_hostname", optional_string)
 
-    clusters_valid.add_field("ssh_key_filename", string)
-    clusters_valid.add_field("ssh_port", integer)
-
-    clusters_valid.add_field("sacct_path", optional_string)
-    clusters_valid.add_field("sinfo_path", optional_string)
     clusters_valid.add_field("slurm_version", optional_string, default=None)
 
     # Load the clusters from the configuration file, asserting that it uses the

@@ -1,7 +1,5 @@
 {"name": "mila",
     "hostname": "login.server.mila.quebec",
-    "username": "alaingui",
-    "port": 2222,
     "slurm_login_nodes": [ "login-1", "login-2", "login-3", "login-4"],
     "slurm_partitions": ["debug", "long", "cpu_jobs_low-grace", "unkillable", "short-unkillable", "main", "long-grace", "cpu_jobs_low", "cpu_jobs", "main-grace"],
     "slurm_ignore_partitions":
