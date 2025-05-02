@@ -1,7 +1,5 @@
 {"name": "graham",
     "hostname": "graham.computecanada.ca",
-    "username": "mila-automation",
-    "port": 22,
     "slurm_login_nodes": [ ],
     "slurm_partitions": [
         "cpularge_bycore_b4", "cpubase_bycore_b2", "cpularge_bynode_b6", "cpularge_bynode_b3",

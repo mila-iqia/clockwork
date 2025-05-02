@@ -25,37 +25,6 @@ class JobParser(EntityParser):
     def __init__(self, cluster_name, slurm_version=None):
         super().__init__("jobs", cluster_name, "sacct", slurm_version=slurm_version)
 
-    def generate_report(self, file_name):
-
-        # Retrieve the allocations associated to the cluster
-        allocations = self.cluster["allocations"]
-
-        if allocations == []:
-            # If the cluster has no associated allocation, nothing is requested
-            print(
-                f"The cluster {self.cluster['name']} has no allocation related to it. Thus, no job has been retrieved. Associated allocations can be provided in the Clockwork configuration file."
-            )
-            return []
-        else:
-            # Set the sacct command
-            # -S is a condition on the start time, 600 being in seconds
-            # -E is a condition on the end time
-            # -X means "Only show statistics relevant to the job allocation itself, not taking steps into consideration."
-            # --associations is used in order to limit the fetched jobs to the ones related to Mila and/or professors who
-            #                may use Clockwork
-            if allocations == "*":
-                # We do not provide --associations information because the default for this parameter
-                # is "all associations"
-                remote_command = (
-                    f"{self.slurm_command_path} -S now-600 -E now -X --allusers --json"
-                )
-            else:
-                accounts_list = ",".join(allocations)
-                remote_command = f"{self.slurm_command_path} -S now-600 -E now -X --accounts={accounts_list} --allusers --json"
-            print(f"remote_command is\n{remote_command}")
-
-        return super().generate_report(remote_command, file_name)
-
     def parser(self, f):
         """ """
         if re.search(r"^21\..*$", self.slurm_version):

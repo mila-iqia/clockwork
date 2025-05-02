@@ -19,12 +19,6 @@ class NodeParser(EntityParser):
     def __init__(self, cluster_name, slurm_version=None):
         super().__init__("nodes", cluster_name, "sinfo", slurm_version=slurm_version)
 
-    def generate_report(self, file_name):
-        # The command to be launched through SSH is "sinfo --json"
-        remote_command = f"{self.slurm_command_path} --json"
-
-        return super().generate_report(remote_command, file_name)
-
     def parser(self, f):
         """ """
         if re.search(r"^21\..*$", self.slurm_version):
