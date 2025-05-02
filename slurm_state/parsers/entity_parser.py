@@ -21,13 +21,18 @@ class EntityParser:
         # Get the Slurm version associated to the cluster
         if slurm_version is not None:
             self.slurm_version = slurm_version
-        elif "slurm_version" in self.cluster and self.cluster["slurm_version"] is not None:
+        elif (
+            "slurm_version" in self.cluster
+            and self.cluster["slurm_version"] is not None
+        ):
             self.slurm_version = self.cluster["slurm_version"]
         else:
             # If no Slurm version is provided, whether by configuration file nor parameters,
             # raise an error
-            raise Exception(f"No Slurm version has been identified fo the {self.cluster['name']} cluster. Please provide it through the configuration file or the command parameters.")
-        
+            raise Exception(
+                f"No Slurm version has been identified fo the {self.cluster['name']} cluster. Please provide it through the configuration file or the command parameters."
+            )
+
 
 class IdentityParser(EntityParser):
     def __init__(self, entity, cluster_name):
